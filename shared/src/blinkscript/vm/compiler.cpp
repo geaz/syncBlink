@@ -148,22 +148,38 @@ namespace SyncBlink
     {
         conditionExpr.getCondition().accept(*this);
 
-        // get code size of if branch to create JUMP code
+        // get code size of if and else branch to create JUMP code
         auto currentProgram = _targetProgram;
+
         Program ifProgram = Program();
         _targetProgram = &ifProgram;
-
         conditionExpr.getIfBranch().accept(*this);
 
-        _targetProgram = currentProgram;
+        bool elsePresent = conditionExpr.getElseBranch() != nullptr;
+        Program elseProgram = Program();
+        if (elsePresent)
+        {           
+            _targetProgram = &elseProgram;
+            conditionExpr.getElseBranch()->accept(*this); 
+        }
+
+        _targetProgram = currentProgram;        
         _targetProgram->addCode(OpCode::JMP_NOT, conditionExpr.getLine());
         _targetProgram->addCode(OpCode::VALUE, conditionExpr.getLine());
-        _targetProgram->addValueCode(_targetProgram->getCode().size() + ifProgram.getCode().size() + 1.0f,
+        _targetProgram->addValueCode(_targetProgram->getCode().size() + ifProgram.getCode().size() + 1.0f + (elsePresent ? 3.0f : 0 /*JMP of If branch, if else present*/),
                                      conditionExpr.getLine());
 
         conditionExpr.getIfBranch().accept(*this);
-        if (conditionExpr.getElseBranch() != nullptr)
+        if (elsePresent)
+        {
+            // JMP beyond else branch, if the if-branch was executed
+            _targetProgram->addCode(OpCode::JMP, conditionExpr.getLine());
+            _targetProgram->addCode(OpCode::VALUE, conditionExpr.getLine());
+            _targetProgram->addValueCode(_targetProgram->getCode().size() + elseProgram.getCode().size() + 1.0f,
+                                        conditionExpr.getLine());
+
             conditionExpr.getElseBranch()->accept(*this);
+        }
     }
 
     void Compiler::visitFunctionExpression(const FunctionExpression& functionExpr)

@@ -285,12 +285,32 @@ TEST_CASE("VM runs condition expression successfully (3)", "[VM]")
     auto vm = SyncBlink::VM();
     vm.run(program);
 
+    SyncBlink::Disassembler dis;
+    auto disassembledCode = dis.print(program);
+
     REQUIRE(!vm.hasError());
     REQUIRE(vm.getTop().getType() == SyncBlink::ValueType::NUMBER);
     REQUIRE(vm.getTop().number == 3);
 }
 
-TEST_CASE("VM runs condition expression with shadowing successfully (4)", "[VM]")
+TEST_CASE("VM runs condition expression successfully (4)", "[VM]")
+{
+    std::string script = "let k = 2\n"
+                         "if(k == 2) { k = 4 }\n"
+                         "else { k = 3 }\n"
+                         "k";
+
+    auto program = compile(script);
+    auto vm = SyncBlink::VM();
+
+    vm.run(program);
+
+    REQUIRE(!vm.hasError());
+    REQUIRE(vm.getTop().getType() == SyncBlink::ValueType::NUMBER);
+    REQUIRE(vm.getTop().number == 4);
+}
+
+TEST_CASE("VM runs condition expression with shadowing successfully (5)", "[VM]")
 {
     std::string script = "let x = 2\n"
                          "let k = 0\n"
