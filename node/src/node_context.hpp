@@ -20,8 +20,6 @@ namespace SyncBlink
 
         private:
             void checkNewMod();
-            void checkDistributeOrAnswer(Server::Message message, Client::MessageType answerMessageType);
-
             void onSocketClientMessageReceived(Server::Message message);
             void onSocketClientModReceived(std::string mod);
             void onSocketServerMeshConnection();

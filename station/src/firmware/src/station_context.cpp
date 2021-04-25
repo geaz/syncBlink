@@ -58,7 +58,7 @@ namespace SyncBlink
         }
         else
         {
-            Server::CountMessage countMessage = { LED_COUNT, 1 };
+            Server::CountMessage countMessage = { 0, 0 };
             Server::Message message = { millis(), Server::MESH_COUNT_REQUEST };
             message.countMessage = countMessage;
             
@@ -85,7 +85,7 @@ namespace SyncBlink
                 Serial.println("Distributing result of count ...");
 
                 Server::Message message = { millis(), Server::MESH_UPDATE };
-                Server::UpdateMessage updateMessage = { _nodeManager.counted.totalLedCount, _nodeManager.counted.totalNodeCount };
+                Server::UpdateMessage updateMessage = { LED_COUNT, 1, _nodeManager.counted.totalLedCount, _nodeManager.counted.totalNodeCount };
                 message.updateMessage = updateMessage;
 
                 _socketServer.broadcast(message);

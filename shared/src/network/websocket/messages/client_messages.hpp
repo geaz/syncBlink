@@ -28,10 +28,10 @@ namespace SyncBlink
          */
         struct CountedMessage
         {
-            uint32_t routeLedCount;
-            uint32_t routeNodeCount;
-            uint32_t totalLedCount;
-            uint32_t totalNodeCount;
+            uint32_t routeLedCount;     // The LED Count of the longest route of the counted subtree
+            uint32_t routeNodeCount;    // The Node Count of the longest route of the counted subtree
+            uint32_t totalLedCount;     // The total LED Count of the counted subtree
+            uint32_t totalNodeCount;    // The total Node Count of the counted subtree
         };
 
         /**

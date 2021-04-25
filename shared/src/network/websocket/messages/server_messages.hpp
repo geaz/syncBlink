@@ -26,8 +26,8 @@ namespace SyncBlink
          */
         struct CountMessage
         {
-            uint32_t routeLedCount;  // The amount of previous LEDs in the current node route
-            uint32_t routeNodeCount; // The amount of previous nodes in the current route
+            uint32_t treeLedCount;  // The total amount of leds in the current tree
+            uint32_t treeNodeCount; // The total amount of nodes in the current tree
         };
 
         /**
@@ -35,6 +35,8 @@ namespace SyncBlink
          */
         struct UpdateMessage
         {
+            uint32_t routeLedCount;
+            uint32_t routeNodeCount;
             uint32_t meshLedCount;      // The total amount of LEDs in the mesh
             uint32_t meshNodeCount;     // The total amount of nodes in the mesh
         };

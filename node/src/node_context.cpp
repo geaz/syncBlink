@@ -59,43 +59,47 @@ namespace SyncBlink
         }
     }
 
-    void NodeContext::checkDistributeOrAnswer(Server::Message message, Client::MessageType answerMessageType)
-    {
-        if(_socketServer.getClientsCount() == 0)
-        {
-            Client::Message answerMessage = { message.id, answerMessageType };
-            if(answerMessageType == Client::MESH_COUNTED)
-            {
-                answerMessage.countedMessage = { 
-                    message.countMessage.routeLedCount, message.countMessage.routeNodeCount, 
-                    message.countMessage.routeLedCount, message.countMessage.routeNodeCount 
-                };
-            }
-            _socketClient.sendMessage(answerMessage);
-        }
-        else { _socketServer.broadcast(message); }
-    }
-
     void NodeContext::onSocketClientMessageReceived(Server::Message message)
     {
         switch (message.messageType)
         {
             case Server::MESH_COUNT_REQUEST:
-                Serial.println("MESH_COUNT_REQUEST received...");
-                
-                _previousLedCount = message.countMessage.routeLedCount;
-                _previousNodeCount = message.countMessage.routeNodeCount;
-
-                message.countMessage.routeNodeCount++;
-                message.countMessage.routeLedCount += LED_COUNT;
-
-                checkDistributeOrAnswer(message, Client::MESH_COUNTED);
+            {
+                if(_socketServer.getClientsCount() != 0)
+                {
+                    // Start new tree Count
+                    message.countMessage.treeLedCount = 0;
+                    message.countMessage.treeNodeCount = 0;
+                    _socketServer.broadcast(message);
+                }
+                else
+                {
+                    Client::Message answerMessage = { message.id, Client::MESH_COUNTED };
+                    answerMessage.countedMessage = { LED_COUNT, 1, LED_COUNT, 1 };
+                    _socketClient.sendMessage(answerMessage);
+                }
                 break;
+            }
             case Server::MESH_UPDATE:
+            {
+                _previousLedCount = message.updateMessage.routeLedCount;
+                _previousNodeCount = message.updateMessage.routeNodeCount;
                 _meshLedCount = message.updateMessage.meshLedCount;
-                _meshNodeCount = message.updateMessage.meshNodeCount;                
-                checkDistributeOrAnswer(message, Client::MESH_UPDATED);
+                _meshNodeCount = message.updateMessage.meshNodeCount;   
+
+                if(_socketServer.getClientsCount() != 0)
+                {
+                    message.updateMessage.routeNodeCount++;
+                    message.updateMessage.routeLedCount += LED_COUNT;
+                    _socketServer.broadcast(message);
+                }
+                else
+                {
+                    Client::Message answerMessage = { message.id, Client::MESH_UPDATED };
+                    _socketClient.sendMessage(answerMessage);
+                }
                 break;
+            }
             case Server::ANALYZER_UPDATE:
                 if(_blinkScript != nullptr)
                 {

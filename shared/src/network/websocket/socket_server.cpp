@@ -1,4 +1,5 @@
 #include "socket_server.hpp"
+#include <iostream>
 
 namespace SyncBlink
 {
@@ -25,16 +26,17 @@ namespace SyncBlink
         {
         case Server::MESH_COUNT_REQUEST:
             _waitFor = Client::MESH_COUNTED;
+            _sendMessage = message;
             break;
         case Server::MESH_UPDATE:
             _waitFor = Client::MESH_UPDATED;
+            _sendMessage = message;
+            break;
         default:
             // No other message types are required to wait
             // Mod Distribution will be handled in "broadcastMod"
             break;
         }
-
-        _sendMessage = message;
         _webSocket.broadcastBIN(&serializedMessage[0], messageSize);
     }
 
@@ -75,14 +77,12 @@ namespace SyncBlink
     }
 
     void SocketServer::handleReceivedMessage(Client::Message receivedMessage)
-    {
-        bool allReceived = true;
-
-        if (_waitFor == receivedMessage.messageType &&
-            (_sendMessage.id == receivedMessage.id || _waitFor == Client::MOD_DISTRIBUTED))
+    {        
+        bool forwardMessage = false;
+        if(_waitFor == receivedMessage.messageType && (_sendMessage.id == receivedMessage.id || _waitFor == Client::MOD_DISTRIBUTED))
         {
             _answers++;
-            allReceived = _answers == _webSocket.connectedClients();
+            forwardMessage = _answers == _webSocket.connectedClients();
 
             switch (receivedMessage.messageType)
             {
@@ -91,16 +91,20 @@ namespace SyncBlink
                     _savedMessage = receivedMessage;
                 else
                 {
-                    _savedMessage.countedMessage.totalLedCount +=
-                        receivedMessage.countedMessage.totalLedCount -
-                        LED_COUNT; // Substract own LEDs - they were already counted together with the first received
-                                   // message (if branch)
-                    _savedMessage.countedMessage.totalNodeCount +=
-                        receivedMessage.countedMessage.totalNodeCount - 1; // Same as above
+                    _savedMessage.countedMessage.totalLedCount += receivedMessage.countedMessage.totalLedCount;
+                    _savedMessage.countedMessage.totalNodeCount += receivedMessage.countedMessage.totalNodeCount;
                     if (_savedMessage.countedMessage.routeLedCount < receivedMessage.countedMessage.routeLedCount)
                         _savedMessage.countedMessage.routeLedCount = receivedMessage.countedMessage.routeLedCount;
                     if (_savedMessage.countedMessage.routeNodeCount < receivedMessage.countedMessage.routeNodeCount)
                         _savedMessage.countedMessage.routeNodeCount = receivedMessage.countedMessage.routeNodeCount;
+                }
+
+                if(forwardMessage) // Last answer received
+                {
+                    _savedMessage.countedMessage.totalNodeCount++;
+                    _savedMessage.countedMessage.totalLedCount += LED_COUNT;
+                    _savedMessage.countedMessage.routeNodeCount++;
+                    _savedMessage.countedMessage.routeLedCount += LED_COUNT;
                 }
                 break;
             default:
@@ -108,17 +112,22 @@ namespace SyncBlink
                 break;
             }
 
-            if (allReceived)
+            if (forwardMessage)
             {
-                _answers = 0;
-                _waitFor = Client::NONE;
                 receivedMessage = _savedMessage;
+                _answers = 0;
+                _savedMessage.id = 0;
+                _waitFor = SyncBlink::Client::NONE;
             }
         }
-
-        if (allReceived)
+        else if(receivedMessage.messageType == Client::EXTERNAL_ANALYZER 
+            ||receivedMessage.messageType == Client::MESH_CONNECTION)
         {
-            _savedMessage.id = 0;
+            forwardMessage = true;
+        }
+
+        if (forwardMessage)
+        {
             for (auto event : messageEvents.getEventHandlers())
                 event.second(receivedMessage);
         }
