@@ -1,0 +1,1 @@
+for /r src %%t in (*.cpp *.h) do clang-format -i -style=file "%%t"

@@ -1,0 +1,19 @@
+{
+	"folders": [
+		{
+			"path": "node"
+		},
+		{
+			"path": "shared"
+		},
+		{
+			"path": "station\\src\\firmware"
+		},
+		{
+			"path": "station\\src\\web"
+		},
+		{
+			"path": "."
+		}
+	]
+}

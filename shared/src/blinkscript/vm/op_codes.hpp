@@ -1,0 +1,31 @@
+namespace SyncBlink
+{
+    enum OpCode
+    {
+        CALL,
+        VALUE,
+        DEFINE,
+        LOAD,
+        SET,
+        SET_INDEX,
+        BANG_NEGATE,
+        NEGATE,
+        MUL,
+        DIV,
+        SUB,
+        ADD,
+        AND,
+        OR,
+        LESS,
+        LESS_EQUAL,
+        GREATER,
+        GREATER_EQUAL,
+        EQUAL_EQUAL,
+        BANG_EQUAL,
+        JMP,
+        JMP_NOT,
+        FRAME,
+        UNFRAME,
+        INDEX
+    };
+};

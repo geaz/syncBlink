@@ -1,0 +1,23 @@
+{
+    "name": "syncBlinkAPI",
+    "keywords": "music, pixel, mesh, api, syncBlink",
+    "description": "API for syncBlink. A WiFi connected, programmable and music reactive light system",
+    "repository":
+    {
+      "type": "git",
+      "url": "https://github.com/syncBlink/syncBlink.git"
+    },
+    "authors":
+    [
+      {
+        "name": "Gerrit 'Geaz' Gazic",
+        "email": "geaz@outlook.de",
+        "maintainer": true
+      }
+    ],
+    "srcDir": "shared/src",
+    "version": "0.8.0",
+    "frameworks": ["arduino"],
+    "platforms": "*"
+  }
+  
