@@ -1,15 +1,13 @@
 #include "node_context.hpp"
 
 #include <EEPROM.h>
+#include <ESP8266httpUpdate.h>
 
 namespace SyncBlink
 {
     void NodeContext::setup()
     {     
         _led.setup(readLedCount());
-        _socketServer
-            .meshConnectionEvents
-            .addEventHandler([this]() { onSocketServerMeshConnection(); });
         _socketServer
             .messageEvents
             .addEventHandler([this](Client::Message message) { onSocketServerMessageReceived(message); });
@@ -19,12 +17,15 @@ namespace SyncBlink
         _socketClient
             .meshModEvents
             .addEventHandler([this](std::string mod) {onSocketClientModReceived(mod); });
+        _socketClient
+            .connectionEvents
+            .addEventHandler([this](bool isConnected) { if(isConnected) _led.blinkNow(Green); else _led.blinkNow(Red); });
         
         WiFi.disconnect();
         if(_mesh.tryJoinMesh())
         {
-            Serial.println("Connected to SyncBlink mesh! Starting operation ...");
-            _socketClient.start(_mesh.getParentIp().toString());
+            Serial.printf("Connected to SyncBlink mesh! Starting operation (v%f)...\n", (float)VERSION);
+            _socketClient.start(_mesh.getParentIp().toString(), (float)VERSION);
         }
         else
         {
@@ -40,6 +41,7 @@ namespace SyncBlink
         _socketClient.loop();
         _socketServer.loop();
         _led.loop();
+
         if(!_mesh.isConnected())
         {
             Serial.println("Websocket and WiFi disconnected! Going to sleep ...");
@@ -77,6 +79,13 @@ namespace SyncBlink
     {
         switch (message.messageType)
         {
+            case Server::START_OTA_UPDATE:
+            {
+                _led.setAllLeds(Yellow);
+                _led.loop();
+                ESPhttpUpdate.update(_mesh.getParentIp().toString(), 80, "/ota");
+                break;
+            }
             case Server::MESH_COUNT_REQUEST:
             {
                 if(_socketServer.getClientsCount() != 0)
@@ -143,13 +152,6 @@ namespace SyncBlink
             _socketClient.sendMessage(message);
         }
         else _socketServer.broadcastMod(mod);
-    }    
-
-    void NodeContext::onSocketServerMeshConnection()
-    {
-        Serial.println("Got a new connection. Informing parent node ...");
-        Client::Message message = { millis(), Client::MESH_CONNECTION };
-        _socketClient.sendMessage(message);
     }
 
     void NodeContext::onSocketServerMessageReceived(Client::Message message)

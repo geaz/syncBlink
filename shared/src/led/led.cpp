@@ -77,4 +77,17 @@ namespace SyncBlink
             _groups[i].clear();
         _groupsSet = false;
     }
+
+    void LED::blinkNow(const Color color)
+    {
+        for(uint8_t i = 0; i < 3; i++)
+        {
+            setAllLeds(color);
+            loop();
+            delay(250);
+            setAllLeds(Black);
+            loop();
+            delay(250);
+        }        
+    }
 }

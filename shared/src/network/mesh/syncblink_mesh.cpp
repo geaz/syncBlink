@@ -2,6 +2,19 @@
 
 namespace SyncBlink
 {
+    uint64_t getId()
+    {
+        uint8_t mac[6];
+        wifi_get_macaddr(STATION_IF, mac);
+        
+        uint64_t id = 0;
+        for(uint8_t i = 0; i < 6; i++)
+        {
+            id += (uint64_t)mac[i] << (i*8);
+        }
+        return id;
+    }
+    
     SyncBlinkMesh::SyncBlinkMesh()
     {
         WiFi.mode(WIFI_AP_STA);

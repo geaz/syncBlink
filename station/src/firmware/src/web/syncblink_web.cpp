@@ -23,7 +23,7 @@ namespace SyncBlink
 
         _server.on("/api/mods/getModSettings", [this]() { getModSettings(); });
         _server.on("/api/mods/setModSettings", [this]() { setModSettings(); });
-
+        
         _server.serveStatic("/", LittleFS, "/public/");
         _server.begin();
     }

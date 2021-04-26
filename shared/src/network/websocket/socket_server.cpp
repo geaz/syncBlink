@@ -1,5 +1,5 @@
 #include "socket_server.hpp"
-#include <iostream>
+#include "network/mesh/syncblink_mesh.hpp"
 
 namespace SyncBlink
 {
@@ -54,16 +54,6 @@ namespace SyncBlink
         IPAddress remoteIp = _webSocket.remoteIP(num);
         switch (type)
         {
-        case WStype_DISCONNECTED:
-            Serial.println("Client disconnected!");
-            for (auto event : meshConnectionEvents.getEventHandlers())
-                event.second();
-            break;
-        case WStype_CONNECTED:
-            Serial.println("Connection from: " + remoteIp.toString());
-            for (auto event : meshConnectionEvents.getEventHandlers())
-                event.second();
-            break;
         case WStype_BIN:
             Client::Message receivedMessage;
             memcpy(&receivedMessage, payload, length);
@@ -76,6 +66,7 @@ namespace SyncBlink
 
     void SocketServer::handleReceivedMessage(Client::Message receivedMessage)
     {        
+        Serial.println(receivedMessage.messageType);
         bool forwardMessage = false;
         auto iter = _waitInfos.find(receivedMessage.id);
         if(iter != _waitInfos.end())
@@ -110,10 +101,17 @@ namespace SyncBlink
                 _waitInfos.erase(iter->first);
             }
         }
-        else if(receivedMessage.messageType == Client::EXTERNAL_ANALYZER 
-            ||receivedMessage.messageType == Client::MESH_CONNECTION)
+        else if(receivedMessage.messageType == Client::EXTERNAL_ANALYZER)
         {
             forwardMessage = true;
+        }
+        else if(receivedMessage.messageType == Client::MESH_CONNECTION)
+        {
+            forwardMessage = true;
+            if(receivedMessage.connectionMessage.parentId == 0)
+                receivedMessage.connectionMessage.parentId = SyncBlink::getId();
+            Serial.printf("Mesh Connection: Client %12llx, Parent %12llx, Firmware Version: %f\n",
+                message.connectionMessage.clientId, message.connectionMessage.parentId, message.connectionMessage.firmwareVersion);
         }
 
         if (forwardMessage)

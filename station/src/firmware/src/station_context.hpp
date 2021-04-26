@@ -49,7 +49,6 @@ namespace SyncBlink
         private:
             void checkReset();
             void startMeshCount();
-            void onSocketServerMeshConnection();
             void onSocketServerCommandReceived(Client::Message message);
 
             LED _led;

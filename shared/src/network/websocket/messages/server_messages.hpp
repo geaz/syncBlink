@@ -18,7 +18,8 @@ namespace SyncBlink
             MESH_COUNT_REQUEST, // A request to count all LEDs and Nodes in the mesh
             MESH_UPDATE,        // A request with updated LED and node counts
             SOURCE_UPDATE,      // A request with updated analyzer source information
-            ANALYZER_UPDATE     // A request with updated analyzer information           
+            ANALYZER_UPDATE,    // A request with updated analyzer information
+            START_OTA_UPDATE    // A request to start a OTA update of all connected nodes           
         };
 
         /**

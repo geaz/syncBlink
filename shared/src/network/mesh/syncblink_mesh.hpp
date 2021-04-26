@@ -9,6 +9,8 @@ namespace SyncBlink
     static const String SSID = "SyncBlink Network";
     static const String Password = "SyncBlinkSaysLetThereBeLight!";
 
+    uint64_t getId();
+
     class SyncBlinkMesh
     {
     public:

@@ -30,7 +30,6 @@ namespace SyncBlink
 
         uint32_t getClientsCount();
 
-        EventRegistration<MeshConnectionEvent> meshConnectionEvents;
         EventRegistration<ServerMessageEvent> messageEvents;
 
     private:

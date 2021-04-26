@@ -22,6 +22,13 @@ namespace SyncBlink
             EXTERNAL_ANALYZER // Analyzer information by an external analyzer (defined in *SoundAnalyzerSource* enum)
         };
 
+        struct ConnectionMessage
+        {
+            uint64_t clientId;
+            uint64_t parentId;
+            float firmwareVersion;
+        };
+
         /**
          * @brief   This message is the answer to the Server::MESH_COUNT_REQUEST
          *          It contains the total amount of LEDs counted in on of the mesh routes.
@@ -44,6 +51,7 @@ namespace SyncBlink
             MessageType messageType;
             union {
                 CountedMessage countedMessage;
+                ConnectionMessage connectionMessage;
                 AudioAnalyzerMessage audioAnalyzerMessage;
             };
         };

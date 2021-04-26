@@ -20,9 +20,6 @@ namespace SyncBlink
         _socketServer
             .messageEvents
             .addEventHandler([this](Client::Message message) { onSocketServerCommandReceived(message); });
-        _socketServer
-            .meshConnectionEvents
-            .addEventHandler([this]() { onSocketServerMeshConnection(); });
         _wifi.connectWifi();
     }
 
@@ -65,11 +62,6 @@ namespace SyncBlink
             
             _socketServer.broadcast(message);
         }
-    }
-
-    void StationContext::onSocketServerMeshConnection()
-    {
-        startMeshCount();
     }
 
     void StationContext::onSocketServerCommandReceived(Client::Message message)
