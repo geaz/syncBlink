@@ -18,7 +18,6 @@ Please add the following libraries as dependencies to your PlatformIO project:
 Please define the following macros:
 
 - LED_PIN       D4
-- LED_COUNT      9
 - FFT_SQRT_APPROXIMATION
 - FFT_SPEED_OVER_PRECISION
 

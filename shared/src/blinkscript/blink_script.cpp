@@ -51,8 +51,8 @@ namespace SyncBlink
 
         // Add global vars
         saveAddToScope("maxF", Value((float)MaxFrequency));
-        saveAddToScope("nLedC", Value((float)LED_COUNT));
-        saveAddToScope("mLedC", Value((float)LED_COUNT));
+        saveAddToScope("nLedC", Value((float)_led.getLedCount()));
+        saveAddToScope("mLedC", Value((float)_led.getLedCount()));
         saveAddToScope("pLedC", Value(0.0f));
         saveAddToScope("pNodeC", Value(0.0f));
         saveAddToScope("lVol", Value(0.0f));

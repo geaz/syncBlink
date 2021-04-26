@@ -19,6 +19,8 @@ namespace SyncBlink
             void loop();
 
         private:
+            uint32_t readLedCount();
+
             void checkNewMod();
             void onSocketClientMessageReceived(Server::Message message);
             void onSocketClientModReceived(std::string mod);
@@ -30,6 +32,7 @@ namespace SyncBlink
             SocketServer _socketServer;
             SocketClient _socketClient;
 
+            uint32_t _nodeLedCount = 0;
             uint32_t _meshLedCount = 0;
             uint32_t _meshNodeCount = 0;
             uint32_t _previousLedCount = 0;

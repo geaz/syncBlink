@@ -12,10 +12,11 @@ namespace SyncBlink
     }
 
     void StationContext::setup()
-    {
+    {        
         _display.init();
         _display.setView(std::make_shared<SyncBlink::SplashView>());
         _display.loop();
+        _led.setup(LED_COUNT);
         _socketServer
             .messageEvents
             .addEventHandler([this](Client::Message message) { onSocketServerCommandReceived(message); });
@@ -53,8 +54,8 @@ namespace SyncBlink
         if(_socketServer.getClientsCount() == 0)
         {
             Serial.println("No nodes connected!");
-            Serial.printf("SyncBlink Station alone with %d LEDs :(\n", LED_COUNT);
-            _nodeManager.counted = { LED_COUNT, 1, LED_COUNT, 1 };
+            Serial.printf("SyncBlink Station alone with %d LEDs :(\n", _led.getLedCount());
+            _nodeManager.counted = { _led.getLedCount(), 1, _led.getLedCount(), 1 };
         }
         else
         {
@@ -85,7 +86,7 @@ namespace SyncBlink
                 Serial.println("Distributing result of count ...");
 
                 Server::Message message = { millis(), Server::MESH_UPDATE };
-                Server::UpdateMessage updateMessage = { LED_COUNT, 1, _nodeManager.counted.totalLedCount, _nodeManager.counted.totalNodeCount };
+                Server::UpdateMessage updateMessage = { _led.getLedCount(), 1, _nodeManager.counted.totalLedCount, _nodeManager.counted.totalNodeCount };
                 message.updateMessage = updateMessage;
 
                 _socketServer.broadcast(message);

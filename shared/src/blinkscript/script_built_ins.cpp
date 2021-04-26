@@ -32,7 +32,7 @@ namespace SyncBlink
             vm.addNativeFun("setLinearGroupsOf", std::make_shared<NativeFunObj>(
                                                [&blinkScript](Frame frame) {
                                                    uint32_t countPerGroup = (uint32_t)frame.get("arg0").number;
-                                                   for (uint32_t i = 0; i < LED_COUNT / countPerGroup; i++)
+                                                   for (uint32_t i = 0; i < blinkScript.getLed().getLedCount() / countPerGroup; i++)
                                                    {
                                                        std::vector<uint32_t> ledIndices;
                                                        for (uint32_t j = 0; j < countPerGroup; j++)
@@ -51,7 +51,7 @@ namespace SyncBlink
             vm.addNativeFun("setGroupsOf", 
                 std::make_shared<NativeFunObj>([&blinkScript](Frame frame) {
                         uint32_t countPerGroup = (uint32_t)frame.get("arg0").number;
-                        uint32_t groupCount = LED_COUNT/countPerGroup;
+                        uint32_t groupCount = blinkScript.getLed().getLedCount()/countPerGroup;
                         for(uint32_t i = 0; i < groupCount; i++)
                         {
                             std::vector<uint32_t> ledIndices;

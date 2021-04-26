@@ -8,7 +8,7 @@ namespace SyncBlink
     class NodeManager
     {
     public:
-        Client::CountedMessage counted = { LED_COUNT, 1, LED_COUNT, 1 };
+        Client::CountedMessage counted = {0,0,0,0};
     };
 }
 

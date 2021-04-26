@@ -1,9 +1,12 @@
 #include "node_context.hpp"
 
+#include <EEPROM.h>
+
 namespace SyncBlink
 {
     void NodeContext::setup()
-    {
+    {     
+        _led.setup(readLedCount());
         _socketServer
             .meshConnectionEvents
             .addEventHandler([this]() { onSocketServerMeshConnection(); });
@@ -46,6 +49,17 @@ namespace SyncBlink
         }
     }
 
+    uint32_t NodeContext::readLedCount()
+    {
+        uint32_t leds = 0;
+        for(int i = 0; i < 4; i++)
+        {
+            leds += EEPROM.read(i) << (i*8);
+        }
+        Serial.printf("EEPROM LED Count: %i\n", leds);
+        return leds;
+    }
+
     void NodeContext::checkNewMod()
     {
         if(_newMod)
@@ -75,7 +89,7 @@ namespace SyncBlink
                 else
                 {
                     Client::Message answerMessage = { message.id, Client::MESH_COUNTED };
-                    answerMessage.countedMessage = { LED_COUNT, 1, LED_COUNT, 1 };
+                    answerMessage.countedMessage = { _nodeLedCount, 1, _nodeLedCount, 1 };
                     _socketClient.sendMessage(answerMessage);
                 }
                 break;
@@ -90,7 +104,7 @@ namespace SyncBlink
                 if(_socketServer.getClientsCount() != 0)
                 {
                     message.updateMessage.routeNodeCount++;
-                    message.updateMessage.routeLedCount += LED_COUNT;
+                    message.updateMessage.routeLedCount += _nodeLedCount;
                     _socketServer.broadcast(message);
                 }
                 else
@@ -125,7 +139,7 @@ namespace SyncBlink
         if(_socketServer.getClientsCount() == 0)
         {
             Serial.println("End of route - Sending MOD_DISTRIBUTED");
-            Client::Message message = { millis(), Client::MOD_DISTRIBUTED };
+            Client::Message message = { 0, Client::MOD_DISTRIBUTED };
             _socketClient.sendMessage(message);
         }
         else _socketServer.broadcastMod(mod);

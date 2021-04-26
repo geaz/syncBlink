@@ -25,12 +25,10 @@ namespace SyncBlink
         switch (message.messageType)
         {
         case Server::MESH_COUNT_REQUEST:
-            _waitFor = Client::MESH_COUNTED;
-            _sendMessage = message;
+            _waitInfos[message.id] = {0};
             break;
-        case Server::MESH_UPDATE:
-            _waitFor = Client::MESH_UPDATED;
-            _sendMessage = message;
+        case Server::MESH_UPDATE:            
+            _waitInfos[message.id] = {0};
             break;
         default:
             // No other message types are required to wait
@@ -42,7 +40,7 @@ namespace SyncBlink
 
     void SocketServer::broadcastMod(std::string& mod)
     {
-        _waitFor = Client::MOD_DISTRIBUTED;
+        _waitInfos[0] = {0};
         _webSocket.broadcastTXT(mod.c_str(), mod.length());
     }
 
@@ -79,45 +77,37 @@ namespace SyncBlink
     void SocketServer::handleReceivedMessage(Client::Message receivedMessage)
     {        
         bool forwardMessage = false;
-        if(_waitFor == receivedMessage.messageType && (_sendMessage.id == receivedMessage.id || _waitFor == Client::MOD_DISTRIBUTED))
+        auto iter = _waitInfos.find(receivedMessage.id);
+        if(iter != _waitInfos.end())
         {
-            _answers++;
-            forwardMessage = _answers == _webSocket.connectedClients();
+            auto& waitInfo = iter->second;
+            waitInfo.receivedAnswers++;
+            forwardMessage = waitInfo.receivedAnswers == _webSocket.connectedClients();
 
             switch (receivedMessage.messageType)
             {
-            case Client::MESH_COUNTED:
-                if (_savedMessage.id == 0)
-                    _savedMessage = receivedMessage;
+            case SyncBlink::Client::MESH_COUNTED:
+                if (waitInfo.savedAnswer.id == 0)
+                    waitInfo.savedAnswer = receivedMessage;
                 else
                 {
-                    _savedMessage.countedMessage.totalLedCount += receivedMessage.countedMessage.totalLedCount;
-                    _savedMessage.countedMessage.totalNodeCount += receivedMessage.countedMessage.totalNodeCount;
-                    if (_savedMessage.countedMessage.routeLedCount < receivedMessage.countedMessage.routeLedCount)
-                        _savedMessage.countedMessage.routeLedCount = receivedMessage.countedMessage.routeLedCount;
-                    if (_savedMessage.countedMessage.routeNodeCount < receivedMessage.countedMessage.routeNodeCount)
-                        _savedMessage.countedMessage.routeNodeCount = receivedMessage.countedMessage.routeNodeCount;
-                }
-
-                if(forwardMessage) // Last answer received
-                {
-                    _savedMessage.countedMessage.totalNodeCount++;
-                    _savedMessage.countedMessage.totalLedCount += LED_COUNT;
-                    _savedMessage.countedMessage.routeNodeCount++;
-                    _savedMessage.countedMessage.routeLedCount += LED_COUNT;
+                    waitInfo.savedAnswer.countedMessage.totalLedCount += receivedMessage.countedMessage.totalLedCount;
+                    waitInfo.savedAnswer.countedMessage.totalNodeCount += receivedMessage.countedMessage.totalNodeCount;
+                    if (waitInfo.savedAnswer.countedMessage.routeLedCount < receivedMessage.countedMessage.routeLedCount)
+                        waitInfo.savedAnswer.countedMessage.routeLedCount = receivedMessage.countedMessage.routeLedCount;
+                    if (waitInfo.savedAnswer.countedMessage.routeNodeCount < receivedMessage.countedMessage.routeNodeCount)
+                        waitInfo.savedAnswer.countedMessage.routeNodeCount = receivedMessage.countedMessage.routeNodeCount;
                 }
                 break;
             default:
-                _savedMessage = receivedMessage;
+                waitInfo.savedAnswer = receivedMessage;
                 break;
             }
 
             if (forwardMessage)
             {
-                receivedMessage = _savedMessage;
-                _answers = 0;
-                _savedMessage.id = 0;
-                _waitFor = SyncBlink::Client::NONE;
+                receivedMessage = waitInfo.savedAnswer;
+                _waitInfos.erase(iter->first);
             }
         }
         else if(receivedMessage.messageType == Client::EXTERNAL_ANALYZER 
