@@ -48,7 +48,7 @@ namespace SyncBlink
                 if(_modDistributed)
                 {
                     auto blinkScript = std::make_shared<BlinkScript>(context.getLed(), _mod);
-                    blinkScript->updateLedInfo(0, 0, context.getNodeManager().counted.totalLedCount);
+                    blinkScript->updateLedInfo(0, 0, context.getNodeManager().getTotalLedCount());
                     blinkScript->init();
 
                     Server::SourceMessage sourceMessage = { context.getModManager().getActiveSource() };

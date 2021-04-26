@@ -8,24 +8,28 @@ namespace SyncBlink
     void NodeContext::setup()
     {     
         _led.setup(readLedCount());
-        _socketServer
-            .messageEvents
-            .addEventHandler([this](Client::Message message) { onSocketServerMessageReceived(message); });
+
         _socketClient
             .messageEvents
             .addEventHandler([this](Server::Message message) { onSocketClientMessageReceived(message); });
         _socketClient
             .meshModEvents
-            .addEventHandler([this](std::string mod) {onSocketClientModReceived(mod); });
+            .addEventHandler([this](std::string mod) { onSocketClientModReceived(mod); });
         _socketClient
             .connectionEvents
-            .addEventHandler([this](bool isConnected) { if(isConnected) _led.blinkNow(Green); else _led.blinkNow(Red); });
+            .addEventHandler([this](bool connected) { onSocketClientConnectionChanged(connected); });
+        _socketServer
+            .serverDisconnectionEvents
+            .addEventHandler([this](uint64_t clientId) { onSocketServerDisconnection(clientId); });
+        _socketServer
+            .messageEvents
+            .addEventHandler([this](Client::Message message) { onSocketServerMessageReceived(message); });
         
         WiFi.disconnect();
         if(_mesh.tryJoinMesh())
         {
             Serial.printf("Connected to SyncBlink mesh! Starting operation (v%f)...\n", (float)VERSION);
-            _socketClient.start(_mesh.getParentIp().toString(), (float)VERSION);
+            _socketClient.start(_mesh.getParentIp().toString());
         }
         else
         {
@@ -79,30 +83,6 @@ namespace SyncBlink
     {
         switch (message.messageType)
         {
-            case Server::START_OTA_UPDATE:
-            {
-                _led.setAllLeds(Yellow);
-                _led.loop();
-                ESPhttpUpdate.update(_mesh.getParentIp().toString(), 80, "/ota");
-                break;
-            }
-            case Server::MESH_COUNT_REQUEST:
-            {
-                if(_socketServer.getClientsCount() != 0)
-                {
-                    // Start new tree Count
-                    message.countMessage.treeLedCount = 0;
-                    message.countMessage.treeNodeCount = 0;
-                    _socketServer.broadcast(message);
-                }
-                else
-                {
-                    Client::Message answerMessage = { message.id, Client::MESH_COUNTED };
-                    answerMessage.countedMessage = { _nodeLedCount, 1, _nodeLedCount, 1 };
-                    _socketClient.sendMessage(answerMessage);
-                }
-                break;
-            }
             case Server::MESH_UPDATE:
             {
                 _previousLedCount = message.updateMessage.routeLedCount;
@@ -130,7 +110,8 @@ namespace SyncBlink
                     _lastUpdate = millis();
                     
                     _blinkScript->updateAnalyzerResult(message.analyzerMessage.volume, message.analyzerMessage.frequency);
-                    _blinkScript->run(delta);                    
+                    _blinkScript->run(delta);
+
                     _socketServer.broadcast(message);
                 }
                 break;
@@ -148,10 +129,30 @@ namespace SyncBlink
         if(_socketServer.getClientsCount() == 0)
         {
             Serial.println("End of route - Sending MOD_DISTRIBUTED");
-            Client::Message message = { 0, Client::MOD_DISTRIBUTED };
-            _socketClient.sendMessage(message);
+            _socketClient.sendMessage({ millis(), Client::MOD_DISTRIBUTED });
         }
         else _socketServer.broadcastMod(mod);
+    }
+
+    void NodeContext::onSocketClientConnectionChanged(bool connected)
+    {
+         if(connected)
+         {
+             _led.blinkNow(Green);
+
+            Client::Message message = { millis(), Client::MESH_CONNECTION };
+            message.connectionMessage = { SyncBlink::getId(), 0, _led.getLedCount(), (float)VERSION };
+            _socketClient.sendMessage(message);
+         }
+         else _led.blinkNow(Red); 
+    }
+
+    void NodeContext::onSocketServerDisconnection(uint64_t clientId)
+    {
+        Client::Message message = { millis(), Client::MESH_DISCONNECTION };
+        message.disconnectedClientId = { clientId };
+
+        _socketClient.sendMessage(message);
     }
 
     void NodeContext::onSocketServerMessageReceived(Client::Message message)
@@ -159,12 +160,11 @@ namespace SyncBlink
         switch (message.messageType)
         {
             case Client::MESH_CONNECTION:
-            case Client::MESH_COUNTED:
+            case Client::MESH_DISCONNECTION:
             case Client::MESH_UPDATED:
             case Client::MOD_DISTRIBUTED:
                 _socketClient.sendMessage(message);
                 break;
-            case Client::NONE:
             case Client::EXTERNAL_ANALYZER:
                 break;
         }

@@ -8,9 +8,9 @@
 #include "states/state.hpp"
 #include "display/display.hpp"
 #include "web/syncblink_web.hpp"
-#include "web/node_manager.hpp"
 #include "wifi/station_wifi.hpp"
 #include "mod/mod_manager.hpp"
+#include "node_manager.hpp"
 
 namespace SyncBlink
 {
@@ -48,7 +48,7 @@ namespace SyncBlink
 
         private:
             void checkReset();
-            void startMeshCount();
+            void onMeshDisconnection(uint64_t clientId);
             void onSocketServerCommandReceived(Client::Message message);
 
             LED _led;

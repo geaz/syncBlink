@@ -20,6 +20,9 @@ namespace SyncBlink
         _socketServer
             .messageEvents
             .addEventHandler([this](Client::Message message) { onSocketServerCommandReceived(message); });
+        _socketServer
+            .serverDisconnectionEvents
+            .addEventHandler([this](uint64_t clientId) { onMeshDisconnection(clientId); });
         _wifi.connectWifi();
     }
 
@@ -45,23 +48,10 @@ namespace SyncBlink
         if(rstPtr->reason >= 1 && rstPtr->reason <= 4) currentState = std::make_shared<FailSafeState>(*this); 
     }
 
-    void StationContext::startMeshCount()
+    void StationContext::onMeshDisconnection(uint64_t clientId)
     {
-        Serial.println("Connection state changed. Starting MESH_COUNT_REQUEST ...");
-        if(_socketServer.getClientsCount() == 0)
-        {
-            Serial.println("No nodes connected!");
-            Serial.printf("SyncBlink Station alone with %d LEDs :(\n", _led.getLedCount());
-            _nodeManager.counted = { _led.getLedCount(), 1, _led.getLedCount(), 1 };
-        }
-        else
-        {
-            Server::CountMessage countMessage = { 0, 0 };
-            Server::Message message = { millis(), Server::MESH_COUNT_REQUEST };
-            message.countMessage = countMessage;
-            
-            _socketServer.broadcast(message);
-        }
+        Serial.printf("Mesh Disconnection: %12llx\n", clientId);
+        _nodeManager.removeNode(clientId);
     }
 
     void StationContext::onSocketServerCommandReceived(Client::Message message)
@@ -69,26 +59,26 @@ namespace SyncBlink
         switch (message.messageType)
         {
             case Client::MESH_CONNECTION:
-                startMeshCount();
-                break;
-            case Client::MESH_COUNTED:
-            {
-                _nodeManager.counted = message.countedMessage;
-                Serial.printf("MESH_COUNT done with %d Nodes total.\n", _nodeManager.counted.totalNodeCount);
-                Serial.println("Distributing result of count ...");
+            {              
+                Serial.printf("Mesh Connection: Client %12llx, LEDs %i, Parent %12llx, Firmware Version: %.2f\n",
+                    message.connectionMessage.clientId, message.connectionMessage.ledCount,
+                    message.connectionMessage.parentId, message.connectionMessage.firmwareVersion);
+                _nodeManager.addNode(message.connectionMessage);
 
-                Server::Message message = { millis(), Server::MESH_UPDATE };
-                Server::UpdateMessage updateMessage = { _led.getLedCount(), 1, _nodeManager.counted.totalLedCount, _nodeManager.counted.totalNodeCount };
-                message.updateMessage = updateMessage;
+                Server::Message serverMessage = { millis(), Server::MESH_UPDATE };
+                Server::UpdateMessage updateMessage = { _led.getLedCount(), 1, _nodeManager.getTotalLedCount(), _nodeManager.getTotalNodeCount() };
+                serverMessage.updateMessage = updateMessage;
 
-                _socketServer.broadcast(message);
+                _socketServer.broadcast(serverMessage);
                 break;
             }
+            case Client::MESH_DISCONNECTION:
+                onMeshDisconnection(message.disconnectedClientId);
+                break;
             case Client::MESH_UPDATED:
                 Serial.println("Mesh updated - Resetting state ...");
                 currentState = std::make_shared<ReadModState>();
                 break;
-            case Client::NONE:
             case Client::EXTERNAL_ANALYZER:
             case Client::MOD_DISTRIBUTED:
                 break;

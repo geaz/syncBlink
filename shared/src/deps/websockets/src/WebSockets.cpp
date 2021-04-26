@@ -675,6 +675,7 @@ size_t WebSockets::write(WSclient_t * client, uint8_t * out, size_t n) {
 
         if((millis() - t) > WEBSOCKETS_TCP_TIMEOUT) {
             DEBUG_WEBSOCKETS("[write] write TIMEOUT! %lu\n", (millis() - t));
+            // ADDED FOR SYNCBLINK
             clientDisconnect(client);
             break;
         }

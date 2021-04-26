@@ -20,11 +20,12 @@ namespace SyncBlink
 
         private:
             uint32_t readLedCount();
-
             void checkNewMod();
+            
+            void onSocketClientConnectionChanged(bool connected);
             void onSocketClientMessageReceived(Server::Message message);
             void onSocketClientModReceived(std::string mod);
-            void onSocketServerMeshConnection();
+            void onSocketServerDisconnection(uint64_t clientId);
             void onSocketServerMessageReceived(Client::Message message);
 
             LED _led;

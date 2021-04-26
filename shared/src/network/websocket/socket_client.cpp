@@ -1,11 +1,9 @@
 #include "socket_client.hpp"
-#include "network/mesh/syncblink_mesh.hpp"
 
 namespace SyncBlink
 {
-    void SocketClient::start(String socketIp, float firmwareVersion)
+    void SocketClient::start(String socketIp)
     {
-        _firmwareVersion = firmwareVersion;
         Serial.println("Connecting to socket '" + socketIp + "' ...");
         _webSocket.begin(socketIp, 81, "/");
         _webSocket.onEvent(
@@ -45,12 +43,6 @@ namespace SyncBlink
         case WStype_CONNECTED:
         {
             Serial.println("Connected to WebSocket!");
-        
-            // Send Connection Message
-            Client::Message message = { millis(), Client::MESH_CONNECTION };
-            message.connectionMessage = { SyncBlink::getId(), 0, _firmwareVersion };
-            sendMessage(message);
-
             for (auto event : connectionEvents.getEventHandlers())
                 event.second(true);
             _isConnected = true;

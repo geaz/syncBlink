@@ -17,7 +17,7 @@ namespace SyncBlink
     class SocketClient
     {
     public:
-        void start(String socketIp, float firmwareVersion);
+        void start(String socketIp);
         void loop();
         void sendMessage(Client::Message message);
 
@@ -32,7 +32,6 @@ namespace SyncBlink
 
         WebSocketsClient _webSocket;
         bool _isConnected = false;
-        float _firmwareVersion = 0;
     };
 }
 

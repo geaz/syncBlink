@@ -15,20 +15,9 @@ namespace SyncBlink
          */
         enum MessageType
         {
-            MESH_COUNT_REQUEST, // A request to count all LEDs and Nodes in the mesh
             MESH_UPDATE,        // A request with updated LED and node counts
             SOURCE_UPDATE,      // A request with updated analyzer source information
-            ANALYZER_UPDATE,    // A request with updated analyzer information
-            START_OTA_UPDATE    // A request to start a OTA update of all connected nodes           
-        };
-
-        /**
-         * @brief   The count message is used by the *MESH_COUNT_REQUEST*.
-         */
-        struct CountMessage
-        {
-            uint32_t treeLedCount;  // The total amount of leds in the current tree
-            uint32_t treeNodeCount; // The total amount of nodes in the current tree
+            ANALYZER_UPDATE,    // A request with updated analyzer information        
         };
 
         /**
@@ -63,7 +52,6 @@ namespace SyncBlink
             MessageType messageType;
             union {
                 SourceMessage sourceMessage;
-                CountMessage countMessage;
                 UpdateMessage updateMessage;
                 AudioAnalyzerMessage analyzerMessage;
             };

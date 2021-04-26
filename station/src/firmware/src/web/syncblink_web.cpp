@@ -41,13 +41,9 @@ namespace SyncBlink
 
         auto tlRef = meshInfo.getOrAddMember("totalLeds");
         auto tnRef = meshInfo.getOrAddMember("totalNodes");
-        auto rlRef = meshInfo.getOrAddMember("routeLeds");
-        auto rnRef = meshInfo.getOrAddMember("routeNodes");
 
-        tlRef.set(_nodeManager.counted.totalLedCount);
-        tnRef.set(_nodeManager.counted.totalNodeCount);
-        rlRef.set(_nodeManager.counted.routeLedCount);
-        rnRef.set(_nodeManager.counted.routeNodeCount);
+        tlRef.set(_nodeManager.getTotalLedCount());
+        tnRef.set(_nodeManager.getTotalNodeCount());
 
         serializeJson(jsonBuffer, JSON);
         _server.send(200, "application/json", JSON);

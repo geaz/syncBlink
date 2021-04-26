@@ -14,31 +14,19 @@ namespace SyncBlink
          */
         enum MessageType
         {
-            NONE,             // A "null" message type
-            MESH_CONNECTION,  // A new node connected to the mesh
-            MESH_COUNTED,     // Answer to the Server::MESH_COUNT_REQUEST
-            MESH_UPDATED,     // Answer to the Client::MESH_UPDATE
-            MOD_DISTRIBUTED,  // Answer to the MOD distribution
-            EXTERNAL_ANALYZER // Analyzer information by an external analyzer (defined in *SoundAnalyzerSource* enum)
+            MESH_CONNECTION,    // A new node connected to the mesh
+            MESH_DISCONNECTION, // A node disconnected
+            MESH_UPDATED,       // Answer to the Client::MESH_UPDATE
+            MOD_DISTRIBUTED,    // Answer to the MOD distribution
+            EXTERNAL_ANALYZER   // Analyzer information by an external analyzer (defined in *SoundAnalyzerSource* enum)
         };
 
         struct ConnectionMessage
         {
             uint64_t clientId;
             uint64_t parentId;
+            uint32_t ledCount;
             float firmwareVersion;
-        };
-
-        /**
-         * @brief   This message is the answer to the Server::MESH_COUNT_REQUEST
-         *          It contains the total amount of LEDs counted in on of the mesh routes.
-         */
-        struct CountedMessage
-        {
-            uint32_t routeLedCount;     // The LED Count of the longest route of the counted subtree
-            uint32_t routeNodeCount;    // The Node Count of the longest route of the counted subtree
-            uint32_t totalLedCount;     // The total LED Count of the counted subtree
-            uint32_t totalNodeCount;    // The total Node Count of the counted subtree
         };
 
         /**
@@ -50,7 +38,7 @@ namespace SyncBlink
             uint64_t id;
             MessageType messageType;
             union {
-                CountedMessage countedMessage;
+                uint64_t disconnectedClientId;
                 ConnectionMessage connectionMessage;
                 AudioAnalyzerMessage audioAnalyzerMessage;
             };
