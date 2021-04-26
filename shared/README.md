@@ -1,10 +1,10 @@
-[![GPL](https://img.shields.io/github/license/syncBlink/api_arduino)](https://github.com/syncBlink/api_arduino/blob/master/LICENSE)   
+[![GPL](https://img.shields.io/github/license/syncBlink/syncBlink)](https://github.com/syncBlink/syncBlink/blob/main/LICENSE)   
 [![ko-fi](https://www.ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/A0A01MQZP)
 
 # syncBlink Arduino API
 
-This repository is meant to be used in combination with a PlatformIO project.
-Please have a look at [syncBlink Station](https://github.com/syncBlink/station) and [syncBlink Node](https://github.com/syncBlink/node) for usage examples.
+This project is meant to be used in combination with a PlatformIO project.
+Please have a look at [syncBlink Station](https://github.com/syncBlink/syncBlink/tree/main/station) and [syncBlink Node](https://github.com/syncBlink/syncBlink/tree/main/node) for usage examples.
 
 ## Dependencies
 
