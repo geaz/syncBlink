@@ -73,7 +73,7 @@
                 method: "GET"
             });
             if(response.ok) {
-                let modInfo = (await response.json()).mod;
+                let modInfo = await response.json();
                 this.modContent = modInfo.content;
                 this.originalModContent = modInfo.content;
             }

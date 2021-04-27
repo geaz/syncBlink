@@ -24,6 +24,7 @@ namespace SyncBlink
             .serverDisconnectionEvents
             .addEventHandler([this](uint64_t clientId) { onMeshDisconnection(clientId); });
         _wifi.connectWifi();
+        _nodeManager.addNode({ SyncBlink::getId(), 0, LED_COUNT, 0 });
     }
 
     void StationContext::loop()

@@ -29,6 +29,11 @@ namespace SyncBlink
         return _totalNodes;
     }
 
+    std::vector<Client::ConnectionMessage> NodeManager::getConnectedNodes() const
+    {
+        return _connectedNodes;
+    }
+
     void NodeManager::countInfos()
     {        
         _totalNodes = _totalLeds = 0;

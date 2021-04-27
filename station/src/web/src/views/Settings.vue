@@ -79,7 +79,7 @@
                 method: "GET"
             });
             if(response.ok) {
-                let modSettings = (await response.json()).modSettings;
+                let modSettings = await response.json();
                 this.activeMod = modSettings.name;
                 this.activeSource = modSettings.source;
             }
@@ -102,7 +102,7 @@
                 method: "GET"
             });
             if(response.ok) {
-                let wifiInfo = (await response.json()).wifi;
+                let wifiInfo = await response.json();
                 this.connectedNetwork = wifiInfo.connected ? wifiInfo.ssid : "NONE";
             }
             else { throw("Error during WiFi info request!"); }

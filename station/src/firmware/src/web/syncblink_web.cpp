@@ -9,7 +9,7 @@ namespace SyncBlink
     SyncBlinkWeb::SyncBlinkWeb(StationWifi& stationWifi, ModManager& modManager, NodeManager& nodeManager)
         : _server(80), _stationWifi(stationWifi), _modManager(modManager), _nodeManager(nodeManager)
     {
-        _server.on("/mesh/info", [this]() { getMeshInfo(); });
+        _server.on("/api/mesh/info", [this]() { getMeshInfo(); });
 
         _server.on("/api/wifi/set", [this]() { setWifi(); });
         _server.on("/api/wifi/get", [this]() { getWifi(); });
@@ -36,16 +36,21 @@ namespace SyncBlink
     void SyncBlinkWeb::getMeshInfo()
     {
         String JSON;
-        StaticJsonDocument<500> jsonBuffer;
-        JsonObject meshInfo = jsonBuffer.createNestedObject("mesh");               
+        DynamicJsonDocument doc(1024);
+        
+        auto connectedNodes = _nodeManager.getConnectedNodes();
+        for(uint32_t i = 0; i < connectedNodes.size(); i++)
+        {
+            StaticJsonDocument<500> nodeJson;
+            nodeJson["clientId"] = connectedNodes[i].clientId;
+            nodeJson["parentId"] = connectedNodes[i].parentId;
+            nodeJson["ledCount"] = connectedNodes[i].ledCount;
+            nodeJson["firmwareVersion"] = connectedNodes[i].firmwareVersion;
 
-        auto tlRef = meshInfo.getOrAddMember("totalLeds");
-        auto tnRef = meshInfo.getOrAddMember("totalNodes");
+            doc["nodes"][i] = nodeJson;
+        }
 
-        tlRef.set(_nodeManager.getTotalLedCount());
-        tnRef.set(_nodeManager.getTotalNodeCount());
-
-        serializeJson(jsonBuffer, JSON);
+        serializeJson(doc, JSON);
         _server.send(200, "application/json", JSON);
     }
 
@@ -59,22 +64,16 @@ namespace SyncBlink
 
     void SyncBlinkWeb::getWifi()
     {
-        String JSON;
-        StaticJsonDocument<500> jsonBuffer;
-        JsonObject wifi = jsonBuffer.createNestedObject("wifi");               
-
-        auto ssidRef = wifi.getOrAddMember("ssid");
-        auto passRef = wifi.getOrAddMember("pass");
-        auto connectedRef = wifi.getOrAddMember("connected");
-
         std::string ssid = _stationWifi.getSavedSSID();
         std::string pass = _stationWifi.getSavedPass();
 
-        ssidRef.set(ssid.c_str());
-        passRef.set(pass.c_str());
-        connectedRef.set(WiFi.status() == WL_CONNECTED);
+        String JSON;
+        StaticJsonDocument<500> doc;
+        doc["ssid"] = ssid.c_str();
+        doc["pass"] = pass.c_str();
+        doc["connected"] = WiFi.status() == WL_CONNECTED;
 
-        serializeJson(jsonBuffer, JSON);
+        serializeJson(doc, JSON);
         _server.send(200, "application/json", JSON);
     }    
 
@@ -124,21 +123,16 @@ namespace SyncBlink
     void SyncBlinkWeb::getModContent()
     {
         String JSON, modContent;
-        StaticJsonDocument<5000> jsonBuffer;
-        JsonObject modJson = jsonBuffer.createNestedObject("mod");      
+        StaticJsonDocument<5000> doc;    
 
         std::string modName = _server.arg("name").c_str();
         Mod mod = _modManager.get(modName);
+        
+        doc["name"] = mod.Name.c_str();
+        doc["content"] = mod.Content.c_str();
+        doc["exists"] = mod.Exists;
 
-        auto nameRef = modJson.getOrAddMember("name");
-        auto contentRef = modJson.getOrAddMember("content");
-        auto existsRef = modJson.getOrAddMember("exists");
-
-        nameRef.set(mod.Name.c_str());
-        contentRef.set(mod.Content.c_str());
-        existsRef.set(mod.Exists);
-
-        serializeJson(jsonBuffer, JSON);
+        serializeJson(doc, JSON);
         _server.send(200, "application/json", JSON);
     }
 
@@ -148,16 +142,11 @@ namespace SyncBlink
         AudioAnalyzerSource activeSource = _modManager.getActiveSource();
 
         String JSON;
-        StaticJsonDocument<1000> jsonBuffer;
-        JsonObject mod = jsonBuffer.createNestedObject("modSettings");
+        StaticJsonDocument<1000> doc;
+        doc["name"] = activeMod.c_str();
+        doc["source"] = activeSource;
 
-        auto nameRef = mod.getOrAddMember("name");
-        nameRef.set(activeMod.c_str());
-
-        auto sourceRef = mod.getOrAddMember("source");
-        sourceRef.set(activeSource);
-
-        serializeJson(jsonBuffer, JSON);
+        serializeJson(doc, JSON);
         _server.send(200, "application/json", JSON);
     }
 

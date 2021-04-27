@@ -14,6 +14,7 @@ namespace SyncBlink
 
             uint32_t getTotalLedCount() const;
             uint32_t getTotalNodeCount() const;
+            std::vector<Client::ConnectionMessage> getConnectedNodes() const;
 
         private:
             void countInfos();
