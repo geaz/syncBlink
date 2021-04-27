@@ -23,6 +23,20 @@ To flash the firmware onto the Wemos connect it to your PC and press the *Upload
 
 ![syncBlink - Flash](https://raw.githubusercontent.com/syncBlink/syncBlink/main/node/img/flash.png)
 
+Each node needs to store the amount of used LEDs in the EEPROM.
+Execute the python script *createNodeEEPROM.py*:
+
+```
+python createNodeEEPROM.py 16
+```
+
+The number indicates the amount of LEDs the node has for which you are creating the EEPROM info. Afterwards flash the resulting *.bin* file to the node:
+
+```
+esptool.py --port PORT write_flash 0x003FB000 nodeEEPROM.bin
+```
+*If you don't have installed the esptool already, please install it with the command: **pip install setuptools** and **pip install esptool***
+
 ## Build
 
 Insert the four led strips into the *middle* part. And solder them together - **keep the direction of the data line in mind!**

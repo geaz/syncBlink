@@ -7,6 +7,7 @@
                 </div>
                 <nav id="nav">
                     <router-link class="menu-item" to="/">Settings</router-link>
+                    <router-link class="menu-item" to="/mesh">Mesh</router-link>
                     <router-link class="menu-item only-desktop" to="/mods">Mods</router-link>
                 </nav>
             </div>
