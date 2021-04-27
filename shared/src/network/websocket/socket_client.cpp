@@ -87,7 +87,6 @@ namespace SyncBlink
                 {
                     uint64_t targetClientId = 0;
                     memcpy(&targetClientId, &payload[1], length-1);
-                    Serial.println("t: " + targetClientId);
                     if(targetClientId == SyncBlink::getId() || targetClientId == 0)
                     {
                         for (auto event : firmwareFlashEvents.getEventHandlers())
@@ -98,7 +97,6 @@ namespace SyncBlink
                 case Server::FIRMWARE_FLASH_END:
                 {
                     uint64_t targetClientId = 0;
-                    Serial.println("t: " + targetClientId);
                     memcpy(&targetClientId, &payload[1], length-1);
                     if(targetClientId == SyncBlink::getId() || targetClientId == 0)
                     {
