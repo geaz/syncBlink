@@ -5,7 +5,7 @@
 
 namespace SyncBlink
 {
-    StationContext::StationContext() : _web(_wifi, _modManager, _nodeManager)
+    StationContext::StationContext() : _nodeManager(_socketServer), _web(_wifi, _modManager, _nodeManager)
     {
         resetState();
         checkReset();
@@ -17,12 +17,14 @@ namespace SyncBlink
         _display.setView(std::make_shared<SyncBlink::SplashView>());
         _display.loop();
         _led.setup(LED_COUNT);
+
         _socketServer
             .messageEvents
-            .addEventHandler([this](Client::Message message) { onSocketServerCommandReceived(message); });
+            .addEventHandler([this](Client::MessageType messageType, uint8_t* payload, size_t length) { onSocketServerCommandReceived(messageType, payload, length); });
         _socketServer
             .serverDisconnectionEvents
             .addEventHandler([this](uint64_t clientId) { onMeshDisconnection(clientId); });
+
         _wifi.connectWifi();
         _nodeManager.addNode({ SyncBlink::getId(), 0, LED_COUNT, 0 });
     }
@@ -36,6 +38,7 @@ namespace SyncBlink
         _led.loop();
         _web.loop();
         _display.loop();
+        _nodeManager.loopFlashing();
     }
 
     void StationContext::resetState() 
@@ -55,27 +58,31 @@ namespace SyncBlink
         _nodeManager.removeNode(clientId);
     }
 
-    void StationContext::onSocketServerCommandReceived(Client::Message message)
+    void StationContext::onSocketServerCommandReceived(Client::MessageType messageType, uint8_t* payload, size_t length)
     {
-        switch (message.messageType)
+        switch (messageType)
         {
             case Client::MESH_CONNECTION:
             {              
+                Client::ConnectionMessage message;
+                memcpy(&message, payload, length);
+
                 Serial.printf("Mesh Connection: Client %12llx, LEDs %i, Parent %12llx, Firmware Version: %.2f\n",
-                    message.connectionMessage.clientId, message.connectionMessage.ledCount,
-                    message.connectionMessage.parentId, message.connectionMessage.firmwareVersion);
-                _nodeManager.addNode(message.connectionMessage);
+                    message.clientId, message.ledCount,
+                    message.parentId, message.firmwareVersion);
+                _nodeManager.addNode(message);
 
-                Server::Message serverMessage = { millis(), Server::MESH_UPDATE };
                 Server::UpdateMessage updateMessage = { _led.getLedCount(), 1, _nodeManager.getTotalLedCount(), _nodeManager.getTotalNodeCount() };
-                serverMessage.updateMessage = updateMessage;
-
-                _socketServer.broadcast(serverMessage);
+                _socketServer.broadcast(&updateMessage, sizeof(updateMessage), Server::MESH_UPDATE);
                 break;
             }
             case Client::MESH_DISCONNECTION:
-                onMeshDisconnection(message.disconnectedClientId);
+            {
+                uint64_t clientId;
+                memcpy(&clientId, payload, length);
+                onMeshDisconnection(clientId);
                 break;
+            }
             case Client::MESH_UPDATED:
                 Serial.println("Mesh updated - Resetting state ...");
                 currentState = std::make_shared<ReadModState>();

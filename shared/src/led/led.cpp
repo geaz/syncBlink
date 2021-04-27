@@ -78,6 +78,12 @@ namespace SyncBlink
         _groupsSet = false;
     }
 
+    void LED::showNow(const Color color)
+    {
+        setAllLeds(color);
+        loop();
+    }
+
     void LED::blinkNow(const Color color)
     {
         for(uint8_t i = 0; i < 3; i++)

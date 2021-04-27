@@ -28,21 +28,6 @@ namespace SyncBlink
             uint32_t ledCount;
             float firmwareVersion;
         };
-
-        /**
-         * @brief   The *Message* is a union struct used by the clients to
-         *          send the different kinds of messages to the server.
-         */
-        struct Message
-        {
-            uint64_t id;
-            MessageType messageType;
-            union {
-                uint64_t disconnectedClientId;
-                ConnectionMessage connectionMessage;
-                AudioAnalyzerMessage audioAnalyzerMessage;
-            };
-        };
     }
 }
 

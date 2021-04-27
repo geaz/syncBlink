@@ -24,6 +24,7 @@ namespace SyncBlink
         void setGroup(const uint32_t index, std::vector<uint32_t> group);
         void clearGroups();
 
+        void showNow(const Color color);
         void blinkNow(const Color color);
 
     private:

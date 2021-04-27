@@ -8,22 +8,29 @@ namespace SyncBlink
     void NodeContext::setup()
     {     
         _led.setup(readLedCount());
+        _led.showNow(Cyan);
 
         _socketClient
-            .messageEvents
-            .addEventHandler([this](Server::Message message) { onSocketClientMessageReceived(message); });
+            .meshUpdateEvents
+            .addEventHandler([this](Server::UpdateMessage message) { onMeshUpdateReceived(message); });
+        _socketClient
+            .audioAnalyzerEvents
+            .addEventHandler([this](AudioAnalyzerMessage message) { onAnalyzerResultReceived(message); });
         _socketClient
             .meshModEvents
             .addEventHandler([this](std::string mod) { onSocketClientModReceived(mod); });
+        _socketClient
+            .firmwareFlashEvents
+            .addEventHandler([this](std::vector<uint8_t> data, Server::MessageType messageType) { onFirmwareFlashReceived(data, messageType); });
         _socketClient
             .connectionEvents
             .addEventHandler([this](bool connected) { onSocketClientConnectionChanged(connected); });
         _socketServer
             .serverDisconnectionEvents
-            .addEventHandler([this](uint64_t clientId) { onSocketServerDisconnection(clientId); });
+            .addEventHandler([this](uint64_t clientId) { _socketClient.sendMessage(&clientId, sizeof(clientId), Client::MESH_DISCONNECTION); });
         _socketServer
             .messageEvents
-            .addEventHandler([this](Client::Message message) { onSocketServerMessageReceived(message); });
+            .addEventHandler([this](Client::MessageType messageType, uint8_t* payload, size_t length) { onSocketServerMessageReceived(messageType, payload, length); });
         
         WiFi.disconnect();
         if(_mesh.tryJoinMesh())
@@ -49,8 +56,7 @@ namespace SyncBlink
         if(!_mesh.isConnected())
         {
             Serial.println("Websocket and WiFi disconnected! Going to sleep ...");
-            _led.setAllLeds(SyncBlink::Black);
-            _led.loop();
+            _led.showNow(SyncBlink::Black);
             ESP.deepSleep(SleepSeconds * 1000000);
         }
     }
@@ -79,44 +85,36 @@ namespace SyncBlink
         }
     }
 
-    void NodeContext::onSocketClientMessageReceived(Server::Message message)
+    void NodeContext::onMeshUpdateReceived(Server::UpdateMessage message)
     {
-        switch (message.messageType)
+        _previousLedCount = message.routeLedCount;
+        _previousNodeCount = message.routeNodeCount;
+        _meshLedCount = message.meshLedCount;
+        _meshNodeCount = message.meshNodeCount;   
+
+        if(_socketServer.getClientsCount() != 0)
         {
-            case Server::MESH_UPDATE:
-            {
-                _previousLedCount = message.updateMessage.routeLedCount;
-                _previousNodeCount = message.updateMessage.routeNodeCount;
-                _meshLedCount = message.updateMessage.meshLedCount;
-                _meshNodeCount = message.updateMessage.meshNodeCount;   
+            message.routeNodeCount++;
+            message.routeLedCount += _nodeLedCount;
+            _socketServer.broadcast(&message, sizeof(message), Server::MESH_UPDATE);
+        }
+        else
+        {
+            _socketClient.sendMessage(0, 0, Client::MESH_UPDATED);
+        }
+    }
 
-                if(_socketServer.getClientsCount() != 0)
-                {
-                    message.updateMessage.routeNodeCount++;
-                    message.updateMessage.routeLedCount += _nodeLedCount;
-                    _socketServer.broadcast(message);
-                }
-                else
-                {
-                    Client::Message answerMessage = { message.id, Client::MESH_UPDATED };
-                    _socketClient.sendMessage(answerMessage);
-                }
-                break;
-            }
-            case Server::ANALYZER_UPDATE:
-                if(_blinkScript != nullptr)
-                {
-                    uint32_t delta = millis() - _lastUpdate;
-                    _lastUpdate = millis();
-                    
-                    _blinkScript->updateAnalyzerResult(message.analyzerMessage.volume, message.analyzerMessage.frequency);
-                    _blinkScript->run(delta);
+    void NodeContext::onAnalyzerResultReceived(AudioAnalyzerMessage message)
+    {
+        if(_blinkScript != nullptr)
+        {
+            uint32_t delta = millis() - _lastUpdate;
+            _lastUpdate = millis();
+            
+            _blinkScript->updateAnalyzerResult(message.volume, message.frequency);
+            _blinkScript->run(delta);
 
-                    _socketServer.broadcast(message);
-                }
-                break;
-            case Server::SOURCE_UPDATE:
-                break;
+            _socketServer.broadcast(&message, sizeof(message), Server::ANALYZER_UPDATE);
         }
     }
 
@@ -129,41 +127,67 @@ namespace SyncBlink
         if(_socketServer.getClientsCount() == 0)
         {
             Serial.println("End of route - Sending MOD_DISTRIBUTED");
-            _socketClient.sendMessage({ millis(), Client::MOD_DISTRIBUTED });
+            _socketClient.sendMessage(0, 0, Client::MOD_DISTRIBUTED);
         }
-        else _socketServer.broadcastMod(mod);
+        else _socketServer.broadcast((void*)mod.c_str(), mod.size(), Server::DISTRIBUTE_MOD);
+    }
+
+    void NodeContext::onFirmwareFlashReceived(std::vector<uint8_t> data, Server::MessageType messageType)
+    {
+        if(messageType == Server::FIRMWARE_FLASH_START)
+        {
+            _led.blinkNow(Yellow);
+            uint32_t maxSketchSpace = (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000;
+            if (!Update.begin(maxSketchSpace))
+            {
+                Update.printError(Serial);
+            }
+        }
+        else if(messageType == Server::FIRMWARE_FLASH_DATA)
+        {
+            _led.showNow(Blue);
+            if (Update.write(&data[0], data.size()) != data.size())
+            {
+                Update.printError(Serial);
+            }
+        }
+        else if(messageType == Server::FIRMWARE_FLASH_END)
+        {
+            if (Update.end(true))
+            {
+                _led.blinkNow(Blue);
+                Serial.println("Update Success: Rebooting...\n");
+                ESP.restart();
+            }
+            else
+            {
+                _led.blinkNow(Red);
+                Update.printError(Serial);
+            }
+        }
     }
 
     void NodeContext::onSocketClientConnectionChanged(bool connected)
     {
          if(connected)
          {
-             _led.blinkNow(Green);
+            _led.blinkNow(Green);
 
-            Client::Message message = { millis(), Client::MESH_CONNECTION };
-            message.connectionMessage = { SyncBlink::getId(), 0, _led.getLedCount(), (float)VERSION };
-            _socketClient.sendMessage(message);
+            Client::ConnectionMessage message = { SyncBlink::getId(), 0, _led.getLedCount(), (float)VERSION };
+            _socketClient.sendMessage(&message, sizeof(message), Client::MESH_CONNECTION);
          }
          else _led.blinkNow(Red); 
     }
 
-    void NodeContext::onSocketServerDisconnection(uint64_t clientId)
+    void NodeContext::onSocketServerMessageReceived(Client::MessageType messageType, uint8_t* payload, size_t length)
     {
-        Client::Message message = { millis(), Client::MESH_DISCONNECTION };
-        message.disconnectedClientId = { clientId };
-
-        _socketClient.sendMessage(message);
-    }
-
-    void NodeContext::onSocketServerMessageReceived(Client::Message message)
-    {
-        switch (message.messageType)
+        switch (messageType)
         {
             case Client::MESH_CONNECTION:
             case Client::MESH_DISCONNECTION:
             case Client::MESH_UPDATED:
             case Client::MOD_DISTRIBUTED:
-                _socketClient.sendMessage(message);
+                _socketClient.sendMessage(payload, length, messageType);
                 break;
             case Client::EXTERNAL_ANALYZER:
                 break;

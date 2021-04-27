@@ -9,7 +9,8 @@ namespace SyncBlink
     SyncBlinkWeb::SyncBlinkWeb(StationWifi& stationWifi, ModManager& modManager, NodeManager& nodeManager)
         : _server(80), _stationWifi(stationWifi), _modManager(modManager), _nodeManager(nodeManager)
     {
-        _server.on("/api/mesh/info", [this]() { getMeshInfo(); });
+        _server.on("/api/mesh/info", [this]() { getMeshInfo(); });        
+        _server.on("/api/mesh/flash", HTTP_POST, [this]() { _nodeManager.flash(0); }, [this]() { uploadFirmware(); yield(); });
 
         _server.on("/api/wifi/set", [this]() { setWifi(); });
         _server.on("/api/wifi/get", [this]() { getWifi(); });
@@ -163,5 +164,23 @@ namespace SyncBlink
         else {
             _server.send(200, "application/json", "{ \"saved\": false }");
         }        
+    }
+
+    void SyncBlinkWeb::uploadFirmware()
+    {
+        HTTPUpload& upload = _server.upload();
+        if(upload.status == UPLOAD_FILE_START)
+        {            
+            LittleFS.remove(FirmwarePath.c_str()); // Remove old node firmware
+            _firmwareFile = LittleFS.open(FirmwarePath.c_str(), "a");
+        }
+        if (upload.status == UPLOAD_FILE_WRITE)
+        {
+            _firmwareFile.write(upload.buf, upload.currentSize);
+        } 
+        else if (upload.status == UPLOAD_FILE_END)
+        {            
+            _firmwareFile.close();
+        }
     }
 }

@@ -15,9 +15,13 @@ namespace SyncBlink
          */
         enum MessageType
         {
-            MESH_UPDATE,        // A request with updated LED and node counts
-            SOURCE_UPDATE,      // A request with updated analyzer source information
-            ANALYZER_UPDATE,    // A request with updated analyzer information        
+            MESH_UPDATE,            // A request with updated LED and node counts
+            SOURCE_UPDATE,          // A request with updated analyzer source information
+            ANALYZER_UPDATE,        // A request with updated analyzer information
+            DISTRIBUTE_MOD,         // A request to distribute a led script
+            FIRMWARE_FLASH_START,    // A request to flash a new node firmware
+            FIRMWARE_FLASH_DATA,
+            FIRMWARE_FLASH_END    // A request to flash a new node firmware
         };
 
         /**
@@ -40,21 +44,6 @@ namespace SyncBlink
         struct SourceMessage
         {
             AudioAnalyzerSource source;
-        };
-
-        /**
-         * @brief   The *Message* is a union struct used by the server to
-         *          send the different kinds of messages to the clients.
-         */
-        struct Message
-        {
-            uint64_t id;
-            MessageType messageType;
-            union {
-                SourceMessage sourceMessage;
-                UpdateMessage updateMessage;
-                AudioAnalyzerMessage analyzerMessage;
-            };
         };
     }
 }

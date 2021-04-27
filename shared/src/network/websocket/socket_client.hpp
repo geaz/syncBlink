@@ -11,21 +11,28 @@
 namespace SyncBlink
 {
     typedef std::function<void(std::string mod)> MeshModEvent;
-    typedef std::function<void(Server::Message message)> ClientMessageEvent;
     typedef std::function<void(bool isConnected)> ClientConnectionEvent;
+
+    typedef std::function<void(AudioAnalyzerMessage message)> AudioAnalyzerEvent;
+    typedef std::function<void(Server::UpdateMessage message)> MeshUpdateEvent;
+    typedef std::function<void(Server::SourceMessage message)> SourceUpdateEvent;
+    typedef std::function<void(std::vector<uint8_t> data, Server::MessageType messageType)> FirmwareFlashEvent;
 
     class SocketClient
     {
     public:
         void start(String socketIp);
         void loop();
-        void sendMessage(Client::Message message);
+        void sendMessage(void* message, uint32_t messageSize, Client::MessageType messageType);
 
         bool isConnected() const;
 
         EventRegistration<MeshModEvent> meshModEvents;
-        EventRegistration<ClientMessageEvent> messageEvents;
         EventRegistration<ClientConnectionEvent> connectionEvents;
+        EventRegistration<AudioAnalyzerEvent> audioAnalyzerEvents;
+        EventRegistration<MeshUpdateEvent> meshUpdateEvents;
+        EventRegistration<SourceUpdateEvent> sourceUpdateEvents;
+        EventRegistration<FirmwareFlashEvent> firmwareFlashEvents;
 
     private:
         void clientEvent(WStype_t type, uint8_t *payload, size_t length);

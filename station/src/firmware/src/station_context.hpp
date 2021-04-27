@@ -49,7 +49,7 @@ namespace SyncBlink
         private:
             void checkReset();
             void onMeshDisconnection(uint64_t clientId);
-            void onSocketServerCommandReceived(Client::Message message);
+            void onSocketServerCommandReceived(Client::MessageType messageType, uint8_t* payload, size_t length);
 
             LED _led;
             Display _display;

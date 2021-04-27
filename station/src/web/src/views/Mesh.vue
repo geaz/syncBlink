@@ -1,5 +1,7 @@
 <template>
-    <div id="mesh" class="flex-content flex-centered">        
+    <div id="mesh" class="flex-content flex-centered">   
+        <form method='POST' action='/api/mesh/flash' enctype='multipart/form-data'><input type='file' name='firmware'><input type='submit' value='Update'></form>";
+     
         <Loader v-if="loading"></Loader>
         <template v-else>
             <MeshNode :nodeInfo="mesh"></MeshNode>

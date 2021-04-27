@@ -18,9 +18,9 @@ namespace SyncBlink
             {
                 _handleId = context.getSocketServer()
                     .messageEvents
-                    .addEventHandler([this](Client::Message message) 
+                    .addEventHandler([this](Client::MessageType messageType, uint8_t* payload, size_t length) 
                     { 
-                        _modDistributed = message.messageType == Client::MOD_DISTRIBUTED; 
+                        _modDistributed = messageType == Client::MOD_DISTRIBUTED; 
                     });
                 _broadcastModView = std::make_shared<IconTextView>("Broadcasting MOD ...", u8g2_font_open_iconic_thing_2x_t, 74);
             }
@@ -40,7 +40,7 @@ namespace SyncBlink
 
                 if(!_broadcastStarted && context.getSocketServer().getClientsCount() > 0)
                 {
-                    context.getSocketServer().broadcastMod(_mod);
+                    context.getSocketServer().broadcast((void*)_mod.c_str(), _mod.size(), Server::DISTRIBUTE_MOD);
                     _broadcastStarted = true;
                 }
                 else if(context.getSocketServer().getClientsCount() == 0) _modDistributed = true;
@@ -52,9 +52,7 @@ namespace SyncBlink
                     blinkScript->init();
 
                     Server::SourceMessage sourceMessage = { context.getModManager().getActiveSource() };
-                    Server::Message message = { millis(), Server::SOURCE_UPDATE };
-                    message.sourceMessage = sourceMessage;
-                    context.getSocketServer().broadcast(message);
+                    context.getSocketServer().broadcast(&sourceMessage, sizeof(sourceMessage), Server::SOURCE_UPDATE);
 
                     context.getLed().setAllLeds(SyncBlink::Black);
                     context.currentState = std::make_shared<RunModState>(context, blinkScript);

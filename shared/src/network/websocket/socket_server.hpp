@@ -11,7 +11,7 @@
 namespace SyncBlink
 {
     typedef std::function<void(uint64_t clientId)> ServerDisconnectionEvent;
-    typedef std::function<void(Client::Message message)> ServerMessageEvent;
+    typedef std::function<void(Client::MessageType messageType, uint8_t* payload, size_t length)> ServerMessageEvent;
 
     class SocketServer
     {
@@ -19,8 +19,7 @@ namespace SyncBlink
         SocketServer();
 
         void loop();
-        void broadcast(Server::Message message);
-        void broadcastMod(std::string &mod);
+        void broadcast(void* message, uint32_t messageSize, Server::MessageType messageType);
 
         uint32_t getClientsCount();
 
@@ -29,11 +28,6 @@ namespace SyncBlink
 
     private:
         void serverEvent(uint8_t num, WStype_t type, uint8_t *payload, size_t length);
-        void handleReceivedMessage(Client::Message receivedMessage, IPAddress clientIp);
-
-        uint8_t _answers = 0;
-        uint64_t _waitStartedAt = 0;
-        Client::MessageType _waitFor;
 
         std::map<uint8_t, uint64_t> _connectedClients;
         WebSocketsServer _webSocket = WebSocketsServer(81);

@@ -2,6 +2,7 @@
 #define NODECONTEXT_H
 
 #include <memory>
+#include <vector>
 #include <led/led.hpp>
 #include <blinkscript/blink_script.hpp>
 #include <network/mesh/syncblink_mesh.hpp>
@@ -23,10 +24,11 @@ namespace SyncBlink
             void checkNewMod();
             
             void onSocketClientConnectionChanged(bool connected);
-            void onSocketClientMessageReceived(Server::Message message);
+            void onMeshUpdateReceived(Server::UpdateMessage message);
+            void onAnalyzerResultReceived(AudioAnalyzerMessage message);
             void onSocketClientModReceived(std::string mod);
-            void onSocketServerDisconnection(uint64_t clientId);
-            void onSocketServerMessageReceived(Client::Message message);
+            void onFirmwareFlashReceived(std::vector<uint8_t> data, Server::MessageType messageType);
+            void onSocketServerMessageReceived(Client::MessageType messageType, uint8_t* payload, size_t length);
 
             LED _led;
             SyncBlinkMesh _mesh;

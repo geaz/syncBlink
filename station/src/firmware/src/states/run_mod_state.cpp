@@ -22,9 +22,9 @@ namespace SyncBlink
             {
                 _socketEventHandleId = context.getSocketServer()
                     .messageEvents
-                    .addEventHandler([this](Client::Message command) 
+                    .addEventHandler([this](Client::MessageType messageType, uint8_t* payload, size_t length) 
                     { 
-                        handleExternalSource(command); 
+                        handleExternalSource(messageType, payload, length); 
                     });
                 _modEventHandleId = context.getModManager()
                     .activeModChangedEvents
@@ -61,35 +61,34 @@ namespace SyncBlink
                 if(checkBlinkScript() && _context.getModManager().getActiveSource() == AudioAnalyzerSource::Station)
                 {
                     AudioAnalyzerResult result = _frequencyAnalyzer.loop();
-                    Server::Message message = { millis(), Server::ANALYZER_UPDATE };
-                    message.analyzerMessage = result.ToMessage();
+                    AudioAnalyzerMessage message = result.ToMessage();
 
                     uint32_t delta = millis() - _lastLedUpdate;
                     _lastLedUpdate = millis();
 
-                    socketServer.broadcast(message);
-                    setView(message.analyzerMessage, delta);
+                    socketServer.broadcast(&message, sizeof(message), Server::ANALYZER_UPDATE);
+                    setView(message, delta);
                     _blinkScript->updateAnalyzerResult(result.volume, result.dominantFrequency);
                     _blinkScript->run(delta);
                 }
             }
 
-            void handleExternalSource(Client::Message& clientMessage)
+            void handleExternalSource(Client::MessageType messageType, uint8_t* payload, size_t length)
             {
                 if(checkBlinkScript()
                 && _context.getModManager().getActiveSource() != AudioAnalyzerSource::Station
-                && clientMessage.messageType == Client::MessageType::EXTERNAL_ANALYZER)
-                {
-                    Server::Message message = { millis(), Server::ANALYZER_UPDATE };
-                    message.analyzerMessage = clientMessage.audioAnalyzerMessage;
+                && messageType == Client::MessageType::EXTERNAL_ANALYZER)
+                {                    
+                    AudioAnalyzerMessage audioMessage;
+                    memcpy(&audioMessage, payload, length);
 
                     uint32_t delta = millis() - _lastLedUpdate;
                     _lastLedUpdate = millis();
 
-                    _context.getSocketServer().broadcast(message);
-                    setView(message.analyzerMessage, delta);
+                    _context.getSocketServer().broadcast(&audioMessage, sizeof(audioMessage), Server::ANALYZER_UPDATE);
+                    setView(audioMessage, delta);
 
-                    _blinkScript->updateAnalyzerResult(message.analyzerMessage.volume, message.analyzerMessage.frequency);
+                    _blinkScript->updateAnalyzerResult(audioMessage.volume, audioMessage.frequency);
                     _blinkScript->run(delta);
                 }
             }

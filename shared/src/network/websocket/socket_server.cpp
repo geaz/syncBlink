@@ -16,31 +16,13 @@ namespace SyncBlink
         _webSocket.loop();
     }
 
-    void SocketServer::broadcast(Server::Message message)
+    void SocketServer::broadcast(void* message, uint32_t messageSize, Server::MessageType messageType)
     {
-        size_t messageSize = sizeof(message);
-        uint8_t serializedMessage[messageSize];
-        memcpy(&serializedMessage, &message, messageSize);
-
-        switch(message.messageType)
-        {
-            case Server::MESH_UPDATE:
-                _waitFor = Client::MESH_UPDATED;
-                _waitStartedAt = millis();
-                break;
-            case Server::SOURCE_UPDATE:
-            case Server::ANALYZER_UPDATE:
-                break;
-        }            
+        uint8_t serializedMessage[messageSize+1];
+        memcpy(&serializedMessage[1], message, messageSize);
+        serializedMessage[0] = messageType;
         
-        _webSocket.broadcastBIN(&serializedMessage[0], messageSize);
-    }
-
-    void SocketServer::broadcastMod(std::string& mod)
-    {
-        _waitStartedAt = millis();
-        _waitFor = Client::MOD_DISTRIBUTED;
-        _webSocket.broadcastTXT(mod.c_str(), mod.length());
+        _webSocket.broadcastBIN(&serializedMessage[0], messageSize+1);
     }
 
     uint32_t SocketServer::getClientsCount()
@@ -59,52 +41,32 @@ namespace SyncBlink
             _connectedClients[num] = 0;
             break;
         case WStype_BIN:
-            Client::Message receivedMessage;
-            memcpy(&receivedMessage, payload, length);
-            handleReceivedMessage(receivedMessage, remoteIp);
-            break;
-        default:
-            break;
-        }
-    }
-
-    void SocketServer::handleReceivedMessage(Client::Message receivedMessage, IPAddress clientIp)
-    {
-        bool forwardMessage = false;
-
-        if(_waitStartedAt != 0 && _waitFor == receivedMessage.messageType)
         {
-            forwardMessage = ++_answers == _webSocket.connectedClients();
-            if (forwardMessage)
+            if(payload[0] == Client::MESH_CONNECTION)
             {
-                _answers = 0;
-                _waitStartedAt = 0;
-            }
-        }
-        else if(receivedMessage.messageType == Client::MESH_CONNECTION)
-        {
-            forwardMessage = true;
-            if(receivedMessage.connectionMessage.parentId == 0)
-            {
-                receivedMessage.connectionMessage.parentId = SyncBlink::getId();
-                for(uint8_t i = 0; i < WEBSOCKETS_SERVER_CLIENT_MAX; i++)
+                Client::ConnectionMessage message;
+                memcpy(&message, &payload[1], length - 1);
+                
+                if(message.parentId == 0)
                 {
-                    if(_webSocket.remoteIP(i) == clientIp)
+                    message.parentId = SyncBlink::getId();
+                    memcpy(&payload[1], &message, sizeof(message));
+
+                    for(uint8_t i = 0; i < WEBSOCKETS_SERVER_CLIENT_MAX; i++)
                     {
-                        _connectedClients[i] = receivedMessage.connectionMessage.clientId;
+                        if(_webSocket.remoteIP(i) == remoteIp)
+                        {
+                            _connectedClients[i] = message.clientId;
+                        }
                     }
                 }
             }
-        }
-        else if(receivedMessage.messageType == Client::EXTERNAL_ANALYZER || receivedMessage.messageType == Client::MESH_DISCONNECTION)
-        {
-            forwardMessage = true;
-        }
-
-        if (forwardMessage)
-        {
             for (auto event : messageEvents.getEventHandlers())
-                event.second(receivedMessage);
+                event.second((Client::MessageType)payload[0], &payload[1], length - 1);
+            break;
+        }
+        default:
+            break;
         }
     }
 }
