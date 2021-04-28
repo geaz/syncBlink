@@ -40,9 +40,15 @@
 #include <functional>
 #endif
 
+#include "WebSocketsVersion.h"
+
 #ifndef NODEBUG_WEBSOCKETS
 #ifdef DEBUG_ESP_PORT
-#define DEBUG_WEBSOCKETS(...) DEBUG_ESP_PORT.printf(__VA_ARGS__)
+#define DEBUG_WEBSOCKETS(...)               \
+    {                                       \
+        DEBUG_ESP_PORT.printf(__VA_ARGS__); \
+        DEBUG_ESP_PORT.flush();             \
+    }
 #else
 //#define DEBUG_WEBSOCKETS(...) os_printf( __VA_ARGS__ )
 #endif
@@ -65,8 +71,10 @@
 
 #if defined(ESP8266)
 #define WEBSOCKETS_YIELD() delay(0)
+#define WEBSOCKETS_YIELD_MORE() delay(1)
 #elif defined(ESP32)
 #define WEBSOCKETS_YIELD() yield()
+#define WEBSOCKETS_YIELD_MORE() delay(1)
 #endif
 
 #elif defined(STM32_DEVICE)
@@ -75,7 +83,7 @@
 #define WEBSOCKETS_USE_BIG_MEM
 #define GET_FREE_HEAP System.freeMemory()
 #define WEBSOCKETS_YIELD()
-
+#define WEBSOCKETS_YIELD_MORE()
 #else
 
 //atmega328p has only 2KB ram!
@@ -83,10 +91,10 @@
 // moves all Header strings to Flash
 #define WEBSOCKETS_SAVE_RAM
 #define WEBSOCKETS_YIELD()
-
+#define WEBSOCKETS_YIELD_MORE()
 #endif
 
-#define WEBSOCKETS_TCP_TIMEOUT (2000)
+#define WEBSOCKETS_TCP_TIMEOUT (5000)
 
 #define NETWORK_ESP8266_ASYNC (0)
 #define NETWORK_ESP8266 (1)
@@ -126,6 +134,7 @@
 #elif defined(ESP32)
 #include <WiFi.h>
 #include <WiFiClientSecure.h>
+#define SSL_AXTLS
 #elif defined(ESP31B)
 #include <ESP31BWiFi.h>
 #else
@@ -145,6 +154,11 @@
 
 #ifdef ESP8266
 #include <ESP8266WiFi.h>
+#if defined(wificlientbearssl_h) && !defined(USING_AXTLS) && !defined(wificlientsecure_h)
+#define SSL_BARESSL
+#else
+#define SSL_AXTLS
+#endif
 #else
 #include <ESP31BWiFi.h>
 #endif
@@ -174,6 +188,7 @@
 
 #include <WiFi.h>
 #include <WiFiClientSecure.h>
+#define SSL_AXTLS
 #define WEBSOCKETS_NETWORK_CLASS WiFiClient
 #define WEBSOCKETS_NETWORK_SSL_CLASS WiFiClientSecure
 #define WEBSOCKETS_NETWORK_SERVER_CLASS WiFiServer
@@ -202,6 +217,7 @@
 typedef enum {
     WSC_NOT_CONNECTED,
     WSC_HEADER,
+    WSC_BODY,
     WSC_CONNECTED
 } WSclientsStatus_t;
 
@@ -223,11 +239,11 @@ typedef enum {
     WSop_continuation = 0x00,    ///< %x0 denotes a continuation frame
     WSop_text         = 0x01,    ///< %x1 denotes a text frame
     WSop_binary       = 0x02,    ///< %x2 denotes a binary frame
-    ///< %x3-7 are reserved for further non-control frames
-    WSop_close = 0x08,    ///< %x8 denotes a connection close
-    WSop_ping  = 0x09,    ///< %x9 denotes a ping
-    WSop_pong  = 0x0A     ///< %xA denotes a pong
-    ///< %xB-F are reserved for further control frames
+                                 ///< %x3-7 are reserved for further non-control frames
+    WSop_close = 0x08,           ///< %x8 denotes a connection close
+    WSop_ping  = 0x09,           ///< %x9 denotes a ping
+    WSop_pong  = 0x0A            ///< %xA denotes a pong
+                                 ///< %xB-F are reserved for further control frames
 } WSopcode_t;
 
 typedef struct {
@@ -245,34 +261,44 @@ typedef struct {
 } WSMessageHeader_t;
 
 typedef struct {
-    uint8_t num;    ///< connection number
+    void init(uint8_t num,
+        uint32_t pingInterval,
+        uint32_t pongTimeout,
+        uint8_t disconnectTimeoutCount) {
+        this->num                    = num;
+        this->pingInterval           = pingInterval;
+        this->pongTimeout            = pongTimeout;
+        this->disconnectTimeoutCount = disconnectTimeoutCount;
+    }
 
-    WSclientsStatus_t status;
+    uint8_t num = 0;    ///< connection number
 
-    WEBSOCKETS_NETWORK_CLASS * tcp;
+    WSclientsStatus_t status = WSC_NOT_CONNECTED;
 
-    bool isSocketIO;    ///< client for socket.io server
+    WEBSOCKETS_NETWORK_CLASS * tcp = nullptr;
+
+    bool isSocketIO = false;    ///< client for socket.io server
 
 #if defined(HAS_SSL)
-    bool isSSL;    ///< run in ssl mode
+    bool isSSL = false;    ///< run in ssl mode
     WEBSOCKETS_NETWORK_SSL_CLASS * ssl;
 #endif
 
-    String cUrl;       ///< http url
-    uint16_t cCode;    ///< http code
+    String cUrl;           ///< http url
+    uint16_t cCode = 0;    ///< http code
 
-    bool cIsClient = false;    ///< will be used for masking
-    bool cIsUpgrade;           ///< Connection == Upgrade
-    bool cIsWebsocket;         ///< Upgrade == websocket
+    bool cIsClient    = false;    ///< will be used for masking
+    bool cIsUpgrade   = false;    ///< Connection == Upgrade
+    bool cIsWebsocket = false;    ///< Upgrade == websocket
 
-    String cSessionId;     ///< client Set-Cookie (session id)
-    String cKey;           ///< client Sec-WebSocket-Key
-    String cAccept;        ///< client Sec-WebSocket-Accept
-    String cProtocol;      ///< client Sec-WebSocket-Protocol
-    String cExtensions;    ///< client Sec-WebSocket-Extensions
-    uint16_t cVersion;     ///< client Sec-WebSocket-Version
+    String cSessionId;        ///< client Set-Cookie (session id)
+    String cKey;              ///< client Sec-WebSocket-Key
+    String cAccept;           ///< client Sec-WebSocket-Accept
+    String cProtocol;         ///< client Sec-WebSocket-Protocol
+    String cExtensions;       ///< client Sec-WebSocket-Extensions
+    uint16_t cVersion = 0;    ///< client Sec-WebSocket-Version
 
-    uint8_t cWsRXsize;                                ///< State of the RX
+    uint8_t cWsRXsize = 0;                            ///< State of the RX
     uint8_t cWsHeader[WEBSOCKETS_MAX_HEADER_SIZE];    ///< RX WS Message buffer
     WSMessageHeader_t cWsHeaderDecode;
 
@@ -281,15 +307,15 @@ typedef struct {
 
     String extraHeaders;
 
-    bool cHttpHeadersValid;           ///< non-websocket http header validity indicator
-    size_t cMandatoryHeadersCount;    ///< non-websocket mandatory http headers present count
+    bool cHttpHeadersValid = false;    ///< non-websocket http header validity indicator
+    size_t cMandatoryHeadersCount;     ///< non-websocket mandatory http headers present count
 
-    bool pongReceived;
-    uint32_t pingInterval;             // how often ping will be sent, 0 means "heartbeat is not active"
-    uint32_t lastPing;                 // millis when last pong has been received
-    uint32_t pongTimeout;              // interval in millis after which pong is considered to timeout
-    uint8_t disconnectTimeoutCount;    // after how many subsequent pong timeouts discconnect will happen, 0 means "do not disconnect"
-    uint8_t pongTimeoutCount;          // current pong timeout count
+    bool pongReceived              = false;
+    uint32_t pingInterval          = 0;    // how often ping will be sent, 0 means "heartbeat is not active"
+    uint32_t lastPing              = 0;    // millis when last pong has been received
+    uint32_t pongTimeout           = 0;    // interval in millis after which pong is considered to timeout
+    uint8_t disconnectTimeoutCount = 0;    // after how many subsequent pong timeouts discconnect will happen, 0 means "do not disconnect"
+    uint8_t pongTimeoutCount       = 0;    // current pong timeout count
 
 #if(WEBSOCKETS_NETWORK_TYPE == NETWORK_ESP8266_ASYNC)
     String cHttpLine;    ///< HTTP header lines
