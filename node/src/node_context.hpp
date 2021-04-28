@@ -11,7 +11,7 @@
 
 namespace SyncBlink
 {
-    static const uint8_t SleepSeconds = 60;
+    static const uint8_t SleepSeconds = 30;
 
     class NodeContext
     {

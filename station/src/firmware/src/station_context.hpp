@@ -47,7 +47,7 @@ namespace SyncBlink
             std::shared_ptr<State> currentState;
 
         private:
-            void checkReset();
+            void checkException();
             void onMeshDisconnection(uint64_t clientId);
             void onSocketServerCommandReceived(Client::MessageType messageType, uint8_t* payload, size_t length);
 

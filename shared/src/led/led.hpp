@@ -25,7 +25,7 @@ namespace SyncBlink
         void clearGroups();
 
         void showNow(const Color color);
-        void blinkNow(const Color color);
+        void blinkNow(const Color color, uint8_t times = 3);
 
     private:
         uint32_t _ledCount = 0;

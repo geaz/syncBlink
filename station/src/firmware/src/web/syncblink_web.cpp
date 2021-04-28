@@ -182,5 +182,10 @@ namespace SyncBlink
         {            
             _firmwareFile.close();
         }
+        else if(upload.status == UPLOAD_FILE_ABORTED)
+        {
+            _firmwareFile.close();
+            LittleFS.remove(FirmwarePath.c_str());
+        }
     }
 }

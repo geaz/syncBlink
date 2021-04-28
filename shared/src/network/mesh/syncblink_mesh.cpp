@@ -17,7 +17,9 @@ namespace SyncBlink
     
     SyncBlinkMesh::SyncBlinkMesh()
     {
-        WiFi.mode(WIFI_AP_STA);
+        WiFi.mode(WIFI_STA);
+        WiFi.persistent(false);
+        WiFi.setAutoConnect(false);
         WiFi.setSleepMode(WIFI_NONE_SLEEP);
     }
 
@@ -28,6 +30,7 @@ namespace SyncBlink
         _ssid = SSID + " #1";
         WiFi.softAPConfig(IPAddress(192, 168, 1, 1), IPAddress(0, 0, 0, 0), IPAddress(255, 255, 255, 0));
         WiFi.softAP(_ssid, Password, 1, false, 8);
+        WiFi.mode(WIFI_AP_STA);
 
         _localIp = WiFi.localIP();
         Serial.println("Node AP IP: " + WiFi.softAPIP().toString());
@@ -60,25 +63,25 @@ namespace SyncBlink
 
         if (nearestNode != -1)
         {
-            Serial.print("Connecting to '" + WiFi.SSID(nearestNode) + "'");
+            Serial.println("Connecting to '" + WiFi.SSID(nearestNode) + "' (15 sec Timeout)...");
             WiFi.begin(WiFi.SSID(nearestNode), Password);
-            while (WiFi.status() != WL_CONNECTED)
+
+            if(WiFi.waitForConnectResult(15000) == WL_CONNECTED)
             {
-                delay(500);
-                Serial.print(".");
+                Serial.println("Connected!");
+
+                _ssid = SSID + " #" + String(nodeNr);
+                WiFi.softAPConfig(IPAddress(192, 168, nodeNr, 1), IPAddress(0, 0, 0, 0), IPAddress(255, 255, 255, 0));
+                WiFi.softAP(_ssid, Password, 1, false, 8);
+                WiFi.mode(WIFI_AP_STA);
+
+                Serial.println("Node AP IP: " + WiFi.softAPIP().toString());
+                Serial.println("Node Local IP: " + WiFi.localIP().toString());
+                connected = true;
+
+                _parentIp = WiFi.gatewayIP();
+                _localIp = WiFi.localIP();
             }
-            Serial.println(" Connected!");
-
-            _ssid = SSID + " #" + String(nodeNr);
-            WiFi.softAPConfig(IPAddress(192, 168, nodeNr, 1), IPAddress(0, 0, 0, 0), IPAddress(255, 255, 255, 0));
-            WiFi.softAP(_ssid, Password, 1, false, 8);
-
-            Serial.println("Node AP IP: " + WiFi.softAPIP().toString());
-            Serial.println("Node Local IP: " + WiFi.localIP().toString());
-            connected = true;
-
-            _parentIp = WiFi.gatewayIP();
-            _localIp = WiFi.localIP();
         }
         return connected;
     }

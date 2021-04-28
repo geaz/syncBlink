@@ -8,7 +8,7 @@ namespace SyncBlink
     StationContext::StationContext() : _nodeManager(_socketServer), _web(_wifi, _modManager, _nodeManager)
     {
         resetState();
-        checkReset();
+        checkException();
     }
 
     void StationContext::setup()
@@ -26,14 +26,15 @@ namespace SyncBlink
             .addEventHandler([this](uint64_t clientId) { onMeshDisconnection(clientId); });
 
         _wifi.connectWifi();
-        _nodeManager.addNode({ SyncBlink::getId(), 0, LED_COUNT, 0 });
     }
 
     void StationContext::loop()
     {
         _display.setLeftStatus("");
         _display.setRightStatus(WiFi.localIP().toString().c_str());
+
         currentState->run(*this);
+        
         _socketServer.loop();
         _led.loop();
         _web.loop();
@@ -46,7 +47,7 @@ namespace SyncBlink
         currentState = std::make_shared<ReadModState>(); 
     }
 
-    void StationContext::checkReset()
+    void StationContext::checkException()
     {
         auto rstPtr = ESP.getResetInfoPtr();
         if(rstPtr->reason >= 1 && rstPtr->reason <= 4) currentState = std::make_shared<FailSafeState>(*this); 

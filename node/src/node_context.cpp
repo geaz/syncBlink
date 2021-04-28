@@ -41,6 +41,7 @@ namespace SyncBlink
         else
         {
             Serial.println("SyncBlink Station not found - Going to sleep ...");
+            _led.showNow(SyncBlink::Black);
             ESP.deepSleep(SleepSeconds * 1000000);
         }
     }
@@ -134,20 +135,23 @@ namespace SyncBlink
 
     void NodeContext::onFirmwareFlashReceived(std::vector<uint8_t> data, Server::MessageType messageType)
     {
+        bool restart = false;
         if(messageType == Server::FIRMWARE_FLASH_START)
         {
             _led.blinkNow(Yellow);
             uint32_t maxSketchSpace = (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000;
             if (!Update.begin(maxSketchSpace))
             {
+                _led.blinkNow(Red);
                 Update.printError(Serial);
             }
+            else _led.showNow(Blue);
         }
         else if(messageType == Server::FIRMWARE_FLASH_DATA)
-        {
-            _led.showNow(Blue);
+        {            
             if (Update.write(&data[0], data.size()) != data.size())
             {
+                _led.blinkNow(Red);
                 Update.printError(Serial);
             }
         }
@@ -155,15 +159,24 @@ namespace SyncBlink
         {
             if (Update.end(true))
             {
-                _led.blinkNow(Blue);
+                _led.blinkNow(Cyan);
                 Serial.println("Update Success: Rebooting...\n");
-                ESP.restart();
+                restart = true;
             }
             else
             {
                 _led.blinkNow(Red);
                 Update.printError(Serial);
             }
+        }
+        _socketServer.broadcast(&data[0], data.size(), messageType);
+        // we are restarting here to make sure, that all messages 
+        // also get send to the current child nodes
+        if(restart)
+        {
+            _socketServer.loop();
+            _led.showNow(Black);
+            ESP.restart();
         }
     }
 

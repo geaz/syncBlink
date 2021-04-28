@@ -1,6 +1,7 @@
 #ifndef NODEMANAGER_H
 #define NODEMANAGER_H
 
+#include <network/mesh/syncblink_mesh.hpp>
 #include <network/websocket/socket_server.hpp>
 #include <network/websocket/messages/client_messages.hpp>
 #include <network/websocket/messages/server_messages.hpp>
@@ -36,7 +37,7 @@ namespace SyncBlink
             bool _flashing;
 
             SocketServer& _socketServer;
-            std::vector<Client::ConnectionMessage> _connectedNodes;
+            std::vector<Client::ConnectionMessage> _connectedNodes = {{ SyncBlink::getId(), 0, LED_COUNT, 0 }};
     };
 }
 
