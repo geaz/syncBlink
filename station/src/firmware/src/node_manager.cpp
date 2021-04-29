@@ -34,7 +34,7 @@ namespace SyncBlink
         {
             if(node.clientId == clientId)
             {
-                node.nodeLabel = label;
+                memcpy(&node.nodeLabel[0], &label[0], MaxNodeLabelLength > label.size() ? MaxNodeLabelLength : label.size());
                 break;
             }
         }
