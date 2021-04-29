@@ -14,13 +14,8 @@ namespace SyncBlink
     class NodeManager
     {
         public:
-            NodeManager(SocketServer& socketServer);
-
-            void loopFlashing();
             void addNode(Client::ConnectionMessage connectionMessage);
             void removeNode(uint64_t clientId);
-
-            void flash(uint64_t clientId);
 
             uint32_t getTotalLedCount() const;
             uint32_t getTotalNodeCount() const;
@@ -32,11 +27,6 @@ namespace SyncBlink
             uint32_t _totalLeds;
             uint32_t _totalNodes;
 
-            File _activeFlash;
-            size_t _flashPos;
-            bool _flashing;
-
-            SocketServer& _socketServer;
             std::vector<Client::ConnectionMessage> _connectedNodes = {{ SyncBlink::getId(), 0, LED_COUNT, 0 }};
     };
 }

@@ -2,8 +2,8 @@
 #define INVALIDMODSTATE_H
 
 #include "state.hpp"
-#include "../station_context.hpp"
-#include "../views/icon_text_view.cpp"
+#include "station_context.hpp"
+#include "views/icon_text_view.cpp"
 
 namespace SyncBlink
 {

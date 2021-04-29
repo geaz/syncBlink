@@ -5,6 +5,11 @@ namespace SyncBlink
 {
     SocketServer::SocketServer()
     {
+        // Faster submission of packages
+        // Furthermore, without this, the memory manage while sending
+        // websocket messages to disconnected clients looked strange....
+        WiFiClient().setDefaultNoDelay(true);
+
         _webSocket.begin();
         _webSocket.onEvent([this](uint8_t num, WStype_t type, uint8_t* payload, size_t length) {
             serverEvent(num, type, payload, length);
@@ -21,7 +26,7 @@ namespace SyncBlink
         uint8_t serializedMessage[messageSize+1];
         memcpy(&serializedMessage[1], message, messageSize);
         serializedMessage[0] = messageType;
-        
+
         _webSocket.broadcastBIN(&serializedMessage[0], messageSize+1);
     }
 
@@ -36,9 +41,15 @@ namespace SyncBlink
         switch (type)
         {
         case WStype_DISCONNECTED:
-            for (auto event : serverDisconnectionEvents.getEventHandlers())
-                event.second(_connectedClients[num]);
-            _connectedClients[num] = 0;
+            // In some cases the client is able to loose the connection to the websocket
+            // Before it send a MESH_CONNECTION message
+            // In these cases the client is not known (=0) and we dont want to inform about its disconnection
+            if(_connectedClients[num] != 0)
+            {
+                for (auto event : serverDisconnectionEvents.getEventHandlers())
+                    event.second(_connectedClients[num]);
+                _connectedClients[num] = 0;
+            }
             break;
         case WStype_BIN:
         {

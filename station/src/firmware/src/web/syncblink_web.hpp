@@ -6,16 +6,21 @@
 #include "node_manager.hpp"
 
 #include <ESP8266WebServer.h>
+#include <event_registration.hpp>
 #include <network/websocket/socket_server.hpp>
 
 namespace SyncBlink
 {
+    typedef std::function<void(float progress, bool isStart, bool isEnd, bool isError)> UploadEvent;
+
     class SyncBlinkWeb
     {
         public:
             SyncBlinkWeb(StationWifi& stationWifi, ModManager& modManager, NodeManager& nodeManager);
 
             void loop();
+
+            EventRegistration<UploadEvent> uploadListener;
 
         private:
             void getMeshInfo();
@@ -35,6 +40,7 @@ namespace SyncBlink
             void setModSettings();
 
             void uploadFirmware();
+            void triggerOnUploadEvent(float progress, bool isStart, bool isEnd, bool isError);
 
             ESP8266WebServer _server;
             StationWifi& _stationWifi;
@@ -42,6 +48,7 @@ namespace SyncBlink
             NodeManager& _nodeManager;
 
             File _firmwareFile;
+            uint32_t _firmwareSize = 0;
     };
 }
 

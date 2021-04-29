@@ -189,8 +189,8 @@
             i { color: lighten($text-color-faded, 20%); }
             i:hover { color: $primary-color; }
 
-            .blue { color: $text-color-blue; }
-            .hover-red:hover { color: $text-color-red; }
+            .blue { color: $color-blue; }
+            .hover-red:hover { color: $color-red; }
         }
 
         .deactivated-tool {

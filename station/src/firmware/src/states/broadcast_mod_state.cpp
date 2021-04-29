@@ -5,8 +5,8 @@
 #include "run_mod_state.cpp"
 #include "invalid_mod_state.cpp"
 #include "state.hpp"
-#include "../station_context.hpp"
-#include "../views/icon_text_view.cpp"
+#include "station_context.hpp"
+#include "views/icon_text_view.cpp"
 
 namespace SyncBlink
 {

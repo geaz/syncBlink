@@ -1,12 +1,12 @@
 #ifndef SOCKETSERVER_H
 #define SOCKETSERVER_H
 
-#include "deps/websockets/src/WebSocketsServer.h"
 #include "event_registration.hpp"
 #include "messages/client_messages.hpp"
 #include "messages/server_messages.hpp"
 
 #include <map>
+#include <WebSocketsServer.h>
 
 namespace SyncBlink
 {

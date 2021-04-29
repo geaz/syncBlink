@@ -10,7 +10,12 @@ namespace SyncBlink
         : _server(80), _stationWifi(stationWifi), _modManager(modManager), _nodeManager(nodeManager)
     {
         _server.on("/api/mesh/info", [this]() { getMeshInfo(); });        
-        _server.on("/api/mesh/flash", HTTP_POST, [this]() { _nodeManager.flash(0); }, [this]() { uploadFirmware(); yield(); });
+        _server.on("/api/mesh/flash", HTTP_POST, 
+            [this]() { 
+                _server.sendHeader("Connection", "close");
+                _server.send(200, "text/plain");
+            }, 
+            [this]() { uploadFirmware(); yield(); });
 
         _server.on("/api/wifi/set", [this]() { setWifi(); });
         _server.on("/api/wifi/get", [this]() { getWifi(); });
@@ -170,22 +175,33 @@ namespace SyncBlink
     {
         HTTPUpload& upload = _server.upload();
         if(upload.status == UPLOAD_FILE_START)
-        {            
+        {                        
             LittleFS.remove(FirmwarePath.c_str()); // Remove old node firmware
+            _firmwareSize = std::atoi(_server.arg("size").c_str());
             _firmwareFile = LittleFS.open(FirmwarePath.c_str(), "a");
+            triggerOnUploadEvent(0, true, false, false);
         }
         if (upload.status == UPLOAD_FILE_WRITE)
         {
             _firmwareFile.write(upload.buf, upload.currentSize);
+            triggerOnUploadEvent((float)upload.totalSize/_firmwareSize, false, false, false);
         } 
         else if (upload.status == UPLOAD_FILE_END)
         {            
             _firmwareFile.close();
+            triggerOnUploadEvent(1, false, true, false);
         }
         else if(upload.status == UPLOAD_FILE_ABORTED)
         {
             _firmwareFile.close();
             LittleFS.remove(FirmwarePath.c_str());
+            triggerOnUploadEvent(1, false, false, true);
         }
+    }
+
+    void SyncBlinkWeb::triggerOnUploadEvent(float progress, bool isStart, bool isEnd, bool isError)
+    {
+        for(auto& listener : uploadListener.getEventHandlers())
+            listener.second(progress, isStart, isEnd, isError);
     }
 }

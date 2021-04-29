@@ -40,7 +40,7 @@ namespace SyncBlink
             LED& getLed();
             Display& getDisplay();
             ModManager& getModManager();
-            StationWifi& getStationWifi();
+            SyncBlinkWeb& getWebserver();
             SocketServer& getSocketServer();
             NodeManager& getNodeManager();
 
@@ -53,11 +53,10 @@ namespace SyncBlink
 
             LED _led;
             Display _display;
-            StationWifi _wifi;
-            ModManager _modManager;
+            StationWifi _wifi;  
             NodeManager _nodeManager;
-            SocketServer _socketServer;
-            
+            ModManager _modManager;
+            SocketServer _socketServer;          
             SyncBlinkWeb _web;
     };
 }

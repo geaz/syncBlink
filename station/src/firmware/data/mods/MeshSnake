@@ -24,5 +24,10 @@ let update = fun(delta) {
     setLeds(colors)
 }
 
-let init = fun(){ setDelay(pLedC) }
+let init = fun(){ 
+    setDelay(pLedC)
+    for(let i = nLedC - 1; i > 0; i = i - 1) {
+        colors[i] = xrgb(0,0,0)
+    }
+}
 let modName = "meshSnake"

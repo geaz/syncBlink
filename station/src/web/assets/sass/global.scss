@@ -57,6 +57,36 @@
         background: $primary-color;
     }
 }
+    
+.button.green{
+    background: $color-green;
+    &:hover {
+        color: black;
+        background: $primary-color;
+    }
+}
+
+.button.red {
+    background: $color-red;
+    &:hover {
+        color: black;
+        background: $primary-color;
+    }
+}
+
+.button.disabled {
+    background: gray;
+    color: $text-color-faded;
+    &:hover {
+        color: gray;
+        background: $text-color-faded;
+    }
+}
+
+.file-button { text-align: center; }
+.file-button > input[type="file"] {
+    display: none;
+}
 
 .big-kpi {
     font-weight: bold;
