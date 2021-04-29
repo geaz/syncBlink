@@ -2,29 +2,35 @@
 
 #include <EEPROM.h>
 #include <ESP8266httpUpdate.h>
+#include <shared_constants.hpp>
 
 namespace SyncBlink
 {
     void NodeContext::setup()
     {     
-        _led.setup(readLedCount());
+        readNodeInfo();
+        _led.setup(_nodeLedCount);
         _led.showNow(Cyan);
 
+        _socketClient
+            .connectionEvents
+            .addEventHandler([this](bool connected) { onSocketClientConnectionChanged(connected); });
         _socketClient
             .meshUpdateEvents
             .addEventHandler([this](Server::UpdateMessage message) { onMeshUpdateReceived(message); });
         _socketClient
-            .audioAnalyzerEvents
-            .addEventHandler([this](AudioAnalyzerMessage message) { onAnalyzerResultReceived(message); });
-        _socketClient
             .meshModEvents
             .addEventHandler([this](std::string mod) { onSocketClientModReceived(mod); });
         _socketClient
-            .firmwareFlashEvents
-            .addEventHandler([this](std::vector<uint8_t> data, Server::MessageType messageType) { onFirmwareFlashReceived(data, messageType); });
+            .audioAnalyzerEvents
+            .addEventHandler([this](AudioAnalyzerMessage message) { onAnalyzerResultReceived(message); });
         _socketClient
-            .connectionEvents
-            .addEventHandler([this](bool connected) { onSocketClientConnectionChanged(connected); });
+            .nodeRenameEvents
+            .addEventHandler([this](Server::NodeRenameMessage message) { onNodeRenameReceived(message); });
+        _socketClient
+            .firmwareFlashEvents
+            .addEventHandler([this](std::vector<uint8_t> data, uint64_t targetClientId, Server::MessageType messageType) { onFirmwareFlashReceived(data, targetClientId, messageType); });
+
         _socketServer
             .serverDisconnectionEvents
             .addEventHandler([this](uint64_t clientId) { _socketClient.sendMessage(&clientId, sizeof(clientId), Client::MESH_DISCONNECTION); });
@@ -35,7 +41,7 @@ namespace SyncBlink
         WiFi.disconnect();
         if(_mesh.tryJoinMesh())
         {
-            Serial.printf("Connected to SyncBlink mesh! Starting operation (v%f)...\n", (float)VERSION);
+            Serial.printf("Connected to SyncBlink mesh! Starting operation (v%i.%i)...\n", VERSIONMAJOR, VERSIONMINOR);
             _socketClient.start(_mesh.getParentIp().toString());
         }
         else
@@ -62,15 +68,25 @@ namespace SyncBlink
         }
     }
 
-    uint32_t NodeContext::readLedCount()
+    void NodeContext::readNodeInfo()
     {
-        uint32_t leds = 0;
+        _nodeLedCount = 0;
         for(int i = 0; i < 4; i++)
         {
-            leds += EEPROM.read(i) << (i*8);
+            _nodeLedCount += EEPROM.read(i) << (i*8);
         }
-        Serial.printf("EEPROM LED Count: %i\n", leds);
-        return leds;
+        Serial.printf("EEPROM LED Count: %i\n", _nodeLedCount);
+        if(EEPROM.read(4) != '\0')
+        {
+            char label[MaxNodeLabelLength];
+            for(uint8_t i = 0; i < MaxNodeLabelLength; i++)
+            {
+                label[i] = EEPROM.read(i+4);
+            }
+            _nodeLabel = std::string(label);
+            Serial.printf("EEPROM Node Label: %s\n", _nodeLabel.c_str());
+        }
+        else Serial.println("EEPROM Node Label: (No Label)");
     }
 
     void NodeContext::checkNewMod()
@@ -129,21 +145,59 @@ namespace SyncBlink
         _socketServer.broadcast((void*)mod.c_str(), mod.size(), Server::DISTRIBUTE_MOD);
     }
 
-    void NodeContext::onFirmwareFlashReceived(std::vector<uint8_t> data, Server::MessageType messageType)
+    void NodeContext::onNodeRenameReceived(Server::NodeRenameMessage message)
+    {
+        if(message.clientId == SyncBlink::getId() || message.clientId == 0)
+        {
+            for(uint8_t i = 0; i < MaxNodeLabelLength; i++)
+            {
+                EEPROM.write(i+4, message.nodeLabel[i]);
+            }
+            EEPROM.commit();
+            readNodeInfo();
+        }
+        else _socketServer.broadcast(&message, sizeof(message), Server::NODE_RENAME);
+    }
+
+    void NodeContext::onFirmwareFlashReceived(std::vector<uint8_t> data, uint64_t targetClientId, Server::MessageType messageType)
     {
         bool restart = false;
-        if(messageType == Server::FIRMWARE_FLASH_START)
+        if(targetClientId == SyncBlink::getId() || targetClientId == 0)
         {
-            _led.blinkNow(Yellow);
-            uint32_t maxSketchSpace = (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000;
-            if (!Update.begin(maxSketchSpace))
+            if(messageType == Server::FIRMWARE_FLASH_START)
             {
-                _led.blinkNow(Red);
-                Update.printError(Serial);
+                _led.blinkNow(Yellow);
+                uint32_t maxSketchSpace = (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000;
+                if (!Update.begin(maxSketchSpace))
+                {
+                    _led.blinkNow(Red);
+                    Update.printError(Serial);
+                }
+                else
+                {
+                    _led.showNow(Blue);
+                    _flashActive = true;
+                }
             }
-            else _led.showNow(Blue);
-        }
-        else if(messageType == Server::FIRMWARE_FLASH_DATA)
+            else if(messageType == Server::FIRMWARE_FLASH_END)
+            {
+                if (Update.end(true))
+                {
+                    _led.blinkNow(Cyan);                    
+                    _flashActive = false;
+                    Serial.println("Update Success: Rebooting...\n");
+                    restart = true;
+                }
+                else
+                {
+                    _led.blinkNow(Red);
+                    Update.printError(Serial);
+                }
+            }
+        }   
+        
+        // TargetID for FLash Data is '0' - that why we handle it in a seperate if branch
+        if(_flashActive && messageType == Server::FIRMWARE_FLASH_DATA)
         {            
             if (Update.write(&data[0], data.size()) != data.size())
             {
@@ -151,21 +205,11 @@ namespace SyncBlink
                 Update.printError(Serial);
             }
         }
-        else if(messageType == Server::FIRMWARE_FLASH_END)
-        {
-            if (Update.end(true))
-            {
-                _led.blinkNow(Cyan);
-                Serial.println("Update Success: Rebooting...\n");
-                restart = true;
-            }
-            else
-            {
-                _led.blinkNow(Red);
-                Update.printError(Serial);
-            }
-        }
-        _socketServer.broadcast(&data[0], data.size(), messageType);
+        
+        // Only distribute, if the message is not for the current node
+        // Or all nodes in the mesh get flashed
+        if(!_flashActive ||  targetClientId == 0) _socketServer.broadcast(&data[0], data.size(), messageType);
+
         // we are restarting here to make sure, that all messages 
         // also get send to the current child nodes
         if(restart)
@@ -182,7 +226,9 @@ namespace SyncBlink
          {
             _led.blinkNow(Green);
 
-            Client::ConnectionMessage message = { SyncBlink::getId(), 0, _led.getLedCount(), (float)VERSION };
+            Client::ConnectionMessage message = { SyncBlink::getId(), 0, _led.getLedCount(), VERSIONMAJOR, VERSIONMINOR };
+            memcpy(&message.nodeLabel[0], &_nodeLabel[0], _nodeLabel.size());
+
             _socketClient.sendMessage(&message, sizeof(message), Client::MESH_CONNECTION);
          }
          else _led.blinkNow(Red); 

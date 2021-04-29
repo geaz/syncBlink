@@ -1,14 +1,16 @@
+#include "syncblink_web.hpp"
+
+#include <sstream>
 #include <LittleFS.h>
 #include <ArduinoJson.h>
 #include <network/websocket/messages/audio_analyzer_message.hpp>
-
-#include "syncblink_web.hpp"
 
 namespace SyncBlink
 {
     SyncBlinkWeb::SyncBlinkWeb(StationWifi& stationWifi, ModManager& modManager, NodeManager& nodeManager)
         : _server(80), _stationWifi(stationWifi), _modManager(modManager), _nodeManager(nodeManager)
     {
+        _server.on("/api/mesh/rename", [this]() { renameNode(); });
         _server.on("/api/mesh/info", [this]() { getMeshInfo(); });        
         _server.on("/api/mesh/flash", HTTP_POST, 
             [this]() { 
@@ -39,6 +41,19 @@ namespace SyncBlink
         _server.handleClient();
     }
 
+    void SyncBlinkWeb::renameNode()
+    {
+        String targetIdArg = _server.arg("targetId");
+        String label = _server.arg("label");
+
+        uint64_t targetId;
+        std::istringstream iss(targetIdArg.c_str());
+        iss >> targetId;
+
+        _nodeManager.renameNode(targetId, std::string(label.c_str()));
+        _server.send(200, "text/plain");
+    }
+
     void SyncBlinkWeb::getMeshInfo()
     {
         String JSON;
@@ -51,7 +66,9 @@ namespace SyncBlink
             nodeJson["clientId"] = connectedNodes[i].clientId;
             nodeJson["parentId"] = connectedNodes[i].parentId;
             nodeJson["ledCount"] = connectedNodes[i].ledCount;
-            nodeJson["firmwareVersion"] = connectedNodes[i].firmwareVersion;
+            nodeJson["majorVersion"] = connectedNodes[i].majorVersion;
+            nodeJson["minorVersion"] = connectedNodes[i].minorVersion;
+            nodeJson["label"] = &connectedNodes[i].nodeLabel[0];
 
             doc["nodes"][i] = nodeJson;
         }

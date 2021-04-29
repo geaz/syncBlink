@@ -20,20 +20,24 @@ namespace SyncBlink
             void loop();
 
         private:
-            uint32_t readLedCount();
+            void readNodeInfo();
             void checkNewMod();
             
             void onSocketClientConnectionChanged(bool connected);
             void onMeshUpdateReceived(Server::UpdateMessage message);
-            void onAnalyzerResultReceived(AudioAnalyzerMessage message);
             void onSocketClientModReceived(std::string mod);
-            void onFirmwareFlashReceived(std::vector<uint8_t> data, Server::MessageType messageType);
+            void onAnalyzerResultReceived(AudioAnalyzerMessage message);
+            void onNodeRenameReceived(Server::NodeRenameMessage message);
+            void onFirmwareFlashReceived(std::vector<uint8_t> data, uint64_t targetClientId, Server::MessageType messageType);
+
             void onSocketServerMessageReceived(Client::MessageType messageType, uint8_t* payload, size_t length);
 
             LED _led;
             SyncBlinkMesh _mesh;
             SocketServer _socketServer;
             SocketClient _socketClient;
+
+            std::string _nodeLabel;
 
             uint32_t _nodeLedCount = 0;
             uint32_t _meshLedCount = 0;
@@ -42,8 +46,11 @@ namespace SyncBlink
             uint32_t _previousNodeCount = 0;
 
             bool _newMod = false;
+            bool _flashActive = false;
+
             std::string _currentMod;
-            uint64_t _lastUpdate = millis();
+
+            long _lastUpdate = millis();
             std::unique_ptr<BlinkScript> _blinkScript = nullptr;
     };
 }

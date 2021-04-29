@@ -1,5 +1,5 @@
-#ifndef FREQUENCYINFOS_H
-#define FREQUENCYINFOS_H
+#ifndef SHAREDCONSTANTS_H
+#define SHAREDCONSTANTS_H
 
 #include <cinttypes>
 #include <math.h>
@@ -17,6 +17,8 @@ namespace SyncBlink
     // https://en.wikipedia.org/wiki/Audio_frequency
     static const short MaxFrequency = 4186; // Highest note on a standard 88-key piano.
     static const uint8_t MaxFreqBinIndex = (uint8_t)((float)MaxFrequency / ((float)SampleRate / (float)FFTDataSize));
+
+    static const uint8_t MaxNodeLabelLength = 16;
 }
 
-#endif // FREQUENCYINFOS_H
+#endif // SHAREDCONSTANTS_H

@@ -5,7 +5,7 @@ if len(sys.argv) != 2:
     sys.exit()
 
 ledCount = int(sys.argv[1])
-ledCountArr = ledCount.to_bytes(4, 'little') 
+ledCountArr = ledCount.to_bytes(5, 'little') # Add a zero (5bytes instead of the needed 4bytes for the int) for the node label
 
 with open('nodeEEPROM.bin', 'wb') as f:
     f.write(ledCountArr)

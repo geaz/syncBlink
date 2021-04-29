@@ -16,7 +16,8 @@ namespace SyncBlink
     typedef std::function<void(AudioAnalyzerMessage message)> AudioAnalyzerEvent;
     typedef std::function<void(Server::UpdateMessage message)> MeshUpdateEvent;
     typedef std::function<void(Server::SourceMessage message)> SourceUpdateEvent;
-    typedef std::function<void(std::vector<uint8_t> data, Server::MessageType messageType)> FirmwareFlashEvent;
+    typedef std::function<void(Server::NodeRenameMessage message)> NodeRenameEvent;
+    typedef std::function<void(std::vector<uint8_t> data, uint64_t targetClientId, Server::MessageType messageType)> FirmwareFlashEvent;
 
     class SocketClient
     {
@@ -32,6 +33,7 @@ namespace SyncBlink
         EventRegistration<AudioAnalyzerEvent> audioAnalyzerEvents;
         EventRegistration<MeshUpdateEvent> meshUpdateEvents;
         EventRegistration<SourceUpdateEvent> sourceUpdateEvents;
+        EventRegistration<NodeRenameEvent> nodeRenameEvents;
         EventRegistration<FirmwareFlashEvent> firmwareFlashEvents;
 
     private:

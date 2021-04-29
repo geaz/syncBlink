@@ -1,7 +1,7 @@
 #ifndef SHAREDFUNCS_H
 #define SHAREDFUNCS_H
 
-#include "frequency_infos.hpp"
+#include "shared_constants.hpp"
 
 #include <array>
 

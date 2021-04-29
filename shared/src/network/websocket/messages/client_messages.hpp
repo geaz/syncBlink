@@ -4,6 +4,7 @@
 #include "audio_analyzer_message.hpp"
 
 #include <array>
+#include <shared_constants.hpp>
 
 namespace SyncBlink
 {
@@ -25,8 +26,10 @@ namespace SyncBlink
         {
             uint64_t clientId;
             uint64_t parentId;
-            uint32_t ledCount;
-            float firmwareVersion;
+            uint16_t ledCount;
+            uint8_t majorVersion;
+            uint8_t minorVersion;
+            char nodeLabel[MaxNodeLabelLength];
         };
     }
 }

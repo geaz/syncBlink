@@ -1,5 +1,4 @@
 #include "socket_client.hpp"
-#include "network/mesh/syncblink_mesh.hpp"
 
 namespace SyncBlink
 {
@@ -76,6 +75,14 @@ namespace SyncBlink
                         event.second(message);
                     break;
                 }
+                case Server::NODE_RENAME:
+                {
+                    Server::NodeRenameMessage message;
+                    memcpy(&message, &payload[1], length-1);
+                    for (auto event : nodeRenameEvents.getEventHandlers())
+                        event.second(message);
+                    break;
+                }
                 case Server::DISTRIBUTE_MOD:
                 {
                     std::string mod((char*)&payload[1], length-1);
@@ -87,22 +94,16 @@ namespace SyncBlink
                 {
                     uint64_t targetClientId = 0;
                     memcpy(&targetClientId, &payload[1], length-1);
-                    if(targetClientId == SyncBlink::getId() || targetClientId == 0)
-                    {
-                        for (auto event : firmwareFlashEvents.getEventHandlers())
-                            event.second(std::vector<uint8_t>(), Server::FIRMWARE_FLASH_START);
-                    }
+                    for (auto event : firmwareFlashEvents.getEventHandlers())
+                        event.second(std::vector<uint8_t>(), targetClientId, Server::FIRMWARE_FLASH_START);
                     break;
                 }
                 case Server::FIRMWARE_FLASH_END:
                 {
                     uint64_t targetClientId = 0;
                     memcpy(&targetClientId, &payload[1], length-1);
-                    if(targetClientId == SyncBlink::getId() || targetClientId == 0)
-                    {
-                        for (auto event : firmwareFlashEvents.getEventHandlers())
-                            event.second(std::vector<uint8_t>(), Server::FIRMWARE_FLASH_END);
-                    }
+                    for (auto event : firmwareFlashEvents.getEventHandlers())
+                        event.second(std::vector<uint8_t>(), targetClientId, Server::FIRMWARE_FLASH_END);
                     break;
                 }
                 case Server::FIRMWARE_FLASH_DATA:
@@ -113,7 +114,7 @@ namespace SyncBlink
                         data.push_back(payload[i]);
                     }
                     for (auto event : firmwareFlashEvents.getEventHandlers())
-                        event.second(data, Server::FIRMWARE_FLASH_DATA);
+                        event.second(data, 0, Server::FIRMWARE_FLASH_DATA);
                     break;
                 }
             }

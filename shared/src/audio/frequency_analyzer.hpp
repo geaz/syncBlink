@@ -3,7 +3,7 @@
 
 #include "audio_analyzer_result.hpp"
 #include "band_pass_filter.hpp"
-#include "frequency_infos.hpp"
+#include "shared_constants.hpp"
 
 #include <math.h>
 

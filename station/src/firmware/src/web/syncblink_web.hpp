@@ -23,6 +23,7 @@ namespace SyncBlink
             EventRegistration<UploadEvent> uploadListener;
 
         private:
+            void renameNode();
             void getMeshInfo();
             void flashMesh();
 

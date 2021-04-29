@@ -6,7 +6,7 @@
 
 namespace SyncBlink
 {
-    StationContext::StationContext() : _web(_wifi, _modManager, _nodeManager)
+    StationContext::StationContext() : _nodeManager(_socketServer), _web(_wifi, _modManager, _nodeManager)
     {
         resetState();
         checkException();
@@ -75,9 +75,9 @@ namespace SyncBlink
                 Client::ConnectionMessage message;
                 memcpy(&message, payload, length);
 
-                Serial.printf("Mesh Connection: Client %12llx, LEDs %i, Parent %12llx, Firmware Version: %.2f\n",
+                Serial.printf("Mesh Connection: Client %12llx, LEDs %i, Parent %12llx, Firmware Version: %i.%i\n",
                     message.clientId, message.ledCount,
-                    message.parentId, message.firmwareVersion);
+                    message.parentId, message.majorVersion, message.minorVersion);
                 _nodeManager.addNode(message);
 
                 Server::UpdateMessage updateMessage = { _led.getLedCount(), 1, _nodeManager.getTotalLedCount(), _nodeManager.getTotalNodeCount() };
