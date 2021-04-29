@@ -24,7 +24,9 @@ namespace SyncBlink
                     .messageEvents
                     .addEventHandler([this](Client::MessageType messageType, uint8_t* payload, size_t length) 
                     { 
-                        handleExternalSource(messageType, payload, length); 
+                        _newNodeConnected = messageType == Client::MESH_CONNECTION;
+                        if(messageType == Client::MessageType::EXTERNAL_ANALYZER)
+                            handleExternalSource(payload, length);
                     });
                 _modEventHandleId = context.getModManager()
                     .activeModChangedEvents
@@ -51,7 +53,7 @@ namespace SyncBlink
                 context.getDisplay().setView(_runModView);
                 context.getDisplay().setLeftStatus(_modName);
                 
-                if(_activeModChanged) context.resetState();
+                if(_activeModChanged || _newNodeConnected) context.resetState();
                 else handleMicrophoneSource(context.getSocketServer());
             }
 
@@ -73,11 +75,10 @@ namespace SyncBlink
                 }
             }
 
-            void handleExternalSource(Client::MessageType messageType, uint8_t* payload, size_t length)
+            void handleExternalSource(uint8_t* payload, size_t length)
             {
                 if(checkBlinkScript()
-                && _context.getModManager().getActiveSource() != AudioAnalyzerSource::Station
-                && messageType == Client::MessageType::EXTERNAL_ANALYZER)
+                && _context.getModManager().getActiveSource() != AudioAnalyzerSource::Station)
                 {                    
                     AudioAnalyzerMessage audioMessage;
                     memcpy(&audioMessage, payload, length);
@@ -127,6 +128,7 @@ namespace SyncBlink
             uint64_t _socketEventHandleId = 0, _modEventHandleId = 0;
             std::string _modName;
             bool _activeModChanged = false;
+            bool _newNodeConnected = false;
 
             FrequencyAnalyzer _frequencyAnalyzer;
             uint64_t _lastLedUpdate = millis();

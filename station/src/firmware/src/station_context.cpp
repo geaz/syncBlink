@@ -89,6 +89,9 @@ namespace SyncBlink
                 uint64_t clientId;
                 memcpy(&clientId, payload, length);
                 onMeshDisconnection(clientId);
+
+                Server::UpdateMessage updateMessage = { _led.getLedCount(), 1, _nodeManager.getTotalLedCount(), _nodeManager.getTotalNodeCount() };
+                _socketServer.broadcast(&updateMessage, sizeof(updateMessage), Server::MESH_UPDATE);
                 break;
             }
             case Client::MESH_UPDATED:

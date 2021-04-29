@@ -125,12 +125,8 @@ namespace SyncBlink
         // Unexpected errors will occure!
         _newMod = true;
         _currentMod = mod;
-        if(_socketServer.getClientsCount() == 0)
-        {
-            Serial.println("End of route - Sending MOD_DISTRIBUTED");
-            _socketClient.sendMessage(0, 0, Client::MOD_DISTRIBUTED);
-        }
-        else _socketServer.broadcast((void*)mod.c_str(), mod.size(), Server::DISTRIBUTE_MOD);
+        _socketClient.sendMessage(0, 0, Client::MOD_DISTRIBUTED);
+        _socketServer.broadcast((void*)mod.c_str(), mod.size(), Server::DISTRIBUTE_MOD);
     }
 
     void NodeContext::onFirmwareFlashReceived(std::vector<uint8_t> data, Server::MessageType messageType)

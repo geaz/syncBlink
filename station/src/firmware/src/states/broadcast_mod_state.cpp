@@ -20,7 +20,11 @@ namespace SyncBlink
                     .messageEvents
                     .addEventHandler([this](Client::MessageType messageType, uint8_t* payload, size_t length) 
                     { 
-                        _modDistributed = messageType == Client::MOD_DISTRIBUTED; 
+                        if(messageType == Client::MOD_DISTRIBUTED && _broadcastStartedAt != 0) {
+                            
+                            _modDistributed = ++_receivedAnswers == _nodeCount;
+                        }
+                        _resetDistribution = messageType == Client::MESH_CONNECTION || messageType == Client::MESH_DISCONNECTION;
                     });
                 _broadcastModView = std::make_shared<IconTextView>("Broadcasting MOD ...", u8g2_font_open_iconic_thing_2x_t, 74);
             }
@@ -38,12 +42,19 @@ namespace SyncBlink
                 context.getDisplay().setView(_broadcastModView);
                 context.getDisplay().loop();
 
-                if(!_broadcastStarted && context.getSocketServer().getClientsCount() > 0)
+                if(_resetDistribution)
                 {
+                    _receivedAnswers = 0;
+                    _broadcastStartedAt = 0;
+                }
+                else if(_broadcastStartedAt == 0 && context.getSocketServer().getClientsCount() > 0)
+                {
+                    _broadcastStartedAt = millis();
+                    _nodeCount = context.getNodeManager().getTotalNodeCount() - 1; // Don't count station node
                     context.getSocketServer().broadcast((void*)_mod.c_str(), _mod.size(), Server::DISTRIBUTE_MOD);
-                    _broadcastStarted = true;
                 }
                 else if(context.getSocketServer().getClientsCount() == 0) _modDistributed = true;
+                else if(_broadcastStartedAt + 10000 < millis()) _modDistributed = true; // Timeout
 
                 if(_modDistributed)
                 {
@@ -56,9 +67,6 @@ namespace SyncBlink
 
                     context.getLed().setAllLeds(SyncBlink::Black);
                     context.currentState = std::make_shared<RunModState>(context, blinkScript);
-
-                    _modDistributed = false;
-                    _broadcastStarted = false;
                 }
             }
 
@@ -68,8 +76,11 @@ namespace SyncBlink
             uint64_t _handleId;
 
             std::shared_ptr<IconTextView> _broadcastModView;
-            bool _broadcastStarted = false;
+            uint8_t _receivedAnswers = 0;
+            uint8_t _nodeCount = 0;
+            unsigned long _broadcastStartedAt = 0;
             bool _modDistributed = false;
+            bool _resetDistribution = false;
     };
 }
 
