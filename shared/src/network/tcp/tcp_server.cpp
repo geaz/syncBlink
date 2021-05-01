@@ -15,7 +15,7 @@ namespace SyncBlink
     void TcpServer::broadcast(void* message, uint32_t messageSize, Server::MessageType messageType)
     {
         auto tcpMessage = TcpStream::serializeMessage(message, messageSize, messageType);
-        #ifdef DEBUG_TCP
+        #ifdef DEBUG_TCPSTREAM
         if(_clients.size() > 0) Serial.printf("[TCP SERVER] Writing message - Type: %i, Size: %i\n", messageType, tcpMessage.size());
         #endif
         for(auto& client : _clients)

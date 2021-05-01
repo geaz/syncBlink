@@ -38,6 +38,13 @@ namespace SyncBlink
 
     void StationContext::loop()
     {
+        #ifdef LOG_HEAP
+        if(millis() - _lastHeapLog > 1000)
+        {
+            Serial.println(ESP.getFreeHeap());
+            _lastHeapLog = millis();
+        }
+        #endif
         _display.setLeftStatus("");
         _display.setRightStatus(WiFi.localIP().toString().c_str());
 

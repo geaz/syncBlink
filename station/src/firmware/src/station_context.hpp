@@ -58,6 +58,10 @@ namespace SyncBlink
             ModManager _modManager;
             TcpServer _tcpServer;          
             SyncBlinkWeb _web;
+
+            #ifdef LOG_HEAP
+            long _lastHeapLog;
+            #endif
     };
 }
 
