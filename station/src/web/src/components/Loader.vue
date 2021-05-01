@@ -1,9 +1,19 @@
 <template>
   <div id="loader">
-      <p>Loading ...</p>
+      <p>{{message}}</p>
       <i class="material-icons-outlined">cached</i>
   </div>
 </template>
+
+<script lang="ts">
+    import { Component, Prop, Vue } from "vue-property-decorator";
+
+    @Component
+    export default class Loader extends Vue {
+        @Prop({ default: 'Loading...' })
+        private message!: string;
+    }
+</script>
 
 <style scoped lang="scss">
     @import "./assets/sass/shared/_var.scss";
@@ -15,6 +25,9 @@
         background: $background-color;
         text-align: center;
         padding-top: 150px;
+        top:0;
+        left:0;
+        z-index:9999;
 
         p { text-align: center; }
     }

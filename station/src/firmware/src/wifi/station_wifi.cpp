@@ -24,9 +24,9 @@ namespace SyncBlink
             WiFi.begin(ssid.c_str(), password.c_str());
             
             #ifdef DEBUG_STATIONWIFI
-            Serial.println("[WIFI] Waiting for Wifi to connect (15sec timeout)...");
+            Serial.println("[WIFI] Waiting for Wifi to connect (30 sec timeout)...");
             #endif
-            if(WiFi.waitForConnectResult(15000) == WL_CONNECTED)
+            if(WiFi.waitForConnectResult(30000) == WL_CONNECTED)
             {
                 #ifdef DEBUG_STATIONWIFI
                 Serial.println("[WIFI] Connected!");

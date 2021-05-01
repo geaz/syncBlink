@@ -194,6 +194,11 @@ namespace SyncBlink
         if(upload.status == UPLOAD_FILE_START)
         {                        
             LittleFS.remove(FirmwarePath.c_str()); // Remove old node firmware
+
+            String targetIdArg = _server.arg("targetId");
+            std::istringstream iss(targetIdArg.c_str());
+            iss >> _firmwareTargetId;
+            
             _firmwareSize = std::atoi(_server.arg("size").c_str());
             _firmwareFile = LittleFS.open(FirmwarePath.c_str(), "a");
             triggerOnUploadEvent(0, true, false, false);
@@ -219,6 +224,6 @@ namespace SyncBlink
     void SyncBlinkWeb::triggerOnUploadEvent(float progress, bool isStart, bool isEnd, bool isError)
     {
         for(auto& listener : uploadListener.getEventHandlers())
-            listener.second(progress, isStart, isEnd, isError);
+            listener.second(progress, isStart, isEnd, isError, _firmwareTargetId);
     }
 }

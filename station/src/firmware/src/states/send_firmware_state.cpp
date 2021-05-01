@@ -12,15 +12,16 @@ namespace SyncBlink
     class SendFirmwareState : public State
     {
         public:
-            SendFirmwareState(StationContext& context) :
+            SendFirmwareState(StationContext& context, uint64_t targetId) :
                 _progressView(std::make_shared<ProgressView>("Sending Firmware..."))
             {
+                _targetId = targetId;
                 if(LittleFS.exists(FirmwarePath.c_str()))
                 {
                     _activeFlash = LittleFS.open(FirmwarePath.c_str(), "r");
                     _flashPos = 0;
                     _flashing = true;
-                    context.getTcpServer().broadcast(0, 0, Server::FIRMWARE_FLASH_START);
+                    context.getTcpServer().broadcast(&_targetId, sizeof(_targetId), Server::FIRMWARE_FLASH_START);
                 }
             }
 
@@ -35,7 +36,7 @@ namespace SyncBlink
                     {
                         _activeFlash.close();
                         _flashing = false;
-                        context.getTcpServer().broadcast(0, 0, Server::FIRMWARE_FLASH_END);
+                        context.getTcpServer().broadcast(&_targetId, sizeof(_targetId), Server::FIRMWARE_FLASH_END);
                         context.resetState();
                     }
                     else
@@ -59,6 +60,7 @@ namespace SyncBlink
             File _activeFlash;
             size_t _flashPos;
             bool _flashing;
+            uint64_t _targetId;
     };
 }
 

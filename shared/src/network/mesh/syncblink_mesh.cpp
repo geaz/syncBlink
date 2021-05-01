@@ -63,10 +63,10 @@ namespace SyncBlink
 
         if (nearestNode != -1)
         {
-            Serial.println("Connecting to '" + WiFi.SSID(nearestNode) + "' (15 sec Timeout)...");
+            Serial.println("Connecting to '" + WiFi.SSID(nearestNode) + "' (30 sec Timeout)...");
             WiFi.begin(WiFi.SSID(nearestNode), Password);
 
-            if(WiFi.waitForConnectResult(15000) == WL_CONNECTED)
+            if(WiFi.waitForConnectResult(30000) == WL_CONNECTED)
             {
                 Serial.println("Connected!");
 

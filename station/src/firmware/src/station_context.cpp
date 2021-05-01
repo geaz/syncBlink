@@ -28,7 +28,7 @@ namespace SyncBlink
             .addEventHandler([this](uint64_t clientId) { onMeshDisconnection(clientId); });
 
         _web.uploadListener
-            .addEventHandler([this](float progress, bool isStart, bool isEnd, bool isError) {
+            .addEventHandler([this](float progress, bool isStart, bool isEnd, bool isError, uint64_t targetId) {
                 if(isStart) currentState = std::make_shared<ReceivingFirmwareState>(*this);
                 currentState->run(*this);
             });

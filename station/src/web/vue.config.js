@@ -8,5 +8,14 @@ module.exports = {
                 args[0].title = 'syncBlink'
                 return args
             })
+    },
+    devServer: {
+        proxy: {
+            '/api': {
+                target: 'http://192.168.178.57',
+                ws: true,
+                changeOrigin: true
+            }
+        }
     }
 }

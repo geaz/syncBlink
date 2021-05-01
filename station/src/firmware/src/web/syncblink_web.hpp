@@ -11,7 +11,7 @@
 
 namespace SyncBlink
 {
-    typedef std::function<void(float progress, bool isStart, bool isEnd, bool isError)> UploadEvent;
+    typedef std::function<void(float progress, bool isStart, bool isEnd, bool isError, uint64_t targetId)> UploadEvent;
 
     class SyncBlinkWeb
     {
@@ -50,6 +50,7 @@ namespace SyncBlink
 
             File _firmwareFile;
             uint32_t _firmwareSize = 0;
+            uint64_t _firmwareTargetId = 0;
     };
 }
 

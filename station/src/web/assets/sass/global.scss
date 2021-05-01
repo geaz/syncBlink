@@ -57,6 +57,11 @@
         background: $primary-color;
     }
 }
+
+.button.small {
+    font-size: 0.75rem;
+    padding: 5px;
+}
     
 .button.green{
     background: $color-green;
@@ -68,6 +73,14 @@
 
 .button.red {
     background: $color-red;
+    &:hover {
+        color: black;
+        background: $primary-color;
+    }
+}
+
+.button.gray {
+    background: $footer-backcolor;
     &:hover {
         color: black;
         background: $primary-color;

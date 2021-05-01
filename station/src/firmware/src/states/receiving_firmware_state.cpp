@@ -17,10 +17,11 @@ namespace SyncBlink
             {
                 _webEventHandleId = context.getWebserver()
                     .uploadListener
-                    .addEventHandler([this](float progress, bool isStart, bool isEnd, bool isError) 
+                    .addEventHandler([this](float progress, bool isStart, bool isEnd, bool isError, uint64_t targetId) 
                     {
                         _progressView->setProgress(progress);
                         _uploadDone = isEnd;
+                        _targetId = targetId;
                     });
             }
 
@@ -34,17 +35,17 @@ namespace SyncBlink
             void run(StationContext& context)
             {
                 context.getLed().setAllLeds(SyncBlink::Blue);
-                if(_uploadDone) context.currentState = std::make_shared<SendFirmwareState>(context);
-                {
-                    context.getDisplay().setView(_progressView);
-                    context.getDisplay().loop();
-                }
+                context.getDisplay().setView(_progressView);
+                context.getDisplay().loop();
+
+                if(_uploadDone) context.currentState = std::make_shared<SendFirmwareState>(context, _targetId);
             }
 
         private:
             StationContext& _context;
             std::shared_ptr<ProgressView> _progressView;            
             uint64_t _webEventHandleId = 0;
+            uint64_t _targetId = 0;
             bool _uploadDone = false;
     };
 }

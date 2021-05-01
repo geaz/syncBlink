@@ -28,5 +28,11 @@ let init = fun(){
     for(let i = nLedC - 1; i > 0; i = i - 1) {
         colors[i] = xrgb(0,0,0)
     }
+    if(nLedC == 16) {
+    	setGroupsOf(4)
+    }
+    if(nLedC == 256) {
+    	setLinearGroupsOf(16)
+    }
 }
-let modName = "meshSnake"
+let modName = "snake"

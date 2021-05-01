@@ -1,42 +1,23 @@
 <template>
     <div id="mesh" class="flex-content flex-centered">
-        <Modal :title="'Upload Node Firmware'" v-if="showFirmwareUpload" @close="fileSelected=showFirmwareUpload=false">
-            <template v-slot:content>
-                <div class="file-info" v-if="fileSelected">
-                    <p>{{file.name}}</p>
-                    <p v-if="firmwareError" class="file-error">{{modalError}}</p>
-                    <button @click="fileSelected=false" class="button">Clear</button>
-                </div>
-                <label v-else class="file-button">
-                    <div class="button">
-                        <span>Select Firmware</span>
-                    </div>
-                    <input type="file" @change="checkFile" accept=".bin"/>
-                </label>
-            </template>
-            <template v-slot:footer>
-                <button @click="uploadFirmware" :disabled="!fileSelected || firmwareError" class="button red" :class="{ disabled: !fileSelected || firmwareError }">Upload</button>
-            </template>
-        </Modal>
-
         <Loader v-if="loading"></Loader>
         <template v-else>
-            <button @click="showFirmwareUpload = true" class="button">Upload</button>
-            <MeshNode :nodeInfo="mesh"></MeshNode>
+            <Updater :clientId="updaterClientId" :label="updaterLabel" :show="showUpdater" @close="showUpdater=false"></Updater>
+            <MeshNode :nodeInfo="mesh" :isStation="true" @rename="rename" @upload="upload"></MeshNode>
         </template>
     </div>
 </template>
 
 <script lang="ts">
     import { Component, Vue } from "vue-property-decorator";
-    import Modal from "../components/Modal.vue";
     import Loader from "../components/Loader.vue";
+    import Updater from "../components/Updater.vue";
     import MeshNode from "../components/MeshNode.vue";
 
     @Component({
         components: {
-            Modal,
             Loader,
+            Updater,
             MeshNode
         },
     })
@@ -44,20 +25,23 @@
         private mesh: any = undefined;
         private loading: boolean = true;
 
-        private file!: File;
-        private modalError: string = "";
-        private fileSelected: boolean = false;
-        private firmwareError: boolean = false;
-        private showFirmwareUpload: boolean = false;
+        private showUpdater: boolean = false;
+        private updaterClientId: number = 0;
+        private updaterLabel: string = "";
 
         async beforeMount() {
+            this.reload();
+        }
+
+        async reload() : Promise<void> {
             try {
+                this.loading = true;
                 await this.loadMeshInfo();
                 this.loading = false;
             }
             catch(ex) {
                 alert(ex);
-            }            
+            }  
         }
 
         async loadMeshInfo() : Promise<void> {            
@@ -88,47 +72,21 @@
             }
             else { throw("Error during mesh info request!"); }
         }
-        
-        checkFile(event : any) : void {
-            this.file = event.target.files[0];
-            this.fileSelected = true;
-            
-            if(this.file.size > 1000000) {
-                this.firmwareError = true;
-                this.modalError = "File to big!";
-            }
-            else if(this.file.type != "application/octet-stream") {
-                this.firmwareError = true;
-                this.modalError = "Wrong file type!";
-            }
-            else this.firmwareError = false;
+
+        rename(clientId: number, label: string)
+        {
+            console.log(clientId + " " + label);
         }
 
-        async uploadFirmware() : Promise<void> {
-            if(confirm("Are you sure?")) {
-                this.loading = true;
-                this.fileSelected = false;
-                this.showFirmwareUpload = false;
-
-                let formData = new FormData();
-                formData.append("firmware", this.file);
-                await fetch('/api/mesh/flash?size=' + this.file.size, {method: "POST", body: formData, });
-
-                this.loading = false;
-            }
+        upload(clientId: number, label: string, isStation: boolean)
+        {
+            this.updaterClientId = clientId;
+            this.updaterLabel = label;
+            this.showUpdater = true;
         }
     }
 </script>
 
 <style lang="scss">
     @import "./assets/sass/global.scss";
-
-    .file-info p {
-        text-align: center;
-        font-weight: bold;
-    }
-
-    .file-error {
-        color:$color-red;
-    }
 </style>
