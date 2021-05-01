@@ -76,8 +76,11 @@ namespace SyncBlink
             data[i] = curChar;
             i++;
         }
+
         std::string activeMod(data);
-        Serial.printf("Active MOD: %s\n", activeMod.c_str());
+        #ifdef DEBUG_MODMANAGER
+        Serial.printf("[MODMANAGER] Active MOD: %s\n", activeMod.c_str());
+        #endif
 
         Mod mod = get(activeMod);
         if(!mod.Exists) 
@@ -97,10 +100,14 @@ namespace SyncBlink
     {
         if (modName.length() > 0) 
         {
-            Serial.println("Clearing active Mod ...");
+            #ifdef DEBUG_MODMANAGER
+            Serial.println("[MODMANAGER] Clearing active Mod ...");
+            #endif
             for (int i = SyncBlink::ModRomStart; i < SyncBlink::ModRomEnd; ++i) { EEPROM.write(i, 0); }
 
-            Serial.printf("Saving active Mod (%s) ...\n", modName.c_str());
+            #ifdef DEBUG_MODMANAGER
+            Serial.printf("[MODMANAGER] Saving active Mod (%s) ...\n", modName.c_str());
+            #endif
             for (uint i = 0; i < modName.length(); ++i) EEPROM.write(i + SyncBlink::ModRomStart, modName[i]);
 
             EEPROM.commit();
@@ -112,7 +119,9 @@ namespace SyncBlink
     {
         uint rawSource = EEPROM.read(SyncBlink::SourceRom);
         if(rawSource != 0 && rawSource != 1) {
-            Serial.println("Currently active source not valid! Falling back ...");
+            #ifdef DEBUG_MODMANAGER
+            Serial.println("[MODMANAGER] Currently active source not valid! Falling back ...");
+            #endif
             saveActiveSource(AudioAnalyzerSource::Station);
         }
         return static_cast<AudioAnalyzerSource>(EEPROM.read(SyncBlink::SourceRom));
@@ -120,7 +129,9 @@ namespace SyncBlink
 
     void ModManager::saveActiveSource(AudioAnalyzerSource source)
     {
-        Serial.printf("Saving active Source (%d) ...\n", source);
+        #ifdef DEBUG_MODMANAGER
+        Serial.printf("[MODMANAGER] Saving active Source (%d) ...\n", source);
+        #endif
         EEPROM.write(SyncBlink::SourceRom, static_cast<uint>(source));
         EEPROM.commit();
     }

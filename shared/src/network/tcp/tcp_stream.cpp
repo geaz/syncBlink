@@ -16,11 +16,11 @@ namespace SyncBlink
     bool TcpStream::connectTo(String socketIp, uint16_t port)
     {
         bool connected = false;
-        #ifdef DEBUG_SOCKET
+        #ifdef DEBUG_TCP
         Serial.println("[TCP STREAM] Connecting to TCP '" + socketIp + "' ...");
         #endif
         if(_client.connect(socketIp, 81)){
-            #ifdef DEBUG_SOCKET
+            #ifdef DEBUG_TCP
             Serial.println("[TCP STREAM] Connected!");
             #endif
             connected = true;
@@ -66,13 +66,13 @@ namespace SyncBlink
                             readBytes += _client.read(&tcpMessage.message[readBytes], messageSize-readBytes);
                             if(readBytes != messageSize)
                             {
-                                #ifdef DEBUG_SOCKET
+                                #ifdef DEBUG_TCP
                                 Serial.printf("[TCP STREAM] Big message, have to yield...\n");
                                 #endif
                                 yield();
                             }
                         }                        
-                        #ifdef DEBUG_SOCKET
+                        #ifdef DEBUG_TCP
                         Serial.printf("[TCP STREAM] Found message - Size: %i, Type: %i\n", tcpMessage.message.size() + SocketHeaderSize, tcpMessage.messageType);
                         #endif
                         receivedMessage = true;
@@ -94,7 +94,7 @@ namespace SyncBlink
             {
                 if(millis() - started > SocketTimeout)
                 {
-                    #ifdef DEBUG_SOCKET
+                    #ifdef DEBUG_TCP
                     Serial.printf("[TCP SERVER] Write Timeout Client\n");
                     #endif
                     _timeout = true;

@@ -12,7 +12,9 @@ namespace SyncBlink
 
     void StationWifi::connectWifi()
     {
-        Serial.println("Connecting to Network ...");
+        #ifdef DEBUG_STATIONWIFI
+        Serial.println("[WIFI] Connecting to Network ...");
+        #endif
         
         std::string ssid = getSavedSSID();        
         std::string password = getSavedPass();
@@ -20,21 +22,23 @@ namespace SyncBlink
         if (ssid.length() > 1 ) 
         {
             WiFi.begin(ssid.c_str(), password.c_str());
-            int waitCounter = 0;
-            Serial.print("Waiting for Wifi to connect ");
-            while (WiFi.status() != WL_CONNECTED && waitCounter < 20) 
-            {
-                delay(500);
-                Serial.print(".");
-                waitCounter++;
-            }
             
-            if(WiFi.status() != WL_CONNECTED)
+            #ifdef DEBUG_STATIONWIFI
+            Serial.println("[WIFI] Waiting for Wifi to connect (15sec timeout)...");
+            #endif
+            if(WiFi.waitForConnectResult(15000) == WL_CONNECTED)
             {
-                Serial.println("Couldn't connect to network!");
+                #ifdef DEBUG_STATIONWIFI
+                Serial.println("[WIFI] Connected!");
+                #endif
+            }
+            else
+            {
+                #ifdef DEBUG_STATIONWIFI
+                Serial.println("[WIFI] Couldn't connect to network!");
+                #endif
                 WiFi.disconnect();
             }
-            else { Serial.println("Connected!"); }
         }
     }
 
@@ -42,14 +46,20 @@ namespace SyncBlink
     {
         if (ssid.length() > 0 && pass.length() > 0) 
         {
-            Serial.println("Clearing SSID ...");
+            #ifdef DEBUG_STATIONWIFI
+            Serial.println("[WIFI] Clearing SSID ...");
+            #endif
             for (int i = SyncBlink::WifiRomSSIDStart; i < SyncBlink::WifiRomPwEnd; ++i) { EEPROM.write(i, 0); }
         }
 
-        Serial.printf("Writing SSID (%s) ...\n", ssid.c_str());
+        #ifdef DEBUG_STATIONWIFI
+        Serial.printf("[WIFI] Writing SSID (%s) ...\n", ssid.c_str());
+        #endif
         for (uint i = 0; i < ssid.length(); ++i) EEPROM.write(SyncBlink::WifiRomSSIDStart + i, ssid[i]);
 
-        Serial.printf("Writing Password (%s)\n ...", pass.c_str()); 
+        #ifdef DEBUG_STATIONWIFI
+        Serial.printf("[WIFI] Writing Password (%s) ...\n", pass.c_str());
+        #endif
         for (uint i = 0; i < pass.length(); ++i) EEPROM.write(SyncBlink::WifiRomPwStart + i, pass[i]);
 
         EEPROM.commit();
@@ -69,7 +79,9 @@ namespace SyncBlink
             i++;
         }
         std::string ssid(data);
-        Serial.printf("SSID: %s\n", ssid.c_str());
+        #ifdef DEBUG_STATIONWIFI
+        Serial.printf("[WIFI] SSID: %s\n", ssid.c_str());
+        #endif
 
         return ssid;
     }
@@ -87,7 +99,9 @@ namespace SyncBlink
             i++;
         }
         std::string password(data);
-        Serial.printf("Password: %s\n", password.c_str());
+        #ifdef DEBUG_STATIONWIFI
+        Serial.printf("[WIFI] Password: %s\n", password.c_str());
+        #endif
 
         return password;
     }

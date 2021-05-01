@@ -17,7 +17,7 @@ namespace SyncBlink
     void TcpClient::sendMessage(void* message, uint32_t messageSize, Client::MessageType messageType)
     {
         auto tcpMessage = TcpStream::serializeMessage(message, messageSize, messageType);
-        #ifdef DEBUG_SOCKET
+        #ifdef DEBUG_TCP
         Serial.printf("[TCP CLIENT] Writing message! Type: %i, Size: %i\n", messageType, messageSize);
         #endif
         _client.writeMessage(tcpMessage);
@@ -32,12 +32,12 @@ namespace SyncBlink
     {
         if(!_client.isConnected() && WiFi.status() == WL_CONNECTED)
         {
-            #ifdef DEBUG_SOCKET
+            #ifdef DEBUG_TCP
             Serial.println("[TCP CLIENT] Disconnected! Trying to reconnect ...");
             #endif
             if(_client.connectTo(_serverIp, 81))
             {
-                #ifdef DEBUG_SOCKET
+                #ifdef DEBUG_TCP
                 Serial.println("[TCP CLIENT] Reconnected!");
                 #endif
                 if(!_wasConnected)

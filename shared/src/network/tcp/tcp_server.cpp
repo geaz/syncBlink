@@ -15,7 +15,7 @@ namespace SyncBlink
     void TcpServer::broadcast(void* message, uint32_t messageSize, Server::MessageType messageType)
     {
         auto tcpMessage = TcpStream::serializeMessage(message, messageSize, messageType);
-        #ifdef DEBUG_SOCKET
+        #ifdef DEBUG_TCP
         if(_clients.size() > 0) Serial.printf("[TCP SERVER] Writing message - Type: %i, Size: %i\n", messageType, tcpMessage.size());
         #endif
         for(auto& client : _clients)
@@ -35,7 +35,7 @@ namespace SyncBlink
         {
             if(!iter->isConnected() || iter->isTimeout())
             {
-                #ifdef DEBUG_SOCKET
+                #ifdef DEBUG_TCP
                 Serial.printf("[TCP SERVER] Client lost connection: %12llx\n", iter->getStreamId());
                 #endif
                 if(iter->getStreamId() != 0)
@@ -75,7 +75,7 @@ namespace SyncBlink
                         memcpy(&tcpMessage.message[0], &message, sizeof(message));
                         client.setStreamId(message.clientId);
                     }
-                    #ifdef DEBUG_SOCKET
+                    #ifdef DEBUG_TCP
                     Serial.printf("[TCP SERVER] New Client: %12llx - LEDs %i - Parent %12llx - Firmware Version: %i.%i\n",
                         message.clientId, message.ledCount,
                         message.parentId, message.majorVersion, message.minorVersion);

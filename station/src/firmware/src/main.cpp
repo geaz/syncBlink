@@ -9,8 +9,6 @@ SyncBlink::StationContext stationContext;
 void setup()
 {
     Serial.begin(74880);
-    Serial.println("Starting SyncBlink Station...");
-
     EEPROM.begin(512);
     LittleFS.begin();
 
