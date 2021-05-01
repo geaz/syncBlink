@@ -36,7 +36,7 @@ namespace SyncBlink
             .addEventHandler([this](uint64_t clientId) { _socketClient.sendMessage(&clientId, sizeof(clientId), Client::MESH_DISCONNECTION); });
         _socketServer
             .messageEvents
-            .addEventHandler([this](Client::MessageType messageType, uint8_t* payload, size_t length) { onSocketServerMessageReceived(messageType, payload, length); });
+            .addEventHandler([this](SocketMessage message) { onSocketServerMessageReceived(message); });
         
         WiFi.disconnect();
         if(_mesh.tryJoinMesh())
@@ -234,15 +234,15 @@ namespace SyncBlink
          else _led.blinkNow(Red); 
     }
 
-    void NodeContext::onSocketServerMessageReceived(Client::MessageType messageType, uint8_t* payload, size_t length)
+    void NodeContext::onSocketServerMessageReceived(SocketMessage message)
     {
-        switch (messageType)
+        switch (message.messageType)
         {
             case Client::MESH_CONNECTION:
             case Client::MESH_DISCONNECTION:
             case Client::MESH_UPDATED:
             case Client::MOD_DISTRIBUTED:
-                _socketClient.sendMessage(payload, length, messageType);
+                _socketClient.sendMessage(&message.message[0], message.message.size(), (Client::MessageType)message.messageType);
                 break;
             case Client::EXTERNAL_ANALYZER:
                 break;

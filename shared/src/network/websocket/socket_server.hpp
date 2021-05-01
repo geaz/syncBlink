@@ -1,17 +1,18 @@
 #ifndef SOCKETSERVER_H
 #define SOCKETSERVER_H
 
+#include "socket_stream.hpp"
 #include "event_registration.hpp"
 #include "messages/client_messages.hpp"
 #include "messages/server_messages.hpp"
 
-#include <map>
-#include <WebSocketsServer.h>
+#include <vector>
+#include <ESP8266WiFi.h>
 
 namespace SyncBlink
 {
     typedef std::function<void(uint64_t clientId)> ServerDisconnectionEvent;
-    typedef std::function<void(Client::MessageType messageType, uint8_t* payload, size_t length)> ServerMessageEvent;
+    typedef std::function<void(SocketMessage message)> ServerMessageEvent;
 
     class SocketServer
     {
@@ -27,10 +28,12 @@ namespace SyncBlink
         EventRegistration<ServerMessageEvent> messageEvents;
 
     private:
-        void serverEvent(uint8_t num, WStype_t type, uint8_t *payload, size_t length);
+        void clearClients();
+        void checkNewClients();
+        void handleIncomingMessages();
 
-        std::map<uint8_t, uint64_t> _connectedClients;
-        WebSocketsServer _webSocket = WebSocketsServer(81);
+        WiFiServer _server = WiFiServer(81);
+        std::vector<SocketStream> _clients;
     };
 }
 

@@ -18,13 +18,13 @@ namespace SyncBlink
             {
                 _handleId = context.getSocketServer()
                     .messageEvents
-                    .addEventHandler([this](Client::MessageType messageType, uint8_t* payload, size_t length) 
+                    .addEventHandler([this](SocketMessage message) 
                     { 
-                        if(messageType == Client::MOD_DISTRIBUTED && _broadcastStartedAt != 0) {
+                        if(message.messageType == Client::MOD_DISTRIBUTED && _broadcastStartedAt != 0) {
                             
                             _modDistributed = ++_receivedAnswers == _nodeCount;
                         }
-                        _resetDistribution = messageType == Client::MESH_CONNECTION || messageType == Client::MESH_DISCONNECTION;
+                        _resetDistribution = message.messageType == Client::MESH_CONNECTION || message.messageType == Client::MESH_DISCONNECTION;
                     });
                 _broadcastModView = std::make_shared<IconTextView>("Broadcasting MOD ...", u8g2_font_open_iconic_thing_2x_t, 74);
             }

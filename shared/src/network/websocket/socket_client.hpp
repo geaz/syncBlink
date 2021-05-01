@@ -1,12 +1,13 @@
 #ifndef SOCKETCLIENT_H
 #define SOCKETCLIENT_H
 
+#include "socket_stream.hpp"
 #include "event_registration.hpp"
 #include "messages/client_messages.hpp"
 #include "messages/server_messages.hpp"
 
 #include <functional>
-#include <WebSocketsClient.h>
+#include <ESP8266WiFi.h>
 
 namespace SyncBlink
 {
@@ -22,11 +23,12 @@ namespace SyncBlink
     class SocketClient
     {
     public:
-        void start(String socketIp);
+        void start(String _serverIp);
         void loop();
+        
         void sendMessage(void* message, uint32_t messageSize, Client::MessageType messageType);
 
-        bool isConnected() const;
+        bool isConnected();
 
         EventRegistration<MeshModEvent> meshModEvents;
         EventRegistration<ClientConnectionEvent> connectionEvents;
@@ -37,10 +39,12 @@ namespace SyncBlink
         EventRegistration<FirmwareFlashEvent> firmwareFlashEvents;
 
     private:
-        void clientEvent(WStype_t type, uint8_t *payload, size_t length);
+        void checkConnection();
+        void handleIncomingMessages();
 
-        WebSocketsClient _webSocket;
-        bool _isConnected = false;
+        SocketStream _client;
+        String _serverIp;
+        bool _wasConnected = false;
     };
 }
 

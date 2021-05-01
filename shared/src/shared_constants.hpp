@@ -18,6 +18,13 @@ namespace SyncBlink
     static const short MaxFrequency = 4186; // Highest note on a standard 88-key piano.
     static const uint8_t MaxFreqBinIndex = (uint8_t)((float)MaxFrequency / ((float)SampleRate / (float)FFTDataSize));
 
+    static const char SocketMagicBytes[3] = { 'S', 'B', 'M' }; 
+    static const uint8_t SocketHeaderSize = 
+        4 /* package size info */ +
+        3 /* magic bytes = 'SBM' */ +
+        1 /* checksum */ + 
+        1 /* message type */;
+    static const uint8_t SocketTimeout = 25;
     static const uint8_t MaxNodeLabelLength = 16;
 }
 

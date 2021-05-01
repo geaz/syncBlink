@@ -3,81 +3,87 @@
 
 namespace SyncBlink
 {
-    SocketServer::SocketServer()
-    {
-        // Faster submission of packages
-        // Furthermore, without this, the memory manage while sending
-        // websocket messages to disconnected clients looked strange....
-        WiFiClient().setDefaultNoDelay(true);
-
-        _webSocket.begin();
-        _webSocket.onEvent([this](uint8_t num, WStype_t type, uint8_t* payload, size_t length) {
-            serverEvent(num, type, payload, length);
-        });
-    }
+    SocketServer::SocketServer() { _server.begin(); }
 
     void SocketServer::loop()
     {
-        _webSocket.loop();
+        clearClients();
+        checkNewClients();
+        handleIncomingMessages();
     }
 
     void SocketServer::broadcast(void* message, uint32_t messageSize, Server::MessageType messageType)
     {
-        uint8_t serializedMessage[messageSize+1];
-        memcpy(&serializedMessage[1], message, messageSize);
-        serializedMessage[0] = messageType;
-
-        _webSocket.broadcastBIN(&serializedMessage[0], messageSize+1);
+        auto socketMessage = SocketStream::serializeMessage(message, messageSize, messageType);
+        #ifdef DEBUG_SOCKET
+        if(_clients.size() > 0) Serial.printf("[TCP SERVER] Writing message - Type: %i, Size: %i\n", messageType, socketMessage.size());
+        #endif
+        for(auto& client : _clients)
+        {
+            client.writeMessage(socketMessage);
+        }
     }
 
     uint32_t SocketServer::getClientsCount()
     {
-        return _webSocket.connectedClients();
+        return _clients.size();
     }
 
-    void SocketServer::serverEvent(uint8_t num, WStype_t type, uint8_t* payload, size_t length)
+    void SocketServer::clearClients()
     {
-        IPAddress remoteIp = _webSocket.remoteIP(num);
-        switch (type)
+        for(auto iter = _clients.begin(); iter != _clients.end();)
         {
-        case WStype_DISCONNECTED:
-            // In some cases the client is able to loose the connection to the websocket
-            // Before it send a MESH_CONNECTION message
-            // In these cases the client is not known (=0) and we dont want to inform about its disconnection
-            if(_connectedClients[num] != 0)
+            if(!iter->isConnected() || iter->isTimeout())
             {
-                for (auto event : serverDisconnectionEvents.getEventHandlers())
-                    event.second(_connectedClients[num]);
-                _connectedClients[num] = 0;
-            }
-            break;
-        case WStype_BIN:
-        {
-            if(payload[0] == Client::MESH_CONNECTION)
-            {
-                Client::ConnectionMessage message;
-                memcpy(&message, &payload[1], length - 1);
-                
-                if(message.parentId == 0)
+                #ifdef DEBUG_SOCKET
+                Serial.printf("[TCP SERVER] Client lost connection: %12llx\n", iter->getStreamId());
+                #endif
+                if(iter->getStreamId() != 0)
                 {
-                    message.parentId = SyncBlink::getId();
-                    memcpy(&payload[1], &message, sizeof(message));
-
-                    for(uint8_t i = 0; i < WEBSOCKETS_SERVER_CLIENT_MAX; i++)
-                    {
-                        if(_webSocket.remoteIP(i) == remoteIp)
-                        {
-                            _connectedClients[i] = message.clientId;
-                        }
-                    }
+                    for (auto event : serverDisconnectionEvents.getEventHandlers())
+                        event.second(iter->getStreamId());
                 }
+                _clients.erase(iter);
             }
-            for (auto event : messageEvents.getEventHandlers())
-                event.second((Client::MessageType)payload[0], &payload[1], length - 1);
-            break;
+            else iter++;
         }
-        default:
-            break;
+    }
+
+    void SocketServer::checkNewClients()
+    {
+        if(_server.hasClient())
+        {
+            _clients.push_back(SocketStream(_server.available()));
+        }
+    }
+
+    void SocketServer::handleIncomingMessages()
+    {
+        for(auto& client : _clients)
+        {
+            SocketMessage socketMessage;
+            if(client.checkMessage(socketMessage))
+            {
+                if(socketMessage.messageType == Client::MESH_CONNECTION)
+                {
+                    Client::ConnectionMessage message;
+                    memcpy(&message, &socketMessage.message[0], socketMessage.message.size());
+                    
+                    if(message.parentId == 0)
+                    {
+                        message.parentId = SyncBlink::getId();
+                        memcpy(&socketMessage.message[0], &message, sizeof(message));
+                        client.setStreamId(message.clientId);
+                    }
+                    #ifdef DEBUG_SOCKET
+                    Serial.printf("[TCP SERVER] New Client: %12llx - LEDs %i - Parent %12llx - Firmware Version: %i.%i\n",
+                        message.clientId, message.ledCount,
+                        message.parentId, message.majorVersion, message.minorVersion);
+                    #endif
+                }
+                for (auto event : messageEvents.getEventHandlers())
+                    event.second(socketMessage);
+            }
         }
     }
 }

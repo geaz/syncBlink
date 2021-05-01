@@ -30,7 +30,7 @@ namespace SyncBlink
             void onNodeRenameReceived(Server::NodeRenameMessage message);
             void onFirmwareFlashReceived(std::vector<uint8_t> data, uint64_t targetClientId, Server::MessageType messageType);
 
-            void onSocketServerMessageReceived(Client::MessageType messageType, uint8_t* payload, size_t length);
+            void onSocketServerMessageReceived(SocketMessage message);
 
             LED _led;
             SyncBlinkMesh _mesh;

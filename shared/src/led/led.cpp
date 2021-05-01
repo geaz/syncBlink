@@ -2,13 +2,13 @@
 
 namespace SyncBlink
 {
-    void LED::setup(uint32_t ledCount)
+    void LED::setup(uint16_t ledCount)
     {
         _ledCount = ledCount;
         _leds.resize(_ledCount);
         _groups.resize(_ledCount);
         
-        for (uint32_t index = 0; index < _leds.size(); index++)
+        for (uint16_t index = 0; index < _leds.size(); index++)
             _leds[index] = CRGB::Black;
 
         FastLED.addLeds<WS2812B, LED_PIN, GRB>(_leds.data(), _leds.size()).setCorrection(TypicalLEDStrip);
@@ -23,17 +23,17 @@ namespace SyncBlink
 
     void LED::setAllLeds(const Color color)
     {
-        for (uint32_t index = 0; index < _leds.size(); index++)
+        for (uint16_t index = 0; index < _leds.size(); index++)
             _leds[index] = color;
     }
 
-    void LED::setLed(const uint32_t index, const Color color)
+    void LED::setLed(const uint16_t index, const Color color)
     {
         if (index >= 0 && index <= _ledCount - 1)
         {
             if (_groupsSet)
             {
-                for (uint32_t i : _groups[index])
+                for (uint16_t i : _groups[index])
                 {
                     if (i >= 0 && i <= _ledCount - 1)
                         _leds[i] = color;
@@ -44,7 +44,7 @@ namespace SyncBlink
         }
     }
 
-    uint32_t LED::getLed(const uint32_t index)
+    uint16_t LED::getLed(const uint16_t index)
     {
         CRGB color = CRGB::Black;
         if (index >= 0 && index <= _ledCount - 1)
@@ -57,12 +57,12 @@ namespace SyncBlink
         return (color.r << 16) | (color.g << 8) | color.b;
     }
 
-    uint32_t LED::getLedCount() const
+    uint16_t LED::getLedCount() const
     {
         return _ledCount;
     }
 
-    void LED::setGroup(const uint32_t index, std::vector<uint32_t> group)
+    void LED::setGroup(const uint16_t index, std::vector<uint16_t> group)
     {
         if (index >= 0 && index <= _ledCount - 1)
         {
@@ -73,7 +73,7 @@ namespace SyncBlink
 
     void LED::clearGroups()
     {
-        for (uint32_t i = 0; i < _ledCount; i++)
+        for (uint16_t i = 0; i < _ledCount; i++)
             _groups[i].clear();
         _groupsSet = false;
     }

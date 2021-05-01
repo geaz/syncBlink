@@ -20,8 +20,8 @@ namespace SyncBlink
         _led.setup(LED_COUNT);
 
         _socketServer.messageEvents
-            .addEventHandler([this](Client::MessageType messageType, uint8_t* payload, size_t length) {
-                onSocketServerCommandReceived(messageType, payload, length);
+            .addEventHandler([this](SocketMessage message) {
+                onSocketServerCommandReceived(message);
             });
 
         _socketServer.serverDisconnectionEvents
@@ -62,22 +62,18 @@ namespace SyncBlink
 
     void StationContext::onMeshDisconnection(uint64_t clientId)
     {
-        Serial.printf("Mesh Disconnection: %12llx\n", clientId);
         _nodeManager.removeNode(clientId);
     }
 
-    void StationContext::onSocketServerCommandReceived(Client::MessageType messageType, uint8_t* payload, size_t length)
+    void StationContext::onSocketServerCommandReceived(SocketMessage socketMessage)
     {
-        switch (messageType)
+        switch (socketMessage.messageType)
         {
             case Client::MESH_CONNECTION:
             {              
                 Client::ConnectionMessage message;
-                memcpy(&message, payload, length);
+                memcpy(&message, &socketMessage.message[0], socketMessage.message.size());
 
-                Serial.printf("Mesh Connection: Client %12llx, LEDs %i, Parent %12llx, Firmware Version: %i.%i\n",
-                    message.clientId, message.ledCount,
-                    message.parentId, message.majorVersion, message.minorVersion);
                 _nodeManager.addNode(message);
 
                 Server::UpdateMessage updateMessage = { _led.getLedCount(), 1, _nodeManager.getTotalLedCount(), _nodeManager.getTotalNodeCount() };
@@ -87,7 +83,7 @@ namespace SyncBlink
             case Client::MESH_DISCONNECTION:
             {
                 uint64_t clientId;
-                memcpy(&clientId, payload, length);
+                memcpy(&clientId, &socketMessage.message[0], socketMessage.message.size());
                 onMeshDisconnection(clientId);
 
                 Server::UpdateMessage updateMessage = { _led.getLedCount(), 1, _nodeManager.getTotalLedCount(), _nodeManager.getTotalNodeCount() };

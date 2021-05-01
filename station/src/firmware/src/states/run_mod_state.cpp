@@ -22,11 +22,11 @@ namespace SyncBlink
             {
                 _socketEventHandleId = context.getSocketServer()
                     .messageEvents
-                    .addEventHandler([this](Client::MessageType messageType, uint8_t* payload, size_t length) 
+                    .addEventHandler([this](SocketMessage message) 
                     { 
-                        _newNodeConnected = messageType == Client::MESH_CONNECTION;
-                        if(messageType == Client::MessageType::EXTERNAL_ANALYZER)
-                            handleExternalSource(payload, length);
+                        _newNodeConnected = message.messageType == Client::MESH_CONNECTION;
+                        if(message.messageType == Client::MessageType::EXTERNAL_ANALYZER)
+                            handleExternalSource(message.message);
                     });
                 _modEventHandleId = context.getModManager()
                     .activeModChangedEvents
@@ -75,13 +75,13 @@ namespace SyncBlink
                 }
             }
 
-            void handleExternalSource(uint8_t* payload, size_t length)
+            void handleExternalSource(std::vector<uint8_t> message)
             {
                 if(checkBlinkScript()
                 && _context.getModManager().getActiveSource() != AudioAnalyzerSource::Station)
                 {                    
                     AudioAnalyzerMessage audioMessage;
-                    memcpy(&audioMessage, payload, length);
+                    memcpy(&audioMessage, &message[0], message.size());
 
                     uint32_t delta = millis() - _lastLedUpdate;
                     _lastLedUpdate = millis();

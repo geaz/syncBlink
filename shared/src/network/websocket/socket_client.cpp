@@ -2,59 +2,65 @@
 
 namespace SyncBlink
 {
-    void SocketClient::start(String socketIp)
+    void SocketClient::start(String serverIp)
     {
-        Serial.println("Connecting to socket '" + socketIp + "' ...");
-        _webSocket.begin(socketIp, 81, "/");
-        _webSocket.onEvent(
-            [this](WStype_t type, uint8_t* payload, size_t length) { clientEvent(type, payload, length); });
-        _webSocket.setReconnectInterval(5000);
+        _serverIp = serverIp;
+        checkConnection();
     }
 
     void SocketClient::loop()
     {
-        _webSocket.loop();
+        checkConnection();
+        handleIncomingMessages();
     }
 
     void SocketClient::sendMessage(void* message, uint32_t messageSize, Client::MessageType messageType)
     {
-        uint8_t serializedMessage[messageSize+1];
-        memcpy(&serializedMessage[1], message, messageSize);
-        serializedMessage[0] = messageType;
-
-        _webSocket.sendBIN(&serializedMessage[0], messageSize+1);
+        auto socketMessage = SocketStream::serializeMessage(message, messageSize, messageType);
+        #ifdef DEBUG_SOCKET
+        Serial.printf("[TCP CLIENT] Writing message! Type: %i, Size: %i\n", messageType, messageSize);
+        #endif
+        _client.writeMessage(socketMessage);
     }
 
-    bool SocketClient::isConnected() const
+    bool SocketClient::isConnected()
     {
-        return _isConnected;
+        return _client.isConnected();
     }
 
-    void SocketClient::clientEvent(WStype_t type, uint8_t* payload, size_t length)
+    void SocketClient::checkConnection()
     {
-        switch (type)
+        if(!_client.isConnected() && WiFi.status() == WL_CONNECTED)
         {
-        case WStype_DISCONNECTED:
-            Serial.println("Disconnected from WebSocket!");
-            for (auto event : connectionEvents.getEventHandlers())
-                event.second(false);
-            _isConnected = false;
-            break;
-        case WStype_CONNECTED:
-        {
-            Serial.println("Connected to WebSocket!");
-            for (auto event : connectionEvents.getEventHandlers())
-                event.second(true);
-            _isConnected = true;
-            break;
+            #ifdef DEBUG_SOCKET
+            Serial.println("[TCP CLIENT] Disconnected! Trying to reconnect ...");
+            #endif
+            if(_client.connectTo(_serverIp, 81))
+            {
+                #ifdef DEBUG_SOCKET
+                Serial.println("[TCP CLIENT] Reconnected!");
+                #endif
+                if(!_wasConnected)
+                {
+                    for (auto event : connectionEvents.getEventHandlers())
+                        event.second(true);
+                    _wasConnected = true;
+                }
+            }
         }
-        case WStype_BIN:
-            switch((Server::MessageType)payload[0])
+    }
+
+    void SocketClient::handleIncomingMessages()
+    {
+        SocketMessage socketMessage;
+        if(_client.checkMessage(socketMessage))
+        {
+            switch(socketMessage.messageType)
             {
                 case Server::ANALYZER_UPDATE:
                 {
                     AudioAnalyzerMessage message;
-                    memcpy(&message, &payload[1], length-1);
+                    memcpy(&message, &socketMessage.message[0], socketMessage.message.size());
                     for (auto event : audioAnalyzerEvents.getEventHandlers())
                         event.second(message);
                     break;
@@ -62,7 +68,7 @@ namespace SyncBlink
                 case Server::MESH_UPDATE:
                 {
                     Server::UpdateMessage message;
-                    memcpy(&message, &payload[1], length-1);
+                    memcpy(&message, &socketMessage.message[0], socketMessage.message.size());
                     for (auto event : meshUpdateEvents.getEventHandlers())
                         event.second(message);
                     break;
@@ -70,7 +76,7 @@ namespace SyncBlink
                 case Server::SOURCE_UPDATE:
                 {
                     Server::SourceMessage message;
-                    memcpy(&message, &payload[1], length-1);
+                    memcpy(&message, &socketMessage.message[0], socketMessage.message.size());
                     for (auto event : sourceUpdateEvents.getEventHandlers())
                         event.second(message);
                     break;
@@ -78,14 +84,14 @@ namespace SyncBlink
                 case Server::NODE_RENAME:
                 {
                     Server::NodeRenameMessage message;
-                    memcpy(&message, &payload[1], length-1);
+                    memcpy(&message, &socketMessage.message[0], socketMessage.message.size());
                     for (auto event : nodeRenameEvents.getEventHandlers())
                         event.second(message);
                     break;
                 }
                 case Server::DISTRIBUTE_MOD:
                 {
-                    std::string mod((char*)&payload[1], length-1);
+                    std::string mod((char*)&socketMessage.message[0], socketMessage.message.size());
                     for (auto event : meshModEvents.getEventHandlers())
                         event.second(mod);
                     break;
@@ -93,7 +99,7 @@ namespace SyncBlink
                 case Server::FIRMWARE_FLASH_START:
                 {
                     uint64_t targetClientId = 0;
-                    memcpy(&targetClientId, &payload[1], length-1);
+                    memcpy(&targetClientId, &socketMessage.message[0], socketMessage.message.size());
                     for (auto event : firmwareFlashEvents.getEventHandlers())
                         event.second(std::vector<uint8_t>(), targetClientId, Server::FIRMWARE_FLASH_START);
                     break;
@@ -101,7 +107,7 @@ namespace SyncBlink
                 case Server::FIRMWARE_FLASH_END:
                 {
                     uint64_t targetClientId = 0;
-                    memcpy(&targetClientId, &payload[1], length-1);
+                    memcpy(&targetClientId, &socketMessage.message[0], socketMessage.message.size());
                     for (auto event : firmwareFlashEvents.getEventHandlers())
                         event.second(std::vector<uint8_t>(), targetClientId, Server::FIRMWARE_FLASH_END);
                     break;
@@ -109,18 +115,15 @@ namespace SyncBlink
                 case Server::FIRMWARE_FLASH_DATA:
                 {
                     std::vector<uint8_t> data;
-                    for(size_t i = 1; i < length; i++)
+                    for(size_t i = 0; i < socketMessage.message.size(); i++)
                     {
-                        data.push_back(payload[i]);
+                        data.push_back(socketMessage.message[i]);
                     }
                     for (auto event : firmwareFlashEvents.getEventHandlers())
                         event.second(data, 0, Server::FIRMWARE_FLASH_DATA);
                     break;
                 }
             }
-            break;
-        default:
-            break;
         }
     }
 }
