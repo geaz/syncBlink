@@ -34,7 +34,7 @@ namespace SyncBlink
 
             LED _led;
             SyncBlinkMesh _mesh;
-            TcpServer _socketServer;
+            TcpServer _tcpServer;
             TcpClient _tcpClient;
 
             std::string _nodeLabel;

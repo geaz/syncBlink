@@ -17,8 +17,7 @@ namespace SyncBlink
     class TcpServer
     {
     public:
-        TcpServer();
-
+        void start();
         void loop();
         void broadcast(void* message, uint32_t messageSize, Server::MessageType messageType);
 

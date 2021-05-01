@@ -3,7 +3,10 @@
 
 namespace SyncBlink
 {
-    TcpServer::TcpServer() { _server.begin(); }
+    void TcpServer::start()
+    {
+        _server.begin();
+    }
 
     void TcpServer::loop()
     {

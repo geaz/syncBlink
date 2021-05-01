@@ -31,7 +31,7 @@ namespace SyncBlink
             uint32_t _totalNodes;
 
             TcpServer& _socketServer;
-            std::vector<Client::ConnectionMessage> _connectedNodes = {{ SyncBlink::getId(), 0, LED_COUNT, 0 }};
+            std::vector<Client::ConnectionMessage> _connectedNodes = {{ SyncBlink::getId(), 0, LED_COUNT, VERSIONMAJOR, VERSIONMINOR, { 'S', 't', 'a', 't', 'i', 'o', 'n' } }};
     };
 }
 

@@ -31,10 +31,10 @@ namespace SyncBlink
             .firmwareFlashEvents
             .addEventHandler([this](std::vector<uint8_t> data, uint64_t targetClientId, Server::MessageType messageType) { onFirmwareFlashReceived(data, targetClientId, messageType); });
 
-        _socketServer
+        _tcpServer
             .serverDisconnectionEvents
             .addEventHandler([this](uint64_t clientId) { _tcpClient.sendMessage(&clientId, sizeof(clientId), Client::MESH_DISCONNECTION); });
-        _socketServer
+        _tcpServer
             .messageEvents
             .addEventHandler([this](TcpMessage message) { onSocketServerMessageReceived(message); });
         
@@ -43,6 +43,7 @@ namespace SyncBlink
         {
             Serial.printf("Connected to SyncBlink mesh! Starting operation (v%i.%i)...\n", VERSIONMAJOR, VERSIONMINOR);
             _tcpClient.start(_mesh.getParentIp().toString());
+            _tcpServer.start();
         }
         else
         {
@@ -57,7 +58,7 @@ namespace SyncBlink
         checkNewMod();
         
         _tcpClient.loop();
-        _socketServer.loop();
+        _tcpServer.loop();
         _led.loop();
 
         if(!_mesh.isConnected())
@@ -109,11 +110,11 @@ namespace SyncBlink
         _meshLedCount = message.meshLedCount;
         _meshNodeCount = message.meshNodeCount;   
 
-        if(_socketServer.getClientsCount() != 0)
+        if(_tcpServer.getClientsCount() != 0)
         {
             message.routeNodeCount++;
             message.routeLedCount += _nodeLedCount;
-            _socketServer.broadcast(&message, sizeof(message), Server::MESH_UPDATE);
+            _tcpServer.broadcast(&message, sizeof(message), Server::MESH_UPDATE);
         }
         else
         {
@@ -131,7 +132,7 @@ namespace SyncBlink
             _blinkScript->updateAnalyzerResult(message.volume, message.frequency);
             _blinkScript->run(delta);
 
-            _socketServer.broadcast(&message, sizeof(message), Server::ANALYZER_UPDATE);
+            _tcpServer.broadcast(&message, sizeof(message), Server::ANALYZER_UPDATE);
         }
     }
 
@@ -142,7 +143,7 @@ namespace SyncBlink
         _newMod = true;
         _currentMod = mod;
         _tcpClient.sendMessage(0, 0, Client::MOD_DISTRIBUTED);
-        _socketServer.broadcast((void*)mod.c_str(), mod.size(), Server::DISTRIBUTE_MOD);
+        _tcpServer.broadcast((void*)mod.c_str(), mod.size(), Server::DISTRIBUTE_MOD);
     }
 
     void NodeContext::onNodeRenameReceived(Server::NodeRenameMessage message)
@@ -156,7 +157,7 @@ namespace SyncBlink
             EEPROM.commit();
             readNodeInfo();
         }
-        else _socketServer.broadcast(&message, sizeof(message), Server::NODE_RENAME);
+        else _tcpServer.broadcast(&message, sizeof(message), Server::NODE_RENAME);
     }
 
     void NodeContext::onFirmwareFlashReceived(std::vector<uint8_t> data, uint64_t targetClientId, Server::MessageType messageType)
@@ -208,13 +209,13 @@ namespace SyncBlink
         
         // Only distribute, if the message is not for the current node
         // Or all nodes in the mesh get flashed
-        if(!_flashActive ||  targetClientId == 0) _socketServer.broadcast(&data[0], data.size(), messageType);
+        if(!_flashActive ||  targetClientId == 0) _tcpServer.broadcast(&data[0], data.size(), messageType);
 
         // we are restarting here to make sure, that all messages 
         // also get send to the current child nodes
         if(restart)
         {
-            _socketServer.loop();
+            _tcpServer.loop();
             _led.showNow(Black);
             ESP.restart();
         }

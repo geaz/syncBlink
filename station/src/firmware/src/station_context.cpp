@@ -34,6 +34,7 @@ namespace SyncBlink
             });
 
         _wifi.connectWifi();
+        _tcpServer.start();
     }
 
     void StationContext::loop()
