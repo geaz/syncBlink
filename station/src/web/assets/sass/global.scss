@@ -87,6 +87,14 @@
     }
 }
 
+.button.blue {
+    background: $secondary-color;
+    &:hover {
+        color: black;
+        background: $primary-color;
+    }
+}
+
 .button.disabled {
     background: gray;
     color: $text-color-faded;

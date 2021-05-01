@@ -1,7 +1,8 @@
 <template>
     <div id="mesh" class="flex-content flex-centered">
         <Loader v-if="loading"></Loader>
-        <template v-else>
+        <template v-else>            
+            <Renamer :clientId="renamerClientId" :label="renamerLabel" :show="showRenamer" @close="() => { showRenamer=false; reload(); }"></Renamer>
             <Updater :clientId="updaterClientId" :label="updaterLabel" :show="showUpdater" @close="showUpdater=false"></Updater>
             <MeshNode :nodeInfo="mesh" :isStation="true" @rename="rename" @upload="upload"></MeshNode>
         </template>
@@ -12,12 +13,14 @@
     import { Component, Vue } from "vue-property-decorator";
     import Loader from "../components/Loader.vue";
     import Updater from "../components/Updater.vue";
+    import Renamer from "../components/Renamer.vue";
     import MeshNode from "../components/MeshNode.vue";
 
     @Component({
         components: {
             Loader,
             Updater,
+            Renamer,
             MeshNode
         },
     })
@@ -28,6 +31,10 @@
         private showUpdater: boolean = false;
         private updaterClientId: number = 0;
         private updaterLabel: string = "";
+
+        private showRenamer: boolean = false;
+        private renamerClientId: number = 0;
+        private renamerLabel: string = "";
 
         async beforeMount() {
             this.reload();
@@ -75,7 +82,9 @@
 
         rename(clientId: number, label: string)
         {
-            console.log(clientId + " " + label);
+            this.renamerClientId = clientId;
+            this.renamerLabel = label;
+            this.showRenamer = true;
         }
 
         upload(clientId: number, label: string, isStation: boolean)
