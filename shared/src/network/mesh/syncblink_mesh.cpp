@@ -17,10 +17,8 @@ namespace SyncBlink
     
     SyncBlinkMesh::SyncBlinkMesh()
     {
-        WiFi.disconnect();
         WiFi.mode(WIFI_STA);
         WiFi.persistent(false);
-        WiFi.setAutoConnect(false);
         WiFi.setAutoReconnect(false);
         WiFi.setSleepMode(WIFI_NONE_SLEEP);
     }
