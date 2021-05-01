@@ -40,8 +40,8 @@ namespace SyncBlink
                     }
                     else
                     {
-                        size_t readSize = _activeFlash.size() - _flashPos > 1024 
-                            ? 1024
+                        size_t readSize = _activeFlash.size() - _flashPos > 512 
+                            ? 512
                             : _activeFlash.size() - _flashPos;
 
                         char buf[readSize];

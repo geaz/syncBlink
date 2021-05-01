@@ -69,13 +69,16 @@ namespace SyncBlink
                                 #ifdef DEBUG_TCP
                                 Serial.printf("[TCP STREAM] Big message, have to yield...\n");
                                 #endif
-                                yield();
+                                delay(0);    
                             }
-                        }                        
+                        }
+                        receivedMessage = true; 
+                          
                         #ifdef DEBUG_TCP
-                        Serial.printf("[TCP STREAM] Found message - Size: %i, Type: %i\n", tcpMessage.message.size() + SocketHeaderSize, tcpMessage.messageType);
+                        Serial.printf("[TCP STREAM] Found message - Size: %i, Type: %i (%i)\n", tcpMessage.message.size() + SocketHeaderSize, tcpMessage.messageType, receivedMessage);
                         #endif
-                        receivedMessage = true;
+
+                        break;
                     }
                 }
             }

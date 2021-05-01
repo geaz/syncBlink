@@ -33,12 +33,12 @@ namespace SyncBlink
         if(!_client.isConnected() && WiFi.status() == WL_CONNECTED)
         {
             #ifdef DEBUG_TCP
-            Serial.println("[TCP CLIENT] Disconnected! Trying to reconnect ...");
+            Serial.println("[TCP CLIENT] Disconnected! Trying to connect ...");
             #endif
             if(_client.connectTo(_serverIp, 81))
             {
                 #ifdef DEBUG_TCP
-                Serial.println("[TCP CLIENT] Reconnected!");
+                Serial.println("[TCP CLIENT] Connected!");
                 #endif
                 if(!_wasConnected)
                 {
@@ -101,7 +101,7 @@ namespace SyncBlink
                     uint64_t targetClientId = 0;
                     memcpy(&targetClientId, &tcpMessage.message[0], tcpMessage.message.size());
                     for (auto event : firmwareFlashEvents.getEventHandlers())
-                        event.second(std::vector<uint8_t>(), targetClientId, Server::FIRMWARE_FLASH_START);
+                        event.second(tcpMessage.message, targetClientId, Server::FIRMWARE_FLASH_START);
                     break;
                 }
                 case Server::FIRMWARE_FLASH_END:
@@ -109,18 +109,13 @@ namespace SyncBlink
                     uint64_t targetClientId = 0;
                     memcpy(&targetClientId, &tcpMessage.message[0], tcpMessage.message.size());
                     for (auto event : firmwareFlashEvents.getEventHandlers())
-                        event.second(std::vector<uint8_t>(), targetClientId, Server::FIRMWARE_FLASH_END);
+                        event.second(tcpMessage.message, targetClientId, Server::FIRMWARE_FLASH_END);
                     break;
                 }
                 case Server::FIRMWARE_FLASH_DATA:
                 {
-                    std::vector<uint8_t> data;
-                    for(size_t i = 0; i < tcpMessage.message.size(); i++)
-                    {
-                        data.push_back(tcpMessage.message[i]);
-                    }
                     for (auto event : firmwareFlashEvents.getEventHandlers())
-                        event.second(data, 0, Server::FIRMWARE_FLASH_DATA);
+                        event.second(tcpMessage.message, 0, Server::FIRMWARE_FLASH_DATA);
                     break;
                 }
             }
