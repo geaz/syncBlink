@@ -13,6 +13,11 @@ namespace SyncBlink
         _client.setNoDelay(true);
     }
 
+    void TcpStream::flush()
+    {
+        _client.flush();
+    }
+
     bool TcpStream::connectTo(String socketIp, uint16_t port)
     {
         bool connected = false;

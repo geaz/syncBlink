@@ -73,7 +73,7 @@ namespace SyncBlink
             {              
                 Client::ConnectionMessage message;
                 memcpy(&message, &tcpMessage.message[0], tcpMessage.message.size());
-
+                
                 _nodeManager.addNode(message);
 
                 Server::UpdateMessage updateMessage = { _led.getLedCount(), 1, _nodeManager.getTotalLedCount(), _nodeManager.getTotalNodeCount() };

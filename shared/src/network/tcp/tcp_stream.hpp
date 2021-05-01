@@ -18,6 +18,7 @@ namespace SyncBlink
         TcpStream();
         TcpStream(WiFiClient client);
     
+        void flush();
         bool connectTo(String socketIp, uint16_t port);
         bool checkMessage(TcpMessage& message);
         void writeMessage(std::vector<uint8_t> message);

@@ -75,6 +75,15 @@ namespace SyncBlink
                         memcpy(&tcpMessage.message[0], &message, sizeof(message));
                         client.setStreamId(message.clientId);
                     }
+
+                    // check for lost/timeout connections before
+                    // informing about a new connection
+                    // It could be a reconnection of a node which was previously connected and 
+                    // no timeout was detected before...
+                    broadcast(0, 0, Server::PING);
+                    client.flush();
+                    clearClients();
+                    
                     #ifdef DEBUG_TCP
                     Serial.printf("[TCP SERVER] New Client: %12llx - LEDs %i - Parent %12llx - Firmware Version: %i.%i\n",
                         message.clientId, message.ledCount,
