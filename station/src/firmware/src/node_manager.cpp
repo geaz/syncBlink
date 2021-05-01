@@ -4,7 +4,7 @@
 
 namespace SyncBlink
 {
-    NodeManager::NodeManager(SocketServer& socketServer) : _socketServer(socketServer) { }
+    NodeManager::NodeManager(TcpServer& tcpServer) : _socketServer(tcpServer) { }
 
     void NodeManager::addNode(Client::ConnectionMessage connectionMessage)
     {

@@ -4,8 +4,8 @@
 #include <mappings.hpp>
 #include <blinkscript/blink_script.hpp>
 #include <audio/frequency_analyzer.hpp>
-#include <network/websocket/messages/audio_analyzer_message.hpp>
-#include <network/websocket/messages/server_messages.hpp>
+#include <network/tcp/messages/audio_analyzer_message.hpp>
+#include <network/tcp/messages/server_messages.hpp>
 
 #include "state.hpp"
 #include "states/invalid_mod_state.cpp"
@@ -20,9 +20,9 @@ namespace SyncBlink
             RunModState(StationContext& context, std::shared_ptr<BlinkScript> blinkScript) 
                 : _context(context), _blinkScript(blinkScript)
             {
-                _socketEventHandleId = context.getSocketServer()
+                _socketEventHandleId = context.getTcpServer()
                     .messageEvents
-                    .addEventHandler([this](SocketMessage message) 
+                    .addEventHandler([this](TcpMessage message) 
                     { 
                         _newNodeConnected = message.messageType == Client::MESH_CONNECTION;
                         if(message.messageType == Client::MessageType::EXTERNAL_ANALYZER)
@@ -40,7 +40,7 @@ namespace SyncBlink
 
             ~RunModState()
             {
-                _context.getSocketServer()
+                _context.getTcpServer()
                     .messageEvents
                     .removeEventHandler(_socketEventHandleId);
                 _context.getModManager()
@@ -54,11 +54,11 @@ namespace SyncBlink
                 context.getDisplay().setLeftStatus(_modName);
                 
                 if(_activeModChanged || _newNodeConnected) context.resetState();
-                else handleMicrophoneSource(context.getSocketServer());
+                else handleMicrophoneSource(context.getTcpServer());
             }
 
         private:
-            void handleMicrophoneSource(SocketServer& socketServer)
+            void handleMicrophoneSource(TcpServer& tcpServer)
             {   
                 if(checkBlinkScript() && _context.getModManager().getActiveSource() == AudioAnalyzerSource::Station)
                 {
@@ -68,7 +68,7 @@ namespace SyncBlink
                     uint32_t delta = millis() - _lastLedUpdate;
                     _lastLedUpdate = millis();
 
-                    socketServer.broadcast(&message, sizeof(message), Server::ANALYZER_UPDATE);
+                    tcpServer.broadcast(&message, sizeof(message), Server::ANALYZER_UPDATE);
                     setView(message, delta);
                     _blinkScript->updateAnalyzerResult(result.volume, result.dominantFrequency);
                     _blinkScript->run(delta);
@@ -86,7 +86,7 @@ namespace SyncBlink
                     uint32_t delta = millis() - _lastLedUpdate;
                     _lastLedUpdate = millis();
 
-                    _context.getSocketServer().broadcast(&audioMessage, sizeof(audioMessage), Server::ANALYZER_UPDATE);
+                    _context.getTcpServer().broadcast(&audioMessage, sizeof(audioMessage), Server::ANALYZER_UPDATE);
                     setView(audioMessage, delta);
 
                     _blinkScript->updateAnalyzerResult(audioMessage.volume, audioMessage.frequency);

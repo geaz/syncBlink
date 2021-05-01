@@ -3,7 +3,7 @@
 
 #include <vector>
 #include <string>
-#include <network/websocket/messages/audio_analyzer_message.hpp>
+#include <network/tcp/messages/audio_analyzer_message.hpp>
 #include <event_registration.hpp>
 #include "mod.hpp"
 

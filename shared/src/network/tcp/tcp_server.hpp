@@ -1,7 +1,7 @@
-#ifndef SOCKETSERVER_H
-#define SOCKETSERVER_H
+#ifndef TCPSERVER_H
+#define TCPSERVER_H
 
-#include "socket_stream.hpp"
+#include "tcp_stream.hpp"
 #include "event_registration.hpp"
 #include "messages/client_messages.hpp"
 #include "messages/server_messages.hpp"
@@ -12,12 +12,12 @@
 namespace SyncBlink
 {
     typedef std::function<void(uint64_t clientId)> ServerDisconnectionEvent;
-    typedef std::function<void(SocketMessage message)> ServerMessageEvent;
+    typedef std::function<void(TcpMessage message)> ServerMessageEvent;
 
-    class SocketServer
+    class TcpServer
     {
     public:
-        SocketServer();
+        TcpServer();
 
         void loop();
         void broadcast(void* message, uint32_t messageSize, Server::MessageType messageType);
@@ -33,8 +33,8 @@ namespace SyncBlink
         void handleIncomingMessages();
 
         WiFiServer _server = WiFiServer(81);
-        std::vector<SocketStream> _clients;
+        std::vector<TcpStream> _clients;
     };
 }
 
-#endif // SOCKETSERVER_H
+#endif // TCPSERVER_H

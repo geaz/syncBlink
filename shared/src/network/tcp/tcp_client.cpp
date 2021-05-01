@@ -1,34 +1,34 @@
-#include "socket_client.hpp"
+#include "tcp_client.hpp"
 
 namespace SyncBlink
 {
-    void SocketClient::start(String serverIp)
+    void TcpClient::start(String serverIp)
     {
         _serverIp = serverIp;
         checkConnection();
     }
 
-    void SocketClient::loop()
+    void TcpClient::loop()
     {
         checkConnection();
         handleIncomingMessages();
     }
 
-    void SocketClient::sendMessage(void* message, uint32_t messageSize, Client::MessageType messageType)
+    void TcpClient::sendMessage(void* message, uint32_t messageSize, Client::MessageType messageType)
     {
-        auto socketMessage = SocketStream::serializeMessage(message, messageSize, messageType);
+        auto tcpMessage = TcpStream::serializeMessage(message, messageSize, messageType);
         #ifdef DEBUG_SOCKET
         Serial.printf("[TCP CLIENT] Writing message! Type: %i, Size: %i\n", messageType, messageSize);
         #endif
-        _client.writeMessage(socketMessage);
+        _client.writeMessage(tcpMessage);
     }
 
-    bool SocketClient::isConnected()
+    bool TcpClient::isConnected()
     {
         return _client.isConnected();
     }
 
-    void SocketClient::checkConnection()
+    void TcpClient::checkConnection()
     {
         if(!_client.isConnected() && WiFi.status() == WL_CONNECTED)
         {
@@ -50,17 +50,17 @@ namespace SyncBlink
         }
     }
 
-    void SocketClient::handleIncomingMessages()
+    void TcpClient::handleIncomingMessages()
     {
-        SocketMessage socketMessage;
-        if(_client.checkMessage(socketMessage))
+        TcpMessage tcpMessage;
+        if(_client.checkMessage(tcpMessage))
         {
-            switch(socketMessage.messageType)
+            switch(tcpMessage.messageType)
             {
                 case Server::ANALYZER_UPDATE:
                 {
                     AudioAnalyzerMessage message;
-                    memcpy(&message, &socketMessage.message[0], socketMessage.message.size());
+                    memcpy(&message, &tcpMessage.message[0], tcpMessage.message.size());
                     for (auto event : audioAnalyzerEvents.getEventHandlers())
                         event.second(message);
                     break;
@@ -68,7 +68,7 @@ namespace SyncBlink
                 case Server::MESH_UPDATE:
                 {
                     Server::UpdateMessage message;
-                    memcpy(&message, &socketMessage.message[0], socketMessage.message.size());
+                    memcpy(&message, &tcpMessage.message[0], tcpMessage.message.size());
                     for (auto event : meshUpdateEvents.getEventHandlers())
                         event.second(message);
                     break;
@@ -76,7 +76,7 @@ namespace SyncBlink
                 case Server::SOURCE_UPDATE:
                 {
                     Server::SourceMessage message;
-                    memcpy(&message, &socketMessage.message[0], socketMessage.message.size());
+                    memcpy(&message, &tcpMessage.message[0], tcpMessage.message.size());
                     for (auto event : sourceUpdateEvents.getEventHandlers())
                         event.second(message);
                     break;
@@ -84,14 +84,14 @@ namespace SyncBlink
                 case Server::NODE_RENAME:
                 {
                     Server::NodeRenameMessage message;
-                    memcpy(&message, &socketMessage.message[0], socketMessage.message.size());
+                    memcpy(&message, &tcpMessage.message[0], tcpMessage.message.size());
                     for (auto event : nodeRenameEvents.getEventHandlers())
                         event.second(message);
                     break;
                 }
                 case Server::DISTRIBUTE_MOD:
                 {
-                    std::string mod((char*)&socketMessage.message[0], socketMessage.message.size());
+                    std::string mod((char*)&tcpMessage.message[0], tcpMessage.message.size());
                     for (auto event : meshModEvents.getEventHandlers())
                         event.second(mod);
                     break;
@@ -99,7 +99,7 @@ namespace SyncBlink
                 case Server::FIRMWARE_FLASH_START:
                 {
                     uint64_t targetClientId = 0;
-                    memcpy(&targetClientId, &socketMessage.message[0], socketMessage.message.size());
+                    memcpy(&targetClientId, &tcpMessage.message[0], tcpMessage.message.size());
                     for (auto event : firmwareFlashEvents.getEventHandlers())
                         event.second(std::vector<uint8_t>(), targetClientId, Server::FIRMWARE_FLASH_START);
                     break;
@@ -107,7 +107,7 @@ namespace SyncBlink
                 case Server::FIRMWARE_FLASH_END:
                 {
                     uint64_t targetClientId = 0;
-                    memcpy(&targetClientId, &socketMessage.message[0], socketMessage.message.size());
+                    memcpy(&targetClientId, &tcpMessage.message[0], tcpMessage.message.size());
                     for (auto event : firmwareFlashEvents.getEventHandlers())
                         event.second(std::vector<uint8_t>(), targetClientId, Server::FIRMWARE_FLASH_END);
                     break;
@@ -115,9 +115,9 @@ namespace SyncBlink
                 case Server::FIRMWARE_FLASH_DATA:
                 {
                     std::vector<uint8_t> data;
-                    for(size_t i = 0; i < socketMessage.message.size(); i++)
+                    for(size_t i = 0; i < tcpMessage.message.size(); i++)
                     {
-                        data.push_back(socketMessage.message[i]);
+                        data.push_back(tcpMessage.message[i]);
                     }
                     for (auto event : firmwareFlashEvents.getEventHandlers())
                         event.second(data, 0, Server::FIRMWARE_FLASH_DATA);

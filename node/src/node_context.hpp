@@ -6,8 +6,8 @@
 #include <led/led.hpp>
 #include <blinkscript/blink_script.hpp>
 #include <network/mesh/syncblink_mesh.hpp>
-#include <network/websocket/socket_server.hpp>
-#include <network/websocket/socket_client.hpp>
+#include <network/tcp/tcp_server.hpp>
+#include <network/tcp/tcp_client.hpp>
 
 namespace SyncBlink
 {
@@ -30,12 +30,12 @@ namespace SyncBlink
             void onNodeRenameReceived(Server::NodeRenameMessage message);
             void onFirmwareFlashReceived(std::vector<uint8_t> data, uint64_t targetClientId, Server::MessageType messageType);
 
-            void onSocketServerMessageReceived(SocketMessage message);
+            void onSocketServerMessageReceived(TcpMessage message);
 
             LED _led;
             SyncBlinkMesh _mesh;
-            SocketServer _socketServer;
-            SocketClient _socketClient;
+            TcpServer _socketServer;
+            TcpClient _tcpClient;
 
             std::string _nodeLabel;
 

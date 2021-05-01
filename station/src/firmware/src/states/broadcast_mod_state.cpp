@@ -16,9 +16,9 @@ namespace SyncBlink
             BroadcastModState(StationContext& context, std::string mod)
                 : _context(context), _mod(mod)
             {
-                _handleId = context.getSocketServer()
+                _handleId = context.getTcpServer()
                     .messageEvents
-                    .addEventHandler([this](SocketMessage message) 
+                    .addEventHandler([this](TcpMessage message) 
                     { 
                         if(message.messageType == Client::MOD_DISTRIBUTED && _broadcastStartedAt != 0) {
                             
@@ -31,7 +31,7 @@ namespace SyncBlink
 
             ~BroadcastModState()
             {
-                _context.getSocketServer()
+                _context.getTcpServer()
                     .messageEvents
                     .removeEventHandler(_handleId);
             }
@@ -47,13 +47,13 @@ namespace SyncBlink
                     _receivedAnswers = 0;
                     _broadcastStartedAt = 0;
                 }
-                else if(_broadcastStartedAt == 0 && context.getSocketServer().getClientsCount() > 0)
+                else if(_broadcastStartedAt == 0 && context.getTcpServer().getClientsCount() > 0)
                 {
                     _broadcastStartedAt = millis();
                     _nodeCount = context.getNodeManager().getTotalNodeCount() - 1; // Don't count station node
-                    context.getSocketServer().broadcast((void*)_mod.c_str(), _mod.size(), Server::DISTRIBUTE_MOD);
+                    context.getTcpServer().broadcast((void*)_mod.c_str(), _mod.size(), Server::DISTRIBUTE_MOD);
                 }
-                else if(context.getSocketServer().getClientsCount() == 0) _modDistributed = true;
+                else if(context.getTcpServer().getClientsCount() == 0) _modDistributed = true;
                 else if(_broadcastStartedAt + 10000 < millis()) _modDistributed = true; // Timeout
 
                 if(_modDistributed)
@@ -63,7 +63,7 @@ namespace SyncBlink
                     blinkScript->init();
 
                     Server::SourceMessage sourceMessage = { context.getModManager().getActiveSource() };
-                    context.getSocketServer().broadcast(&sourceMessage, sizeof(sourceMessage), Server::SOURCE_UPDATE);
+                    context.getTcpServer().broadcast(&sourceMessage, sizeof(sourceMessage), Server::SOURCE_UPDATE);
 
                     context.getLed().setAllLeds(SyncBlink::Black);
                     context.currentState = std::make_shared<RunModState>(context, blinkScript);

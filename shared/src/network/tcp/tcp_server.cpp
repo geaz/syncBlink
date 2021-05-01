@@ -1,35 +1,35 @@
-#include "socket_server.hpp"
+#include "tcp_server.hpp"
 #include "network/mesh/syncblink_mesh.hpp"
 
 namespace SyncBlink
 {
-    SocketServer::SocketServer() { _server.begin(); }
+    TcpServer::TcpServer() { _server.begin(); }
 
-    void SocketServer::loop()
+    void TcpServer::loop()
     {
         clearClients();
         checkNewClients();
         handleIncomingMessages();
     }
 
-    void SocketServer::broadcast(void* message, uint32_t messageSize, Server::MessageType messageType)
+    void TcpServer::broadcast(void* message, uint32_t messageSize, Server::MessageType messageType)
     {
-        auto socketMessage = SocketStream::serializeMessage(message, messageSize, messageType);
+        auto tcpMessage = TcpStream::serializeMessage(message, messageSize, messageType);
         #ifdef DEBUG_SOCKET
-        if(_clients.size() > 0) Serial.printf("[TCP SERVER] Writing message - Type: %i, Size: %i\n", messageType, socketMessage.size());
+        if(_clients.size() > 0) Serial.printf("[TCP SERVER] Writing message - Type: %i, Size: %i\n", messageType, tcpMessage.size());
         #endif
         for(auto& client : _clients)
         {
-            client.writeMessage(socketMessage);
+            client.writeMessage(tcpMessage);
         }
     }
 
-    uint32_t SocketServer::getClientsCount()
+    uint32_t TcpServer::getClientsCount()
     {
         return _clients.size();
     }
 
-    void SocketServer::clearClients()
+    void TcpServer::clearClients()
     {
         for(auto iter = _clients.begin(); iter != _clients.end();)
         {
@@ -49,30 +49,30 @@ namespace SyncBlink
         }
     }
 
-    void SocketServer::checkNewClients()
+    void TcpServer::checkNewClients()
     {
         if(_server.hasClient())
         {
-            _clients.push_back(SocketStream(_server.available()));
+            _clients.push_back(TcpStream(_server.available()));
         }
     }
 
-    void SocketServer::handleIncomingMessages()
+    void TcpServer::handleIncomingMessages()
     {
         for(auto& client : _clients)
         {
-            SocketMessage socketMessage;
-            if(client.checkMessage(socketMessage))
+            TcpMessage tcpMessage;
+            if(client.checkMessage(tcpMessage))
             {
-                if(socketMessage.messageType == Client::MESH_CONNECTION)
+                if(tcpMessage.messageType == Client::MESH_CONNECTION)
                 {
                     Client::ConnectionMessage message;
-                    memcpy(&message, &socketMessage.message[0], socketMessage.message.size());
+                    memcpy(&message, &tcpMessage.message[0], tcpMessage.message.size());
                     
                     if(message.parentId == 0)
                     {
                         message.parentId = SyncBlink::getId();
-                        memcpy(&socketMessage.message[0], &message, sizeof(message));
+                        memcpy(&tcpMessage.message[0], &message, sizeof(message));
                         client.setStreamId(message.clientId);
                     }
                     #ifdef DEBUG_SOCKET
@@ -82,7 +82,7 @@ namespace SyncBlink
                     #endif
                 }
                 for (auto event : messageEvents.getEventHandlers())
-                    event.second(socketMessage);
+                    event.second(tcpMessage);
             }
         }
     }

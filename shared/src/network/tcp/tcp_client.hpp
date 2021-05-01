@@ -1,7 +1,7 @@
-#ifndef SOCKETCLIENT_H
-#define SOCKETCLIENT_H
+#ifndef TCPCLIENT_H
+#define TCPCLIENT_H
 
-#include "socket_stream.hpp"
+#include "tcp_stream.hpp"
 #include "event_registration.hpp"
 #include "messages/client_messages.hpp"
 #include "messages/server_messages.hpp"
@@ -20,7 +20,7 @@ namespace SyncBlink
     typedef std::function<void(Server::NodeRenameMessage message)> NodeRenameEvent;
     typedef std::function<void(std::vector<uint8_t> data, uint64_t targetClientId, Server::MessageType messageType)> FirmwareFlashEvent;
 
-    class SocketClient
+    class TcpClient
     {
     public:
         void start(String _serverIp);
@@ -42,10 +42,10 @@ namespace SyncBlink
         void checkConnection();
         void handleIncomingMessages();
 
-        SocketStream _client;
+        TcpStream _client;
         String _serverIp;
         bool _wasConnected = false;
     };
 }
 
-#endif // SOCKETCLIENT_H
+#endif // TCPCLIENT_H

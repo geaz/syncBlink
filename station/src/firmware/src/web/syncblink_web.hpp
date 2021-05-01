@@ -7,7 +7,7 @@
 
 #include <ESP8266WebServer.h>
 #include <event_registration.hpp>
-#include <network/websocket/socket_server.hpp>
+#include <network/tcp/tcp_server.hpp>
 
 namespace SyncBlink
 {

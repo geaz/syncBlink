@@ -12,37 +12,37 @@ namespace SyncBlink
         _led.setup(_nodeLedCount);
         _led.showNow(Cyan);
 
-        _socketClient
+        _tcpClient
             .connectionEvents
             .addEventHandler([this](bool connected) { onSocketClientConnectionChanged(connected); });
-        _socketClient
+        _tcpClient
             .meshUpdateEvents
             .addEventHandler([this](Server::UpdateMessage message) { onMeshUpdateReceived(message); });
-        _socketClient
+        _tcpClient
             .meshModEvents
             .addEventHandler([this](std::string mod) { onSocketClientModReceived(mod); });
-        _socketClient
+        _tcpClient
             .audioAnalyzerEvents
             .addEventHandler([this](AudioAnalyzerMessage message) { onAnalyzerResultReceived(message); });
-        _socketClient
+        _tcpClient
             .nodeRenameEvents
             .addEventHandler([this](Server::NodeRenameMessage message) { onNodeRenameReceived(message); });
-        _socketClient
+        _tcpClient
             .firmwareFlashEvents
             .addEventHandler([this](std::vector<uint8_t> data, uint64_t targetClientId, Server::MessageType messageType) { onFirmwareFlashReceived(data, targetClientId, messageType); });
 
         _socketServer
             .serverDisconnectionEvents
-            .addEventHandler([this](uint64_t clientId) { _socketClient.sendMessage(&clientId, sizeof(clientId), Client::MESH_DISCONNECTION); });
+            .addEventHandler([this](uint64_t clientId) { _tcpClient.sendMessage(&clientId, sizeof(clientId), Client::MESH_DISCONNECTION); });
         _socketServer
             .messageEvents
-            .addEventHandler([this](SocketMessage message) { onSocketServerMessageReceived(message); });
+            .addEventHandler([this](TcpMessage message) { onSocketServerMessageReceived(message); });
         
         WiFi.disconnect();
         if(_mesh.tryJoinMesh())
         {
             Serial.printf("Connected to SyncBlink mesh! Starting operation (v%i.%i)...\n", VERSIONMAJOR, VERSIONMINOR);
-            _socketClient.start(_mesh.getParentIp().toString());
+            _tcpClient.start(_mesh.getParentIp().toString());
         }
         else
         {
@@ -56,7 +56,7 @@ namespace SyncBlink
     {
         checkNewMod();
         
-        _socketClient.loop();
+        _tcpClient.loop();
         _socketServer.loop();
         _led.loop();
 
@@ -117,7 +117,7 @@ namespace SyncBlink
         }
         else
         {
-            _socketClient.sendMessage(0, 0, Client::MESH_UPDATED);
+            _tcpClient.sendMessage(0, 0, Client::MESH_UPDATED);
         }
     }
 
@@ -141,7 +141,7 @@ namespace SyncBlink
         // Unexpected errors will occure!
         _newMod = true;
         _currentMod = mod;
-        _socketClient.sendMessage(0, 0, Client::MOD_DISTRIBUTED);
+        _tcpClient.sendMessage(0, 0, Client::MOD_DISTRIBUTED);
         _socketServer.broadcast((void*)mod.c_str(), mod.size(), Server::DISTRIBUTE_MOD);
     }
 
@@ -229,12 +229,12 @@ namespace SyncBlink
             Client::ConnectionMessage message = { SyncBlink::getId(), 0, _led.getLedCount(), VERSIONMAJOR, VERSIONMINOR };
             memcpy(&message.nodeLabel[0], &_nodeLabel[0], _nodeLabel.size());
 
-            _socketClient.sendMessage(&message, sizeof(message), Client::MESH_CONNECTION);
+            _tcpClient.sendMessage(&message, sizeof(message), Client::MESH_CONNECTION);
          }
          else _led.blinkNow(Red); 
     }
 
-    void NodeContext::onSocketServerMessageReceived(SocketMessage message)
+    void NodeContext::onSocketServerMessageReceived(TcpMessage message)
     {
         switch (message.messageType)
         {
@@ -242,7 +242,7 @@ namespace SyncBlink
             case Client::MESH_DISCONNECTION:
             case Client::MESH_UPDATED:
             case Client::MOD_DISTRIBUTED:
-                _socketClient.sendMessage(&message.message[0], message.message.size(), (Client::MessageType)message.messageType);
+                _tcpClient.sendMessage(&message.message[0], message.message.size(), (Client::MessageType)message.messageType);
                 break;
             case Client::EXTERNAL_ANALYZER:
                 break;

@@ -1,25 +1,25 @@
-#ifndef SOCKETSTREAM_H
-#define SOCKETSTREAM_H
+#ifndef TCPSTREAM_H
+#define TCPSTREAM_H
 
 #include <vector>
 #include <ESP8266WiFi.h>
 
 namespace SyncBlink
 {
-    struct SocketMessage
+    struct TcpMessage
     {
         uint8_t messageType;
         std::vector<uint8_t> message;
     };
 
-    class SocketStream
+    class TcpStream
     {
     public:
-        SocketStream();
-        SocketStream(WiFiClient client);
+        TcpStream();
+        TcpStream(WiFiClient client);
     
         bool connectTo(String socketIp, uint16_t port);
-        bool checkMessage(SocketMessage& message);
+        bool checkMessage(TcpMessage& message);
         void writeMessage(std::vector<uint8_t> message);
 
         bool isTimeout() const;
@@ -37,4 +37,4 @@ namespace SyncBlink
     };
 }
 
-#endif // SOCKETSTREAM_H
+#endif // TCPSTREAM_H

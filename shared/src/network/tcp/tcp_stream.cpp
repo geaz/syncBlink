@@ -1,19 +1,19 @@
-#include "socket_stream.hpp"
+#include "tcp_stream.hpp"
 #include "shared_constants.hpp"
 
 namespace SyncBlink
 {
-    SocketStream::SocketStream()
+    TcpStream::TcpStream()
     {
         _client.setNoDelay(true);
     }
 
-    SocketStream::SocketStream(WiFiClient client) : _client(client)
+    TcpStream::TcpStream(WiFiClient client) : _client(client)
     {
         _client.setNoDelay(true);
     }
 
-    bool SocketStream::connectTo(String socketIp, uint16_t port)
+    bool TcpStream::connectTo(String socketIp, uint16_t port)
     {
         bool connected = false;
         #ifdef DEBUG_SOCKET
@@ -28,7 +28,7 @@ namespace SyncBlink
         return connected;
     }
 
-    bool SocketStream::checkMessage(SocketMessage& socketMessage)
+    bool TcpStream::checkMessage(TcpMessage& tcpMessage)
     {
         bool receivedMessage = false;
         while(_client.available())
@@ -58,12 +58,12 @@ namespace SyncBlink
 
                     if(checksum == messageChecksum)
                     {
-                        socketMessage.messageType = messageType;
-                        socketMessage.message.resize(messageSize);
+                        tcpMessage.messageType = messageType;
+                        tcpMessage.message.resize(messageSize);
                         uint32_t readBytes = 0;
                         while(readBytes < messageSize)
                         {
-                            readBytes += _client.read(&socketMessage.message[readBytes], messageSize-readBytes);
+                            readBytes += _client.read(&tcpMessage.message[readBytes], messageSize-readBytes);
                             if(readBytes != messageSize)
                             {
                                 #ifdef DEBUG_SOCKET
@@ -73,7 +73,7 @@ namespace SyncBlink
                             }
                         }                        
                         #ifdef DEBUG_SOCKET
-                        Serial.printf("[TCP STREAM] Found message - Size: %i, Type: %i\n", socketMessage.message.size() + SocketHeaderSize, socketMessage.messageType);
+                        Serial.printf("[TCP STREAM] Found message - Size: %i, Type: %i\n", tcpMessage.message.size() + SocketHeaderSize, tcpMessage.messageType);
                         #endif
                         receivedMessage = true;
                     }
@@ -83,7 +83,7 @@ namespace SyncBlink
         return receivedMessage;
     }
 
-    void SocketStream::writeMessage(std::vector<uint8_t> message)
+    void TcpStream::writeMessage(std::vector<uint8_t> message)
     {
         if(_client.connected())
         {
@@ -108,27 +108,27 @@ namespace SyncBlink
         }
     }
 
-    bool SocketStream::isTimeout() const
+    bool TcpStream::isTimeout() const
     {
         return _timeout;
     }
 
-    bool SocketStream::isConnected()
+    bool TcpStream::isConnected()
     {
         return _client.connected();
     }
 
-    void SocketStream::setStreamId(uint64_t id)
+    void TcpStream::setStreamId(uint64_t id)
     {
         _streamId = id;
     }
 
-    uint64_t SocketStream::getStreamId() const
+    uint64_t TcpStream::getStreamId() const
     {
         return _streamId;
     }
 
-    std::vector<uint8_t> SocketStream::serializeMessage(void* message, uint32_t messageSize, uint8_t messageType)
+    std::vector<uint8_t> TcpStream::serializeMessage(void* message, uint32_t messageSize, uint8_t messageType)
     {
         uint32_t packageSize = messageSize + SocketHeaderSize;
         

@@ -6,7 +6,7 @@
 
 namespace SyncBlink
 {
-    StationContext::StationContext() : _nodeManager(_socketServer), _web(_wifi, _modManager, _nodeManager)
+    StationContext::StationContext() : _nodeManager(_tcpServer), _web(_wifi, _modManager, _nodeManager)
     {
         resetState();
         checkException();
@@ -19,12 +19,12 @@ namespace SyncBlink
         _display.loop();
         _led.setup(LED_COUNT);
 
-        _socketServer.messageEvents
-            .addEventHandler([this](SocketMessage message) {
+        _tcpServer.messageEvents
+            .addEventHandler([this](TcpMessage message) {
                 onSocketServerCommandReceived(message);
             });
 
-        _socketServer.serverDisconnectionEvents
+        _tcpServer.serverDisconnectionEvents
             .addEventHandler([this](uint64_t clientId) { onMeshDisconnection(clientId); });
 
         _web.uploadListener
@@ -43,7 +43,7 @@ namespace SyncBlink
 
         currentState->run(*this);
         
-        _socketServer.loop();
+        _tcpServer.loop();
         _led.loop();
         _web.loop();
         _display.loop();
@@ -65,29 +65,29 @@ namespace SyncBlink
         _nodeManager.removeNode(clientId);
     }
 
-    void StationContext::onSocketServerCommandReceived(SocketMessage socketMessage)
+    void StationContext::onSocketServerCommandReceived(TcpMessage tcpMessage)
     {
-        switch (socketMessage.messageType)
+        switch (tcpMessage.messageType)
         {
             case Client::MESH_CONNECTION:
             {              
                 Client::ConnectionMessage message;
-                memcpy(&message, &socketMessage.message[0], socketMessage.message.size());
+                memcpy(&message, &tcpMessage.message[0], tcpMessage.message.size());
 
                 _nodeManager.addNode(message);
 
                 Server::UpdateMessage updateMessage = { _led.getLedCount(), 1, _nodeManager.getTotalLedCount(), _nodeManager.getTotalNodeCount() };
-                _socketServer.broadcast(&updateMessage, sizeof(updateMessage), Server::MESH_UPDATE);
+                _tcpServer.broadcast(&updateMessage, sizeof(updateMessage), Server::MESH_UPDATE);
                 break;
             }
             case Client::MESH_DISCONNECTION:
             {
                 uint64_t clientId;
-                memcpy(&clientId, &socketMessage.message[0], socketMessage.message.size());
+                memcpy(&clientId, &tcpMessage.message[0], tcpMessage.message.size());
                 onMeshDisconnection(clientId);
 
                 Server::UpdateMessage updateMessage = { _led.getLedCount(), 1, _nodeManager.getTotalLedCount(), _nodeManager.getTotalNodeCount() };
-                _socketServer.broadcast(&updateMessage, sizeof(updateMessage), Server::MESH_UPDATE);
+                _tcpServer.broadcast(&updateMessage, sizeof(updateMessage), Server::MESH_UPDATE);
                 break;
             }
             case Client::MESH_UPDATED:
@@ -101,6 +101,6 @@ namespace SyncBlink
     Display& StationContext::getDisplay() { return _display; }
     ModManager& StationContext::getModManager() { return _modManager; }
     SyncBlinkWeb& StationContext::getWebserver() { return _web; }
-    SocketServer& StationContext::getSocketServer() { return _socketServer; }
+    TcpServer& StationContext::getTcpServer() { return _tcpServer; }
     NodeManager& StationContext::getNodeManager() { return _nodeManager; }
 }

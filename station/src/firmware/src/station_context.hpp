@@ -3,7 +3,7 @@
 
 #include <memory>
 #include <led/led.hpp>
-#include <network/websocket/socket_server.hpp>
+#include <network/tcp/tcp_server.hpp>
 
 #include "states/state.hpp"
 #include "display/display.hpp"
@@ -41,7 +41,7 @@ namespace SyncBlink
             Display& getDisplay();
             ModManager& getModManager();
             SyncBlinkWeb& getWebserver();
-            SocketServer& getSocketServer();
+            TcpServer& getTcpServer();
             NodeManager& getNodeManager();
 
             std::shared_ptr<State> currentState;
@@ -49,14 +49,14 @@ namespace SyncBlink
         private:
             void checkException();
             void onMeshDisconnection(uint64_t clientId);
-            void onSocketServerCommandReceived(SocketMessage socketMessage);
+            void onSocketServerCommandReceived(TcpMessage tcpMessage);
 
             LED _led;
             Display _display;
             StationWifi _wifi;  
             NodeManager _nodeManager;
             ModManager _modManager;
-            SocketServer _socketServer;          
+            TcpServer _tcpServer;          
             SyncBlinkWeb _web;
     };
 }

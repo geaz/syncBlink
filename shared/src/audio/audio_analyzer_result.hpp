@@ -3,7 +3,7 @@
 
 #include "shared_constants.hpp"
 #include "mappings.hpp"
-#include "network/websocket/messages/client_messages.hpp"
+#include "network/tcp/messages/client_messages.hpp"
 
 #include <array>
 

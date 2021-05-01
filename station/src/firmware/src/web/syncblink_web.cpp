@@ -3,7 +3,7 @@
 #include <sstream>
 #include <LittleFS.h>
 #include <ArduinoJson.h>
-#include <network/websocket/messages/audio_analyzer_message.hpp>
+#include <network/tcp/messages/audio_analyzer_message.hpp>
 
 namespace SyncBlink
 {
