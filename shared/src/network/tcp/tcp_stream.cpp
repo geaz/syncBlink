@@ -158,7 +158,7 @@ namespace SyncBlink
         }
         package[7] = checksum;
         package[8] = messageType;
-        memcpy(&package[9], message, messageSize);
+        if(messageSize > 0) memcpy(&package[9], message, messageSize);
 
         return package;
     }
