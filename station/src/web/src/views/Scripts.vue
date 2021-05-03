@@ -1,27 +1,27 @@
 <template>
-    <div id="mods" class="grid-container">
+    <div id="scripts" class="grid-container">
         <Loader v-if="loading"></Loader>
         <template v-else>
             <aside class="grid-aside">
-                <div id="avail-mods">
-                    <label>Available Mods</label>
-                    <a href="#" v-on:click="addModVisible = !addModVisible"><i class="material-icons-outlined">add_box</i></a>
+                <div id="avail-scripts">
+                    <label>Available Scripts</label>
+                    <a href="#" v-on:click="addScriptVisible = !addScriptVisible"><i class="material-icons-outlined">add_box</i></a>
                 </div>
                 <ul>
-                    <li :class="{ 'active': activeMod === mod }" v-for="mod in availableMods" :key="mod">
-                        <a href="#" class="main-link" v-on:click="loadMod(mod)">{{mod}}</a>
+                    <li :class="{ 'active': activeScript === script }" v-for="script in availableScripts" :key="script">
+                        <a href="#" class="main-link" v-on:click="loadScript(script)">{{script}}</a>
 
-                        <span v-if="activeMod === mod && modContent === originalModContent" class="deactivated-tool"><i class="material-icons-outlined">save</i></span>
-                        <a v-else-if="activeMod === mod && modContent !== originalModContent" v-on:click="saveMod()" href="#" class="tool"><i class="material-icons-outlined blue">save</i></a>
+                        <span v-if="activeScript === script && scriptContent === originalScriptContent" class="deactivated-tool"><i class="material-icons-outlined">save</i></span>
+                        <a v-else-if="activeScript === script && scriptContent !== originalScriptContent" v-on:click="saveScript()" href="#" class="tool"><i class="material-icons-outlined blue">save</i></a>
 
-                        <a href="#" v-on:click="deleteMod(mod)" :class="{ 'tool': true, 'hover-hidden': true, 'visible': activeMod === mod }"><i class="material-icons-outlined hover-red">delete</i></a>
+                        <a href="#" v-on:click="deleteScript(script)" :class="{ 'tool': true, 'hover-hidden': true, 'visible': activeScript === script }"><i class="material-icons-outlined hover-red">delete</i></a>
                     </li>
                 </ul>
-                <div id="add-mod" v-if="addModVisible">
-                    <input v-focus v-on:keyup.enter="addMod()" v-model="newModName" type="text" placeholder="Enter MOD name"/>
+                <div id="add-script" v-if="addScriptVisible">
+                    <input v-focus v-on:keyup.enter="addScript()" v-model="newScriptName" type="text" placeholder="Enter Script Name"/>
                 </div> 
             </aside>
-            <CodeEditor class="grid-editor" v-model="modContent" />
+            <CodeEditor class="grid-editor" v-model="scriptContent" />
         </template>
     </div>
 </template>
@@ -37,98 +37,98 @@
             CodeEditor
         },
     })
-    export default class Mods extends Vue {
+    export default class Scripts extends Vue {
         private loading : boolean = true;
-        private availableMods : Array<string> = new Array<string>();
-        private activeMod : string = "";
-        private modContent : string = "";
-        private originalModContent : string = "";
-        private newModName : string = "";
-        private addModVisible : boolean = false;
+        private availableScripts : Array<string> = new Array<string>();
+        private activeScript : string = "";
+        private scriptContent : string = "";
+        private originalScriptContent : string = "";
+        private newScriptName : string = "";
+        private addScriptVisible : boolean = false;
 
         async beforeMount() : Promise<void> {
-            await this.loadModList();
+            await this.loadScriptList();
             this.loading = false;
         }
 
-        async loadModList() : Promise<void> {            
+        async loadScriptList() : Promise<void> {            
             let response = await fetch("/api/mods/list", {
                 method: "GET"
             });
             if(response.ok) {
-                this.availableMods = (await response.json()).mods;
-                if(this.availableMods.length > 0 && this.activeMod === "") await this.loadMod(this.availableMods[0]);
+                this.availableScripts = (await response.json()).mods;
+                if(this.availableScripts.length > 0 && this.activeScript === "") await this.loadScript(this.availableScripts[0]);
             }
         }
 
-        async loadMod(modName : string) : Promise<void> {
-            if(this.modContent !== this.originalModContent) {
-                if(confirm(`Unsaved changes available in "${this.activeMod}"! Do you want to save them?`)) {
-                    await this.saveMod();
+        async loadScript(scriptName : string) : Promise<void> {
+            if(this.scriptContent !== this.originalScriptContent) {
+                if(confirm(`Unsaved changes available in "${this.activeScript}"! Do you want to save them?`)) {
+                    await this.saveScript();
                 }
             }
 
-            this.activeMod = modName;
-            let response = await fetch(`/api/mods/get?name=${this.activeMod}`, {
+            this.activeScript = scriptName;
+            let response = await fetch(`/api/mods/get?name=${this.activeScript}`, {
                 method: "GET"
             });
             if(response.ok) {
-                let modInfo = await response.json();
-                this.modContent = modInfo.content;
-                this.originalModContent = modInfo.content;
+                let scriptInfo = await response.json();
+                this.scriptContent = scriptInfo.content;
+                this.originalScriptContent = scriptInfo.content;
             }
         }
 
-        async addMod() : Promise<void> {
+        async addScript() : Promise<void> {
             this.loading = true;
-            if(this.newModName != "") {
-                let response = await fetch(`/api/mods/add?name=${this.newModName}`, {
+            if(this.newScriptName != "") {
+                let response = await fetch(`/api/mods/add?name=${this.newScriptName}`, {
                     method: "GET"
                 });
                 if(response.ok) {
-                    await this.loadMod(this.newModName);
-                    await this.loadModList();
+                    await this.loadScript(this.newScriptName);
+                    await this.loadScriptList();
                     
-                    this.newModName = "";
-                    this.addModVisible = false;
+                    this.newScriptName = "";
+                    this.addScriptVisible = false;
                     this.loading = false;
                 }
                 else {
-                    alert("Error during MOD creation!");
+                    alert("Error during script creation!");
                 }                
             }
         }
 
-        async saveMod() : Promise<void> {
-            let mod = {
-                name: this.activeMod,
-                content: this.modContent
+        async saveScript() : Promise<void> {
+            let script = {
+                name: this.activeScript,
+                content: this.scriptContent
             };
             let response = await fetch(`/api/mods/save`, {
                 method: "POST",
-                body: JSON.stringify(mod)
+                body: JSON.stringify(script)
             });
             if(response.ok) {
-                this.originalModContent = this.modContent;
+                this.originalScriptContent = this.scriptContent;
             }
             else {
-                alert("Error during MOD save!");
+                alert("Error during script save!");
             }
         }
 
-        async deleteMod(modName : string) : Promise<void> {
-            if(confirm(`Do you really want to delete the "${modName}" MOD?`)) {
+        async deleteScript(scriptName : string) : Promise<void> {
+            if(confirm(`Do you really want to delete "${scriptName}"?`)) {
                 this.loading = true;
-                let response = await fetch(`/api/mods/delete?name=${modName}`, {
+                let response = await fetch(`/api/mods/delete?name=${scriptName}`, {
                     method: "GET"
                 });
                 if(response.ok) {
-                    this.activeMod = this.activeMod === modName ? "" : this.activeMod;
-                    await this.loadModList();
+                    this.activeScript = this.activeScript === scriptName ? "" : this.activeScript;
+                    await this.loadScriptList();
                     this.loading = false;
                 }
                 else {
-                    alert("Error during MOD deletion!");
+                    alert("Error during script deletion!");
                 }
             }
         }
@@ -149,7 +149,7 @@
             'aside editor';
     }
 
-    #mods {
+    #scripts {
         width: 100%;
         height: 100%;
         max-height: 100%;
@@ -204,7 +204,7 @@
         .visible { visibility: visible; }
     }
 
-    #avail-mods {
+    #avail-scripts {
         display: flex;
         align-items: center;
         margin: 0 1rem 1rem 1.5rem;
@@ -221,7 +221,7 @@
         }
     }
 
-    #add-mod {
+    #add-script {
         box-sizing: border-box;
         margin-top: 1rem;
         padding: 0 1.5rem;
@@ -234,7 +234,6 @@
     }
 
     #code-editor {
-        max-height: 85vh;
         margin-right: -2rem;
         box-shadow: $box-shadow-outset;
     }

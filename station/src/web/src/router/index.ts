@@ -1,6 +1,6 @@
 import Vue from "vue"
 import VueRouter, { RouteConfig } from "vue-router"
-import Mods from "../views/Mods.vue"
+import Scripts from "../views/Scripts.vue"
 import Mesh from "../views/Mesh.vue"
 import Settings from "../views/Settings.vue"
 
@@ -18,9 +18,9 @@ const routes: Array<RouteConfig> = [
     component: Mesh
   },
   {
-    path: "/mods",
-    name: "Mods",
-    component: Mods
+    path: "/scripts",
+    name: "Scripts",
+    component: Scripts
   }
 ];
 

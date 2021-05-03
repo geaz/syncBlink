@@ -1,7 +1,6 @@
 let h=0
 let s=0
 let v=0
-let maxV = 1
 let colors = []
 
 let update = fun(delta) {
@@ -15,7 +14,7 @@ let update = fun(delta) {
         }
         h = map(freq, 100, maxF/2, 240, 0)
         s = 1
-        v = map(vol, 0, 100, 0, maxV)
+        v = map(vol, 0, 100, 0, 1)
     }
     
     for(let i = nLedC - 1; i > 0; i = i - 1) {
@@ -33,7 +32,6 @@ let init = fun(){
     	setGroupsOf(4)
     }
     if(nLedC == 256) {
-        maxV = 0.2
     	setLinearGroupsOf(16)
     }
 }

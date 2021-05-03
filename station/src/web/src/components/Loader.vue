@@ -24,10 +24,11 @@
         position: absolute;
         background: $background-color;
         text-align: center;
-        padding-top: 150px;
+        padding-top: 40vh;
         top:0;
         left:0;
         z-index:9999;
+        box-sizing: border-box;
 
         p { text-align: center; }
     }

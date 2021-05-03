@@ -3,12 +3,12 @@
         <header class="grid-header">
             <div class="content">
                 <div class="stretch vertical-center">
-                    <a id="header-logo" href="/" title="Mods"><img alt="syncBlink Logo" src="./../assets/logo.png"></a>
+                    <a id="header-logo" href="/" title="Home"><img alt="syncBlink Logo" src="./../assets/logo.png"></a>
                 </div>
                 <nav id="nav">
                     <router-link class="menu-item" to="/">Settings</router-link>
                     <router-link class="menu-item" to="/mesh">Mesh</router-link>
-                    <router-link class="menu-item only-desktop" to="/mods">Mods</router-link>
+                    <router-link class="menu-item only-desktop" to="/scripts">Scripts</router-link>
                 </nav>
             </div>
         </header>

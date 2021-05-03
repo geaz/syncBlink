@@ -2,7 +2,7 @@
     <div>
         <Modal :title="'Rename Node'" v-if="show" @close="$emit('close')">
             <template v-slot:content>
-                <input type="text" v-model="newLabel"/>
+                <input type="text" v-model="label"/>
             </template>
             <template v-slot:footer>
                 <button @click="rename" :disabled="false" class="button blue" :class="{ disabled: false }">Save</button>
@@ -27,18 +27,13 @@
         private loading: boolean = false;
         @Prop() private show!: boolean;
         @Prop() private clientId!: number;
-        @Prop() private label!: string;
-        @Model('change', { type: Boolean }) readonly checked!: boolean
-
-        public newLabel: string = this.label;
+        @Model('change', { type: String }) private label!: string
 
         async rename() : Promise<void> {
-            console.log(this.newLabel);
             if(confirm("Are you sure?")) {
                 this.loading = true;
-                await fetch('/api/mesh/rename?targetId=' + this.clientId + '&label=' + this.newLabel, {method: "GET" });
-                this.newLabel = "";
-                this.$emit('close');
+                await fetch('/api/mesh/rename?targetId=' + this.clientId + '&label=' + this.label, {method: "GET" });
+                this.$emit('close', true);
             }
         }
     }
