@@ -19,6 +19,7 @@ namespace SyncBlink
     void LED::loop()
     {
         FastLED.show();
+        delay(1); // Necessary to avoid flickering on large matrix/strip
     }
 
     void LED::setAllLeds(const Color color)
