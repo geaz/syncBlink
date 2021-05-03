@@ -13,6 +13,11 @@ namespace SyncBlink
         _client.setNoDelay(true);
     }
 
+    void TcpStream::stop()
+    {
+        _client.stop();
+    }
+
     void TcpStream::flush()
     {
         _client.flush();
@@ -108,7 +113,7 @@ namespace SyncBlink
                     _timeout = true;
                     break;
                 }
-
+                
                 uint32_t written = _client.write(messagePtr, messageSize);
                 messagePtr += written;
                 messageSize -= written;

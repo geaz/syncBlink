@@ -37,22 +37,20 @@ namespace SyncBlink
         for(auto iter = _clients.begin(); iter != _clients.end();)
         {
             if(!iter->isConnected() || iter->isTimeout())
-            {
-                #ifdef DEBUG_TCP
-                Serial.printf("[TCP SERVER] Client lost connection: %12llx\n", iter->getStreamId());
-                #endif
+            {                
                 if(iter->getStreamId() != 0)
                 {
+                    #ifdef DEBUG_TCP
+                    Serial.printf("[TCP SERVER] Client lost connection: %12llx\n", iter->getStreamId());
+                    #endif
                     for (auto event : serverDisconnectionEvents.getEventHandlers())
                         event.second(iter->getStreamId());
                 }
+                iter->flush();
+                iter->stop();
                 _clients.erase(iter);
             }
             else iter++;
-        }
-        while(tcp_tw_pcbs!=NULL)
-        {
-            tcp_abort(tcp_tw_pcbs);
         }
     }
 
