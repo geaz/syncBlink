@@ -50,6 +50,10 @@ namespace SyncBlink
             }
             else iter++;
         }
+        while(tcp_tw_pcbs!=NULL)
+        {
+            tcp_abort(tcp_tw_pcbs);
+        }
     }
 
     void TcpServer::checkNewClients()

@@ -9,6 +9,10 @@
 #include <vector>
 #include <ESP8266WiFi.h>
 
+struct tcp_pcb;
+extern struct tcp_pcb* tcp_tw_pcbs;
+extern "C" void tcp_abort (struct tcp_pcb* pcb);
+
 namespace SyncBlink
 {
     typedef std::function<void(uint64_t clientId)> ServerDisconnectionEvent;
