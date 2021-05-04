@@ -11,6 +11,7 @@ namespace SyncBlink
     TcpStream::TcpStream(WiFiClient client) : _client(client)
     {
         _client.setNoDelay(true);
+        _remoteIp = _client.remoteIP();
     }
 
     void TcpStream::stop()
@@ -139,6 +140,11 @@ namespace SyncBlink
     uint64_t TcpStream::getStreamId() const
     {
         return _streamId;
+    }
+
+    IPAddress TcpStream::getRemoteIp() const
+    {
+        return _remoteIp;
     }
 
     std::vector<uint8_t> TcpStream::serializeMessage(void* message, uint32_t messageSize, uint8_t messageType)

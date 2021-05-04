@@ -48,6 +48,17 @@ namespace SyncBlink
                 }
                 iter->flush();
                 iter->stop();
+
+                // We explicity abandon without reset (this will also purge the unsent message memory)
+                for(auto pcb = tcp_active_pcbs; pcb != NULL; pcb = pcb->next) {
+                    IPAddress ip = pcb->remote_ip;
+                    if(ip == iter->getRemoteIp())
+                    {
+                        tcp_abandon(pcb, 0);
+                        break;
+                    }
+                }
+
                 _clients.erase(iter);
             }
             else iter++;

@@ -7,11 +7,13 @@
 #include "messages/server_messages.hpp"
 
 #include <vector>
+#include <lwip/tcp.h>
 #include <ESP8266WiFi.h>
 
 struct tcp_pcb;
 extern struct tcp_pcb* tcp_tw_pcbs;
-extern "C" void tcp_abort (struct tcp_pcb* pcb);
+extern struct tcp_pcb* tcp_active_pcbs;
+extern "C" void tcp_abandon (struct tcp_pcb* pcb, int reset);
 
 namespace SyncBlink
 {

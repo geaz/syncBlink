@@ -30,11 +30,14 @@ namespace SyncBlink
         void setStreamId(uint64_t id);
         uint64_t getStreamId() const;
 
+        IPAddress getRemoteIp() const;
+
         static std::vector<uint8_t> serializeMessage(void* message, uint32_t messageSize, uint8_t messageType);
 
     private:
         WiFiClient _client;
         bool _timeout = false;
+        IPAddress _remoteIp;
         uint64_t _streamId = 0;
     };
 }
