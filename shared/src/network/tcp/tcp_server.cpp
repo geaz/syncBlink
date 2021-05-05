@@ -87,7 +87,7 @@ namespace SyncBlink
                     
                     if(message.parentId == 0)
                     {
-                        message.parentId = SyncBlink::getId();
+                        if(!message.isAnalyzer) message.parentId = SyncBlink::getId();
                         memcpy(&tcpMessage.message[0], &message, sizeof(message));
                         client.setStreamId(message.clientId);
                     }

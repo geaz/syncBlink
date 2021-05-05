@@ -12,7 +12,8 @@ namespace SyncBlink
     {
         _server.on("/api/mesh/ping", [this]() { pingNode(); });
         _server.on("/api/mesh/rename", [this]() { renameNode(); });
-        _server.on("/api/mesh/info", [this]() { getMeshInfo(); });        
+        _server.on("/api/mesh/info", [this]() { getMeshInfo(); });
+        _server.on("/api/mesh/setSource", [this]() { setSource(); });
         _server.on("/api/mesh/flash", HTTP_POST, 
             [this]() { 
                 _server.sendHeader("Connection", "close");
@@ -40,6 +41,18 @@ namespace SyncBlink
     void SyncBlinkWeb::loop()
     {
         _server.handleClient();
+    }
+
+    void SyncBlinkWeb::setSource()
+    {
+        String analyzerIdArg = _server.arg("analyzerId");
+
+        uint64_t analyzerId;
+        std::istringstream iss(analyzerIdArg.c_str());
+        iss >> analyzerId;
+
+        _nodeManager.setSource(analyzerId);
+        _server.send(200, "text/plain");
     }
 
     void SyncBlinkWeb::pingNode()
@@ -87,6 +100,7 @@ namespace SyncBlink
 
             doc["nodes"][i] = nodeJson;
         }
+        doc["source"] = _nodeManager.getActiveSource();
 
         serializeJson(doc, JSON);
         _server.send(200, "application/json", JSON);

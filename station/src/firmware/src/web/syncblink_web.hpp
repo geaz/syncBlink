@@ -27,6 +27,7 @@ namespace SyncBlink
             void renameNode();
             void getMeshInfo();
             void flashMesh();
+            void setSource();
 
             void setWifi();
             void getWifi();
