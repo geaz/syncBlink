@@ -114,25 +114,4 @@ namespace SyncBlink
             for(auto event : activeModChangedEvents.getEventHandlers()) event.second();
         }
     }
-
-    AudioAnalyzerSource ModManager::getActiveSource()
-    {
-        uint rawSource = EEPROM.read(SyncBlink::SourceRom);
-        if(rawSource != 0 && rawSource != 1) {
-            #ifdef DEBUG_MODMANAGER
-            Serial.println("[MODMANAGER] Currently active source not valid! Falling back ...");
-            #endif
-            saveActiveSource(AudioAnalyzerSource::Station);
-        }
-        return static_cast<AudioAnalyzerSource>(EEPROM.read(SyncBlink::SourceRom));
-    }
-
-    void ModManager::saveActiveSource(AudioAnalyzerSource source)
-    {
-        #ifdef DEBUG_MODMANAGER
-        Serial.printf("[MODMANAGER] Saving active Source (%d) ...\n", source);
-        #endif
-        EEPROM.write(SyncBlink::SourceRom, static_cast<uint>(source));
-        EEPROM.commit();
-    }
 }

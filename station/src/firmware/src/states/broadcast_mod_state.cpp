@@ -62,9 +62,6 @@ namespace SyncBlink
                     blinkScript->updateLedInfo(0, 0, context.getNodeManager().getTotalLedCount());
                     blinkScript->init();
 
-                    Server::SourceMessage sourceMessage = { context.getModManager().getActiveSource() };
-                    context.getTcpServer().broadcast(&sourceMessage, sizeof(sourceMessage), Server::SOURCE_UPDATE);
-
                     context.getLed().setAllLeds(SyncBlink::Black);
                     context.currentState = std::make_shared<RunModState>(context, blinkScript);
                 }

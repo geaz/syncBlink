@@ -32,6 +32,7 @@ namespace SyncBlink
          */
         struct UpdateMessage
         {
+            uint64_t activeSource;
             uint32_t routeLedCount;
             uint32_t routeNodeCount;
             uint32_t meshLedCount;      // The total amount of LEDs in the mesh
@@ -42,17 +43,6 @@ namespace SyncBlink
         {
             uint64_t clientId;
             char nodeLabel[MaxNodeLabelLength];
-        };
-
-        /**
-         * @brief   The *SourceMessage* informs the connected clients
-         *          about the currently requested analyzer source.
-         *          This will inform the Desktop Application for example that it should
-         *          now send Frequency Updates to the Station.
-         */
-        struct SourceMessage
-        {
-            AudioAnalyzerSource source;
         };
     }
 }

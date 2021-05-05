@@ -25,8 +25,6 @@ namespace SyncBlink
     const uint8_t ModRomStart = 96;
     const uint8_t ModRomEnd = 193;
     const uint8_t ModRomLength = ModRomEnd - ModRomStart;
-    
-    const uint8_t SourceRom = 193;
 
     class StationContext
     {
@@ -44,6 +42,8 @@ namespace SyncBlink
             TcpServer& getTcpServer();
             NodeManager& getNodeManager();
 
+            uint64_t getStationId() const;
+
             std::shared_ptr<State> currentState;
 
         private:
@@ -58,6 +58,8 @@ namespace SyncBlink
             ModManager _modManager;
             TcpServer _tcpServer;          
             SyncBlinkWeb _web;
+
+            uint64_t _stationId = SyncBlink::getId();
 
             #ifdef LOG_HEAP
             long _lastHeapLog;

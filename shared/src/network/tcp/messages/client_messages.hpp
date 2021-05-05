@@ -24,6 +24,8 @@ namespace SyncBlink
 
         struct ConnectionMessage
         {
+            bool isStation;
+            bool isAnalyzer;
             uint64_t clientId;
             uint64_t parentId;
             uint16_t ledCount;

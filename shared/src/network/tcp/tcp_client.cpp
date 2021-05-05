@@ -75,10 +75,10 @@ namespace SyncBlink
                 }
                 case Server::SOURCE_UPDATE:
                 {
-                    Server::SourceMessage message;
-                    memcpy(&message, &tcpMessage.message[0], tcpMessage.message.size());
+                    uint64_t targetClientId = 0;
+                    memcpy(&targetClientId, &tcpMessage.message[0], tcpMessage.message.size());
                     for (auto event : sourceUpdateEvents.getEventHandlers())
-                        event.second(message);
+                        event.second(targetClientId);
                     break;
                 }
                 case Server::NODE_RENAME:
@@ -116,6 +116,14 @@ namespace SyncBlink
                 {
                     for (auto event : firmwareFlashEvents.getEventHandlers())
                         event.second(tcpMessage.message, 0, Server::FIRMWARE_FLASH_DATA);
+                    break;
+                }
+                case Server::PING:
+                {
+                    uint64_t targetClientId = 0;
+                    memcpy(&targetClientId, &tcpMessage.message[0], tcpMessage.message.size());
+                    for (auto event : pingEvents.getEventHandlers())
+                        event.second(targetClientId);
                     break;
                 }
             }

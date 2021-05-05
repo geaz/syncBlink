@@ -10,6 +10,7 @@ namespace SyncBlink
     SyncBlinkWeb::SyncBlinkWeb(StationWifi& stationWifi, ModManager& modManager, NodeManager& nodeManager)
         : _server(80), _stationWifi(stationWifi), _modManager(modManager), _nodeManager(nodeManager)
     {
+        _server.on("/api/mesh/ping", [this]() { pingNode(); });
         _server.on("/api/mesh/rename", [this]() { renameNode(); });
         _server.on("/api/mesh/info", [this]() { getMeshInfo(); });        
         _server.on("/api/mesh/flash", HTTP_POST, 
@@ -41,6 +42,18 @@ namespace SyncBlink
         _server.handleClient();
     }
 
+    void SyncBlinkWeb::pingNode()
+    {
+        String targetIdArg = _server.arg("targetId");
+
+        uint64_t targetId;
+        std::istringstream iss(targetIdArg.c_str());
+        iss >> targetId;
+
+        _nodeManager.pingNode(targetId);
+        _server.send(200, "text/plain");
+    }
+
     void SyncBlinkWeb::renameNode()
     {
         String targetIdArg = _server.arg("targetId");
@@ -63,6 +76,8 @@ namespace SyncBlink
         for(uint32_t i = 0; i < connectedNodes.size(); i++)
         {
             StaticJsonDocument<500> nodeJson;
+            nodeJson["isStation"] = connectedNodes[i].isStation;
+            nodeJson["isAnalyzer"] = connectedNodes[i].isAnalyzer;
             nodeJson["clientId"] = connectedNodes[i].clientId;
             nodeJson["parentId"] = connectedNodes[i].parentId;
             nodeJson["ledCount"] = connectedNodes[i].ledCount;
@@ -162,12 +177,10 @@ namespace SyncBlink
     void SyncBlinkWeb::getModSettings()
     {
         std::string activeMod = _modManager.getActiveModName();
-        AudioAnalyzerSource activeSource = _modManager.getActiveSource();
 
         String JSON;
         StaticJsonDocument<1000> doc;
         doc["name"] = activeMod.c_str();
-        doc["source"] = activeSource;
 
         serializeJson(doc, JSON);
         _server.send(200, "application/json", JSON);
@@ -176,11 +189,9 @@ namespace SyncBlink
     void SyncBlinkWeb::setModSettings()
     {
         std::string modName = _server.arg("name").c_str();
-        uint source = std::atoi(_server.arg("source").c_str());
 
-        if(_modManager.get(modName).Exists && (source == 0 || source == 1)) {
+        if(_modManager.get(modName).Exists) {
             _modManager.saveActiveModName(modName);
-            _modManager.saveActiveSource(static_cast<AudioAnalyzerSource>(source));
             _server.send(200, "application/json", "{ \"saved\": true }");
         }
         else {

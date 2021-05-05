@@ -23,9 +23,6 @@ namespace SyncBlink
 
             std::string getActiveModName();
             void saveActiveModName(const std::string& modName);
-            
-            AudioAnalyzerSource getActiveSource();
-            void saveActiveSource(AudioAnalyzerSource source);
 
             EventRegistration<ActiveModChangedEvent> activeModChangedEvents;
 

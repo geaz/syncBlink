@@ -6,12 +6,6 @@
 
 namespace SyncBlink
 {
-    enum AudioAnalyzerSource
-    {
-        Station,
-        Desktop
-    };
-
     /**
      * @brief   The *AudioAnalyzerMessage* contains the frequency analyzer
      *          information of the currently selected source.

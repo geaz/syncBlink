@@ -84,7 +84,7 @@ namespace SyncBlink
                 
                 _nodeManager.addNode(message);
 
-                Server::UpdateMessage updateMessage = { _led.getLedCount(), 1, _nodeManager.getTotalLedCount(), _nodeManager.getTotalNodeCount() };
+                Server::UpdateMessage updateMessage = { _nodeManager.getActiveSource(), _led.getLedCount(), 1, _nodeManager.getTotalLedCount(), _nodeManager.getTotalNodeCount() };
                 _tcpServer.broadcast(&updateMessage, sizeof(updateMessage), Server::MESH_UPDATE);
                 break;
             }
@@ -111,4 +111,5 @@ namespace SyncBlink
     SyncBlinkWeb& StationContext::getWebserver() { return _web; }
     TcpServer& StationContext::getTcpServer() { return _tcpServer; }
     NodeManager& StationContext::getNodeManager() { return _nodeManager; }
+    uint64_t StationContext::getStationId() const { return _stationId; }
 }

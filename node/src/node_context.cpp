@@ -13,6 +13,9 @@ namespace SyncBlink
         _led.showNow(Cyan);
 
         _tcpClient
+            .pingEvents
+            .addEventHandler([this](uint64_t clientId) { if(clientId == SyncBlink::getId()) _led.blinkNow(Yellow, 5); else _tcpServer.broadcast(&clientId, sizeof(clientId), Server::PING);});
+        _tcpClient
             .connectionEvents
             .addEventHandler([this](bool connected) { onSocketClientConnectionChanged(connected); });
         _tcpClient
@@ -64,6 +67,7 @@ namespace SyncBlink
         if(!_mesh.isConnected())
         {
             Serial.println("Websocket and WiFi disconnected! Going to sleep ...");
+            _led.blinkNow(Red);
             _led.showNow(SyncBlink::Black);
             ESP.deepSleep(SleepSeconds * 1000000);
         }
@@ -227,7 +231,7 @@ namespace SyncBlink
          {
             _led.blinkNow(Green);
 
-            Client::ConnectionMessage message = { SyncBlink::getId(), 0, _led.getLedCount(), VERSIONMAJOR, VERSIONMINOR };
+            Client::ConnectionMessage message = { false, false, SyncBlink::getId(), 0, _led.getLedCount(), VERSIONMAJOR, VERSIONMINOR };
             memcpy(&message.nodeLabel[0], &_nodeLabel[0], _nodeLabel.size());
 
             _tcpClient.sendMessage(&message, sizeof(message), Client::MESH_CONNECTION);

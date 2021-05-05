@@ -14,9 +14,10 @@ namespace SyncBlink
     typedef std::function<void(std::string mod)> MeshModEvent;
     typedef std::function<void(bool isConnected)> ClientConnectionEvent;
 
+    typedef std::function<void(uint64_t clientId)> PingEvent;
     typedef std::function<void(AudioAnalyzerMessage message)> AudioAnalyzerEvent;
     typedef std::function<void(Server::UpdateMessage message)> MeshUpdateEvent;
-    typedef std::function<void(Server::SourceMessage message)> SourceUpdateEvent;
+    typedef std::function<void(uint64_t clientId)> SourceUpdateEvent;
     typedef std::function<void(Server::NodeRenameMessage message)> NodeRenameEvent;
     typedef std::function<void(std::vector<uint8_t> data, uint64_t targetClientId, Server::MessageType messageType)> FirmwareFlashEvent;
 
@@ -30,6 +31,7 @@ namespace SyncBlink
 
         bool isConnected();
 
+        EventRegistration<PingEvent> pingEvents;
         EventRegistration<MeshModEvent> meshModEvents;
         EventRegistration<ClientConnectionEvent> connectionEvents;
         EventRegistration<AudioAnalyzerEvent> audioAnalyzerEvents;

@@ -21,6 +21,17 @@ namespace SyncBlink
         countInfos();
     }
 
+    void NodeManager::setSource(uint64_t clientId)
+    {
+        _activeSource = clientId;
+        _socketServer.broadcast(&clientId, sizeof(clientId), Server::SOURCE_UPDATE);
+    }
+
+    void NodeManager::pingNode(uint64_t clientId)
+    {
+        _socketServer.broadcast(&clientId, sizeof(clientId), Server::PING);
+    }
+
     void NodeManager::renameNode(uint64_t clientId, const std::string& label)
     {
         Server::NodeRenameMessage message;
@@ -38,6 +49,11 @@ namespace SyncBlink
                 break;
             }
         }
+    }
+
+    uint64_t NodeManager::getActiveSource() const
+    {
+        return _activeSource;
     }
 
     uint32_t NodeManager::getTotalLedCount() const
