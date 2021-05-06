@@ -30,4 +30,4 @@ let init = fun(){
         colors[i] = xrgb(0,0,0)
     }
 }
-let modName = "meshSnake"
+let scriptName = "meshSnake"

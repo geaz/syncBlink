@@ -22,8 +22,8 @@ namespace SyncBlink
             .meshUpdateEvents
             .addEventHandler([this](Server::UpdateMessage message) { onMeshUpdateReceived(message); });
         _tcpClient
-            .meshModEvents
-            .addEventHandler([this](std::string mod) { onSocketClientModReceived(mod); });
+            .meshScriptEvents
+            .addEventHandler([this](std::string script) { onSocketClientScriptReceived(script); });
         _tcpClient
             .audioAnalyzerEvents
             .addEventHandler([this](AudioAnalyzerMessage message) { onAnalyzerResultReceived(message); });
@@ -58,15 +58,15 @@ namespace SyncBlink
 
     void NodeContext::loop()
     {
-        checkNewMod();
+        checkNewScript();
         
         _tcpClient.loop();
         _tcpServer.loop();
         _led.loop();
 
-        if(!_mesh.isConnected())
+        if(!_mesh.isConnected() || _tcpClient.isDiscontinued())
         {
-            Serial.println("Websocket and WiFi disconnected! Going to sleep ...");
+            Serial.printf("Wifi: %i - Tcp: %i - Going to sleep ...\n", !_mesh.isConnected(), _tcpClient.isDiscontinued());
             _led.blinkNow(Red);
             _led.showNow(SyncBlink::Black);
             ESP.deepSleep(SleepSeconds * 1000000);
@@ -94,16 +94,16 @@ namespace SyncBlink
         else Serial.println("EEPROM Node Label: (No Label)");
     }
 
-    void NodeContext::checkNewMod()
+    void NodeContext::checkNewScript()
     {
-        if(_newMod)
+        if(_newScript)
         {
-            Serial.println("Received new mod. Creating new ScriptContext ...");
+            Serial.println("Received new script. Creating new ScriptContext ...");
             _led.clearGroups();
-            _blinkScript = std::unique_ptr<SyncBlink::BlinkScript>(new BlinkScript(_led, _currentMod));
+            _blinkScript = std::unique_ptr<SyncBlink::BlinkScript>(new BlinkScript(_led, _currentScript));
             _blinkScript->updateLedInfo(_previousNodeCount, _previousLedCount, _meshLedCount);
             _blinkScript->init();
-            _newMod = false;
+            _newScript = false;
         }
     }
 
@@ -140,14 +140,14 @@ namespace SyncBlink
         }
     }
 
-    void NodeContext::onSocketClientModReceived(std::string mod)
+    void NodeContext::onSocketClientScriptReceived(std::string script)
     {
         // DON'T create the ScriptContext in the callback
         // Unexpected errors will occure!
-        _newMod = true;
-        _currentMod = mod;
-        _tcpClient.sendMessage(0, 0, Client::MOD_DISTRIBUTED);
-        _tcpServer.broadcast((void*)mod.c_str(), mod.size(), Server::DISTRIBUTE_MOD);
+        _newScript = true;
+        _currentScript = script;
+        _tcpClient.sendMessage(0, 0, Client::SCRIPT_DISTRIBUTED);
+        _tcpServer.broadcast((void*)script.c_str(), script.size(), Server::DISTRIBUTE_SCRIPT);
     }
 
     void NodeContext::onNodeRenameReceived(Server::NodeRenameMessage message)
@@ -246,7 +246,7 @@ namespace SyncBlink
             case Client::MESH_CONNECTION:
             case Client::MESH_DISCONNECTION:
             case Client::MESH_UPDATED:
-            case Client::MOD_DISTRIBUTED:
+            case Client::SCRIPT_DISTRIBUTED:
                 _tcpClient.sendMessage(&message.message[0], message.message.size(), (Client::MessageType)message.messageType);
                 break;
             case Client::EXTERNAL_ANALYZER:

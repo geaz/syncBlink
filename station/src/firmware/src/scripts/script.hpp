@@ -1,11 +1,11 @@
-#ifndef MOD_H
-#define MOD_H
+#ifndef SCRIPT_H
+#define SCRIPT_H
 
 #include <string>
 
 namespace SyncBlink
 {
-    class Mod
+    class Script
     {
         public:
             bool Exists;
@@ -14,4 +14,4 @@ namespace SyncBlink
     };
 }
 
-#endif // MOD_H
+#endif // SCRIPT_H

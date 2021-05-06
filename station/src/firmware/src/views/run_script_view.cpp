@@ -1,5 +1,5 @@
-#ifndef RUNMODVIEW_H
-#define RUNMODVIEW_H
+#ifndef RUNSCRIPTVIEW_H
+#define RUNSCRIPTVIEW_H
 
 #include <mappings.hpp>
 #include "display/view.hpp"
@@ -7,10 +7,10 @@
 
 namespace SyncBlink
 {
-    class RunModView : public View
+    class RunScriptView : public View
     {
         public:
-            RunModView()
+            RunScriptView()
             {
                 for(uint8_t i = 0; i < BAR_COUNT; i++)
                 {
@@ -96,4 +96,4 @@ namespace SyncBlink
     };
 }
 
-#endif // RUNMODVIEW_H
+#endif // RUNSCRIPTVIEW_H

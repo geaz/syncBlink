@@ -9,7 +9,7 @@
 #include "display/display.hpp"
 #include "web/syncblink_web.hpp"
 #include "wifi/station_wifi.hpp"
-#include "mod/mod_manager.hpp"
+#include "scripts/script_manager.hpp"
 #include "node_manager.hpp"
 
 namespace SyncBlink
@@ -22,9 +22,9 @@ namespace SyncBlink
     const uint8_t WifiRomPwEnd = 96;
     const uint8_t WifiRomPwLength = WifiRomPwEnd - WifiRomPwStart;
 
-    const uint8_t ModRomStart = 96;
-    const uint8_t ModRomEnd = 193;
-    const uint8_t ModRomLength = ModRomEnd - ModRomStart;
+    const uint8_t ScriptRomStart = 96;
+    const uint8_t ScriptRomEnd = 193;
+    const uint8_t ScriptRomLength = ScriptRomEnd - ScriptRomStart;
 
     class StationContext
     {
@@ -37,7 +37,7 @@ namespace SyncBlink
 
             LED& getLed();
             Display& getDisplay();
-            ModManager& getModManager();
+            ScriptManager& getScriptManager();
             SyncBlinkWeb& getWebserver();
             TcpServer& getTcpServer();
             NodeManager& getNodeManager();
@@ -55,7 +55,7 @@ namespace SyncBlink
             Display _display;
             StationWifi _wifi;  
             NodeManager _nodeManager;
-            ModManager _modManager;
+            ScriptManager _ScriptManager;
             TcpServer _tcpServer;          
             SyncBlinkWeb _web;
 

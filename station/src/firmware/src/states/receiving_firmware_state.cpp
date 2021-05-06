@@ -44,7 +44,7 @@ namespace SyncBlink
         private:
             StationContext& _context;
             std::shared_ptr<ProgressView> _progressView;            
-            uint64_t _webEventHandleId = 0;
+            uint32_t _webEventHandleId = 0;
             uint64_t _targetId = 0;
             bool _uploadDone = false;
     };

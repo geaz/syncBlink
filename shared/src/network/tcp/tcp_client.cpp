@@ -28,9 +28,14 @@ namespace SyncBlink
         return _client.isConnected();
     }
 
+    bool TcpClient::isDiscontinued()
+    {
+        return _retryCount >= 10;
+    }
+
     void TcpClient::checkConnection()
     {
-        if(!_client.isConnected() && WiFi.status() == WL_CONNECTED)
+        if(!_client.isConnected() && WiFi.status() == WL_CONNECTED && _retryCount++ < 10)
         {
             #ifdef DEBUG_TCP
             Serial.println("[TCP CLIENT] Disconnected! Trying to connect ...");
@@ -46,6 +51,7 @@ namespace SyncBlink
                         event.second(true);
                     _wasConnected = true;
                 }
+                _retryCount = 0;
             }
         }
     }
@@ -89,11 +95,11 @@ namespace SyncBlink
                         event.second(message);
                     break;
                 }
-                case Server::DISTRIBUTE_MOD:
+                case Server::DISTRIBUTE_SCRIPT:
                 {
-                    std::string mod((char*)&tcpMessage.message[0], tcpMessage.message.size());
-                    for (auto event : meshModEvents.getEventHandlers())
-                        event.second(mod);
+                    std::string script((char*)&tcpMessage.message[0], tcpMessage.message.size());
+                    for (auto event : meshScriptEvents.getEventHandlers())
+                        event.second(script);
                     break;
                 }
                 case Server::FIRMWARE_FLASH_START:

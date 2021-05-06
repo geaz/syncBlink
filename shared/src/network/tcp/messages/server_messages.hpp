@@ -20,7 +20,7 @@ namespace SyncBlink
             MESH_UPDATE,            // A request with updated LED and node counts
             SOURCE_UPDATE,          // A request with updated analyzer source information
             ANALYZER_UPDATE,        // A request with updated analyzer information
-            DISTRIBUTE_MOD,         // A request to distribute a led script
+            DISTRIBUTE_SCRIPT,      // A request to distribute a led script
             NODE_RENAME,            // A request to rename a node
             FIRMWARE_FLASH_START,   // A request to flash a new node firmware
             FIRMWARE_FLASH_DATA,    // A request with firmware data

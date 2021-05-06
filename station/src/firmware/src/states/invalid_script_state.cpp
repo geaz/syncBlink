@@ -1,5 +1,5 @@
-#ifndef FAILSAFESTATE_H
-#define FAILSAFESTATE_H
+#ifndef INVALIDSCRIPTSTATE_H
+#define INVALIDSCRIPTSTATE_H
 
 #include "state.hpp"
 #include "station_context.hpp"
@@ -7,12 +7,12 @@
 
 namespace SyncBlink
 {
-    class FailSafeState : public State
+    class InvalidScriptState : public State
     {
         public:
-            FailSafeState(StationContext& context) :
+            InvalidScriptState(StationContext& context) :
                 _context(context),
-                _failSafeView(std::make_shared<IconTextView>("Fail Safe!", u8g2_font_open_iconic_thing_2x_t, 78))
+                _invalidScriptView(std::make_shared<IconTextView>("Invalid script!", u8g2_font_open_iconic_check_2x_t, 66))
             {
                 _scriptEventHandleId = context.getScriptManager()
                     .activeScriptChangedEvents
@@ -22,7 +22,7 @@ namespace SyncBlink
                     });
             }
 
-            ~FailSafeState()
+            ~InvalidScriptState()
             {
                 _context.getScriptManager()
                     .activeScriptChangedEvents
@@ -31,18 +31,18 @@ namespace SyncBlink
 
             void run(StationContext& context)
             {
-                context.getLed().setAllLeds(SyncBlink::Yellow);
-                context.getDisplay().setView(_failSafeView);
+                context.getLed().setAllLeds(SyncBlink::Red);
+                context.getDisplay().setView(_invalidScriptView);
                 
                 if(_activeScriptChanged) context.resetState();
             }
 
         private:
             StationContext& _context;
-            std::shared_ptr<IconTextView> _failSafeView;            
+            std::shared_ptr<IconTextView> _invalidScriptView;            
             uint32_t _scriptEventHandleId = 0;
             bool _activeScriptChanged = false;
     };
 }
 
-#endif // FAILSAFESTATE_H
+#endif // INVALIDSCRIPTSTATE_H

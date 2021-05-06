@@ -11,7 +11,7 @@
 
 namespace SyncBlink
 {
-    typedef std::function<void(std::string mod)> MeshModEvent;
+    typedef std::function<void(std::string script)> MeshScriptEvent;
     typedef std::function<void(bool isConnected)> ClientConnectionEvent;
 
     typedef std::function<void(uint64_t clientId)> PingEvent;
@@ -30,9 +30,10 @@ namespace SyncBlink
         void sendMessage(void* message, uint32_t messageSize, Client::MessageType messageType);
 
         bool isConnected();
+        bool isDiscontinued();
 
         EventRegistration<PingEvent> pingEvents;
-        EventRegistration<MeshModEvent> meshModEvents;
+        EventRegistration<MeshScriptEvent> meshScriptEvents;
         EventRegistration<ClientConnectionEvent> connectionEvents;
         EventRegistration<AudioAnalyzerEvent> audioAnalyzerEvents;
         EventRegistration<MeshUpdateEvent> meshUpdateEvents;
@@ -46,6 +47,8 @@ namespace SyncBlink
 
         TcpStream _client;
         String _serverIp;
+
+        uint8_t _retryCount = 0;
         bool _wasConnected = false;
     };
 }

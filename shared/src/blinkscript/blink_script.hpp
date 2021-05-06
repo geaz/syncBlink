@@ -18,7 +18,7 @@ namespace SyncBlink
     class BlinkScript
     {
     public:
-        BlinkScript(LED& led, const std::string& mod);
+        BlinkScript(LED& led, const std::string& script);
 
         void init();
         void run(const uint8_t delta);
@@ -29,7 +29,7 @@ namespace SyncBlink
         bool isFaulted();
         LED& getLed();
         void setDelay(uint32_t delay);
-        std::string getModName();
+        std::string getScriptName();
 
     private:
         bool checkEvalError(const std::string& step, bool hasError, std::tuple<int, std::string> error);

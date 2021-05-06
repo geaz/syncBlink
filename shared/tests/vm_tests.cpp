@@ -399,7 +399,7 @@ TEST_CASE("VM Block Scopes in child scopes (function -> further blocks) should n
                          "}\n"
                          "\n"
                          "let init = fun(){}\n"
-                         "let modName = \"simpleMod\"";
+                         "let scriptName = \"simpleScript\"";
     
     auto program = compile(script);
     auto vm = SyncBlink::VM();

@@ -7,8 +7,8 @@
 
 namespace SyncBlink
 {
-    SyncBlinkWeb::SyncBlinkWeb(StationWifi& stationWifi, ModManager& modManager, NodeManager& nodeManager)
-        : _server(80), _stationWifi(stationWifi), _modManager(modManager), _nodeManager(nodeManager)
+    SyncBlinkWeb::SyncBlinkWeb(StationWifi& stationWifi, ScriptManager& ScriptManager, NodeManager& nodeManager)
+        : _server(80), _stationWifi(stationWifi), _scriptManager(ScriptManager), _nodeManager(nodeManager)
     {
         _server.on("/api/mesh/ping", [this]() { pingNode(); });
         _server.on("/api/mesh/rename", [this]() { renameNode(); });
@@ -24,15 +24,14 @@ namespace SyncBlink
         _server.on("/api/wifi/set", [this]() { setWifi(); });
         _server.on("/api/wifi/get", [this]() { getWifi(); });
 
-        _server.on("/api/mods/list", [this]() { getMods(); });
-        _server.on("/api/mods/get", [this]() { getModContent(); });
+        _server.on("/api/scripts/list", [this]() { getScriptList(); });
+        _server.on("/api/scripts/get", [this]() { getScriptContent(); });
 
-        _server.on("/api/mods/add", [this]() { addMod(); });
-        _server.on("/api/mods/save", [this]() { saveMod(); });
-        _server.on("/api/mods/delete", [this]() { deleteMod(); });
-
-        _server.on("/api/mods/getModSettings", [this]() { getModSettings(); });
-        _server.on("/api/mods/setModSettings", [this]() { setModSettings(); });
+        _server.on("/api/scripts/add", [this]() { addScript(); });
+        _server.on("/api/scripts/save", [this]() { saveScript(); });
+        _server.on("/api/scripts/delete", [this]() { deleteScript(); });
+        _server.on("/api/scripts/getActive", [this]() { getActive(); });
+        _server.on("/api/scripts/setActive", [this]() { setActive(); });
         
         _server.serveStatic("/", LittleFS, "/public/");
         _server.begin();
@@ -129,83 +128,83 @@ namespace SyncBlink
         _server.send(200, "application/json", JSON);
     }    
 
-    void SyncBlinkWeb::addMod()
+    void SyncBlinkWeb::addScript()
     {
-        std::string modName = _server.arg("name").c_str();
+        std::string scriptName = _server.arg("name").c_str();
 
-        _modManager.add(modName);
+        _scriptManager.add(scriptName);
         _server.send(200, "application/json", "{ \"saved\": true }");
     }
 
-    void SyncBlinkWeb::saveMod()
+    void SyncBlinkWeb::saveScript()
     {
         String body = _server.arg("plain");
-        StaticJsonDocument<5000> mod;
-        deserializeJson(mod, body);
+        StaticJsonDocument<5000> script;
+        deserializeJson(script, body);
 
-        String modName = mod["name"];
-        String modContent = mod["content"];
+        String scriptName = script["name"];
+        String scriptContent = script["content"];
 
-        _modManager.save(modName.c_str(), modContent.c_str());
+        _scriptManager.save(scriptName.c_str(), scriptContent.c_str());
         _server.send(200, "application/json", "{ \"saved\": true }");
     }
 
-    void SyncBlinkWeb::deleteMod()
+    void SyncBlinkWeb::deleteScript()
     {
-        std::string modName = _server.arg("name").c_str();
+        std::string scriptName = _server.arg("name").c_str();
 
-        _modManager.remove(modName);
+        _scriptManager.remove(scriptName);
         _server.send(200, "application/json", "{ \"saved\": true }");
     }
 
-    void SyncBlinkWeb::getMods()
+    void SyncBlinkWeb::getScriptList()
     {
         String JSON;
         StaticJsonDocument<1000> jsonBuffer;
-        JsonArray files = jsonBuffer.createNestedArray("mods");
+        JsonArray files = jsonBuffer.createNestedArray("scripts");
 
-        std::vector<std::string> modList = _modManager.getList();
-        for(std::string modName : modList)
-            files.add(modName.c_str());
+        std::vector<std::string> scriptList = _scriptManager.getList();
+        for(std::string scriptName : scriptList)
+            files.add(scriptName.c_str());
 
         serializeJson(jsonBuffer, JSON);
         _server.send(200, "application/json", JSON);
     }
 
-    void SyncBlinkWeb::getModContent()
+    void SyncBlinkWeb::getScriptContent()
     {
-        String JSON, modContent;
+        String JSON, scriptContent;
         StaticJsonDocument<5000> doc;    
 
-        std::string modName = _server.arg("name").c_str();
-        Mod mod = _modManager.get(modName);
+        std::string scriptName = _server.arg("name").c_str();
+        Script script = _scriptManager.get(scriptName);
         
-        doc["name"] = mod.Name.c_str();
-        doc["content"] = mod.Content.c_str();
-        doc["exists"] = mod.Exists;
+        doc["name"] = script.Name.c_str();
+        doc["content"] = script.Content.c_str();
+        doc["exists"] = script.Exists;
 
         serializeJson(doc, JSON);
         _server.send(200, "application/json", JSON);
     }
 
-    void SyncBlinkWeb::getModSettings()
+    void SyncBlinkWeb::getActive()
     {
-        std::string activeMod = _modManager.getActiveModName();
+        std::string activeScript = _scriptManager.getActiveScript();
 
         String JSON;
         StaticJsonDocument<1000> doc;
-        doc["name"] = activeMod.c_str();
+        doc["name"] = activeScript.c_str();
 
         serializeJson(doc, JSON);
         _server.send(200, "application/json", JSON);
     }
 
-    void SyncBlinkWeb::setModSettings()
+    void SyncBlinkWeb::setActive()
     {
-        std::string modName = _server.arg("name").c_str();
+        std::string scriptName = _server.arg("name").c_str();
 
-        if(_modManager.get(modName).Exists) {
-            _modManager.saveActiveModName(modName);
+        if(_scriptManager.get(scriptName).Exists) {
+            _scriptManager.setActiveScript(scriptName);
             _server.send(200, "application/json", "{ \"saved\": true }");
         }
         else {

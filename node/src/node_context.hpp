@@ -21,11 +21,11 @@ namespace SyncBlink
 
         private:
             void readNodeInfo();
-            void checkNewMod();
+            void checkNewScript();
             
             void onSocketClientConnectionChanged(bool connected);
             void onMeshUpdateReceived(Server::UpdateMessage message);
-            void onSocketClientModReceived(std::string mod);
+            void onSocketClientScriptReceived(std::string script);
             void onAnalyzerResultReceived(AudioAnalyzerMessage message);
             void onNodeRenameReceived(Server::NodeRenameMessage message);
             void onFirmwareFlashReceived(std::vector<uint8_t> data, uint64_t targetClientId, Server::MessageType messageType);
@@ -45,10 +45,10 @@ namespace SyncBlink
             uint32_t _previousLedCount = 0;
             uint32_t _previousNodeCount = 0;
 
-            bool _newMod = false;
+            bool _newScript = false;
             bool _flashActive = false;
 
-            std::string _currentMod;
+            std::string _currentScript;
 
             long _lastUpdate = millis();
             std::unique_ptr<BlinkScript> _blinkScript = nullptr;

@@ -104,7 +104,7 @@ TEST_CASE("Parser parses complete script succesfully", "[parse]")
                             "}\n"
                             "\n"
                             "let init = fun(){}\n"
-                            "let modName = \"simpleMod\"";
+                            "let scriptName = \"simpleScript\"";
 
     
     SyncBlink::Parser parser(script);

@@ -1,5 +1,5 @@
-#ifndef RUNMODSTATE_H
-#define RUNMODSTATE_H
+#ifndef RUNSCRIPTSTATE_H
+#define RUNSCRIPTSTATE_H
 
 #include <mappings.hpp>
 #include <blinkscript/blink_script.hpp>
@@ -8,16 +8,16 @@
 #include <network/tcp/messages/server_messages.hpp>
 
 #include "state.hpp"
-#include "states/invalid_mod_state.cpp"
+#include "states/invalid_script_state.cpp"
 #include "station_context.hpp"
-#include "views/run_mod_view.cpp"
+#include "views/run_script_view.cpp"
 
 namespace SyncBlink
 {
-    class RunModState : public State
+    class RunScriptState : public State
     {
         public:
-            RunModState(StationContext& context, std::shared_ptr<BlinkScript> blinkScript) 
+            RunScriptState(StationContext& context, std::shared_ptr<BlinkScript> blinkScript) 
                 : _context(context), _blinkScript(blinkScript)
             {
                 _socketEventHandleId = context.getTcpServer()
@@ -28,32 +28,32 @@ namespace SyncBlink
                         if(message.messageType == Client::MessageType::EXTERNAL_ANALYZER)
                             handleExternalSource(message.message);
                     });
-                _modEventHandleId = context.getModManager()
-                    .activeModChangedEvents
+                _scriptEventHandleId = context.getScriptManager()
+                    .activeScriptChangedEvents
                     .addEventHandler([this]() 
                     {
-                        _activeModChanged = true;
+                        _activeScriptChanged = true;
                     });
-                _runModView = std::make_shared<RunModView>();
-                _modName = _blinkScript->getModName();
+                _runScriptView = std::make_shared<RunScriptView>();
+                _scriptName = _blinkScript->getScriptName();
             }
 
-            ~RunModState()
+            ~RunScriptState()
             {
                 _context.getTcpServer()
                     .messageEvents
                     .removeEventHandler(_socketEventHandleId);
-                _context.getModManager()
-                    .activeModChangedEvents
-                    .removeEventHandler(_modEventHandleId);
+                _context.getScriptManager()
+                    .activeScriptChangedEvents
+                    .removeEventHandler(_scriptEventHandleId);
             }
 
             void run(StationContext& context)
             {                         
-                context.getDisplay().setView(_runModView);
-                context.getDisplay().setLeftStatus(_modName);
+                context.getDisplay().setView(_runScriptView);
+                context.getDisplay().setLeftStatus(_scriptName);
                 
-                if(_activeModChanged || _newNodeConnected) context.resetState();
+                if(_activeScriptChanged || _newNodeConnected) context.resetState();
                 else handleMicrophoneSource(context.getTcpServer());
             }
 
@@ -99,7 +99,7 @@ namespace SyncBlink
                 bool valid = true;
                 if(_blinkScript->isFaulted())
                 {
-                    _context.currentState = std::make_shared<InvalidModState>(_context);
+                    _context.currentState = std::make_shared<InvalidScriptState>(_context);
                     valid = false;
                 }
                 return valid;
@@ -107,27 +107,27 @@ namespace SyncBlink
 
             void setView(AudioAnalyzerMessage& message, uint32_t delta)
             {
-                _runModView->delta = delta;
-                _runModView->volume = message.volume;
-                _runModView->decibel = message.decibel;
+                _runScriptView->delta = delta;
+                _runScriptView->volume = message.volume;
+                _runScriptView->decibel = message.decibel;
                 if(message.volume > 0 && message.frequency > 0)
                 {
-                    _runModView->dominantFrequency = message.frequency;
-                    _runModView->setFreqBars(message.freqBins);
+                    _runScriptView->dominantFrequency = message.frequency;
+                    _runScriptView->setFreqBars(message.freqBins);
                 }
                 else
                 {
-                    _runModView->dominantFrequency = 0;
-                    _runModView->fadeFrequencyRange();
+                    _runScriptView->dominantFrequency = 0;
+                    _runScriptView->fadeFrequencyRange();
                 }
             }
 
             StationContext& _context;
             std::shared_ptr<BlinkScript> _blinkScript;
-            std::shared_ptr<RunModView> _runModView;
-            uint64_t _socketEventHandleId = 0, _modEventHandleId = 0;
-            std::string _modName;
-            bool _activeModChanged = false;
+            std::shared_ptr<RunScriptView> _runScriptView;
+            uint32_t _socketEventHandleId = 0, _scriptEventHandleId = 0;
+            std::string _scriptName;
+            bool _activeScriptChanged = false;
             bool _newNodeConnected = false;
 
             FrequencyAnalyzer _frequencyAnalyzer;
@@ -135,4 +135,4 @@ namespace SyncBlink
     };
 }
 
-#endif // RUNMODSTATE_H
+#endif // RUNSCRIPTSTATE_H

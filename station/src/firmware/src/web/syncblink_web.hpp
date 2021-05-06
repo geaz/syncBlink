@@ -1,9 +1,9 @@
 #ifndef SYNCBLINKWEB_H
 #define SYNCBLINKWEB_H
 
-#include "wifi/station_wifi.hpp"
-#include "mod/mod_manager.hpp"
 #include "node_manager.hpp"
+#include "wifi/station_wifi.hpp"
+#include "scripts/script_manager.hpp"
 
 #include <ESP8266WebServer.h>
 #include <event_registration.hpp>
@@ -16,7 +16,7 @@ namespace SyncBlink
     class SyncBlinkWeb
     {
         public:
-            SyncBlinkWeb(StationWifi& stationWifi, ModManager& modManager, NodeManager& nodeManager);
+            SyncBlinkWeb(StationWifi& stationWifi, ScriptManager& ScriptManager, NodeManager& nodeManager);
 
             void loop();
 
@@ -32,22 +32,22 @@ namespace SyncBlink
             void setWifi();
             void getWifi();
             
-            void addMod();
-            void saveMod();
-            void deleteMod();
+            void addScript();
+            void saveScript();
+            void deleteScript();
 
-            void getMods();
-            void getModContent();
+            void getScriptList();
+            void getScriptContent();
 
-            void getModSettings();
-            void setModSettings();
+            void getActive();
+            void setActive();
 
             void uploadFirmware();
             void triggerOnUploadEvent(float progress, bool isStart, bool isEnd, bool isError);
 
             ESP8266WebServer _server;
             StationWifi& _stationWifi;
-            ModManager& _modManager;
+            ScriptManager& _scriptManager;
             NodeManager& _nodeManager;
 
             File _firmwareFile;

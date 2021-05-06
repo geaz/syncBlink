@@ -1,12 +1,12 @@
 #include "station_context.hpp"
-#include "states/read_mod_state.cpp"
 #include "states/fail_safe_state.cpp"
+#include "states/broadcast_script_state.cpp"
 #include "states/receiving_firmware_state.cpp"
 #include "views/splash_view.cpp"
 
 namespace SyncBlink
 {
-    StationContext::StationContext() : _nodeManager(_tcpServer), _web(_wifi, _modManager, _nodeManager)
+    StationContext::StationContext() : _nodeManager(_tcpServer), _web(_wifi, _ScriptManager, _nodeManager)
     {
         resetState();
         checkException();
@@ -59,7 +59,7 @@ namespace SyncBlink
     
     void StationContext::resetState() 
     { 
-        currentState = std::make_shared<ReadModState>(); 
+        currentState = std::make_shared<BroadcastScriptState>(*this); 
     }
 
     void StationContext::checkException()
@@ -100,14 +100,14 @@ namespace SyncBlink
             }
             case Client::MESH_UPDATED:
             case Client::EXTERNAL_ANALYZER:
-            case Client::MOD_DISTRIBUTED:
+            case Client::SCRIPT_DISTRIBUTED:
                 break;
         }
     }
 
     LED& StationContext::getLed() { return _led; }
     Display& StationContext::getDisplay() { return _display; }
-    ModManager& StationContext::getModManager() { return _modManager; }
+    ScriptManager& StationContext::getScriptManager() { return _ScriptManager; }
     SyncBlinkWeb& StationContext::getWebserver() { return _web; }
     TcpServer& StationContext::getTcpServer() { return _tcpServer; }
     NodeManager& StationContext::getNodeManager() { return _nodeManager; }
