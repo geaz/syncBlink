@@ -45,12 +45,8 @@ namespace SyncBlink
                 #ifdef DEBUG_TCP
                 Serial.println("[TCP CLIENT] Connected!");
                 #endif
-                if(!_wasConnected)
-                {
-                    for (auto event : connectionEvents.getEventHandlers())
-                        event.second(true);
-                    _wasConnected = true;
-                }
+                for (auto event : connectionEvents.getEventHandlers())
+                    event.second(true);
                 _retryCount = 0;
             }
         }

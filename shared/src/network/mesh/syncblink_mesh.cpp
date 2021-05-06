@@ -32,6 +32,8 @@ namespace SyncBlink
         WiFi.softAPConfig(IPAddress(192, 168, 1, 1), IPAddress(0, 0, 0, 0), IPAddress(255, 255, 255, 0));
         WiFi.softAP(_ssid, Password, 1, false, 8);
         WiFi.mode(WIFI_AP_STA);
+        
+        WiFi.setAutoReconnect(true);
 
         _localIp = WiFi.localIP();
         Serial.println("Node AP IP: " + WiFi.softAPIP().toString());
