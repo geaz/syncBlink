@@ -1,15 +1,15 @@
 import styled from "styled-components";
-import logo from '../assets/logo.png';
+import logo from '../../assets/logo.png';
 
-function DesktopHeader() {
+function Header() {
     return (
-        <StyledDesktopHeader>
+        <StyledHeader>
             <a href="/" className="stretch"><img src={logo} alt="syncBlink Logo" /></a>          
-        </StyledDesktopHeader>
+        </StyledHeader>
     );
 }
 
-const StyledDesktopHeader = styled.div`
+const StyledHeader = styled.div`
     background: white;
     border-radius: 5px;
     box-shadow: 0px 0px 5px rgba(0,0,0,0.1);
@@ -45,4 +45,4 @@ const StyledDesktopHeader = styled.div`
     }
 `;
 
-export default DesktopHeader;
+export default Header;

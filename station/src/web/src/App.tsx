@@ -1,14 +1,14 @@
 import { Reset } from 'styled-reset'
 import { ThemeProvider, createGlobalStyle } from "styled-components";
 
-import DesktopHeader from './components/DesktopHeader';
-import Mesh from './components/Mesh';
-import DesktopFooter from './components/DesktopFooter';
+import DesktopHeader from './components/desktop/Header';
+import Mesh from './components/desktop/Mesh';
+import DesktopFooter from './components/desktop/Footer';
 
 function App() {
     return <ThemeProvider theme={Theme}>
         <Reset/>
-        <GlobalStyle backgroundColor={ Theme.backgroundColor } textColor={ Theme.textColor } />
+        <GlobalStyle backgroundColor={ Theme.backgroundColor } textColor={ Theme.textColor } borderColor={ Theme.borderColor } />
         <DesktopHeader/>
         <Mesh/>
         <DesktopFooter/>
@@ -29,7 +29,7 @@ export const Theme = {
     contentPadding: 20
 };
 
-const GlobalStyle = createGlobalStyle<{ backgroundColor : string, textColor: string }>`
+const GlobalStyle = createGlobalStyle<{ backgroundColor : string, textColor: string, borderColor: string }>`
     html, body {
         width: 100%;
         height: 100%;
@@ -65,6 +65,16 @@ const GlobalStyle = createGlobalStyle<{ backgroundColor : string, textColor: str
     #root {
         width: 100vw;
         height: 100vh;
+    }
+
+    input {
+        width:100%;
+        padding:5px;
+        font-size: 1rem;
+        margin-bottom:15px;
+        box-sizing: border-box;
+        border: 1px solid ${ p => p.borderColor };
+        font-family: Segoe UI, Roboto, Noto Sans, Ubuntu, Cantarell, Helvetica Neue,sans-serif; 
     }
 `;
 

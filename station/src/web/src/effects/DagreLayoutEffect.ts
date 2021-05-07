@@ -2,11 +2,14 @@ import dagre from 'dagre';
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { isNode, Elements, Position, useStoreState } from 'react-flow-renderer';
 
-export default function useDagreLayout(dataFunc: (setReload: Dispatch<SetStateAction<boolean>>) => Promise<Elements>)
-    : [boolean, boolean, Elements]
+export default function useDagreLayout(dataFunc: (setReload: () => void) => Promise<Elements>)
+    : [boolean, boolean, Elements, () => void]
 {
     const [isLoading, setLoading] = useState<boolean>(true);
-    const [isLoadingData, setLoadingData] = useState<boolean>(false);    
+    // This state is to inform, that the node data got loaded and the first rendering
+    // was done. The layouting is pending. The external component, which is using this effect for the react-flow-graph,
+    // should hide/show (via opacity) the react-flow-graph based on this state. Otherwise graph updates will not be shown correctly.
+    const [isLoadingData, setLoadingData] = useState<boolean>(false);
     const [flowElements, setFlowElements] = useState<Elements>([]);
 
     const elements = useStoreState((store) => [...store.nodes, ...store.edges], (one:any, two:any)  => { 
@@ -28,23 +31,23 @@ export default function useDagreLayout(dataFunc: (setReload: Dispatch<SetStateAc
         }
     }, [elements]);
     
-    useEffect(() => { reload(isLoadingData, dataFunc, setFlowElements, setLoading, setLoadingData); }, [dataFunc, isLoadingData]);
-    useEffect(() => setLoadingData(true), []);
+    let reloadData = () => { reload(dataFunc, reloadData, setFlowElements, setLoading, setLoadingData); };
+    useEffect(() => reloadData(), []);
 
-    return [isLoading, isLoadingData, flowElements];
+    return [isLoading, isLoadingData, flowElements, reloadData];
 }
 
-async function reload(isLoadingData: boolean, 
-    dataFunc: (setLoadingData: Dispatch<SetStateAction<boolean>>) => Promise<Elements>,
+async function reload(dataFunc: (reloadData: () => void) => Promise<Elements>,
+    reloadDataFunc: () => void,
     setFlowElements: Dispatch<SetStateAction<Elements>>,
     setLoading: Dispatch<SetStateAction<boolean>>,
     setLoadingData: Dispatch<SetStateAction<boolean>>)
-{
-    if(!isLoadingData) return;
-    
-    setLoading(true); // Loading will get set to false after layouting effect
-    setFlowElements(await dataFunc(setLoadingData));
+{    
+    setLoading(true);
+    setLoadingData(true);
+    setFlowElements(await dataFunc(reloadDataFunc));
     setLoadingData(false);
+    // Loading will get set to false after layouting effect
 } 
 
 function createLayout(nodes: any, setFlowElements: Dispatch<SetStateAction<any>>) {

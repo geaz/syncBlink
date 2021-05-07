@@ -5,11 +5,12 @@ import { faSyncAlt } from '@fortawesome/free-solid-svg-icons';
 
 interface LoaderProps  {
     message: string;
+    transparent: boolean;
 }
 
 function Loader(props: LoaderProps) {
     return (
-        <StyledLoader>
+        <StyledLoader transparent={props.transparent}>
             <div className="loader-content">
                 <FontAwesomeIcon icon={faSyncAlt} spin={true} />
                 <p>{props.message}</p>
@@ -18,7 +19,7 @@ function Loader(props: LoaderProps) {
     );
 }
 
-const StyledLoader = styled.div`
+const StyledLoader = styled.div<{ transparent: boolean }>`
     display:flex;
 
     position: absolute;
@@ -26,7 +27,12 @@ const StyledLoader = styled.div`
     height: 100vh;
     top:0;
     left:0;
-    background: #${ p => p.theme.backgroundColor };
+    background: ${ p => p.transparent ? 'transparent' : '#' + p.theme.backgroundColor };
+
+    @keyframes showAnim {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
 
     .loader-content {
         display:flex;
@@ -34,6 +40,9 @@ const StyledLoader = styled.div`
         justify-content: center;
         align-items: center;
         margin: auto;
+        
+        animation-name: showAnim;
+        animation-duration: 1s;
     }
 `;
 

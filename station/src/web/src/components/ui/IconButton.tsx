@@ -21,16 +21,30 @@ function IconButton(props: ButtonProps) {
 }
 
 const StyledIconButton = styled.button`
+    margin: 0;
+    padding: 2px;
     border: none;
     background: none;
     color: ${ p => p.theme.textColorMoreFaded };
 
-    :hover:enabled {
-        color: ${ p => p.theme.textColorFaded };
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 1.2rem;
+
+    svg {
+        flex: 1;
     }
 
-    :active {
-        color: black;
+    :active:enabled {
+        color: black!important;
+        transform: scale(0.85);
+    }
+
+    :hover:enabled {
+        cursor: pointer;
+        color: ${ p => p.theme.textColorFaded };
     }
 `;
 
