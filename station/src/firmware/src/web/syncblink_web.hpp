@@ -52,7 +52,7 @@ namespace SyncBlink
 
             File _firmwareFile;
             uint32_t _firmwareSize = 0;
-            uint64_t _firmwareTargetId = 0;
+            uint64_t _firmwareNodeId = 0;
     };
 }
 

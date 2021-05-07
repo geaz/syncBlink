@@ -77,10 +77,10 @@ namespace SyncBlink
                 }
                 case Server::SOURCE_UPDATE:
                 {
-                    uint64_t targetClientId = 0;
-                    memcpy(&targetClientId, &tcpMessage.message[0], tcpMessage.message.size());
+                    uint64_t targetNodeId = 0;
+                    memcpy(&targetNodeId, &tcpMessage.message[0], tcpMessage.message.size());
                     for (auto event : sourceUpdateEvents.getEventHandlers())
-                        event.second(targetClientId);
+                        event.second(targetNodeId);
                     break;
                 }
                 case Server::NODE_RENAME:
@@ -100,18 +100,18 @@ namespace SyncBlink
                 }
                 case Server::FIRMWARE_FLASH_START:
                 {
-                    uint64_t targetClientId = 0;
-                    memcpy(&targetClientId, &tcpMessage.message[0], tcpMessage.message.size());
+                    uint64_t targetNodeId = 0;
+                    memcpy(&targetNodeId, &tcpMessage.message[0], tcpMessage.message.size());
                     for (auto event : firmwareFlashEvents.getEventHandlers())
-                        event.second(tcpMessage.message, targetClientId, Server::FIRMWARE_FLASH_START);
+                        event.second(tcpMessage.message, targetNodeId, Server::FIRMWARE_FLASH_START);
                     break;
                 }
                 case Server::FIRMWARE_FLASH_END:
                 {
-                    uint64_t targetClientId = 0;
-                    memcpy(&targetClientId, &tcpMessage.message[0], tcpMessage.message.size());
+                    uint64_t targetNodeId = 0;
+                    memcpy(&targetNodeId, &tcpMessage.message[0], tcpMessage.message.size());
                     for (auto event : firmwareFlashEvents.getEventHandlers())
-                        event.second(tcpMessage.message, targetClientId, Server::FIRMWARE_FLASH_END);
+                        event.second(tcpMessage.message, targetNodeId, Server::FIRMWARE_FLASH_END);
                     break;
                 }
                 case Server::FIRMWARE_FLASH_DATA:
@@ -122,10 +122,10 @@ namespace SyncBlink
                 }
                 case Server::PING:
                 {
-                    uint64_t targetClientId = 0;
-                    memcpy(&targetClientId, &tcpMessage.message[0], tcpMessage.message.size());
+                    uint64_t targetNodeId = 0;
+                    memcpy(&targetNodeId, &tcpMessage.message[0], tcpMessage.message.size());
                     for (auto event : pingEvents.getEventHandlers())
-                        event.second(targetClientId);
+                        event.second(targetNodeId);
                     break;
                 }
             }

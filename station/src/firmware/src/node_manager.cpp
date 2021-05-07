@@ -12,30 +12,30 @@ namespace SyncBlink
         countInfos();
     }
 
-    void NodeManager::removeNode(uint64_t clientId)
+    void NodeManager::removeNode(uint64_t nodeId)
     {
         _connectedNodes.erase(
             std::remove_if(_connectedNodes.begin(), _connectedNodes.end(),
-                [clientId](const Client::ConnectionMessage& m){ return m.clientId == clientId || m.parentId == clientId; }),
+                [nodeId](const Client::ConnectionMessage& m){ return m.nodeId == nodeId || m.parentId == nodeId; }),
             _connectedNodes.end());
         countInfos();
     }
 
-    void NodeManager::setSource(uint64_t clientId)
+    void NodeManager::setSource(uint64_t nodeId)
     {
-        _activeSource = clientId;
-        _socketServer.broadcast(&clientId, sizeof(clientId), Server::SOURCE_UPDATE);
+        _activeSource = nodeId;
+        _socketServer.broadcast(&nodeId, sizeof(nodeId), Server::SOURCE_UPDATE);
     }
 
-    void NodeManager::pingNode(uint64_t clientId)
+    void NodeManager::pingNode(uint64_t nodeId)
     {
-        _socketServer.broadcast(&clientId, sizeof(clientId), Server::PING);
+        _socketServer.broadcast(&nodeId, sizeof(nodeId), Server::PING);
     }
 
-    void NodeManager::renameNode(uint64_t clientId, const std::string& label)
+    void NodeManager::renameNode(uint64_t nodeId, const std::string& label)
     {
         Server::NodeRenameMessage message;
-        message.clientId = clientId;
+        message.nodeId = nodeId;
         memcpy(&message.nodeLabel[0], &label[0], MaxNodeLabelLength > label.size() ? MaxNodeLabelLength : label.size());
 
         _socketServer.broadcast(&message, sizeof(message), Server::NODE_RENAME);
@@ -43,7 +43,7 @@ namespace SyncBlink
         // Also save the info into the known nodes vector
         for(auto& node : _connectedNodes)
         {
-            if(node.clientId == clientId)
+            if(node.nodeId == nodeId)
             {
                 memcpy(&node.nodeLabel[0], &label[0], MaxNodeLabelLength > label.size() ? MaxNodeLabelLength : label.size());
                 break;

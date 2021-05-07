@@ -56,26 +56,26 @@ namespace SyncBlink
 
     void SyncBlinkWeb::pingNode()
     {
-        String targetIdArg = _server.arg("targetId");
+        String nodeIdArg = _server.arg("nodeId");
 
-        uint64_t targetId;
-        std::istringstream iss(targetIdArg.c_str());
-        iss >> targetId;
+        uint64_t nodeId;
+        std::istringstream iss(nodeIdArg.c_str());
+        iss >> nodeId;
 
-        _nodeManager.pingNode(targetId);
+        _nodeManager.pingNode(nodeId);
         _server.send(200, "text/plain");
     }
 
     void SyncBlinkWeb::renameNode()
     {
-        String targetIdArg = _server.arg("targetId");
+        String nodeIdArg = _server.arg("nodeId");
         String label = _server.arg("label");
 
-        uint64_t targetId;
-        std::istringstream iss(targetIdArg.c_str());
-        iss >> targetId;
+        uint64_t nodeId;
+        std::istringstream iss(nodeIdArg.c_str());
+        iss >> nodeId;
 
-        _nodeManager.renameNode(targetId, std::string(label.c_str()));
+        _nodeManager.renameNode(nodeId, std::string(label.c_str()));
         _server.send(200, "text/plain");
     }
 
@@ -90,7 +90,7 @@ namespace SyncBlink
             StaticJsonDocument<500> nodeJson;
             nodeJson["isStation"] = connectedNodes[i].isStation;
             nodeJson["isAnalyzer"] = connectedNodes[i].isAnalyzer;
-            nodeJson["clientId"] = connectedNodes[i].clientId;
+            nodeJson["nodeId"] = connectedNodes[i].nodeId;
             nodeJson["parentId"] = connectedNodes[i].parentId;
             nodeJson["ledCount"] = connectedNodes[i].ledCount;
             nodeJson["majorVersion"] = connectedNodes[i].majorVersion;
@@ -219,9 +219,9 @@ namespace SyncBlink
         {                        
             LittleFS.remove(FirmwarePath.c_str()); // Remove old node firmware
 
-            String targetIdArg = _server.arg("targetId");
-            std::istringstream iss(targetIdArg.c_str());
-            iss >> _firmwareTargetId;
+            String nodeIdArg = _server.arg("nodeId");
+            std::istringstream iss(nodeIdArg.c_str());
+            iss >> _firmwareNodeId;
             
             _firmwareSize = std::atoi(_server.arg("size").c_str());
             _firmwareFile = LittleFS.open(FirmwarePath.c_str(), "a");
@@ -248,6 +248,6 @@ namespace SyncBlink
     void SyncBlinkWeb::triggerOnUploadEvent(float progress, bool isStart, bool isEnd, bool isError)
     {
         for(auto& listener : uploadListener.getEventHandlers())
-            listener.second(progress, isStart, isEnd, isError, _firmwareTargetId);
+            listener.second(progress, isStart, isEnd, isError, _firmwareNodeId);
     }
 }

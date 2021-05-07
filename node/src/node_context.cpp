@@ -14,7 +14,7 @@ namespace SyncBlink
 
         _tcpClient
             .pingEvents
-            .addEventHandler([this](uint64_t clientId) { if(clientId == SyncBlink::getId()) _led.blinkNow(Yellow, 5); else _tcpServer.broadcast(&clientId, sizeof(clientId), Server::PING);});
+            .addEventHandler([this](uint64_t nodeId) { if(nodeId == SyncBlink::getId()) _led.blinkNow(Yellow, 5); else _tcpServer.broadcast(&nodeId, sizeof(nodeId), Server::PING);});
         _tcpClient
             .connectionEvents
             .addEventHandler([this](bool connected) { onSocketClientConnectionChanged(connected); });
@@ -32,11 +32,11 @@ namespace SyncBlink
             .addEventHandler([this](Server::NodeRenameMessage message) { onNodeRenameReceived(message); });
         _tcpClient
             .firmwareFlashEvents
-            .addEventHandler([this](std::vector<uint8_t> data, uint64_t targetClientId, Server::MessageType messageType) { onFirmwareFlashReceived(data, targetClientId, messageType); });
+            .addEventHandler([this](std::vector<uint8_t> data, uint64_t targetNodeId, Server::MessageType messageType) { onFirmwareFlashReceived(data, targetNodeId, messageType); });
 
         _tcpServer
             .serverDisconnectionEvents
-            .addEventHandler([this](uint64_t clientId) { _tcpClient.sendMessage(&clientId, sizeof(clientId), Client::MESH_DISCONNECTION); });
+            .addEventHandler([this](uint64_t nodeId) { _tcpClient.sendMessage(&nodeId, sizeof(nodeId), Client::MESH_DISCONNECTION); });
         _tcpServer
             .messageEvents
             .addEventHandler([this](TcpMessage message) { onSocketServerMessageReceived(message); });
@@ -152,7 +152,7 @@ namespace SyncBlink
 
     void NodeContext::onNodeRenameReceived(Server::NodeRenameMessage message)
     {
-        if(message.clientId == SyncBlink::getId() || message.clientId == 0)
+        if(message.nodeId == SyncBlink::getId() || message.nodeId == 0)
         {
             for(uint8_t i = 0; i < MaxNodeLabelLength; i++)
             {
@@ -164,10 +164,10 @@ namespace SyncBlink
         else _tcpServer.broadcast(&message, sizeof(message), Server::NODE_RENAME);
     }
 
-    void NodeContext::onFirmwareFlashReceived(std::vector<uint8_t> data, uint64_t targetClientId, Server::MessageType messageType)
+    void NodeContext::onFirmwareFlashReceived(std::vector<uint8_t> data, uint64_t targetNodeId, Server::MessageType messageType)
     {
         bool restart = false;
-        if(targetClientId == SyncBlink::getId() || targetClientId == 0)
+        if(targetNodeId == SyncBlink::getId() || targetNodeId == 0)
         {
             if(messageType == Server::FIRMWARE_FLASH_START)
             {
@@ -201,7 +201,7 @@ namespace SyncBlink
             }
         }   
         
-        // TargetID for FLash Data is '0' - that why we handle it in a seperate if branch
+        // NodeId for FLash Data is '0' - that why we handle it in a seperate if branch
         if(_flashActive && messageType == Server::FIRMWARE_FLASH_DATA)
         {            
             if (Update.write(&data[0], data.size()) != data.size())
@@ -213,7 +213,7 @@ namespace SyncBlink
         
         // Only distribute, if the message is not for the current node
         // Or all nodes in the mesh get flashed
-        if(!_flashActive ||  targetClientId == 0) _tcpServer.broadcast(&data[0], data.size(), messageType);
+        if(!_flashActive ||  targetNodeId == 0) _tcpServer.broadcast(&data[0], data.size(), messageType);
 
         // we are restarting here to make sure, that all messages 
         // also get send to the current child nodes

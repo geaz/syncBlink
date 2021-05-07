@@ -25,7 +25,7 @@ namespace SyncBlink
             });
 
         _tcpServer.serverDisconnectionEvents
-            .addEventHandler([this](uint64_t clientId) { onMeshDisconnection(clientId); });
+            .addEventHandler([this](uint64_t nodeId) { onMeshDisconnection(nodeId); });
 
         _web.uploadListener
             .addEventHandler([this](float progress, bool isStart, bool isEnd, bool isError, uint64_t targetId) {
@@ -68,9 +68,9 @@ namespace SyncBlink
         if(rstPtr->reason >= 1 && rstPtr->reason <= 4) currentState = std::make_shared<FailSafeState>(*this); 
     }
 
-    void StationContext::onMeshDisconnection(uint64_t clientId)
+    void StationContext::onMeshDisconnection(uint64_t nodeId)
     {
-        _nodeManager.removeNode(clientId);
+        _nodeManager.removeNode(nodeId);
     }
 
     void StationContext::onSocketServerCommandReceived(TcpMessage tcpMessage)
@@ -90,9 +90,9 @@ namespace SyncBlink
             }
             case Client::MESH_DISCONNECTION:
             {
-                uint64_t clientId;
-                memcpy(&clientId, &tcpMessage.message[0], tcpMessage.message.size());
-                onMeshDisconnection(clientId);
+                uint64_t nodeId;
+                memcpy(&nodeId, &tcpMessage.message[0], tcpMessage.message.size());
+                onMeshDisconnection(nodeId);
 
                 Server::UpdateMessage updateMessage = { _led.getLedCount(), 1, _nodeManager.getTotalLedCount(), _nodeManager.getTotalNodeCount() };
                 _tcpServer.broadcast(&updateMessage, sizeof(updateMessage), Server::MESH_UPDATE);

@@ -89,7 +89,7 @@ namespace SyncBlink
                     {
                         if(!message.isAnalyzer) message.parentId = SyncBlink::getId();
                         memcpy(&tcpMessage.message[0], &message, sizeof(message));
-                        client.setStreamId(message.clientId);
+                        client.setStreamId(message.nodeId);
                     }
 
                     // check for lost/timeout connections before
@@ -102,7 +102,7 @@ namespace SyncBlink
                     
                     #ifdef DEBUG_TCP
                     Serial.printf("[TCP SERVER] New Client: %12llx - LEDs %i - Parent %12llx - Firmware Version: %i.%i\n",
-                        message.clientId, message.ledCount,
+                        message.nodeId, message.ledCount,
                         message.parentId, message.majorVersion, message.minorVersion);
                     #endif
                 }

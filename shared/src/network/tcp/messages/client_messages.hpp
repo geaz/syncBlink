@@ -26,7 +26,7 @@ namespace SyncBlink
         {
             bool isStation;
             bool isAnalyzer;
-            uint64_t clientId;
+            uint64_t nodeId;
             uint64_t parentId;
             uint16_t ledCount;
             uint8_t majorVersion;

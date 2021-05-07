@@ -28,7 +28,7 @@ namespace SyncBlink
             void onSocketClientScriptReceived(std::string script);
             void onAnalyzerResultReceived(AudioAnalyzerMessage message);
             void onNodeRenameReceived(Server::NodeRenameMessage message);
-            void onFirmwareFlashReceived(std::vector<uint8_t> data, uint64_t targetClientId, Server::MessageType messageType);
+            void onFirmwareFlashReceived(std::vector<uint8_t> data, uint64_t targetNodeId, Server::MessageType messageType);
 
             void onSocketServerMessageReceived(TcpMessage message);
 

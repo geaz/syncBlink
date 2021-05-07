@@ -17,11 +17,11 @@ namespace SyncBlink
             NodeManager(TcpServer& tcpServer);
 
             void addNode(Client::ConnectionMessage connectionMessage);
-            void removeNode(uint64_t clientId);
+            void removeNode(uint64_t nodeId);
 
-            void setSource(uint64_t clientId);
-            void pingNode(uint64_t clientId);
-            void renameNode(uint64_t clientId, const std::string& label);
+            void setSource(uint64_t nodeId);
+            void pingNode(uint64_t nodeId);
+            void renameNode(uint64_t nodeId, const std::string& label);
 
             uint64_t getActiveSource() const;
             uint32_t getTotalLedCount() const;

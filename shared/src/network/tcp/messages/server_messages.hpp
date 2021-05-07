@@ -41,7 +41,7 @@ namespace SyncBlink
 
         struct NodeRenameMessage
         {
-            uint64_t clientId;
+            uint64_t nodeId;
             char nodeLabel[MaxNodeLabelLength];
         };
     }

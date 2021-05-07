@@ -14,12 +14,12 @@ namespace SyncBlink
     typedef std::function<void(std::string script)> MeshScriptEvent;
     typedef std::function<void(bool isConnected)> ClientConnectionEvent;
 
-    typedef std::function<void(uint64_t clientId)> PingEvent;
+    typedef std::function<void(uint64_t nodeId)> PingEvent;
     typedef std::function<void(AudioAnalyzerMessage message)> AudioAnalyzerEvent;
     typedef std::function<void(Server::UpdateMessage message)> MeshUpdateEvent;
-    typedef std::function<void(uint64_t clientId)> SourceUpdateEvent;
+    typedef std::function<void(uint64_t nodeId)> SourceUpdateEvent;
     typedef std::function<void(Server::NodeRenameMessage message)> NodeRenameEvent;
-    typedef std::function<void(std::vector<uint8_t> data, uint64_t targetClientId, Server::MessageType messageType)> FirmwareFlashEvent;
+    typedef std::function<void(std::vector<uint8_t> data, uint64_t targetNodeId, Server::MessageType messageType)> FirmwareFlashEvent;
 
     class TcpClient
     {

@@ -17,7 +17,7 @@ extern "C" void tcp_abandon (struct tcp_pcb* pcb, int reset);
 
 namespace SyncBlink
 {
-    typedef std::function<void(uint64_t clientId)> ServerDisconnectionEvent;
+    typedef std::function<void(uint64_t nodeId)> ServerDisconnectionEvent;
     typedef std::function<void(TcpMessage message)> ServerMessageEvent;
 
     class TcpServer
