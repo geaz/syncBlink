@@ -76,6 +76,11 @@ const GlobalStyle = createGlobalStyle<{ backgroundColor : string, textColor: str
         border: 1px solid ${ p => p.borderColor };
         font-family: Segoe UI, Roboto, Noto Sans, Ubuntu, Cantarell, Helvetica Neue,sans-serif; 
     }
+
+    .file-button { text-align: center; }
+    .file-button > input[type="file"] {
+        display: none;
+    }
 `;
 
 export default App;

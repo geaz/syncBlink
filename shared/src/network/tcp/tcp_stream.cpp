@@ -80,7 +80,7 @@ namespace SyncBlink
                                 #ifdef DEBUG_TCPSTREAM
                                 Serial.printf("[TCP STREAM] Big message, have to yield...\n");
                                 #endif
-                                delay(0);    
+                                delay(0);
                             }
                         }
                         receivedMessage = true; 
@@ -118,6 +118,7 @@ namespace SyncBlink
                 uint32_t written = _client.write(messagePtr, messageSize);
                 messagePtr += written;
                 messageSize -= written;
+                if(messageSize > 0) delay(0);
             }
         }
     }

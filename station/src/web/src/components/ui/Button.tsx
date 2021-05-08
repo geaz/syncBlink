@@ -11,20 +11,20 @@ interface ButtonProps  {
 
 function Button(props: ButtonProps) {
     return (
-        <StyledButton className={ props.active ? 'active' : '' } disabled={props.disabled} title={props.tooltip} onClick={props.onClick} >
+        <StyledButton color={props.color} className={ props.active ? 'active' : '' } disabled={props.disabled} title={props.tooltip} onClick={props.onClick} >
             { props.children }
         </StyledButton>
     );
 }
 
-const StyledButton = styled.button`
+const StyledButton = styled.button<{color?: string}>`
     width: 100%;
     padding: 10px;
     border-radius: 5px;
     box-sizing: border-box;
     color: white;
     border: none; 
-    background: ${ p => p.theme.secondaryColor };
+    background: ${ p => p.color !== undefined ? p.color : p.theme.secondaryColor };
     cursor: pointer;
 
     font-size: 1rem;

@@ -119,7 +119,7 @@ function createMeshNodeData(
             props.majorVersion = node.majorVersion;
             props.minorVersion = node.minorVersion;
             props.onSetAnalyzer = onSetAnalyzer;
-            props.onFlash = () => setFlasherProps({nodeId: 0} as FlasherProps);
+            props.onFlash = () => setFlasherProps({nodeId: 0, nodeLabel: 'All Nodes'} as FlasherProps);
 
             node.data = props;
             node.type = 'syncBlinkStation';
