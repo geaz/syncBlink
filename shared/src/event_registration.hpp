@@ -2,7 +2,6 @@
 #define EVENTREGISTRATION_H
 
 #include <map>
-#include <Arduino.h>
 
 namespace SyncBlink
 {
