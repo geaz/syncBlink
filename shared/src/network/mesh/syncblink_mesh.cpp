@@ -17,10 +17,8 @@ namespace SyncBlink
     
     SyncBlinkMesh::SyncBlinkMesh()
     {
-        WiFi.disconnect(true);
+        WiFi.disconnect();
         WiFi.mode(WIFI_STA);
-        WiFi.persistent(false);
-        WiFi.setAutoReconnect(false);
         WiFi.setSleepMode(WIFI_NONE_SLEEP);
     }
 
@@ -29,11 +27,9 @@ namespace SyncBlink
         Serial.println("Starting mesh ...");
 
         _ssid = SSID + " #1";
+        WiFi.mode(WIFI_AP_STA);
         WiFi.softAPConfig(IPAddress(192, 168, 1, 1), IPAddress(0, 0, 0, 0), IPAddress(255, 255, 255, 0));
         WiFi.softAP(_ssid, Password, 1, false, 8);
-        WiFi.mode(WIFI_AP_STA);
-        
-        WiFi.setAutoReconnect(true);
 
         _localIp = WiFi.localIP();
         Serial.println("Node AP IP: " + WiFi.softAPIP().toString());
