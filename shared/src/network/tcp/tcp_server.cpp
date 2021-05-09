@@ -41,7 +41,7 @@ namespace SyncBlink
                 if(iter->getStreamId() != 0)
                 {
                     #ifdef DEBUG_TCP
-                    Serial.printf("[TCP SERVER] Client lost connection: %12llx\n", iter->getStreamId());
+                    Serial.printf("[TCP SERVER] Client lost connection: %12llx (Con: %i, Timeout: %i)\n", iter->getStreamId(), iter->isConnected(), iter->isTimeout());
                     #endif
                     for (auto event : serverDisconnectionEvents.getEventHandlers())
                         event.second(iter->getStreamId());

@@ -66,7 +66,7 @@ namespace SyncBlink
 
         if(!_mesh.isConnected() || _tcpClient.isDiscontinued())
         {
-            Serial.printf("Wifi: %i - Tcp: %i - Going to sleep ...\n", !_mesh.isConnected(), _tcpClient.isDiscontinued());
+            Serial.printf("Wifi: %i - Tcp: %i - Going to sleep ...\n", _mesh.isConnected(), _tcpClient.isDiscontinued());
             _led.blinkNow(Red);
             _led.showNow(SyncBlink::Black);
             ESP.deepSleep(SleepSeconds * 1000000);
