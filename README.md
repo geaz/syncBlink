@@ -9,12 +9,18 @@ Furthermore the **syncBlink Station** starts a naive mesh including a custom tcp
 *Everything combined, it is possible to span a mesh of WiFi connected devices which are synchronously reacting to music.*
 
 # Table of Contents
-1. [syncBlink Station](https://github.com/syncBlink/syncBlink/tree/main/station)
-2. [syncBlink Node](https://github.com/syncBlink/syncBlink/tree/main/node)
+1. [syncBlink Station](#syncBlink-Station)
+2. [syncBlink Node](#syncBlink-Node)
 3. [Web Application](#web-application)
 4. [blinkScript - syncBlink Script Language](#blinkScript)
 3. [Mesh](#mesh)
 3. [API](https://github.com/syncBlink/syncBlink/tree/main/shared)
+
+## syncBlink Station
+Please head over to the [station](https://github.com/syncBlink/syncBlink/tree/main/station) folder for more information.
+
+## syncBlink Node
+Please header over to the [node](https://github.com/syncBlink/syncBlink/tree/main/node) folder for more information.
 
 ## Web Application
 
