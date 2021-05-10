@@ -48,7 +48,7 @@ const StyledModal = styled.div`
         display: table-cell;
         vertical-align: middle;
         animation-name: showAnim;
-        animation-duration: 1s;
+        animation-duration: 500ms;
     }
 
     .modal-container {

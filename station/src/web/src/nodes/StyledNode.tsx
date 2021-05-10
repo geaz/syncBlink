@@ -23,6 +23,17 @@ const StyledNode = styled.div`
         flex-direction: column;
     }
 
+    .node-buttons-left {
+        position:absolute;
+        left:-24px;
+        top:0;
+
+        padding: 5px;
+
+        display: flex;
+        flex-direction: column;
+    }
+
     .node-id {
         color: ${ p => p.theme.textColorFaded };
         font-size: 0.4em;
@@ -33,6 +44,12 @@ const StyledNode = styled.div`
         font-size: 0.5em;
         line-height:0.7rem;
         font-style: italic;
+    }
+
+    .node-script {
+        color: ${ p => p.theme.textColorFaded };
+        font-size: 0.5em;
+        font-weight:bold;
     }
 
     .active {

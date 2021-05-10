@@ -1,15 +1,17 @@
-import { useEffect, useState } from 'react';
+import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import styled from 'styled-components';
 
-import Modal from '../ui/Modal';
-import Button from '../ui/Button';
+import Modal from '../../ui/Modal';
+import Button from '../../ui/Button';
+
+import { ModalInfo } from '../../../effects/SyncBlinkFlowDataEffect';
 
 export interface FlasherProps {
     nodeId: number;
     nodeLabel: string;
-    onClose: () => void;    
-    beforeFlash: () => void;
-    afterFlash: () => void;
+    setModal: Dispatch<SetStateAction<ModalInfo | undefined>>;    
+    setShowLoader: Dispatch<SetStateAction<boolean>>;
+    setLoaderMessage: Dispatch<SetStateAction<string>>;
 }
 
 function Flasher(props: FlasherProps) {
@@ -27,17 +29,20 @@ function Flasher(props: FlasherProps) {
 
     let flashMesh = async () => {
         if(window.confirm("Are you sure?")) {
-            props.beforeFlash();
+            props.setLoaderMessage('Firmware uploading, please check the status on the station display...');
+            props.setShowLoader(true);
+            props.setModal(undefined);
+            
             let formData = new FormData();
             formData.append("firmware", selectedFile!);
-            await fetch('/api/mesh/flash?nodeId=' + props.nodeId + '&size=' + selectedFile!.size, {method: "POST", body: formData, });    
-            props.afterFlash();
+            await fetch('/api/mesh/flash?nodeId=' + props.nodeId + '&size=' + selectedFile!.size, {method: "POST", body: formData, });
+            props.setShowLoader(false);    
         }
     };
 
     return (
         <StyledFlasher>
-            <Modal title="Upload Firmware" onClose={props.onClose}>
+            <Modal title="Upload Firmware" onClose={() => props.setModal(undefined)}>
                 <div className="flasher">
                     <div className="flash-info"><span>Select update for</span><p>{ props.nodeLabel ? props.nodeLabel : props.nodeId.toString(16).toUpperCase() }</p></div>
                     { selectedFile && <div className="file-info">

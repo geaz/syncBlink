@@ -17,8 +17,8 @@ const StyledHeader = styled.div`
     position:absolute;
     display:flex;
     z-index:999;
-    padding: ${ p => p.theme.contentPadding }px;
-    margin: ${ p => p.theme.contentPadding }px;
+    padding: 20px;
+    margin: 20px 70px;
 
     img {
         width: 100px;

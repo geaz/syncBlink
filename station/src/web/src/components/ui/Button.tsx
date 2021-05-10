@@ -3,6 +3,7 @@ import styled from "styled-components";
 interface ButtonProps  {
     children: any;
     color?: string;
+    hoverColor?: string;
     tooltip?: string;
     active?: boolean;
     disabled?: boolean;
@@ -11,13 +12,19 @@ interface ButtonProps  {
 
 function Button(props: ButtonProps) {
     return (
-        <StyledButton color={props.color} className={ props.active ? 'active' : '' } disabled={props.disabled} title={props.tooltip} onClick={props.onClick} >
+        <StyledButton color={props.color}
+            hoverColor={props.hoverColor}
+            className={ props.active ? 'active' : '' }
+            disabled={props.disabled}
+            title={props.tooltip}
+            onClick={props.onClick}
+        >
             { props.children }
         </StyledButton>
     );
 }
 
-const StyledButton = styled.button<{color?: string}>`
+const StyledButton = styled.button<{color?: string, hoverColor?: string}>`
     width: 100%;
     padding: 10px;
     border-radius: 5px;
@@ -37,12 +44,11 @@ const StyledButton = styled.button<{color?: string}>`
 
     :hover:enabled {
         color: black;
-        background: ${ p => p.theme.primaryColor };
+        background: ${ p => p.hoverColor !== undefined ? p.hoverColor : p.theme.primaryColor };
     }
 
     :disabled {
         background: gray;
-        color: $text-color-faded;
     }
 `;
 
