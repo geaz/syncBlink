@@ -26,7 +26,7 @@ function SyncBlinkNode(node: FlowNode<SyncBlinkNodeProps>) {
         <div className="node-frame">
             <div className="node-label">{node.data?.label}</div>
             <div className="node-id">ID {node.data?.id.toString(16).toUpperCase()}</div>
-            <div className="node-info">LEDs {node.data?.ledCount} - v{node.data?.majorVersion}.{node.data?.minorVersion}</div>
+            <div className="node-info">{node.data?.ledCount} LEDs - v{node.data?.majorVersion}.{node.data?.minorVersion}</div>
         </div>
         <div className="node-buttons">
             <IconButton icon={faPen} tooltip="Rename" onClick={() => node.data?.onRename(node.data?.id, node.data?.label)} />

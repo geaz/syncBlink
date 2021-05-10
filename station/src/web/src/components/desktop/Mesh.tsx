@@ -67,7 +67,10 @@ function Mesh() {
                 afterSave={() => reloadData()}/>
         }
         { modalInfo?.type === ModalType.ScriptEditor &&
-            <ScriptEditor/>
+            <ScriptEditor
+                setShowLoader={setShowLoader}
+                setLoaderMessage={setLoaderMessage}
+                setModal={setModal}/>
         }
         { flowElements.length > 0 &&
                 <ReactFlow 

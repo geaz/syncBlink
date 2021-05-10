@@ -25,7 +25,7 @@ function ScriptChanger(props: ScriptChangerProps) {
             if(response.ok) {
                 setScriptList((await response.json()).scripts);
             }
-            else { throw("Error during script list request!"); }
+            else { throw new Error("Error during script list request!"); }
             props.setShowLoader(false);
         })();
     }, []);

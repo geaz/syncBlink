@@ -16,7 +16,8 @@ export interface FlasherProps {
 
 function Flasher(props: FlasherProps) {
     const [selectedFile, setSelectedFile] = useState<File>();
-    const [error, setError] = useState<string>()
+    const [error, setError] = useState<string>();
+    
     useEffect(() => {
         if(selectedFile && selectedFile.size > 1000000) {
             setError("File to big!");

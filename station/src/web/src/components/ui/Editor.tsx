@@ -3,9 +3,15 @@ import "codemirror/mode/javascript/javascript";
 
 import CodeMirror from "codemirror";
 import styled from "styled-components";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
-function Editor() {
+interface EditorProps {
+    content: string;
+}
+
+function Editor(props: EditorProps) {
+    const [editor, setEditor] = useState<CodeMirror.EditorFromTextArea>();
+
     useEffect(() => {
         let codeEditorArea = document.getElementById("code") as HTMLTextAreaElement;
         if(codeEditorArea !== null) {
@@ -16,13 +22,18 @@ function Editor() {
                 indentUnit: 4
             });
             codeEditor.setSize("100%", "100%");
+            setEditor(codeEditor);
             //codeEditor.setValue(this.value);
             //codeEditor.on("change", () => this.$emit("input", this.codeEditor.getValue()));
         } 
         else {
-            console.error("Code Editor TextArea not found!");
+            throw new Error("Code Editor TextArea not found!");
         }
-    }, []);
+    }, [setEditor]);
+
+    useEffect(() => {
+        editor?.setValue(props.content);
+    }, [editor, props.content])
 
     return (
         <StyledEditor>

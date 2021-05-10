@@ -37,7 +37,7 @@ function SyncBlinkStation(node: FlowNode<SyncBlinkStationProps>) {
         <div className="node-frame">
             <div className="node-label">Station</div>
             <div className="node-script">Running: {node.data?.runningScript}</div>
-            <div className="node-info">LEDs {node.data?.ledCount} - v{node.data?.majorVersion}.{node.data?.minorVersion}</div>
+            <div className="node-info">{node.data?.ledCount} LEDs - v{node.data?.majorVersion}.{node.data?.minorVersion}</div>
         </div>
         <div className="node-buttons">        
             <IconButton icon={faHeadphones}
