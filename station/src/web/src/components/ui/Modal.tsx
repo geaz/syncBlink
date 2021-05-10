@@ -75,6 +75,20 @@ const StyledModal = styled.div`
     .modal-content {
         margin: 10px 0;
     }
+
+    input, select { 
+        padding: 5px;
+        width: 100%;
+        box-sizing: border-box;
+        margin-bottom: 5px;
+        border: 1px solid #ccc;
+        font-size: 1rem;
+
+        :focus {
+            outline: none;
+            border: 1px solid #838383;
+        }
+    }
 `;
 
 export default Loader;
