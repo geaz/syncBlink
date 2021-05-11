@@ -43,7 +43,7 @@ function Mesh() {
         isLoadingData={isLoadingData} 
         isModalOpen={modalInfo !== undefined}
         >
-        { (showLoader || dagreIsLoading) && <Loader message={loaderMessage} transparent={!isInitialized} /> }
+        { (showLoader || dagreIsLoading) && <Loader message={loaderMessage} transparent={isInitialized} /> }
         { modalInfo?.type === ModalType.Renamer && 
             <Renamer nodeId={modalInfo.nodeId} 
                 currentLabel={modalInfo.text}
@@ -91,27 +91,17 @@ const StyledMesh = styled.div<{isLoadingData: boolean, isLoading : boolean, isMo
     width: 100vw;
     height: 100vh;
 
-    @keyframes showAnim {
-        from { opacity: 0; }
-        to { opacity: 1; }
-    }
-
-    .react-flow {
-        animation-name: showAnim;
-        animation-duration: 1s;
-    }
-
     .react-flow__renderer,
     .react-flow__minimap,
     .react-flow__controls {
-        ${ p => p.isLoading ? 'opacity:0;' : '' }
         ${ p => p.isLoadingData ? 'display:none;' : '' }
 
-        ${ p => p.isModalOpen && 
-            'opacity: 0;transition: 200ms linear;'
+        ${ p => (p.isLoading || p.isModalOpen) && 
+            'opacity: 0;transition: 100ms linear;'
         }
+
         ${ p => !p.isModalOpen && !p.isLoading && 
-            'opacity: 1;transition: 500ms linear;'
+            'opacity: 1;transition: 400ms linear;'
         }
     }
 

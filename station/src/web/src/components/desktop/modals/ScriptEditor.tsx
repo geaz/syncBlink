@@ -1,8 +1,10 @@
-import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import styled from 'styled-components';
+import { Dispatch, SetStateAction, useEffect, useState } from 'react';
+import { faSave, faTrashAlt } from '@fortawesome/free-solid-svg-icons';
 
 import Editor from '../../ui/Editor';
 import { ModalInfo } from '../../../effects/SyncBlinkFlowDataEffect';
+import IconButton from '../../ui/IconButton';
 
 export interface ScriptEditorProps {
     setModal: Dispatch<SetStateAction<ModalInfo | undefined>>;    
@@ -45,15 +47,15 @@ function ScriptEditor(props: ScriptEditorProps) {
         })();
     }, [script]);
     
-    let scriptListMenu = scriptList && scriptList.length > 0 && scriptList.map((item, i) => {
-        return <li key={i}>{item}</li>;
-    });
+    let scriptOptionList = scriptList && scriptList.length > 0 && scriptList.map((item, i) => {
+        return (<option key={i} value={item}>{item}</option>)
+      });
 
     return <div>{ scriptList && <StyledScriptEditor>
-        <div className="side">
-            <ul>
-                {scriptListMenu}
-            </ul>
+        <div className="top">
+            <select onChange={(e) => setScript(e.target.value)}>
+                {scriptOptionList}
+            </select>
         </div>
         <div className="main">
             <Editor content={scriptContent} />
@@ -79,14 +81,15 @@ const StyledScriptEditor = styled.div`
     position: absolute;
 
     display: grid;
-    grid-template-columns: 275px 1fr;
-    grid-template-areas: "side main";
+    grid-template-rows: auto 1fr;
+    grid-template-areas: "top" "main";
     animation: fadeIn 1s;
 
     .side {
         min-width: 300px;
         grid-area: side;
-        padding: 125px 50px 20px 25px;
+        box-sizing: border-box;
+        padding: 125px 5px 20px 25px;
 
         ul {
             margin: 0;
@@ -96,8 +99,11 @@ const StyledScriptEditor = styled.div`
         li {
             display:flex;
             padding: 10px 1rem 10px 3rem;
-            .main-link {
+
+            .script-link {
+                color: ${p => p.theme.textColorFaded};
                 flex-grow: 1;
+                font-size: 1.1rem;
                 display: inline-block;
                 box-sizing: border-box;
                 text-decoration: none;

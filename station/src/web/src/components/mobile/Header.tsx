@@ -11,15 +11,10 @@ function Header() {
 
 const StyledHeader = styled.div`
     background: white;
-    border-radius: 5px;
     box-shadow: 0px 0px 5px rgba(0,0,0,0.1);
-    
-    position:absolute;
-    display:flex;
-    z-index:999;
     padding: 20px;
-    margin: 20px;
-
+    z-index:999;
+    
     img {
         width: 100px;
         vertical-align: middle;

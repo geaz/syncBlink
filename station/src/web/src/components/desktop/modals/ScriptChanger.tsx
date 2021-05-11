@@ -42,7 +42,7 @@ function ScriptChanger(props: ScriptChangerProps) {
             props.setLoaderMessage('Changing script. Please wait...');
             props.setShowLoader(true);
             props.setModal(undefined);
-            await fetch(`/api/scripts/setActive?name=${script}`);
+            await fetch(`/api/scripts/set?name=${script}`);
             props.afterSave();
             props.setShowLoader(false);
         }}>Save</Button>

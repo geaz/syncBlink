@@ -26,17 +26,16 @@ async function loadMeshInfo(reloadData: () => void, setModal: Dispatch<SetStateA
 {    
     let meshInfo: Elements = [];
     let meshResponse = await fetch("/api/mesh/info");
-    let scriptResponse = await fetch("/api/scripts/getActive");
-    if(meshResponse.ok && scriptResponse.ok) {
+    if(meshResponse.ok) {
         let meshJson = await meshResponse.json();   
-        let scriptName = (await scriptResponse.json()).name;
+        let scriptName = meshJson.script;
         meshInfo = createMeshNodeData(
             meshJson.nodes,
-            meshJson.source,
+            meshJson.analyzer,
             scriptName,
             setModal,
             reloadData,
-            async (analyzerId: number) => { await fetch('/api/mesh/setSource?analyzerId=' + analyzerId); reloadData(); });
+            async (analyzerId: number) => { await fetch('/api/mesh/setAnalyzer?analyzerId=' + analyzerId); reloadData(); });
     }
     return meshInfo;
 }

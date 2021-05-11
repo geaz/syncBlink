@@ -27,6 +27,7 @@ const StyledLoader = styled.div<{ transparent: boolean }>`
     height: 100vh;
     top:0;
     left:0;
+    z-index: 999;
     background: ${ p => p.transparent ? 'transparent' : p.theme.backgroundColor };
 
     @keyframes showAnim {

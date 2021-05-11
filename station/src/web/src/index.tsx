@@ -6,7 +6,8 @@ import { ReactFlowProvider } from 'react-flow-renderer';
 import { ThemeProvider } from 'styled-components';
 import { isMobileOnly } from "react-device-detect";
 
-import DesktopApp from './DesktopApp';
+import AppDesktop from './AppDesktop';
+import AppMobile from './AppMobile';
 import Typography from './components/ui/Typography';
 
 const Theme = {
@@ -28,7 +29,7 @@ ReactDOM.render(
             <ThemeProvider theme={Theme}>
                 <Reset/>
                 <Typography/>
-                {isMobileOnly ? '' : <DesktopApp/>}
+                {isMobileOnly ? <AppMobile/> : <AppDesktop/>}
             </ThemeProvider>
         </ReactFlowProvider>
         </React.StrictMode>,
