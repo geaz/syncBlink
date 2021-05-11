@@ -32,7 +32,7 @@ namespace SyncBlink
          */
         struct UpdateMessage
         {
-            uint64_t activeSource;
+            uint64_t activeAnalyzer;
             uint32_t routeLedCount;
             uint32_t routeNodeCount;
             uint32_t meshLedCount;      // The total amount of LEDs in the mesh

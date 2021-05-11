@@ -13,7 +13,7 @@ namespace SyncBlink
         _server.on("/api/mesh/ping", [this]() { pingNode(); });
         _server.on("/api/mesh/rename", [this]() { renameNode(); });
         _server.on("/api/mesh/info", [this]() { getMeshInfo(); });
-        _server.on("/api/mesh/setSource", [this]() { setSource(); });
+        _server.on("/api/mesh/setAnalyzer", [this]() { setAnalyzer(); });
         _server.on("/api/mesh/flash", HTTP_POST, 
             [this]() { 
                 _server.sendHeader("Connection", "close");
@@ -30,8 +30,7 @@ namespace SyncBlink
         _server.on("/api/scripts/add", [this]() { addScript(); });
         _server.on("/api/scripts/save", [this]() { saveScript(); });
         _server.on("/api/scripts/delete", [this]() { deleteScript(); });
-        _server.on("/api/scripts/getActive", [this]() { getActive(); });
-        _server.on("/api/scripts/setActive", [this]() { setActive(); });
+        _server.on("/api/scripts/set", [this]() { setActiveScript(); });
         
         _server.serveStatic("/", LittleFS, "/public/");
         _server.begin();
@@ -42,7 +41,7 @@ namespace SyncBlink
         _server.handleClient();
     }
 
-    void SyncBlinkWeb::setSource()
+    void SyncBlinkWeb::setAnalyzer()
     {
         String analyzerIdArg = _server.arg("analyzerId");
 
@@ -50,7 +49,7 @@ namespace SyncBlink
         std::istringstream iss(analyzerIdArg.c_str());
         iss >> analyzerId;
 
-        _nodeManager.setSource(analyzerId);
+        _nodeManager.setAnalyzer(analyzerId);
         _server.send(200, "text/plain");
     }
 
@@ -99,7 +98,10 @@ namespace SyncBlink
 
             doc["nodes"][i] = nodeJson;
         }
-        doc["source"] = _nodeManager.getActiveSource();
+        doc["analyzer"] = _nodeManager.getActiveAnalyzer();
+
+        std::string activeScript = _scriptManager.getActiveScript();
+        doc["script"] = activeScript.c_str();
 
         serializeJson(doc, JSON);
         _server.send(200, "application/json", JSON);
@@ -110,7 +112,7 @@ namespace SyncBlink
         String ssid = _server.arg("ssid");
         String pass = _server.arg("pass");
         _stationWifi.saveWifi(ssid.c_str(), pass.c_str());
-        _server.send(200, "application/json", "{ \"saved\": true }");
+        _server.send(200, "application/json");
     }
 
     void SyncBlinkWeb::getWifi()
@@ -187,19 +189,7 @@ namespace SyncBlink
         _server.send(200, "application/json", JSON);
     }
 
-    void SyncBlinkWeb::getActive()
-    {
-        std::string activeScript = _scriptManager.getActiveScript();
-
-        String JSON;
-        StaticJsonDocument<1000> doc;
-        doc["name"] = activeScript.c_str();
-
-        serializeJson(doc, JSON);
-        _server.send(200, "application/json", JSON);
-    }
-
-    void SyncBlinkWeb::setActive()
+    void SyncBlinkWeb::setActiveScript()
     {
         std::string scriptName = _server.arg("name").c_str();
 

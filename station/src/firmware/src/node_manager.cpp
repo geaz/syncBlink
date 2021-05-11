@@ -21,10 +21,10 @@ namespace SyncBlink
         countInfos();
     }
 
-    void NodeManager::setSource(uint64_t nodeId)
+    void NodeManager::setAnalyzer(uint64_t analyzerId)
     {
-        _activeSource = nodeId;
-        _socketServer.broadcast(&nodeId, sizeof(nodeId), Server::SOURCE_UPDATE);
+        _activeAnalyzer = analyzerId;
+        _socketServer.broadcast(&analyzerId, sizeof(analyzerId), Server::SOURCE_UPDATE);
     }
 
     void NodeManager::pingNode(uint64_t nodeId)
@@ -51,9 +51,9 @@ namespace SyncBlink
         }
     }
 
-    uint64_t NodeManager::getActiveSource() const
+    uint64_t NodeManager::getActiveAnalyzer() const
     {
-        return _activeSource;
+        return _activeAnalyzer;
     }
 
     uint32_t NodeManager::getTotalLedCount() const

@@ -60,7 +60,7 @@ namespace SyncBlink
         private:
             void handleMicrophoneSource(TcpServer& tcpServer)
             {   
-                if(checkBlinkScript() && _context.getNodeManager().getActiveSource() == _context.getStationId())
+                if(checkBlinkScript() && _context.getNodeManager().getActiveAnalyzer() == _context.getStationId())
                 {
                     AudioAnalyzerResult result = _frequencyAnalyzer.loop();
                     AudioAnalyzerMessage message = result.ToMessage();
@@ -78,7 +78,7 @@ namespace SyncBlink
             void handleExternalSource(std::vector<uint8_t> message)
             {
                 if(checkBlinkScript()
-                && _context.getNodeManager().getActiveSource() != _context.getStationId())
+                && _context.getNodeManager().getActiveAnalyzer() != _context.getStationId())
                 {                    
                     AudioAnalyzerMessage audioMessage;
                     memcpy(&audioMessage, &message[0], message.size());

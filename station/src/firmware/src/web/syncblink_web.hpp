@@ -27,7 +27,7 @@ namespace SyncBlink
             void renameNode();
             void getMeshInfo();
             void flashMesh();
-            void setSource();
+            void setAnalyzer();
 
             void setWifi();
             void getWifi();
@@ -39,8 +39,7 @@ namespace SyncBlink
             void getScriptList();
             void getScriptContent();
 
-            void getActive();
-            void setActive();
+            void setActiveScript();
 
             void uploadFirmware();
             void triggerOnUploadEvent(float progress, bool isStart, bool isEnd, bool isError);

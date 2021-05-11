@@ -85,7 +85,7 @@ namespace SyncBlink
                 
                 _nodeManager.addNode(message);
 
-                Server::UpdateMessage updateMessage = { _nodeManager.getActiveSource(), _led.getLedCount(), 1, _nodeManager.getTotalLedCount(), _nodeManager.getTotalNodeCount() };
+                Server::UpdateMessage updateMessage = { _nodeManager.getActiveAnalyzer(), _led.getLedCount(), 1, _nodeManager.getTotalLedCount(), _nodeManager.getTotalNodeCount() };
                 _tcpServer.broadcast(&updateMessage, sizeof(updateMessage), Server::MESH_UPDATE);
                 break;
             }

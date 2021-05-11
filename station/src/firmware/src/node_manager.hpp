@@ -19,11 +19,11 @@ namespace SyncBlink
             void addNode(Client::ConnectionMessage connectionMessage);
             void removeNode(uint64_t nodeId);
 
-            void setSource(uint64_t nodeId);
+            void setAnalyzer(uint64_t analyzerId);
             void pingNode(uint64_t nodeId);
             void renameNode(uint64_t nodeId, const std::string& label);
 
-            uint64_t getActiveSource() const;
+            uint64_t getActiveAnalyzer() const;
             uint32_t getTotalLedCount() const;
             uint32_t getTotalNodeCount() const;
             std::vector<Client::ConnectionMessage> getConnectedNodes() const;
@@ -33,7 +33,7 @@ namespace SyncBlink
             
             uint32_t _totalLeds;
             uint32_t _totalNodes;
-            uint64_t _activeSource = SyncBlink::getId();
+            uint64_t _activeAnalyzer = SyncBlink::getId();
 
             TcpServer& _socketServer;
             std::vector<Client::ConnectionMessage> _connectedNodes = {{ true, true, SyncBlink::getId(), 0, LED_COUNT, VERSIONMAJOR, VERSIONMINOR, { 'S', 't', 'a', 't', 'i', 'o', 'n' } }};
