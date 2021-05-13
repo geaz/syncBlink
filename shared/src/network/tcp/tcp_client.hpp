@@ -49,6 +49,7 @@ namespace SyncBlink
         String _serverIp;
 
         uint8_t _retryCount = 0;
+        bool _wasConnected = false;
     };
 }
 

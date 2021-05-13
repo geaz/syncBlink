@@ -70,9 +70,11 @@ namespace SyncBlink
                 Serial.println("Connected!");
 
                 _ssid = SSID + " #" + String(nodeNr);
+                
                 WiFi.softAPConfig(IPAddress(192, 168, nodeNr, 1), IPAddress(0, 0, 0, 0), IPAddress(255, 255, 255, 0));
                 WiFi.softAP(_ssid, Password, 1, false, 8);
                 WiFi.mode(WIFI_AP_STA);
+                WiFi.setAutoReconnect(false);
 
                 Serial.println("Node AP IP: " + WiFi.softAPIP().toString());
                 Serial.println("Node Local IP: " + WiFi.localIP().toString());

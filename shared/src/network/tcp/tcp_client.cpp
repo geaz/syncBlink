@@ -38,15 +38,23 @@ namespace SyncBlink
         if(!_client.isConnected() && WiFi.status() == WL_CONNECTED && _retryCount++ < 10)
         {
             #ifdef DEBUG_TCP
-            Serial.println("[TCP CLIENT] Disconnected! Trying to connect ...");
+            if(_wasConnected)
+                Serial.println("[TCP CLIENT] Disconnected! Trying to connect ...");
+            else
+                Serial.println("[TCP CLIENT] Trying to connect ...");
             #endif
             if(_client.connectTo(_serverIp, 81))
             {
                 #ifdef DEBUG_TCP
                 Serial.println("[TCP CLIENT] Connected!");
                 #endif
-                for (auto event : connectionEvents.getEventHandlers())
-                    event.second(true);
+
+                if(!_wasConnected)
+                {
+                    _wasConnected = true;
+                    for (auto event : connectionEvents.getEventHandlers())
+                        event.second(true);
+                }
                 _retryCount = 0;
             }
         }

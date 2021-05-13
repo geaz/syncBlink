@@ -2,34 +2,12 @@
 #include "station_context.hpp"
 
 #include <EEPROM.h>
-#include <ESP8266Ping.h>
 
 namespace SyncBlink
 {
     StationWifi::StationWifi()
     {
         _mesh.startMesh();
-    }
-
-    // Some routers seem to drop the wifi connection, if no connection is alive.
-    // Unfortunately it seems like the WiFiServer will drop the connected clients, if this happens.
-    // This method is resposible to keep the wifi connection alive to avoid the tcp socket client drop!
-    void StationWifi::keepAlive()
-    {
-        if(WiFi.isConnected() && _lastPing + 30000 < millis())
-        {
-            #ifdef DEBUG_STATIONWIFI
-            Serial.printf("[WIFI] Last ping >30secs. Pinging %s ...\n", WiFi.gatewayIP().toString().c_str());
-            #endif
-
-            bool result = Ping.ping(WiFi.gatewayIP(), 1);
-
-            #ifdef DEBUG_STATIONWIFI
-            Serial.printf("[WIFI] Ping result: %i - Ping time: %ims\n", result, Ping.averageTime());
-            #endif
-
-            _lastPing = millis();
-        }
     }
 
     void StationWifi::connectWifi()

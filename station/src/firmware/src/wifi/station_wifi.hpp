@@ -11,7 +11,6 @@ namespace SyncBlink
         public:
             StationWifi();
 
-            void keepAlive();
             void connectWifi();
             void saveWifi(std::string ssid, std::string pass);
 
