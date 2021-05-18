@@ -8,6 +8,13 @@ namespace SyncBlink
     StationWifi::StationWifi()
     {
         _mesh.startMesh();
+        #ifdef DEBUG_STATIONWIFI
+        _ping.on(true,[](const AsyncPingResponse& response){
+            IPAddress addr(response.addr);
+            Serial.printf("[WIFI] Ping answer from %s sent %d recevied %d time %d ms\n", addr.toString().c_str(), response.total_sent, response.total_recv, response.total_time);
+            return true;
+        });
+        #endif
     }
 
     void StationWifi::connectWifi()
@@ -39,6 +46,22 @@ namespace SyncBlink
                 #endif
                 WiFi.disconnect();
             }
+        }
+    }
+
+    // Some routers seem to drop the wifi connection, if no connection is alive.
+    // Unfortunately it seems like the WiFiServer will drop the connected clients, if this happens.
+    // This method is resposible to keep the wifi connection alive to avoid the tcp socket client drop!
+    void StationWifi::keepAlive()
+    {
+        if(WiFi.isConnected() && _lastPing + 30000 < millis())
+        {
+            #ifdef DEBUG_STATIONWIFI
+            Serial.printf("[WIFI] Last ping >30secs. Pinging %s ...\n", WiFi.gatewayIP().toString().c_str());
+            #endif
+
+            _ping.begin(WiFi.gatewayIP(), 1);
+            _lastPing = millis();
         }
     }
 

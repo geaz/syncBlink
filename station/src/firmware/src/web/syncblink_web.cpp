@@ -118,12 +118,10 @@ namespace SyncBlink
     void SyncBlinkWeb::getWifi()
     {
         std::string ssid = _stationWifi.getSavedSSID();
-        std::string pass = _stationWifi.getSavedPass();
 
         String JSON;
         StaticJsonDocument<500> doc;
         doc["ssid"] = ssid.c_str();
-        doc["pass"] = pass.c_str();
         doc["connected"] = WiFi.status() == WL_CONNECTED;
 
         serializeJson(doc, JSON);

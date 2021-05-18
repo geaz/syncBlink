@@ -1,6 +1,7 @@
 #ifndef STATIONWIFI_H
 #define STATIONWIFI_H
 
+#include <AsyncPing.h>
 #include <string>
 #include <network/mesh/syncblink_mesh.hpp>
 
@@ -12,6 +13,7 @@ namespace SyncBlink
             StationWifi();
 
             void connectWifi();
+            void keepAlive();
             void saveWifi(std::string ssid, std::string pass);
 
             std::string getSavedSSID();
@@ -19,6 +21,7 @@ namespace SyncBlink
 
         private:
             SyncBlinkMesh _mesh;
+            AsyncPing _ping;
             unsigned long _lastPing = millis();
     };
 }
