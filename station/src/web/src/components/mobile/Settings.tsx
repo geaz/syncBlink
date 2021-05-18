@@ -7,9 +7,12 @@ import Loader from "../ui/Loader";
 function Settings() {
     const [showLoader, setShowLoader] = useState(true);
     const [scriptList, setScriptList] = useState<Array<string>>();
+    const [analyzerList, setAnalyzerList] = useState<Array<{name: string, id: string}>>();
 
     const [script, setScript] = useState('');
-    const [analyzer, setAnalyzer] = useState(0);
+    const [analyzer, setAnalyzer] = useState('');
+    const [ssid, setSsid] = useState('');
+    const [wifiPw, setWifiPw] = useState('');
 
     useEffect(() => {
         (async () => {
@@ -21,14 +24,44 @@ function Settings() {
                 let meshInfo = await meshResponse.json();
                 let wifiInfo = await wifiResponse.json();
 
+                let analyzerList : Array<{name: string, id: string}> = [];
+                meshInfo.nodes.forEach((node: any) => {
+                    if(node.isAnalyzer) {
+                        analyzerList.push({name: node.label, id: node.nodeId});
+                    }
+                });
+
                 setScriptList(scriptList);
                 setScript(meshInfo.script);
                 setAnalyzer(meshInfo.analyzer);
+                setAnalyzerList(analyzerList);
+                setSsid(wifiInfo.ssid);
             }
             else { throw new Error("Error during requests!"); }
             setShowLoader(false);
         })();
     }, []);
+
+    let scriptOptionList = scriptList && scriptList.length > 0 && scriptList.map((item, i) => {
+        return (<option key={i} value={item}>{item}</option>)
+    });
+
+    let analyzerOptionList = analyzerList && analyzerList.length > 0 && analyzerList.map((item, i) => {
+        return (<option key={item.id} value={item.id}>{item.name}</option>)
+    });
+
+    let saveScriptSettings = async () => {
+        setShowLoader(true);
+        await fetch(`/api/scripts/set?name=${script}`);
+        await fetch(`/api/mesh/setAnalyzer?analyzerId=${analyzer}`)
+        setShowLoader(false);
+    };
+
+    let saveWifiSettings = async () => {
+        setShowLoader(true);
+        await fetch(`/api/wifi/set?ssid=${ssid}&pass=${wifiPw}`);
+        setShowLoader(false);
+    };
 
     return <StyledSettings>
         { showLoader && <Loader message="Loading..." transparent={false}></Loader> }
@@ -36,24 +69,30 @@ function Settings() {
         <div className="settings">
             <div className="form-line">
                 <label>Active Script</label>
-                <select></select>
+                <select onChange={(e) => setScript(e.target.value)} value={script}>
+                    {scriptOptionList}
+                </select>
             </div>
             <div className="form-line">
                 <label>Analyzer</label>
-                <select></select>
+                <select onChange={(e) => setAnalyzer(e.target.value)} value={analyzer}>
+                    {analyzerOptionList}
+                </select>
             </div>
         </div>
-        <Button>Save</Button>
+        <Button onClick={saveScriptSettings}>Save</Button>
         <h2>WiFi Settings</h2>
         <div className="settings">
             <div className="form-line">
-                <label htmlFor="ssid">SSID</label><input v-model="ssid" maxLength={32} />
+                <label htmlFor="ssid">SSID</label>
+                <input name="ssid" type="text" defaultValue={ ssid } onChange={(e) => setSsid(e.target.value) } maxLength={32}/>
             </div>
             <div className="form-line">
-                <label htmlFor="pass">Pass</label><input v-model="pass" maxLength={64} />
+                <label htmlFor="pass">Pass</label>
+                <input name="pass" type="text" defaultValue={ wifiPw } onChange={(e) => setWifiPw(e.target.value) } maxLength={64}/>
             </div>
         </div>
-        <Button>Save</Button>
+        <Button onClick={saveWifiSettings}>Save</Button>
     </StyledSettings>;
 }
 
