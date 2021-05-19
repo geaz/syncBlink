@@ -11,7 +11,7 @@ namespace SyncBlink
         #ifdef DEBUG_STATIONWIFI
         _ping.on(true,[](const AsyncPingResponse& response){
             IPAddress addr(response.addr);
-            Serial.printf("[WIFI] Ping answer from %s sent %d recevied %d time %d ms\n", addr.toString().c_str(), response.total_sent, response.total_recv, response.total_time);
+            Serial.printf("[WIFI] Ping result from %s - sent %d recevied %d\n", addr.toString().c_str(), response.total_sent, response.total_recv);
             return true;
         });
         #endif
