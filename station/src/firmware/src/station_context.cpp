@@ -51,7 +51,6 @@ namespace SyncBlink
 
         currentState->run(*this);
         
-        _wifi.keepAlive();
         _tcpServer.loop();
         _led.loop();
         _web.loop();

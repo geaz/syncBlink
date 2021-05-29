@@ -13,7 +13,6 @@ namespace SyncBlink
             StationWifi();
 
             void connectWifi();
-            void keepAlive();
             void saveWifi(std::string ssid, std::string pass);
 
             std::string getSavedSSID();
@@ -22,7 +21,6 @@ namespace SyncBlink
         private:
             SyncBlinkMesh _mesh;
             AsyncPing _ping;
-            unsigned long _lastPing = millis();
     };
 }
 

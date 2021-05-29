@@ -28,40 +28,51 @@ namespace SyncBlink
 
         if (ssid.length() > 1 ) 
         {
-            WiFi.begin(ssid.c_str(), password.c_str());
+            #ifdef DEBUG_STATIONWIFI
+            Serial.println("[WIFI] Searching network ...");
+            #endif
+
+            // We are manually scanning for the network to get the channel nr
+            // By adding the channel nr to the connection call we will prevent
+            // channel switching during the scan for the AP (this preventing to disconnect the connected stations on a reconnect)
+            uint8_t foundNetworkCount = WiFi.scanNetworks();
+            uint32_t channelNr = 1;
+            for (int i = 0; i < foundNetworkCount; ++i)
+            {
+                if (WiFi.SSID(i).equals(ssid.c_str()))
+                {
+                    channelNr = WiFi.channel(i);
+
+                    #ifdef DEBUG_STATIONWIFI
+                    Serial.printf("[WIFI] Found network on channel %i...\n", channelNr);
+                    #endif
+
+                    break;
+                }
+            }
+
+            if(channelNr != 0)
+            {
+                WiFi.begin(ssid.c_str(), password.c_str(), channelNr);
             
-            #ifdef DEBUG_STATIONWIFI
-            Serial.println("[WIFI] Waiting for Wifi to connect (30 sec timeout)...");
-            #endif
-            if(WiFi.waitForConnectResult(30000) == WL_CONNECTED)
-            {
                 #ifdef DEBUG_STATIONWIFI
-                Serial.println("[WIFI] Connected!");
+                Serial.println("[WIFI] Waiting for Wifi to connect (30 sec timeout)...");
                 #endif
-            }
-            else
-            {
-                #ifdef DEBUG_STATIONWIFI
-                Serial.println("[WIFI] Couldn't connect to network!");
-                #endif
-                WiFi.disconnect();
-            }
-        }
-    }
-
-    // Some routers seem to drop the wifi connection, if no connection is alive.
-    // Unfortunately it seems like the WiFiServer will drop the connected clients, if this happens.
-    // This method is resposible to keep the wifi connection alive to avoid the tcp socket client drop!
-    void StationWifi::keepAlive()
-    {
-        if(WiFi.isConnected() && _lastPing + 30000 < millis())
-        {
-            #ifdef DEBUG_STATIONWIFI
-            Serial.printf("[WIFI] Last ping >30secs. Pinging %s ...\n", WiFi.gatewayIP().toString().c_str());
-            #endif
-
-            _ping.begin(WiFi.gatewayIP(), 1);
-            _lastPing = millis();
+                
+                if(WiFi.waitForConnectResult(30000) == WL_CONNECTED)
+                {
+                    #ifdef DEBUG_STATIONWIFI
+                    Serial.println("[WIFI] Connected!");
+                    #endif
+                }
+                else
+                {
+                    #ifdef DEBUG_STATIONWIFI
+                    Serial.println("[WIFI] Couldn't connect to network!");
+                    #endif
+                    WiFi.disconnect();
+                }
+            }            
         }
     }
 
