@@ -24,7 +24,7 @@ namespace SyncBlink
         3 /* magic bytes = 'SBM' */ +
         1 /* checksum */ + 
         1 /* message type */;
-    static const uint8_t SocketTimeout = 100;
+    static const uint8_t SocketWriteTimeout = 100;
     static const uint8_t MaxNodeLabelLength = 16;
 }
 

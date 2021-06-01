@@ -36,12 +36,27 @@ namespace SyncBlink
     {
         for(auto iter = _clients.begin(); iter != _clients.end();)
         {
-            if(!iter->isConnected() || iter->isTimeout())
+            // check if client is still connected to ap
+            bool connectedToAp = false;
+            struct station_info* statInfo = wifi_softap_get_station_info();
+            while (statInfo != nullptr)
+            {
+                IPAddress clientIp = IPAddress((&statInfo->ip)->addr);
+                if(clientIp == iter->getRemoteIp())
+                {
+                    connectedToAp = true;
+                    break;
+                }
+                statInfo = STAILQ_NEXT(statInfo, next);
+            }
+            wifi_softap_free_station_info();
+
+            if(iter->isWriteTimeout() || !connectedToAp)
             {                
                 if(iter->getStreamId() != 0)
                 {
                     #ifdef DEBUG_TCP
-                    Serial.printf("[TCP SERVER] Client lost connection: %12llx (Con: %i, Timeout: %i)\n", iter->getStreamId(), iter->isConnected(), iter->isTimeout());
+                    Serial.printf("[TCP SERVER] Client lost connection: %12llx (AP Connected: %i, Write Timeout: %i)\n", iter->getStreamId(), connectedToAp, iter->isWriteTimeout());
                     #endif
                     for (auto event : serverDisconnectionEvents.getEventHandlers())
                         event.second(iter->getStreamId());
@@ -50,7 +65,8 @@ namespace SyncBlink
                 iter->stop();
 
                 // We explicity abandon without reset (this will also purge the unsent message memory)
-                for(auto pcb = tcp_active_pcbs; pcb != NULL; pcb = pcb->next) {
+                for(auto pcb = tcp_active_pcbs; pcb != nullptr; pcb = pcb->next)
+                {
                     IPAddress ip = pcb->remote_ip;
                     if(ip == iter->getRemoteIp())
                     {

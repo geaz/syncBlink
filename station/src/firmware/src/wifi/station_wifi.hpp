@@ -1,7 +1,6 @@
 #ifndef STATIONWIFI_H
 #define STATIONWIFI_H
 
-#include <AsyncPing.h>
 #include <string>
 #include <network/mesh/syncblink_mesh.hpp>
 
@@ -20,7 +19,6 @@ namespace SyncBlink
 
         private:
             SyncBlinkMesh _mesh;
-            AsyncPing _ping;
     };
 }
 

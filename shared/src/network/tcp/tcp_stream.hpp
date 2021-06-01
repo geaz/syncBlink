@@ -24,7 +24,7 @@ namespace SyncBlink
         bool checkMessage(TcpMessage& message);
         void writeMessage(std::vector<uint8_t> message);
 
-        bool isTimeout() const;
+        bool isWriteTimeout();
         bool isConnected();
 
         void setStreamId(uint64_t id);
@@ -36,9 +36,9 @@ namespace SyncBlink
 
     private:
         WiFiClient _client;
-        bool _timeout = false;
         IPAddress _remoteIp;
         uint64_t _streamId = 0;
+        bool _writeTimeout = false;
     };
 }
 

@@ -28,51 +28,24 @@ namespace SyncBlink
 
         if (ssid.length() > 1 ) 
         {
-            #ifdef DEBUG_STATIONWIFI
-            Serial.println("[WIFI] Searching network ...");
-            #endif
-
-            // We are manually scanning for the network to get the channel nr
-            // By adding the channel nr to the connection call we will prevent
-            // channel switching during the scan for the AP (this preventing to disconnect the connected stations on a reconnect)
-            uint8_t foundNetworkCount = WiFi.scanNetworks();
-            uint32_t channelNr = 1;
-            for (int i = 0; i < foundNetworkCount; ++i)
-            {
-                if (WiFi.SSID(i).equals(ssid.c_str()))
-                {
-                    channelNr = WiFi.channel(i);
-
-                    #ifdef DEBUG_STATIONWIFI
-                    Serial.printf("[WIFI] Found network on channel %i...\n", channelNr);
-                    #endif
-
-                    break;
-                }
-            }
-
-            if(channelNr != 0)
-            {
-                WiFi.begin(ssid.c_str(), password.c_str(), channelNr);
+            WiFi.begin(ssid.c_str(), password.c_str());
             
+            #ifdef DEBUG_STATIONWIFI
+            Serial.println("[WIFI] Waiting for Wifi to connect (30 sec timeout)...");
+            #endif
+            if(WiFi.waitForConnectResult(30000) == WL_CONNECTED)
+            {
                 #ifdef DEBUG_STATIONWIFI
-                Serial.println("[WIFI] Waiting for Wifi to connect (30 sec timeout)...");
+                Serial.println("[WIFI] Connected!");
                 #endif
-                
-                if(WiFi.waitForConnectResult(30000) == WL_CONNECTED)
-                {
-                    #ifdef DEBUG_STATIONWIFI
-                    Serial.println("[WIFI] Connected!");
-                    #endif
-                }
-                else
-                {
-                    #ifdef DEBUG_STATIONWIFI
-                    Serial.println("[WIFI] Couldn't connect to network!");
-                    #endif
-                    WiFi.disconnect();
-                }
-            }            
+            }
+            else
+            {
+                #ifdef DEBUG_STATIONWIFI
+                Serial.println("[WIFI] Couldn't connect to network!");
+                #endif
+                WiFi.disconnect();
+            }
         }
     }
 

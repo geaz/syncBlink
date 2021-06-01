@@ -106,12 +106,12 @@ namespace SyncBlink
             uint32_t messageSize = message.size();
             while(messageSize > 0)
             {
-                if(millis() - started > SocketTimeout)
+                if(millis() - started > SocketWriteTimeout)
                 {
                     #ifdef DEBUG_TCPSTREAM
                     Serial.printf("[TCP SERVER] Write Timeout Client\n");
                     #endif
-                    _timeout = true;
+                    _writeTimeout = true;
                     break;
                 }
                 
@@ -123,9 +123,9 @@ namespace SyncBlink
         }
     }
 
-    bool TcpStream::isTimeout() const
+    bool TcpStream::isWriteTimeout()
     {
-        return _timeout;
+        return _writeTimeout;
     }
 
     bool TcpStream::isConnected()
