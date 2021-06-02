@@ -51,7 +51,8 @@ namespace SyncBlink
             }
             wifi_softap_free_station_info();
 
-            if(iter->isWriteTimeout() || !connectedToAp)
+            // Analyzers are not connected to the AP. Thats why we check the client AND the AP connection
+            if(iter->isWriteTimeout() || (!connectedToAp && !iter->isConnected()))
             {                
                 if(iter->getStreamId() != 0)
                 {
@@ -107,19 +108,18 @@ namespace SyncBlink
                         memcpy(&tcpMessage.message[0], &message, sizeof(message));
                         client.setStreamId(message.nodeId);
                     }
-
-                    // check for lost/timeout connections before
-                    // informing about a new connection
-                    // It could be a reconnection of a node which was previously connected and 
-                    // no timeout was detected before...
-                    broadcast(0, 0, Server::PING);
-                    client.flush();
-                    clearClients();
                     
                     #ifdef DEBUG_TCP
-                    Serial.printf("[TCP SERVER] New Client: %12llx - LEDs %i - Parent %12llx - Firmware Version: %i.%i\n",
-                        message.nodeId, message.ledCount,
-                        message.parentId, message.majorVersion, message.minorVersion);
+                    if(message.isAnalyzer)
+                    {
+                        Serial.printf("[TCP SERVER] New Analyzer connected: %s\n", message.nodeLabel);
+                    }
+                    else
+                    {
+                        Serial.printf("[TCP SERVER] New Client: %12llx - LEDs %i - Parent %12llx - Firmware Version: %i.%i\n",
+                            message.nodeId, message.ledCount,
+                            message.parentId, message.majorVersion, message.minorVersion);
+                    }                    
                     #endif
                 }
                 for (auto event : messageEvents.getEventHandlers())
