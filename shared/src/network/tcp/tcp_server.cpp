@@ -107,20 +107,20 @@ namespace SyncBlink
                         if(!message.isAnalyzer) message.parentId = SyncBlink::getId();
                         memcpy(&tcpMessage.message[0], &message, sizeof(message));
                         client.setStreamId(message.nodeId);
+
+                        #ifdef DEBUG_TCP
+                        if(message.isAnalyzer)
+                        {
+                            Serial.printf("[TCP SERVER] New Analyzer connected: %s\n", message.nodeLabel);
+                        }
+                        else
+                        {
+                            Serial.printf("[TCP SERVER] New Client: %12llx - LEDs %i - Parent %12llx - Firmware Version: %i.%i\n",
+                                message.nodeId, message.ledCount,
+                                message.parentId, message.majorVersion, message.minorVersion);
+                        }                    
+                        #endif
                     }
-                    
-                    #ifdef DEBUG_TCP
-                    if(message.isAnalyzer)
-                    {
-                        Serial.printf("[TCP SERVER] New Analyzer connected: %s\n", message.nodeLabel);
-                    }
-                    else
-                    {
-                        Serial.printf("[TCP SERVER] New Client: %12llx - LEDs %i - Parent %12llx - Firmware Version: %i.%i\n",
-                            message.nodeId, message.ledCount,
-                            message.parentId, message.majorVersion, message.minorVersion);
-                    }                    
-                    #endif
                 }
                 for (auto event : messageEvents.getEventHandlers())
                     event.second(tcpMessage);

@@ -82,6 +82,17 @@ namespace SyncBlink
                 Client::ConnectionMessage message;
                 memcpy(&message, &tcpMessage.message[0], tcpMessage.message.size());
                 
+                if(message.isAnalyzer)
+                {
+                    Serial.printf("[MESH] New Analyzer connected: %s\n", message.nodeLabel);
+                }
+                else
+                {
+                    Serial.printf("[MESH] New Node: %12llx - LEDs %i - Parent %12llx - Firmware Version: %i.%i\n",
+                        message.nodeId, message.ledCount,
+                        message.parentId, message.majorVersion, message.minorVersion);
+                }
+
                 _nodeManager.addNode(message);
 
                 Server::UpdateMessage updateMessage = { _nodeManager.getActiveAnalyzer(), _led.getLedCount(), 1, _nodeManager.getTotalLedCount(), _nodeManager.getTotalNodeCount() };
@@ -94,7 +105,9 @@ namespace SyncBlink
                 memcpy(&nodeId, &tcpMessage.message[0], tcpMessage.message.size());
                 onMeshDisconnection(nodeId);
 
-                Server::UpdateMessage updateMessage = { _led.getLedCount(), 1, _nodeManager.getTotalLedCount(), _nodeManager.getTotalNodeCount() };
+                Serial.printf("[MESH] Node disconnected: %12llx\n", nodeId);
+
+                Server::UpdateMessage updateMessage = { _nodeManager.getActiveAnalyzer(), _led.getLedCount(), 1, _nodeManager.getTotalLedCount(), _nodeManager.getTotalNodeCount() };
                 _tcpServer.broadcast(&updateMessage, sizeof(updateMessage), Server::MESH_UPDATE);
                 break;
             }
