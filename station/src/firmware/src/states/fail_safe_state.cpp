@@ -2,8 +2,8 @@
 #define FAILSAFESTATE_H
 
 #include "state.hpp"
-#include "../station_context.hpp"
-#include "../views/icon_text_view.cpp"
+#include "station_context.hpp"
+#include "views/icon_text_view.cpp"
 
 namespace SyncBlink
 {
@@ -14,19 +14,19 @@ namespace SyncBlink
                 _context(context),
                 _failSafeView(std::make_shared<IconTextView>("Fail Safe!", u8g2_font_open_iconic_thing_2x_t, 78))
             {
-                _modEventHandleId = context.getModManager()
-                    .activeModChangedEvents
+                _scriptEventHandleId = context.getScriptManager()
+                    .activeScriptChangedEvents
                     .addEventHandler([this]() 
                     {
-                        _activeModChanged = true;
+                        _activeScriptChanged = true;
                     });
             }
 
             ~FailSafeState()
             {
-                _context.getModManager()
-                    .activeModChangedEvents
-                    .removeEventHandler(_modEventHandleId);
+                _context.getScriptManager()
+                    .activeScriptChangedEvents
+                    .removeEventHandler(_scriptEventHandleId);
             }
 
             void run(StationContext& context)
@@ -34,14 +34,14 @@ namespace SyncBlink
                 context.getLed().setAllLeds(SyncBlink::Yellow);
                 context.getDisplay().setView(_failSafeView);
                 
-                if(_activeModChanged) context.resetState();
+                if(_activeScriptChanged) context.resetState();
             }
 
         private:
             StationContext& _context;
             std::shared_ptr<IconTextView> _failSafeView;            
-            uint64_t _modEventHandleId = 0;
-            bool _activeModChanged = false;
+            uint32_t _scriptEventHandleId = 0;
+            bool _activeScriptChanged = false;
     };
 }
 

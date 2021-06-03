@@ -4,8 +4,8 @@
 #include "audio/frequency_analyzer.hpp"
 #include "blinkscript/vm/vm.hpp"
 #include "led/led.hpp"
-#include "network/websocket/messages/audio_analyzer_message.hpp"
-#include "network/websocket/messages/client_messages.hpp"
+#include "network/tcp/messages/audio_analyzer_message.hpp"
+#include "network/tcp/messages/client_messages.hpp"
 #include "script_built_ins.hpp"
 
 #include <deque>
@@ -18,7 +18,7 @@ namespace SyncBlink
     class BlinkScript
     {
     public:
-        BlinkScript(LED& led, const std::string& mod);
+        BlinkScript(LED& led, const std::string& script);
 
         void init();
         void run(const uint8_t delta);
@@ -29,7 +29,7 @@ namespace SyncBlink
         bool isFaulted();
         LED& getLed();
         void setDelay(uint32_t delay);
-        std::string getModName();
+        std::string getScriptName();
 
     private:
         bool checkEvalError(const std::string& step, bool hasError, std::tuple<int, std::string> error);

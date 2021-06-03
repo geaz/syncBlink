@@ -1,9 +1,9 @@
 #ifndef AUDIOANALYZERRESULT_H
 #define AUDIOANALYZERRESULT_H
 
-#include "frequency_infos.hpp"
+#include "shared_constants.hpp"
 #include "mappings.hpp"
-#include "network/websocket/messages/client_messages.hpp"
+#include "network/tcp/messages/client_messages.hpp"
 
 #include <array>
 

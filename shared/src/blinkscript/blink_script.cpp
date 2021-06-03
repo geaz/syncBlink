@@ -8,9 +8,9 @@
 
 namespace SyncBlink
 {
-    BlinkScript::BlinkScript(LED& led, const std::string& mod) : _led(led)
+    BlinkScript::BlinkScript(LED& led, const std::string& script) : _led(led)
     {
-        auto parser = Parser(mod);
+        auto parser = Parser(script);
         auto programAst = parser.parse();
 
         if (parser.hasError())
@@ -51,8 +51,8 @@ namespace SyncBlink
 
         // Add global vars
         saveAddToScope("maxF", Value((float)MaxFrequency));
-        saveAddToScope("nLedC", Value((float)LED_COUNT));
-        saveAddToScope("mLedC", Value((float)LED_COUNT));
+        saveAddToScope("nLedC", Value((float)_led.getLedCount()));
+        saveAddToScope("mLedC", Value((float)_led.getLedCount()));
         saveAddToScope("pLedC", Value(0.0f));
         saveAddToScope("pNodeC", Value(0.0f));
         saveAddToScope("lVol", Value(0.0f));
@@ -135,13 +135,13 @@ namespace SyncBlink
             _delay = delay;
     }
 
-    std::string BlinkScript::getModName()
+    std::string BlinkScript::getScriptName()
     {
-        std::string modName = "(undefined)";
-        auto modValue = _vm.getFrame().get("modName");
-        if (modValue.getType() != ValueType::NIL)
-            modName = static_cast<StringObj*>(modValue.object)->getString();
-        return modName;
+        std::string scriptName = "(undefined)";
+        auto scriptValue = _vm.getFrame().get("scriptName");
+        if (scriptValue.getType() != ValueType::NIL)
+            scriptName = static_cast<StringObj*>(scriptValue.object)->getString();
+        return scriptName;
     }
 
     bool BlinkScript::checkEvalError(const std::string& step, bool hasError, std::tuple<int, std::string> error)

@@ -111,7 +111,7 @@ TEST_CASE("Scanner is able to scan script", "[scanTokens]")
                             "}\n"
                             "\n"
                             "let init = fun(){}\n"
-                            "let modName = \"simpleMod\"";
+                            "let scriptName = \"simpleScript\"";
     SyncBlink::Scanner scanner(script);
     
     while(scanner.advance().getTokenType() != SyncBlink::TokenType::ENDOFFILE)

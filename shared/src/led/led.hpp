@@ -5,8 +5,6 @@
 #include "color.hpp"
 
 #include <FastLED.h>
-#include <array>
-#include <memory>
 #include <vector>
 
 namespace SyncBlink
@@ -14,22 +12,27 @@ namespace SyncBlink
     class LED
     {
     public:
-        LED();
-
+        void setup(uint16_t ledCount);
         void loop();
-        void setLed(const uint32_t index, const Color color);
-        uint32_t getLed(const uint32_t index);
 
         void setAllLeds(const Color color);
 
-        void setGroup(const uint32_t index, std::vector<uint32_t> group);
+        void setLed(const uint16_t index, const Color color);
+        uint16_t getLed(const uint16_t index);
+        uint16_t getLedCount() const;
+
+        void setGroup(const uint16_t index, std::vector<uint16_t> group);
         void clearGroups();
 
-    private:
+        void showNow(const Color color);
+        void blinkNow(const Color color, uint8_t times = 3);
 
+    private:
+        uint32_t _ledCount = 0;
         bool _groupsSet = false;
-        std::array<CRGB, LED_COUNT> _leds;
-        std::array<std::vector<uint32_t>, LED_COUNT> _groups;
+
+        std::vector<CRGB> _leds;
+        std::vector<std::vector<uint16_t>> _groups;
     };
 }
 

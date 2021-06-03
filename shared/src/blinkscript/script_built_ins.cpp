@@ -32,10 +32,10 @@ namespace SyncBlink
             vm.addNativeFun("setLinearGroupsOf", std::make_shared<NativeFunObj>(
                                                [&blinkScript](Frame frame) {
                                                    uint32_t countPerGroup = (uint32_t)frame.get("arg0").number;
-                                                   for (uint32_t i = 0; i < LED_COUNT / countPerGroup; i++)
+                                                   for (uint32_t i = 0; i < blinkScript.getLed().getLedCount() / countPerGroup; i++)
                                                    {
-                                                       std::vector<uint32_t> ledIndices;
-                                                       for (uint32_t j = 0; j < countPerGroup; j++)
+                                                       std::vector<uint16_t> ledIndices;
+                                                       for (uint16_t j = 0; j < countPerGroup; j++)
                                                        {
                                                            ledIndices.push_back(i + (j * countPerGroup));
                                                        }
@@ -51,11 +51,11 @@ namespace SyncBlink
             vm.addNativeFun("setGroupsOf", 
                 std::make_shared<NativeFunObj>([&blinkScript](Frame frame) {
                         uint32_t countPerGroup = (uint32_t)frame.get("arg0").number;
-                        uint32_t groupCount = LED_COUNT/countPerGroup;
+                        uint32_t groupCount = blinkScript.getLed().getLedCount()/countPerGroup;
                         for(uint32_t i = 0; i < groupCount; i++)
                         {
-                            std::vector<uint32_t> ledIndices;
-                            for(uint32_t j = 0; j < countPerGroup; j++)
+                            std::vector<uint16_t> ledIndices;
+                            for(uint16_t j = 0; j < countPerGroup; j++)
                             {
                                 if(j%2 == 0) ledIndices.push_back((i + j*groupCount));
 				                else ledIndices.push_back((j+1)*groupCount - (i+1));
@@ -108,7 +108,7 @@ namespace SyncBlink
                         if (arrayVal.getType() == ValueType::OBJECT && arrayVal.object->getType() == ObjectType::ARRAY)
                         {
                             auto arrayObj = static_cast<ArrayObj*>(arrayVal.object);
-                            for (int i = 0; i < arrayObj->getValues().size(); i++)
+                            for (uint32_t i = 0; i < arrayObj->getValues().size(); i++)
                             {
                                 blinkScript.getLed().setLed(i, Color::fromHex(arrayObj->getValues()[i].number));
                             }

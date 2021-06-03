@@ -533,7 +533,7 @@ TEST_CASE("Compiler compiles script successfully", "[compiler]")
                          "}\n"
                          "\n"
                          "let init = fun(){}\n"
-                         "let modName = \"simpleMod\"";
+                         "let scriptName = \"simpleScript\"";
     
     auto parser = SyncBlink::Parser(script);
     auto programAst = parsec(parser);
@@ -551,8 +551,8 @@ TEST_CASE("Compiler compiles script successfully", "[compiler]")
                                 "\t@  1: \"update\"\n"
                                 "\t@  2: FUN\n"
                                 "\t@  3: \"init\"\n"
-                                "\t@  4: \"simpleMod\"\n"
-                                "\t@  5: \"modName\"\n\n"
+                                "\t@  4: \"simpleScript\"\n"
+                                "\t@  5: \"scriptName\"\n\n"
                                 ".code:\n"
                                 "\t  0: VALUE\n"
                                 "\t  1: .0\n"

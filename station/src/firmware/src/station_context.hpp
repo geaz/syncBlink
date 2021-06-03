@@ -3,14 +3,14 @@
 
 #include <memory>
 #include <led/led.hpp>
-#include <network/websocket/socket_server.hpp>
+#include <network/tcp/tcp_server.hpp>
 
 #include "states/state.hpp"
 #include "display/display.hpp"
 #include "web/syncblink_web.hpp"
-#include "web/node_manager.hpp"
 #include "wifi/station_wifi.hpp"
-#include "mod/mod_manager.hpp"
+#include "scripts/script_manager.hpp"
+#include "node_manager.hpp"
 
 namespace SyncBlink
 {
@@ -22,11 +22,9 @@ namespace SyncBlink
     const uint8_t WifiRomPwEnd = 96;
     const uint8_t WifiRomPwLength = WifiRomPwEnd - WifiRomPwStart;
 
-    const uint8_t ModRomStart = 96;
-    const uint8_t ModRomEnd = 193;
-    const uint8_t ModRomLength = ModRomEnd - ModRomStart;
-    
-    const uint8_t SourceRom = 193;
+    const uint8_t ScriptRomStart = 96;
+    const uint8_t ScriptRomEnd = 193;
+    const uint8_t ScriptRomLength = ScriptRomEnd - ScriptRomStart;
 
     class StationContext
     {
@@ -39,27 +37,33 @@ namespace SyncBlink
 
             LED& getLed();
             Display& getDisplay();
-            ModManager& getModManager();
-            StationWifi& getStationWifi();
-            SocketServer& getSocketServer();
+            ScriptManager& getScriptManager();
+            SyncBlinkWeb& getWebserver();
+            TcpServer& getTcpServer();
             NodeManager& getNodeManager();
+
+            uint64_t getStationId() const;
 
             std::shared_ptr<State> currentState;
 
         private:
-            void checkReset();
-            void startMeshCount();
-            void onSocketServerMeshConnection();
-            void onSocketServerCommandReceived(Client::Message message);
+            void checkException();
+            void onMeshDisconnection(uint64_t clientId);
+            void onSocketServerCommandReceived(TcpMessage tcpMessage);
 
             LED _led;
             Display _display;
-            StationWifi _wifi;
-            ModManager _modManager;
+            StationWifi _wifi;  
             NodeManager _nodeManager;
-            SocketServer _socketServer;
-            
+            ScriptManager _ScriptManager;
+            TcpServer _tcpServer;          
             SyncBlinkWeb _web;
+
+            uint64_t _stationId = SyncBlink::getId();
+
+            #ifdef LOG_HEAP
+            long _lastHeapLog;
+            #endif
     };
 }
 
