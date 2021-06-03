@@ -1,7 +1,7 @@
 import { Node as FlowNode, Handle, Position } from 'react-flow-renderer';
 
 import IconButton from '../components/ui/IconButton';
-import { faHeadphones, faAngleDoubleUp, faCode, faSync, faListAlt } from '@fortawesome/free-solid-svg-icons';
+import { faHeadphones, faAngleDoubleUp, faSync, faListAlt } from '@fortawesome/free-solid-svg-icons';
 
 import StyledNode from './StyledNode';
 
@@ -13,7 +13,6 @@ export interface SyncBlinkStationProps {
     minorVersion: number;
     runningScript: string;
     onRefresh: () => void;
-    onOpenEditor: () => void;
     onChangeScript: () => void;
     onFlash: () => void;
     onSetAnalyzer: (analyzerId: number) => void;
@@ -44,10 +43,7 @@ function SyncBlinkStation(node: FlowNode<SyncBlinkStationProps>) {
                 active={node.data?.isActive}
                 disabled={node.data?.isActive}
                 tooltip="Activate Analyzer"
-                onClick={() => node.data?.onSetAnalyzer(node.data?.id)} />
-            <IconButton icon={faCode}
-                tooltip="Open Editor"
-                onClick={() => node.data?.onOpenEditor()} />            
+                onClick={() => node.data?.onSetAnalyzer(node.data?.id)} />          
             <IconButton icon={faListAlt}
                 tooltip="Change Script"
                 onClick={() => node.data?.onChangeScript()} />  

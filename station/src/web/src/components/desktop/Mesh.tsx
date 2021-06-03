@@ -7,7 +7,6 @@ import SyncBlinkStation from '../../nodes/SyncBlinkStation';
 import SyncBlinkAnalyzer from '../../nodes/SyncBlinkAnalyzer';
 
 import Loader from '../ui/Loader';
-import ScriptEditor from "./modals/ScriptEditor";
 import Renamer from './modals/Renamer';
 import Flasher from './modals/Flasher';
 import ScriptChanger from './modals/ScriptChanger';
@@ -33,7 +32,7 @@ function Mesh() {
 
     useEffect(() => {
         if(flowInstance != null && !isInitialized) {
-            setTimeout(() => { flowInstance.fitView(); }, 50);
+            setTimeout(() => { flowInstance.fitView(); }, 250);
             setInitialized(true);
         }
     }, [flowInstance, flowElements, isInitialized]);
@@ -66,12 +65,6 @@ function Mesh() {
                 setModal={setModal}
                 afterSave={() => reloadData()}/>
         }
-        { modalInfo?.type === ModalType.ScriptEditor &&
-            <ScriptEditor
-                setShowLoader={setShowLoader}
-                setLoaderMessage={setLoaderMessage}
-                setModal={setModal}/>
-        }
         { flowElements.length > 0 &&
                 <ReactFlow 
                     elements={flowElements}
@@ -88,8 +81,8 @@ function Mesh() {
 }
 
 const StyledMesh = styled.div<{isLoadingData: boolean, isLoading : boolean, isModalOpen: boolean}>`
-    width: 100vw;
-    height: 100vh;
+    width: 100%;
+    height: 100%;
 
     .react-flow__renderer,
     .react-flow__minimap,

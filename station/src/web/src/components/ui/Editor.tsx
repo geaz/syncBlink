@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 
 interface EditorProps {
     content: string;
+    onChange?: (content: string) => void;
 }
 
 function Editor(props: EditorProps) {
@@ -21,15 +22,22 @@ function Editor(props: EditorProps) {
                 mode: "javascript",
                 indentUnit: 4
             });
-            codeEditor.setSize("100%", "100%");
             setEditor(codeEditor);
-            //codeEditor.setValue(this.value);
-            //codeEditor.on("change", () => this.$emit("input", this.codeEditor.getValue()));
         } 
         else {
             throw new Error("Code Editor TextArea not found!");
         }
     }, [setEditor]);
+
+    useEffect(() => {
+        if(editor === undefined) return;
+
+        editor.setSize("100%", "100%");
+        editor.on("change", () => {
+            if(props.onChange !== undefined && editor !== undefined)
+                props.onChange(editor.getValue());
+        });
+    }, [editor]);
 
     useEffect(() => {
         editor?.setValue(props.content);

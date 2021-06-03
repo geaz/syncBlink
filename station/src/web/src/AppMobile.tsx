@@ -1,17 +1,11 @@
-import styled from 'styled-components';
-
-import MobileHeader from './components/mobile/Header';
+import MobileHeader from './components/Header';
 import Settings from './components/mobile/Settings';
 
 function MobileApp() {
-    return <StyledApp>
-        <MobileHeader/>
+    return <div>
+        <MobileHeader showLinks={false} />
         <Settings/>
-    </StyledApp>;
+    </div>;
 }
-
-const StyledApp = styled.div`    
-    background: ${ p => p.theme.backgroundColor };
-`;
 
 export default MobileApp;

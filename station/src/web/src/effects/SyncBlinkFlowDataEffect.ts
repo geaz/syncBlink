@@ -6,7 +6,6 @@ import { SyncBlinkStationProps } from '../nodes/SyncBlinkStation';
 import { SyncBlinkAnalyzerProps } from '../nodes/SyncBlinkAnalyzer';
 
 export enum ModalType {
-    ScriptEditor,
     Renamer,
     Flasher,
     ScriptChanger
@@ -64,7 +63,6 @@ function createMeshNodeData(
             props.onSetAnalyzer = onSetAnalyzer;
             props.onRefresh = onRefresh;
             props.onChangeScript = () => setModal({ type: ModalType.ScriptChanger, text: runningScript } as ModalInfo);
-            props.onOpenEditor = () => setModal({ type: ModalType.ScriptEditor } as ModalInfo);
             props.onFlash = () => setModal({ type: ModalType.Flasher, nodeId: 0, text: 'All Nodes' });
 
             node.data = props;

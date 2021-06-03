@@ -1,20 +1,30 @@
+import { NavLink } from "react-router-dom";
 import styled from "styled-components";
-import logo from '../../assets/logo.png';
+import logo from '../assets/logo.png';
 
-function Header() {
+interface HeaderProps {
+    showLinks: boolean
+}
+
+function Header(props: HeaderProps) {
     return (
         <StyledHeader>
-            <a href="/" className="stretch"><img src={logo} alt="syncBlink Logo" /></a>          
+            <a href="/" className="stretch"><img src={logo} alt="syncBlink Logo" /></a>
+            { props.showLinks && <nav>
+                <NavLink exact={true} activeClassName='active' to="/">Mesh</NavLink >
+                <NavLink activeClassName='active' to="/editor">Editor</NavLink >
+            </nav> }
         </StyledHeader>
     );
 }
 
 const StyledHeader = styled.div`
+    display:flex;
     background: white;
     box-shadow: 0px 0px 5px rgba(0,0,0,0.1);
-    padding: 20px;
-    z-index:999;
-    
+    padding: 15px 20px;
+    z-index: 999;
+
     img {
         width: 100px;
         vertical-align: middle;
@@ -24,11 +34,16 @@ const StyledHeader = styled.div`
         flex:1;
     }
 
+    nav {
+        display: flex;
+    }
+
     nav a{
         margin-left: 25px;
         font-weight: 700;
         font-size: 1.2rem;
         text-decoration: none;
+        color: #a1a0a0;
     }
 
     nav a:hover {

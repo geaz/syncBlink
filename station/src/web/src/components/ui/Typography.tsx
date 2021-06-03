@@ -1,20 +1,30 @@
 import { createGlobalStyle } from "styled-components";
 
 interface TypographyProps{
+    backgroundColor?: string;
     textColor?: string;
+    textColorFaded?: string;
+    primaryColor?: string;
 }
 
 function Typography(props: TypographyProps) {
-    return <GlobalStyle textColor={props.textColor}/>;
+    return <GlobalStyle backgroundColor={props.backgroundColor} textColor={props.textColor}/>;
 }
 
-const GlobalStyle = createGlobalStyle<{textColor?: string}>`
-    html, body {
+const GlobalStyle = createGlobalStyle<{backgroundColor?: string, textColor?: string, textColorFaded?: string, primaryColor?: string}>`
+    html, body, #root {
         width: 100%;
         height: 100%;
     }
 
+    #root {
+        overflow: auto;
+        display: flex;
+        flex-direction: column;
+    }
+
     body {
+        background: ${ p => p.backgroundColor ? p.backgroundColor : '#f7f7f7' };
         color: ${ p => p.textColor? p.textColor : '#313131' };
         line-height: 1.65;
         font-weight: 400;
@@ -40,6 +50,18 @@ const GlobalStyle = createGlobalStyle<{textColor?: string}>`
     h4 { font-size: 1.44em; }
     h5 { font-size: 1.2em; }
     small, .text-small { font-size: 0.833em; color: #777777; }
+
+    a {
+        color: ${ p => p.primaryColor? p.primaryColor : '#313131' };
+        &:hover {
+            color: ${ p => p.textColor? p.textColor : '#F58026' };
+        }
+        i {
+            vertical-align: middle;
+            color: ${ p => p.textColorFaded? p.textColorFaded : '#949494' };
+            &:hover { color: ${ p => p.primaryColor? p.primaryColor : '#F58026' }; }
+        }
+    }
 `;
 
 export default Typography;
