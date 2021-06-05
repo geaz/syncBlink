@@ -111,6 +111,7 @@ namespace SyncBlink
                 _tcpServer.broadcast(&updateMessage, sizeof(updateMessage), Server::MESH_UPDATE);
                 break;
             }
+            // Handled in different station states
             case Client::MESH_UPDATED:
             case Client::EXTERNAL_ANALYZER:
             case Client::SCRIPT_DISTRIBUTED:
