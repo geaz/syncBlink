@@ -25,7 +25,7 @@ Please header over to the [node](https://github.com/syncBlink/syncBlink/tree/mai
 ## Web Application
 
 The **syncBlink Station** exposes a web application for mobiles and desktop.
-Just connect to the WiFi with the following password:
+Just connect to the access point with the following password:
 
 ```
 SyncBlinkSaysLetThereBeLight!
@@ -53,6 +53,58 @@ of the access point clients.
 ```
 
 ## blinkScript
+
+**blinkScript** is a custom script language for **syncBlink**. The station compiles scripts on the fly to an intermediate language which gets executed by the integrated virtual machine.  
+The script language is pretty basic and comes with the following features:
+
+- Functions
+- Variables
+- Conditionals (if/else - no else if)
+- for/while loops
+- Some build in functions and variables
+
+### Available global variables
+
+- **maxF** *The maximum frequency which is recognizable by syncBlink*
+- **nLedC** *The LED count of the current node*
+- **mLedC** *The LED count of the whole mesh*
+- **pLedC** *The LED count of the current route position*
+- **pNodeC** *The node count of the current route position*
+- **lVol** *The last analyzed volume in percentage (0-100)*
+- **lFreq** *The last analyzed frequency*
+- **vol** *The current analyzed volume in percentage (0-100)*
+- **freq** *The current analyzed frequency*
+
+### Available global functions
+
+- **println(message: string)** *Prints the message to the serial output*
+- **setGroups(countPerGroup: number)** *Set the LEDs of the current node to groups of the provided size. For example, if the node has 16 LEDs and setGroups(4) is called, the node will handle the 16 LEDs like four LEDs, where always four LEDs will be grouped together as one.*
+- **setLinearGroups(countPerGroup: number)** *Same as above, but the internal numbering of the LEDs will be sequential. Resulting in a different group pattern.*
+- **clearGroups()** *Clears all defined groups.*
+- **setDelay(analyzerCount: number)** *Delays the analyzer results by the given amount of updates.*
+- **getLed(led: number)** *Gets the color (Hex RGB) of the given LED.*
+- **setLeds(colors: Array<number>)** *Set LEDs by defining an array of Hex colors.*
+- **setAllLeds(color: number)** *Sets all LEDs to the given color (Hex RGB).*
+- **map(value: number, inMin: number, inMax: number, outMin: number, outMax: number)** *Maps the value within the range of inMin and inMax to the new range defined by outMin and outMax.*
+- **xrgb(r: number, g: number, b: number)** *Converts the given RGB color to a hex number representation.*
+- **xhsv(h: number, s: number, v: number)** *Converts the given HSV color to a hex number representation.*
+
+### Minimal example script
+
+Each script has to define two functions and an script name as given in the following example.
+
+```
+let update = fun(delta) {
+    // This function gets executed on each analyzer result (loop)
+    // 'delta' contains the milliseconds since the last call of the loop
+}
+
+let init = fun(){
+    // this function gets executed ONCE at start of the script
+}
+
+let scriptName = "Minimum example"
+```
 
 ## Mesh
 
