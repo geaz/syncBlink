@@ -114,7 +114,7 @@ let scriptName = "Minimum example"
 ![syncBlink - Mesh](https://raw.githubusercontent.com/syncBlink/syncBlink/main/img/mesh.png)
 
 ### Connection Handshake
-After a node connected itself to another node or the station it will send the **MESH_CONNECTION** message to the tcp server of its parent.
+After a node connects to another node or the station it will send the **MESH_CONNECTION** message to the tcp server of its parent.
 The message contains the *ID* of the node, the amount of LEDs, the installed *Firmware Version* and the node label. After the parent node or station received the message it will add its own
 *ID* as the parent id to the message and will send it to its parent until it reaches the station.
 
