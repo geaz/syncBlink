@@ -61,7 +61,10 @@ The script language is pretty basic and comes with the following features:
 - Variables
 - Conditionals (if/else - no else if)
 - for/while loops
+- Arrays
 - Some build in functions and variables
+
+**Warning:** At the moment it is not possible to define new variables within loops! This is a workaround to speed up loops by a huge amount!
 
 ### Available global variables
 
