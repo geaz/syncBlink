@@ -55,7 +55,6 @@ namespace SyncBlink
                         (_client.read()<<16) + 
                         (_client.read()<<8) + 
                         _client.read();
-                    uint8_t messageChecksum = _client.read();
                     uint8_t messageType = _client.read();
                     
                     uint8_t checksum = 0;
@@ -67,30 +66,27 @@ namespace SyncBlink
                     checksum += (uint8_t)(messageSize>>8) % 2;
                     checksum += (uint8_t)(messageSize>>0) % 2;
 
-                    if(checksum == messageChecksum)
+                    tcpMessage.messageType = messageType;
+                    tcpMessage.message.resize(messageSize);
+                    uint32_t readBytes = 0;
+                    while(readBytes < messageSize)
                     {
-                        tcpMessage.messageType = messageType;
-                        tcpMessage.message.resize(messageSize);
-                        uint32_t readBytes = 0;
-                        while(readBytes < messageSize)
+                        readBytes += _client.read(&tcpMessage.message[readBytes], messageSize-readBytes);
+                        if(readBytes != messageSize)
                         {
-                            readBytes += _client.read(&tcpMessage.message[readBytes], messageSize-readBytes);
-                            if(readBytes != messageSize)
-                            {
-                                #ifdef DEBUG_TCPSTREAM
-                                Serial.printf("[TCP STREAM] Big message, have to yield...\n");
-                                #endif
-                                delay(0);
-                            }
+                            #ifdef DEBUG_TCPSTREAM
+                            Serial.printf("[TCP STREAM] Big message, have to yield...\n");
+                            #endif
+                            delay(0);
                         }
-                        receivedMessage = true; 
-                          
-                        #ifdef DEBUG_TCPSTREAM
-                        Serial.printf("[TCP STREAM] Found message - Size: %i, Type: %i (%i)\n", tcpMessage.message.size() + SocketHeaderSize, tcpMessage.messageType, receivedMessage);
-                        #endif
-
-                        break;
                     }
+
+                    #ifdef DEBUG_TCPSTREAM
+                    Serial.printf("[TCP STREAM] Found message - Size: %i, Type: %i (%i)\n", tcpMessage.message.size() + SocketHeaderSize, tcpMessage.messageType, receivedMessage);
+                    #endif
+
+                    receivedMessage = true;
+                    break;
                 }
             }
         }
@@ -162,15 +158,8 @@ namespace SyncBlink
         package[4] = (uint8_t)(messageSize>>16);
         package[5] = (uint8_t)(messageSize>>8);
         package[6] = (uint8_t)(messageSize>>0);
-
-        uint8_t checksum = 0;
-        for(uint8_t i = 0; i<7; i++)
-        {
-            checksum += package[i] % 2;
-        }
-        package[7] = checksum;
-        package[8] = messageType;
-        if(messageSize > 0) memcpy(&package[9], message, messageSize);
+        package[7] = messageType;
+        if(messageSize > 0) memcpy(&package[8], message, messageSize);
 
         return package;
     }

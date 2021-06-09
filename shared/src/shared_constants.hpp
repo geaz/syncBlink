@@ -22,7 +22,6 @@ namespace SyncBlink
     static const uint8_t SocketHeaderSize = 
         4 /* package size info */ +
         3 /* magic bytes = 'SBM' */ +
-        1 /* checksum */ + 
         1 /* message type */;
     static const uint8_t SocketWriteTimeout = 100;
     static const uint8_t MaxNodeLabelLength = 16;
