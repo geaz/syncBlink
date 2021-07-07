@@ -5,6 +5,7 @@
 #include <vector>
 #include <led/led.hpp>
 #include <blinkscript/blink_script.hpp>
+#include <audio/frequency_analyzer.hpp>
 #include <network/mesh/syncblink_mesh.hpp>
 #include <network/tcp/tcp_server.hpp>
 #include <network/tcp/tcp_client.hpp>
@@ -22,7 +23,22 @@ namespace SyncBlink
         private:
             void readNodeInfo();
             void checkNewScript();
-            
+
+            #ifdef MODE_PIN
+            void checkModeButton();
+            bool _lastButtonVal = false;
+            unsigned long _lastButtonUpdate = 0;
+            #endif
+
+            #ifdef IS_ANALYZER
+            void runAnalyzer();
+            bool _isAnalyzer = true;
+            uint64_t _lastLedUpdate = millis();
+            FrequencyAnalyzer _frequencyAnalyzer;
+            #else
+            bool _isAnalyzer = false;
+            #endif 
+
             void onSocketClientConnectionChanged(bool connected);
             void onMeshUpdateReceived(Server::UpdateMessage message);
             void onSocketClientScriptReceived(std::string script);
@@ -46,7 +62,9 @@ namespace SyncBlink
             uint32_t _previousNodeCount = 0;
 
             bool _newScript = false;
+            bool _lightMode = false;
             bool _flashActive = false;
+            uint64_t _activeAnalyzer = 0;
 
             std::string _currentScript;
 

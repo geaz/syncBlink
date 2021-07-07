@@ -30,7 +30,6 @@ namespace SyncBlink
         {
             data.fftReal[i] = (analogRead(A0) - 512.0f) / 512.0f;
             data.fftImg[i] = 0;
-
             while (micros() - startMicros < SamplePerioduSec)
             {
                 // empty loop to wait

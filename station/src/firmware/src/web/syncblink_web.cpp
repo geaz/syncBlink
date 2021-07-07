@@ -89,6 +89,7 @@ namespace SyncBlink
             StaticJsonDocument<500> nodeJson;
             nodeJson["isStation"] = connectedNodes[i].isStation;
             nodeJson["isAnalyzer"] = connectedNodes[i].isAnalyzer;
+            nodeJson["isNode"] = connectedNodes[i].isNode;
             nodeJson["nodeId"] = connectedNodes[i].nodeId;
             nodeJson["parentId"] = connectedNodes[i].parentId;
             nodeJson["ledCount"] = connectedNodes[i].ledCount;

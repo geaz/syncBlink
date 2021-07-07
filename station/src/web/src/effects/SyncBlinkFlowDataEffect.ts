@@ -69,7 +69,7 @@ function createMeshNodeData(
             node.type = 'syncBlinkStation';
             stationNode = node;
         }
-        else if(node.isAnalyzer) {
+        else if(node.isAnalyzer && !node.isNode) {
             let props = {} as SyncBlinkAnalyzerProps;
             props.id = node.nodeId;
             props.label = node.label;
@@ -92,6 +92,13 @@ function createMeshNodeData(
             props.onRename = (n, l) => setModal({ type: ModalType.Renamer, nodeId: n, text: l });
             props.onPing = (nodeId: number) => fetch('/api/mesh/ping?nodeId=' + nodeId);
 
+            if(node.isAnalyzer)
+            {
+                props.isAnalyzer = true;
+                props.isActive = props.id === activeAnalyzer;                
+                props.onSetAnalyzer = onSetAnalyzer;
+            }
+
             node.data = props;
             node.type = 'syncBlinkNode';
         }
@@ -101,7 +108,7 @@ function createMeshNodeData(
     for(let i = 0; i < nodeData.length; i++) {
         let node = nodeData[i];
         
-        if(node.isAnalyzer && !node.isStation){
+        if(node.isAnalyzer && !node.isStation && !node.isNode){
             edges.push({ 
                 id: node.id + '-' + stationNode.id,
                 type: 'step',

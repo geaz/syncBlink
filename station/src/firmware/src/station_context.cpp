@@ -82,7 +82,7 @@ namespace SyncBlink
                 Client::ConnectionMessage message;
                 memcpy(&message, &tcpMessage.message[0], tcpMessage.message.size());
                 
-                if(message.isAnalyzer)
+                if(message.isAnalyzer && !message.isNode)
                 {
                     Serial.printf("[MESH] New Analyzer connected: %s\n", message.nodeLabel);
                 }
