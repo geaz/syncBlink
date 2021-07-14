@@ -1,20 +1,22 @@
 import { Node as FlowNode, Handle, Position } from 'react-flow-renderer';
 
 import IconButton from '../components/ui/IconButton';
-import { faHeadphones, faAngleDoubleUp, faSync, faListAlt } from '@fortawesome/free-solid-svg-icons';
+import { faHeadphones, faAngleDoubleUp, faSync, faListAlt, faLightbulb } from '@fortawesome/free-solid-svg-icons';
 
 import StyledNode from './StyledNode';
 
 export interface SyncBlinkStationProps {
     id: number;
-    isActive: boolean;
     ledCount: number;
+    isActive: boolean;
+    isLightMode: boolean;
     majorVersion: number;
     minorVersion: number;
     runningScript: string;
     onRefresh: () => void;
     onChangeScript: () => void;
     onFlash: () => void;
+    onLightMode: () => void;
     onSetAnalyzer: (analyzerId: number) => void;
 }
 
@@ -26,6 +28,10 @@ function SyncBlinkStation(node: FlowNode<SyncBlinkStationProps>) {
             style={{ background: '#555' }}
         />
         <div className="node-buttons-left">
+            <IconButton icon={faLightbulb}
+                tooltip="Active light mode"
+                active={node.data?.isLightMode}
+                onClick={() => node.data?.onLightMode()} />
             <IconButton icon={faSync}
                 tooltip="Refresh Mesh"
                 onClick={() => node.data?.onRefresh()} />

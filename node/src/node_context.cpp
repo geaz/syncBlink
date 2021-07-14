@@ -16,6 +16,9 @@ namespace SyncBlink
             .pingEvents
             .addEventHandler([this](uint64_t nodeId) { if(nodeId == SyncBlink::getId()) _led.blinkNow(Yellow, 5); else _tcpServer.broadcast(&nodeId, sizeof(nodeId), Server::PING);});
         _tcpClient
+            .lightModeEvents
+            .addEventHandler([this](bool lightMode) { _lightMode = lightMode; });
+        _tcpClient
             .connectionEvents
             .addEventHandler([this](bool connected) { onSocketClientConnectionChanged(connected); });
         _tcpClient

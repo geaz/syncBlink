@@ -14,6 +14,7 @@ namespace SyncBlink
         _server.on("/api/mesh/rename", [this]() { renameNode(); });
         _server.on("/api/mesh/info", [this]() { getMeshInfo(); });
         _server.on("/api/mesh/setAnalyzer", [this]() { setAnalyzer(); });
+        _server.on("/api/mesh/setLightMode", [this]() { setLightMode(); });
         _server.on("/api/mesh/flash", HTTP_POST, 
             [this]() { 
                 _server.sendHeader("Connection", "close");
@@ -50,6 +51,13 @@ namespace SyncBlink
         iss >> analyzerId;
 
         _nodeManager.setAnalyzer(analyzerId);
+        _server.send(200, "text/plain");
+    }
+
+    void SyncBlinkWeb::setLightMode()
+    {
+        bool lightMode = _server.arg("lightMode") == "true";
+        _nodeManager.setLightMode(lightMode);
         _server.send(200, "text/plain");
     }
 
@@ -100,6 +108,7 @@ namespace SyncBlink
             doc["nodes"][i] = nodeJson;
         }
         doc["analyzer"] = _nodeManager.getActiveAnalyzer();
+        doc["lightMode"] = _nodeManager.getLightMode();
 
         std::string activeScript = _scriptManager.getActiveScript();
         doc["script"] = activeScript.c_str();

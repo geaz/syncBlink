@@ -31,6 +31,7 @@ async function loadMeshInfo(reloadData: () => void, setModal: Dispatch<SetStateA
         meshInfo = createMeshNodeData(
             meshJson.nodes,
             meshJson.analyzer,
+            meshJson.lightMode,
             scriptName,
             setModal,
             reloadData,
@@ -41,7 +42,8 @@ async function loadMeshInfo(reloadData: () => void, setModal: Dispatch<SetStateA
 
 function createMeshNodeData(
     nodeData: any, 
-    activeAnalyzer: number, 
+    activeAnalyzer: number,
+    lightMode: boolean,
     runningScript: string, 
     setModal: Dispatch<SetStateAction<ModalInfo | undefined>>,
     onRefresh: () => void,
@@ -56,6 +58,7 @@ function createMeshNodeData(
             let props = {} as SyncBlinkStationProps;
             props.id = node.nodeId;
             props.isActive = props.id === activeAnalyzer;
+            props.isLightMode = lightMode;
             props.ledCount = node.ledCount;
             props.majorVersion = node.majorVersion;
             props.minorVersion = node.minorVersion;
@@ -64,6 +67,7 @@ function createMeshNodeData(
             props.onRefresh = onRefresh;
             props.onChangeScript = () => setModal({ type: ModalType.ScriptChanger, text: runningScript } as ModalInfo);
             props.onFlash = () => setModal({ type: ModalType.Flasher, nodeId: 0, text: 'All Nodes' });
+            props.onLightMode = async () => { await fetch('/api/mesh/setLightMode?lightMode=' + (lightMode ? "false" : "true")); onRefresh(); }
 
             node.data = props;
             node.type = 'syncBlinkStation';

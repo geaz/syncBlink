@@ -17,6 +17,7 @@ namespace SyncBlink
         enum MessageType
         {
             PING,                   // A request to ping all nodes - they dont have to react
+            LIGHT_MODE,             // A request to activate the light mode of the mesh
             MESH_UPDATE,            // A request with updated LED and node counts
             SOURCE_UPDATE,          // A request with updated analyzer source information
             ANALYZER_UPDATE,        // A request with updated analyzer information

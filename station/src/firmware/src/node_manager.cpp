@@ -21,6 +21,12 @@ namespace SyncBlink
         countInfos();
     }
 
+    void NodeManager::setLightMode(bool lightMode)
+    {
+        _lightMode = lightMode;
+        _socketServer.broadcast(&lightMode, sizeof(lightMode), Server::LIGHT_MODE);
+    }
+
     void NodeManager::setAnalyzer(uint64_t analyzerId)
     {
         _activeAnalyzer = analyzerId;
@@ -49,6 +55,11 @@ namespace SyncBlink
                 break;
             }
         }
+    }
+
+    bool NodeManager::getLightMode() const
+    {
+        return _lightMode;
     }
 
     uint64_t NodeManager::getActiveAnalyzer() const
