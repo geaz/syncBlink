@@ -89,12 +89,12 @@ namespace SyncBlink
     void SyncBlinkWeb::getMeshInfo()
     {
         String JSON;
-        DynamicJsonDocument doc(1024);
+        DynamicJsonDocument doc(4096);
         
         auto connectedNodes = _nodeManager.getConnectedNodes();
         for(uint32_t i = 0; i < connectedNodes.size(); i++)
         {
-            StaticJsonDocument<500> nodeJson;
+            DynamicJsonDocument nodeJson(512);
             nodeJson["isStation"] = connectedNodes[i].isStation;
             nodeJson["isAnalyzer"] = connectedNodes[i].isAnalyzer;
             nodeJson["isNode"] = connectedNodes[i].isNode;
@@ -130,7 +130,7 @@ namespace SyncBlink
         std::string ssid = _stationWifi.getSavedSSID();
 
         String JSON;
-        StaticJsonDocument<500> doc;
+        DynamicJsonDocument doc(512);
         doc["ssid"] = ssid.c_str();
         doc["connected"] = WiFi.status() == WL_CONNECTED;
 
@@ -170,14 +170,14 @@ namespace SyncBlink
     void SyncBlinkWeb::getScriptList()
     {
         String JSON;
-        StaticJsonDocument<1000> jsonBuffer;
-        JsonArray files = jsonBuffer.createNestedArray("scripts");
+        DynamicJsonDocument doc(8192);
+        JsonArray files = doc.createNestedArray("scripts");
 
         std::vector<std::string> scriptList = _scriptManager.getList();
         for(std::string scriptName : scriptList)
             files.add(scriptName.c_str());
 
-        serializeJson(jsonBuffer, JSON);
+        serializeJson(doc, JSON);
         _server.send(200, "application/json", JSON);
     }
 

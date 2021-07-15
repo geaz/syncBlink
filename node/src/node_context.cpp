@@ -17,7 +17,7 @@ namespace SyncBlink
             .addEventHandler([this](uint64_t nodeId) { if(nodeId == SyncBlink::getId()) _led.blinkNow(Yellow, 5); else _tcpServer.broadcast(&nodeId, sizeof(nodeId), Server::PING);});
         _tcpClient
             .lightModeEvents
-            .addEventHandler([this](bool lightMode) { _lightMode = lightMode; });
+            .addEventHandler([this](bool lightMode) { _lightMode = lightMode; _tcpServer.broadcast(&lightMode, sizeof(lightMode), Server::LIGHT_MODE); });
         _tcpClient
             .connectionEvents
             .addEventHandler([this](bool connected) { onSocketClientConnectionChanged(connected); });
@@ -179,13 +179,14 @@ namespace SyncBlink
             
             _blinkScript->updateAnalyzerResult(message.volume, message.frequency);
             _blinkScript->run(delta);
-
-            _tcpServer.broadcast(&message, sizeof(message), Server::ANALYZER_UPDATE);
         }
         else if(_lightMode)
         {
             _led.showNow(SyncBlink::White);
         }
+
+        // Always forward the update, because there could be nodes which switched the light mode off via a mode button!
+        _tcpServer.broadcast(&message, sizeof(message), Server::ANALYZER_UPDATE);
     }
 
     void NodeContext::onSocketClientScriptReceived(std::string script)
