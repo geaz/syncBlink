@@ -41,29 +41,38 @@ namespace SyncBlink
         bool connected = false;
 
         Serial.println("Scanning for SyncBlink Nodes ...");
-        unsigned char foundNetworkCount = WiFi.scanNetworks();
-        unsigned char nodeNr = 1;
-        short nearestNode = -1;
+        uint8_t foundSyncblinkNetworks = 0;
+        uint8_t foundNetworkCount = WiFi.scanNetworks();
+
+        uint8_t nodeNr = 1;
+        uint8_t highestNodeNr = 1;
+        int8_t connectToNode = -1;
+        
         for (int i = 0; i < foundNetworkCount; ++i)
         {
             if (WiFi.SSID(i).startsWith(SSID))
             {
-                if (nearestNode == -1 || (nearestNode != -1 && WiFi.RSSI(i) > WiFi.RSSI(nearestNode)))
-                {
-                    nearestNode = i;
-                }
-            }
+                foundSyncblinkNetworks++;
+                
+                // We seek for an evenly distributed mesh
+                // Thats why we always connect to the "highest node number", if we found
+                // more than two nodes in range.
 
-            String ssid = WiFi.SSID(i);
-            short foundNodeNr = ssid.substring(ssid.indexOf("#") + 1).toInt();
-            if (foundNodeNr >= nodeNr)
-                nodeNr = foundNodeNr + 1;
+                String ssid = WiFi.SSID(i);
+                short foundNodeNr = ssid.substring(ssid.indexOf("#") + 1).toInt();
+
+                if(connectToNode == -1 || foundSyncblinkNetworks > 2 && foundNodeNr > highestNodeNr)
+                    connectToNode = i;
+
+                if(foundNodeNr > highestNodeNr) highestNodeNr = foundNodeNr;
+                if (foundNodeNr >= nodeNr) nodeNr = foundNodeNr + 1;
+            }
         }
 
-        if (nearestNode != -1)
+        if (connectToNode != -1)
         {
-            Serial.println("Connecting to '" + WiFi.SSID(nearestNode) + "' (30 sec Timeout)...");
-            WiFi.begin(WiFi.SSID(nearestNode), Password);
+            Serial.println("Connecting to '" + WiFi.SSID(connectToNode) + "' (30 sec Timeout)...");
+            WiFi.begin(WiFi.SSID(connectToNode), Password);
 
             if(WiFi.waitForConnectResult(30000) == WL_CONNECTED)
             {
