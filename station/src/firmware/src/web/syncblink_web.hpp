@@ -28,6 +28,7 @@ namespace SyncBlink
             void getMeshInfo();
             void flashMesh();
             void setAnalyzer();
+            void setLightMode();
 
             void setWifi();
             void getWifi();

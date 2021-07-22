@@ -13,6 +13,7 @@ function Settings() {
     const [analyzer, setAnalyzer] = useState('');
     const [ssid, setSsid] = useState('');
     const [wifiPw, setWifiPw] = useState('');
+    const [lightMode, setLightMode] = useState(false);
 
     useEffect(() => {
         (async () => {
@@ -34,6 +35,7 @@ function Settings() {
                 setScriptList(scriptList);
                 setScript(meshInfo.script);
                 setAnalyzer(meshInfo.analyzer);
+                setLightMode(meshInfo.lightMode == "true");
                 setAnalyzerList(analyzerList);
                 setSsid(wifiInfo.ssid);
             }
@@ -50,17 +52,22 @@ function Settings() {
         return (<option key={item.id} value={item.id}>{item.name}</option>)
     });
 
-    let saveScriptSettings = async () => {
+    let onSaveScriptSettings = async () => {
         setShowLoader(true);
         await fetch(`/api/scripts/set?name=${script}`);
         await fetch(`/api/mesh/setAnalyzer?analyzerId=${analyzer}`)
         setShowLoader(false);
     };
 
-    let saveWifiSettings = async () => {
+    let onSaveWifiSettings = async () => {
         setShowLoader(true);
         await fetch(`/api/wifi/set?ssid=${ssid}&pass=${wifiPw}`);
         setShowLoader(false);
+    };
+
+    let onSetLightMode = async () => {
+        setLightMode(!lightMode);
+        await fetch('/api/mesh/setLightMode?lightMode=' + (lightMode ? "false" : "true"));
     };
 
     return <StyledSettings>
@@ -80,7 +87,8 @@ function Settings() {
                 </select>
             </div>
         </div>
-        <Button onClick={saveScriptSettings}>Save</Button>
+        <Button onClick={onSaveScriptSettings}>Save</Button>
+        <Button onClick={onSetLightMode}>{ lightMode ? "Light Mode: ON" : "Light Mode: OFF" }</Button>
         <h2>WiFi Settings</h2>
         <div className="settings">
             <div className="form-line">
@@ -92,7 +100,7 @@ function Settings() {
                 <input name="pass" type="text" defaultValue={ wifiPw } onChange={(e) => setWifiPw(e.target.value) } maxLength={64}/>
             </div>
         </div>
-        <Button onClick={saveWifiSettings}>Save</Button>
+        <Button onClick={onSaveWifiSettings}>Save</Button>
     </StyledSettings>;
 }
 

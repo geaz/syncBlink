@@ -16,6 +16,9 @@ namespace SyncBlink
             .pingEvents
             .addEventHandler([this](uint64_t nodeId) { if(nodeId == SyncBlink::getId()) _led.blinkNow(Yellow, 5); else _tcpServer.broadcast(&nodeId, sizeof(nodeId), Server::PING);});
         _tcpClient
+            .lightModeEvents
+            .addEventHandler([this](bool lightMode) { _lightMode = lightMode; _tcpServer.broadcast(&lightMode, sizeof(lightMode), Server::LIGHT_MODE); });
+        _tcpClient
             .connectionEvents
             .addEventHandler([this](bool connected) { onSocketClientConnectionChanged(connected); });
         _tcpClient
@@ -33,6 +36,9 @@ namespace SyncBlink
         _tcpClient
             .firmwareFlashEvents
             .addEventHandler([this](std::vector<uint8_t> data, uint64_t targetNodeId, Server::MessageType messageType) { onFirmwareFlashReceived(data, targetNodeId, messageType); });
+        _tcpClient
+            .sourceUpdateEvents
+            .addEventHandler([this](uint64_t nodeId) { _activeAnalyzer = nodeId; _tcpServer.broadcast(&nodeId, sizeof(nodeId), Server::SOURCE_UPDATE); });
 
         _tcpServer
             .serverDisconnectionEvents
@@ -60,11 +66,19 @@ namespace SyncBlink
     {
         checkNewScript();
         
+        #ifdef MODE_PIN
+        checkModeButton();
+        #endif
+
+        #ifdef IS_ANALYZER
+        runAnalyzer();
+        #endif
+
         _tcpClient.loop();
         _tcpServer.loop();
         _led.loop();
 
-        if(!_mesh.isConnected() || _tcpClient.isDiscontinued())
+        if((!_mesh.isConnected() || _tcpClient.isDiscontinued()))
         {
             Serial.printf("Wifi: %i - Tcp: %i - Going to sleep ...\n", _mesh.isConnected(), _tcpClient.isDiscontinued());
             _led.blinkNow(Red);
@@ -107,6 +121,36 @@ namespace SyncBlink
         }
     }
 
+    #ifdef MODE_PIN
+    void NodeContext::checkModeButton()
+    {
+        if(_lastButtonUpdate + 100 > millis()) return;
+
+        char buttonVal = digitalRead(MODE_PIN);
+        if(buttonVal == HIGH && _lastButtonVal == LOW)
+        {
+            _lightMode = !_lightMode;
+        }
+        _lastButtonVal = buttonVal;
+        _lastButtonUpdate = millis();
+    }
+    #endif
+
+    #ifdef IS_ANALYZER
+    void NodeContext::runAnalyzer()
+    {
+        uint32_t delta = millis() - _lastLedUpdate;
+        if(_activeAnalyzer == SyncBlink::getId() && delta > 30) // Just update every 30ms - dont flood mesh
+        {
+            AudioAnalyzerResult result = _frequencyAnalyzer.loop();
+            AudioAnalyzerMessage message = result.ToMessage();
+
+            _tcpClient.sendMessage(&message, sizeof(message), Client::EXTERNAL_ANALYZER);
+            _lastLedUpdate = millis();
+        }
+    }
+    #endif
+
     void NodeContext::onMeshUpdateReceived(Server::UpdateMessage message)
     {
         _previousLedCount = message.routeLedCount;
@@ -128,16 +172,21 @@ namespace SyncBlink
 
     void NodeContext::onAnalyzerResultReceived(AudioAnalyzerMessage message)
     {
-        if(_blinkScript != nullptr)
+        if(_blinkScript != nullptr && !_lightMode)
         {
             uint32_t delta = millis() - _lastUpdate;
             _lastUpdate = millis();
             
             _blinkScript->updateAnalyzerResult(message.volume, message.frequency);
             _blinkScript->run(delta);
-
-            _tcpServer.broadcast(&message, sizeof(message), Server::ANALYZER_UPDATE);
         }
+        else if(_lightMode)
+        {
+            _led.showNow(SyncBlink::White);
+        }
+
+        // Always forward the update, because there could be nodes which switched the light mode off via a mode button!
+        _tcpServer.broadcast(&message, sizeof(message), Server::ANALYZER_UPDATE);
     }
 
     void NodeContext::onSocketClientScriptReceived(std::string script)
@@ -152,7 +201,7 @@ namespace SyncBlink
 
     void NodeContext::onNodeRenameReceived(Server::NodeRenameMessage message)
     {
-        if(message.nodeId == SyncBlink::getId() || message.nodeId == 0)
+        if(message.nodeId == SyncBlink::getId())
         {
             for(uint8_t i = 0; i < MaxNodeLabelLength; i++)
             {
@@ -231,7 +280,7 @@ namespace SyncBlink
          {
             _led.blinkNow(Green);
 
-            Client::ConnectionMessage message = { false, false, SyncBlink::getId(), 0, _led.getLedCount(), VERSIONMAJOR, VERSIONMINOR };
+            Client::ConnectionMessage message = { false, _isAnalyzer, true, SyncBlink::getId(), 0, _led.getLedCount(), VERSIONMAJOR, VERSIONMINOR };
             memcpy(&message.nodeLabel[0], &_nodeLabel[0], _nodeLabel.size());
 
             _tcpClient.sendMessage(&message, sizeof(message), Client::MESH_CONNECTION);
@@ -248,8 +297,13 @@ namespace SyncBlink
             case Client::MESH_UPDATED:
             case Client::SCRIPT_DISTRIBUTED:
                 _tcpClient.sendMessage(&message.message[0], message.message.size(), (Client::MessageType)message.messageType);
-                break;
+                break;            
             case Client::EXTERNAL_ANALYZER:
+                AudioAnalyzerMessage analyzerMessage;
+                memcpy(&analyzerMessage, &message.message[0], message.message.size());
+                onAnalyzerResultReceived(analyzerMessage);
+
+                _tcpClient.sendMessage(&message.message[0], message.message.size(), (Client::MessageType)message.messageType);
                 break;
         }
     }

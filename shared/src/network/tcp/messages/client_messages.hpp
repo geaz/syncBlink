@@ -19,13 +19,14 @@ namespace SyncBlink
             MESH_DISCONNECTION, // A node disconnected
             MESH_UPDATED,       // Answer to the Client::MESH_UPDATE
             SCRIPT_DISTRIBUTED, // Answer to the script distribution
-            EXTERNAL_ANALYZER   // Analyzer information by an external analyzer (defined in *SoundAnalyzerSource* enum)
+            EXTERNAL_ANALYZER   // Analyzer information by an external analyzer
         };
 
         struct ConnectionMessage
         {
             bool isStation;
             bool isAnalyzer;
+            bool isNode;
             uint64_t nodeId;
             uint64_t parentId;
             uint16_t ledCount;

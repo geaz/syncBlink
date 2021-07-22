@@ -82,7 +82,7 @@ namespace SyncBlink
                     }
 
                     #ifdef DEBUG_TCPSTREAM
-                    Serial.printf("[TCP STREAM] Found message - Size: %i, Type: %i (%i)\n", tcpMessage.message.size() + SocketHeaderSize, tcpMessage.messageType, receivedMessage);
+                    Serial.printf("[TCP STREAM] Found message - Size: %i, Type: %i\n", tcpMessage.message.size() + SocketHeaderSize, tcpMessage.messageType);
                     #endif
 
                     receivedMessage = true;

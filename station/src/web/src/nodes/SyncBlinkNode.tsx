@@ -1,7 +1,7 @@
 import { Node as FlowNode, Handle, Position } from 'react-flow-renderer';
 
 import IconButton from '../components/ui/IconButton';
-import { faPen, faAngleUp, faCrosshairs } from '@fortawesome/free-solid-svg-icons';
+import { faPen, faAngleUp, faCrosshairs, faHeadphones } from '@fortawesome/free-solid-svg-icons';
 
 import StyledNode from './StyledNode';
 
@@ -11,9 +11,12 @@ export interface SyncBlinkNodeProps {
     ledCount: number;
     majorVersion: number;
     minorVersion: number;
+    isActive: boolean;
+    isAnalyzer: boolean;
     onPing: (nodeId: number) => void;
     onFlash: (nodeId: number) => void;
     onRename: (nodeId: number, newLabel: string) => void;
+    onSetAnalyzer?: (analyzerId: number) => void;
 }
 
 function SyncBlinkNode(node: FlowNode<SyncBlinkNodeProps>) {
@@ -29,6 +32,13 @@ function SyncBlinkNode(node: FlowNode<SyncBlinkNodeProps>) {
             <div className="node-info">{node.data?.ledCount} LEDs - v{node.data?.majorVersion}.{node.data?.minorVersion}</div>
         </div>
         <div className="node-buttons">
+            {node.data?.isAnalyzer && 
+                <IconButton icon={faHeadphones}
+                    active={node.data?.isActive}
+                    disabled={node.data?.isActive}
+                    tooltip="Activate Analyzer"
+                    onClick={() => { if(node.data?.onSetAnalyzer) node.data?.onSetAnalyzer(node.data?.id); }} />
+            }
             <IconButton icon={faPen} tooltip="Rename" onClick={() => node.data?.onRename(node.data?.id, node.data?.label)} />
             <IconButton icon={faCrosshairs} tooltip="Ping" onClick={() => node.data?.onPing(node.data?.id)} />
             <IconButton icon={faAngleUp} tooltip="Update Firmware" onClick={() => node.data?.onFlash(node.data?.id)} />

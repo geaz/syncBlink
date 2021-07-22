@@ -14,6 +14,7 @@ namespace SyncBlink
         _server.on("/api/mesh/rename", [this]() { renameNode(); });
         _server.on("/api/mesh/info", [this]() { getMeshInfo(); });
         _server.on("/api/mesh/setAnalyzer", [this]() { setAnalyzer(); });
+        _server.on("/api/mesh/setLightMode", [this]() { setLightMode(); });
         _server.on("/api/mesh/flash", HTTP_POST, 
             [this]() { 
                 _server.sendHeader("Connection", "close");
@@ -53,6 +54,13 @@ namespace SyncBlink
         _server.send(200, "text/plain");
     }
 
+    void SyncBlinkWeb::setLightMode()
+    {
+        bool lightMode = _server.arg("lightMode") == "true";
+        _nodeManager.setLightMode(lightMode);
+        _server.send(200, "text/plain");
+    }
+
     void SyncBlinkWeb::pingNode()
     {
         String nodeIdArg = _server.arg("nodeId");
@@ -81,14 +89,15 @@ namespace SyncBlink
     void SyncBlinkWeb::getMeshInfo()
     {
         String JSON;
-        DynamicJsonDocument doc(1024);
+        DynamicJsonDocument doc(4096);
         
         auto connectedNodes = _nodeManager.getConnectedNodes();
         for(uint32_t i = 0; i < connectedNodes.size(); i++)
         {
-            StaticJsonDocument<500> nodeJson;
+            DynamicJsonDocument nodeJson(512);
             nodeJson["isStation"] = connectedNodes[i].isStation;
             nodeJson["isAnalyzer"] = connectedNodes[i].isAnalyzer;
+            nodeJson["isNode"] = connectedNodes[i].isNode;
             nodeJson["nodeId"] = connectedNodes[i].nodeId;
             nodeJson["parentId"] = connectedNodes[i].parentId;
             nodeJson["ledCount"] = connectedNodes[i].ledCount;
@@ -99,6 +108,7 @@ namespace SyncBlink
             doc["nodes"][i] = nodeJson;
         }
         doc["analyzer"] = _nodeManager.getActiveAnalyzer();
+        doc["lightMode"] = _nodeManager.getLightMode();
 
         std::string activeScript = _scriptManager.getActiveScript();
         doc["script"] = activeScript.c_str();
@@ -120,7 +130,7 @@ namespace SyncBlink
         std::string ssid = _stationWifi.getSavedSSID();
 
         String JSON;
-        StaticJsonDocument<500> doc;
+        DynamicJsonDocument doc(512);
         doc["ssid"] = ssid.c_str();
         doc["connected"] = WiFi.status() == WL_CONNECTED;
 
@@ -160,14 +170,14 @@ namespace SyncBlink
     void SyncBlinkWeb::getScriptList()
     {
         String JSON;
-        StaticJsonDocument<1000> jsonBuffer;
-        JsonArray files = jsonBuffer.createNestedArray("scripts");
+        DynamicJsonDocument doc(8192);
+        JsonArray files = doc.createNestedArray("scripts");
 
         std::vector<std::string> scriptList = _scriptManager.getList();
         for(std::string scriptName : scriptList)
             files.add(scriptName.c_str());
 
-        serializeJson(jsonBuffer, JSON);
+        serializeJson(doc, JSON);
         _server.send(200, "application/json", JSON);
     }
 

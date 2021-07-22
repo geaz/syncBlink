@@ -7,12 +7,20 @@ SyncBlink::NodeContext nodeContext;
 void setup()
 {
     Serial.begin(74880);
+    EEPROM.begin(512);
     Serial.println("Starting SyncBlink Node ...");
 
-    EEPROM.begin(512);
+    nodeContext.setup();  
+    
     pinMode(LED_PIN, OUTPUT); 
 
-    nodeContext.setup();   
+    #ifdef MODE_PIN
+    pinMode(MODE_PIN, INPUT);
+    #endif
+
+    #ifdef IS_ANALYZER
+    pinMode(A0, INPUT);
+    #endif 
 }
 
 void loop()

@@ -104,12 +104,12 @@ namespace SyncBlink
                     
                     if(message.parentId == 0)
                     {
-                        if(!message.isAnalyzer) message.parentId = SyncBlink::getId();
+                        if(message.isNode) message.parentId = SyncBlink::getId();
                         memcpy(&tcpMessage.message[0], &message, sizeof(message));
                         client.setStreamId(message.nodeId);
 
                         #ifdef DEBUG_TCP
-                        if(message.isAnalyzer)
+                        if(message.isAnalyzer && !message.isNode)
                         {
                             Serial.printf("[TCP SERVER] New Analyzer connected: %s\n", message.nodeLabel);
                         }

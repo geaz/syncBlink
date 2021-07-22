@@ -15,6 +15,7 @@ namespace SyncBlink
     typedef std::function<void(bool isConnected)> ClientConnectionEvent;
 
     typedef std::function<void(uint64_t nodeId)> PingEvent;
+    typedef std::function<void(bool lightMode)> LightModeEvent;
     typedef std::function<void(AudioAnalyzerMessage message)> AudioAnalyzerEvent;
     typedef std::function<void(Server::UpdateMessage message)> MeshUpdateEvent;
     typedef std::function<void(uint64_t nodeId)> SourceUpdateEvent;
@@ -33,6 +34,7 @@ namespace SyncBlink
         bool isDiscontinued();
 
         EventRegistration<PingEvent> pingEvents;
+        EventRegistration<LightModeEvent> lightModeEvents;
         EventRegistration<MeshScriptEvent> meshScriptEvents;
         EventRegistration<ClientConnectionEvent> connectionEvents;
         EventRegistration<AudioAnalyzerEvent> audioAnalyzerEvents;

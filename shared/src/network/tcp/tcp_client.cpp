@@ -136,6 +136,14 @@ namespace SyncBlink
                         event.second(targetNodeId);
                     break;
                 }
+                case Server::LIGHT_MODE:
+                {
+                    bool lightMode = false;
+                    memcpy(&lightMode, &tcpMessage.message[0], tcpMessage.message.size());
+                    for (auto event : lightModeEvents.getEventHandlers())
+                        event.second(lightMode);
+                    break;
+                }
             }
         }
     }

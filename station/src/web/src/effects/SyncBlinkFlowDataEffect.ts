@@ -31,6 +31,7 @@ async function loadMeshInfo(reloadData: () => void, setModal: Dispatch<SetStateA
         meshInfo = createMeshNodeData(
             meshJson.nodes,
             meshJson.analyzer,
+            meshJson.lightMode,
             scriptName,
             setModal,
             reloadData,
@@ -41,7 +42,8 @@ async function loadMeshInfo(reloadData: () => void, setModal: Dispatch<SetStateA
 
 function createMeshNodeData(
     nodeData: any, 
-    activeAnalyzer: number, 
+    activeAnalyzer: number,
+    lightMode: boolean,
     runningScript: string, 
     setModal: Dispatch<SetStateAction<ModalInfo | undefined>>,
     onRefresh: () => void,
@@ -56,6 +58,7 @@ function createMeshNodeData(
             let props = {} as SyncBlinkStationProps;
             props.id = node.nodeId;
             props.isActive = props.id === activeAnalyzer;
+            props.isLightMode = lightMode;
             props.ledCount = node.ledCount;
             props.majorVersion = node.majorVersion;
             props.minorVersion = node.minorVersion;
@@ -64,12 +67,13 @@ function createMeshNodeData(
             props.onRefresh = onRefresh;
             props.onChangeScript = () => setModal({ type: ModalType.ScriptChanger, text: runningScript } as ModalInfo);
             props.onFlash = () => setModal({ type: ModalType.Flasher, nodeId: 0, text: 'All Nodes' });
+            props.onLightMode = async () => { await fetch('/api/mesh/setLightMode?lightMode=' + (lightMode ? "false" : "true")); onRefresh(); }
 
             node.data = props;
             node.type = 'syncBlinkStation';
             stationNode = node;
         }
-        else if(node.isAnalyzer) {
+        else if(node.isAnalyzer && !node.isNode) {
             let props = {} as SyncBlinkAnalyzerProps;
             props.id = node.nodeId;
             props.label = node.label;
@@ -92,6 +96,13 @@ function createMeshNodeData(
             props.onRename = (n, l) => setModal({ type: ModalType.Renamer, nodeId: n, text: l });
             props.onPing = (nodeId: number) => fetch('/api/mesh/ping?nodeId=' + nodeId);
 
+            if(node.isAnalyzer)
+            {
+                props.isAnalyzer = true;
+                props.isActive = props.id === activeAnalyzer;                
+                props.onSetAnalyzer = onSetAnalyzer;
+            }
+
             node.data = props;
             node.type = 'syncBlinkNode';
         }
@@ -101,7 +112,7 @@ function createMeshNodeData(
     for(let i = 0; i < nodeData.length; i++) {
         let node = nodeData[i];
         
-        if(node.isAnalyzer && !node.isStation){
+        if(node.isAnalyzer && !node.isStation && !node.isNode){
             edges.push({ 
                 id: node.id + '-' + stationNode.id,
                 type: 'step',
