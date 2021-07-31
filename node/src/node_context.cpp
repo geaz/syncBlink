@@ -9,9 +9,85 @@ namespace SyncBlink
     void NodeContext::setup()
     {     
         readNodeInfo();
-        _led.setup(_nodeLedCount);
-        _led.showNow(Cyan);
 
+        _led.setup(_nodeLedCount);
+        _led.showNow(SyncBlink::Cyan);
+
+        registerEvents();
+
+        if(_mesh.tryJoinMesh())
+        {
+            Serial.printf("Connected to SyncBlink mesh! Starting operation (v%i.%i)...\n", VERSIONMAJOR, VERSIONMINOR);
+            _tcpClient.start(_mesh.getParentIp().toString());
+            _tcpServer.start();
+        }
+        else if(_isStandalone)
+        {
+            _newScript = true;
+            _runStandalone = true;
+            _currentScript = _standaloneScript;
+        }
+        else
+        {
+            Serial.println("SyncBlink Station not found - Going to sleep ...");
+            _led.showNow(SyncBlink::Black);
+            ESP.deepSleep(SleepSeconds * 1000000);
+        }
+    }
+
+    void NodeContext::loop()
+    {
+        _led.loop();
+
+        checkModeButton();
+        checkNewScript();
+
+        if(_runStandalone)
+        {
+            AudioAnalyzerResult result = _frequencyAnalyzer.loop();
+            AudioAnalyzerMessage message = result.ToMessage();
+            onAnalyzerResultReceived(message);
+        }
+        else
+        {
+            checkRunAnalyzer();
+
+            _tcpClient.loop();
+            _tcpServer.loop();
+
+            if(!_mesh.isConnected() || _tcpClient.isDiscontinued())
+            {
+                Serial.printf("Wifi: %i - Tcp: %i - Going to sleep ...\n", _mesh.isConnected(), _tcpClient.isDiscontinued());
+                _led.blinkNow(Red);
+                _led.showNow(SyncBlink::Black);
+                ESP.deepSleep(SleepSeconds * 1000000);
+            }
+        }
+    }
+
+    void NodeContext::readNodeInfo()
+    {
+        _nodeLedCount = 0;
+        for(int i = 0; i < 4; i++)
+        {
+            _nodeLedCount += EEPROM.read(i) << (i*8);
+        }
+        Serial.printf("EEPROM LED Count: %i\n", _nodeLedCount);
+        if(EEPROM.read(4) != '\0')
+        {
+            char label[MaxNodeLabelLength];
+            for(uint8_t i = 0; i < MaxNodeLabelLength; i++)
+            {
+                label[i] = EEPROM.read(i+4);
+            }
+            _nodeLabel = std::string(label);
+            Serial.printf("EEPROM Node Label: %s\n", _nodeLabel.c_str());
+        }
+        else Serial.println("EEPROM Node Label: (No Label)");
+    }
+
+    void NodeContext::registerEvents()
+    {
         _tcpClient
             .pingEvents
             .addEventHandler([this](uint64_t nodeId) { if(nodeId == SyncBlink::getId()) _led.blinkNow(Yellow, 5); else _tcpServer.broadcast(&nodeId, sizeof(nodeId), Server::PING);});
@@ -46,66 +122,6 @@ namespace SyncBlink
         _tcpServer
             .messageEvents
             .addEventHandler([this](TcpMessage message) { onSocketServerMessageReceived(message); });
-        
-        WiFi.disconnect();
-        if(_mesh.tryJoinMesh())
-        {
-            Serial.printf("Connected to SyncBlink mesh! Starting operation (v%i.%i)...\n", VERSIONMAJOR, VERSIONMINOR);
-            _tcpClient.start(_mesh.getParentIp().toString());
-            _tcpServer.start();
-        }
-        else
-        {
-            Serial.println("SyncBlink Station not found - Going to sleep ...");
-            _led.showNow(SyncBlink::Black);
-            ESP.deepSleep(SleepSeconds * 1000000);
-        }
-    }
-
-    void NodeContext::loop()
-    {
-        checkNewScript();
-        
-        #ifdef MODE_PIN
-        checkModeButton();
-        #endif
-
-        #ifdef IS_ANALYZER
-        runAnalyzer();
-        #endif
-
-        _tcpClient.loop();
-        _tcpServer.loop();
-        _led.loop();
-
-        if((!_mesh.isConnected() || _tcpClient.isDiscontinued()))
-        {
-            Serial.printf("Wifi: %i - Tcp: %i - Going to sleep ...\n", _mesh.isConnected(), _tcpClient.isDiscontinued());
-            _led.blinkNow(Red);
-            _led.showNow(SyncBlink::Black);
-            ESP.deepSleep(SleepSeconds * 1000000);
-        }
-    }
-
-    void NodeContext::readNodeInfo()
-    {
-        _nodeLedCount = 0;
-        for(int i = 0; i < 4; i++)
-        {
-            _nodeLedCount += EEPROM.read(i) << (i*8);
-        }
-        Serial.printf("EEPROM LED Count: %i\n", _nodeLedCount);
-        if(EEPROM.read(4) != '\0')
-        {
-            char label[MaxNodeLabelLength];
-            for(uint8_t i = 0; i < MaxNodeLabelLength; i++)
-            {
-                label[i] = EEPROM.read(i+4);
-            }
-            _nodeLabel = std::string(label);
-            Serial.printf("EEPROM Node Label: %s\n", _nodeLabel.c_str());
-        }
-        else Serial.println("EEPROM Node Label: (No Label)");
     }
 
     void NodeContext::checkNewScript()
@@ -121,12 +137,11 @@ namespace SyncBlink
         }
     }
 
-    #ifdef MODE_PIN
     void NodeContext::checkModeButton()
     {
-        if(_lastButtonUpdate + 100 > millis()) return;
+        if(!_hasModeButton || _lastButtonUpdate + 100 > millis()) return;
 
-        char buttonVal = digitalRead(MODE_PIN);
+        char buttonVal = digitalRead(_modePin);
         if(buttonVal == HIGH && _lastButtonVal == LOW)
         {
             _lightMode = !_lightMode;
@@ -134,10 +149,8 @@ namespace SyncBlink
         _lastButtonVal = buttonVal;
         _lastButtonUpdate = millis();
     }
-    #endif
 
-    #ifdef IS_ANALYZER
-    void NodeContext::runAnalyzer()
+    void NodeContext::checkRunAnalyzer()
     {
         uint32_t delta = millis() - _lastLedUpdate;
         if(_activeAnalyzer == SyncBlink::getId() && delta > 30) // Just update every 30ms - dont flood mesh
@@ -149,7 +162,6 @@ namespace SyncBlink
             _lastLedUpdate = millis();
         }
     }
-    #endif
 
     void NodeContext::onMeshUpdateReceived(Server::UpdateMessage message)
     {
@@ -186,7 +198,7 @@ namespace SyncBlink
         }
 
         // Always forward the update, because there could be nodes which switched the light mode off via a mode button!
-        _tcpServer.broadcast(&message, sizeof(message), Server::ANALYZER_UPDATE);
+        if(!_runStandalone) _tcpServer.broadcast(&message, sizeof(message), Server::ANALYZER_UPDATE);
     }
 
     void NodeContext::onSocketClientScriptReceived(std::string script)
@@ -280,7 +292,7 @@ namespace SyncBlink
          {
             _led.blinkNow(Green);
 
-            Client::ConnectionMessage message = { false, _isAnalyzer, true, SyncBlink::getId(), 0, _led.getLedCount(), VERSIONMAJOR, VERSIONMINOR };
+            Client::ConnectionMessage message = { false, _isStandalone, true, SyncBlink::getId(), 0, _led.getLedCount(), VERSIONMAJOR, VERSIONMINOR };
             memcpy(&message.nodeLabel[0], &_nodeLabel[0], _nodeLabel.size());
 
             _tcpClient.sendMessage(&message, sizeof(message), Client::MESH_CONNECTION);

@@ -18,7 +18,7 @@ void setup()
     pinMode(MODE_PIN, INPUT);
     #endif
 
-    #ifdef IS_ANALYZER
+    #ifdef IS_STANDALONE
     pinMode(A0, INPUT);
     #endif 
 }
