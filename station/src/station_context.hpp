@@ -7,8 +7,6 @@
 
 #include "states/state.hpp"
 #include "display/display.hpp"
-#include "web/syncblink_web.hpp"
-#include "wifi/station_wifi.hpp"
 #include "scripts/script_manager.hpp"
 #include "node_manager.hpp"
 
@@ -38,7 +36,6 @@ namespace SyncBlink
             LED& getLed();
             Display& getDisplay();
             ScriptManager& getScriptManager();
-            SyncBlinkWeb& getWebserver();
             TcpServer& getTcpServer();
             NodeManager& getNodeManager();
 
@@ -53,11 +50,9 @@ namespace SyncBlink
 
             LED _led;
             Display _display;
-            StationWifi _wifi;  
             NodeManager _nodeManager;
             ScriptManager _ScriptManager;
-            TcpServer _tcpServer;          
-            SyncBlinkWeb _web;
+            TcpServer _tcpServer;
 
             uint64_t _stationId = SyncBlink::getId();
 

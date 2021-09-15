@@ -6,7 +6,7 @@
 
 namespace SyncBlink
 {
-    StationContext::StationContext() : _nodeManager(_tcpServer), _web(_wifi, _ScriptManager, _nodeManager)
+    StationContext::StationContext() : _nodeManager(_tcpServer)
     {
         resetState();
         checkException();
@@ -27,13 +27,6 @@ namespace SyncBlink
         _tcpServer.serverDisconnectionEvents
             .addEventHandler([this](uint64_t nodeId) { onMeshDisconnection(nodeId); });
 
-        _web.uploadListener
-            .addEventHandler([this](float progress, bool isStart, bool isEnd, bool isError, uint64_t targetId) {
-                if(isStart) currentState = std::make_shared<ReceivingFirmwareState>(*this);
-                currentState->run(*this);
-            });
-
-        _wifi.connectWifi();
         _tcpServer.start();
     }
 
@@ -47,13 +40,11 @@ namespace SyncBlink
         }
         #endif
         _display.setLeftStatus("");
-        _display.setRightStatus(WiFi.localIP().toString().c_str());
 
         currentState->run(*this);
         
         _tcpServer.loop();
         _led.loop();
-        _web.loop();
         _display.loop();
     }
     
@@ -122,7 +113,6 @@ namespace SyncBlink
     LED& StationContext::getLed() { return _led; }
     Display& StationContext::getDisplay() { return _display; }
     ScriptManager& StationContext::getScriptManager() { return _ScriptManager; }
-    SyncBlinkWeb& StationContext::getWebserver() { return _web; }
     TcpServer& StationContext::getTcpServer() { return _tcpServer; }
     NodeManager& StationContext::getNodeManager() { return _nodeManager; }
     uint64_t StationContext::getStationId() const { return _stationId; }

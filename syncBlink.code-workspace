@@ -1,16 +1,16 @@
 {
 	"folders": [
 		{
-			"path": "node"
-		},
-		{
 			"path": "shared"
 		},
 		{
-			"path": "station\\src\\firmware"
+			"path": "station"
 		},
 		{
-			"path": "station\\src\\web"
+			"path": "node"
+		},
+		{
+			"path": "webstation"
 		},
 		{
 			"path": "."

@@ -14,22 +14,11 @@ namespace SyncBlink
             ReceivingFirmwareState(StationContext& context) :
                 _context(context),
                 _progressView(std::make_shared<ProgressView>("Receiving Firmware..."))
-            {
-                _webEventHandleId = context.getWebserver()
-                    .uploadListener
-                    .addEventHandler([this](float progress, bool isStart, bool isEnd, bool isError, uint64_t targetId) 
-                    {
-                        _progressView->setProgress(progress);
-                        _uploadDone = isEnd;
-                        _targetId = targetId;
-                    });
+            {                
             }
 
             ~ReceivingFirmwareState()
             {
-                _context.getWebserver()
-                    .uploadListener
-                    .removeEventHandler(_webEventHandleId);
             }
 
             void run(StationContext& context)
@@ -43,8 +32,7 @@ namespace SyncBlink
 
         private:
             StationContext& _context;
-            std::shared_ptr<ProgressView> _progressView;            
-            uint32_t _webEventHandleId = 0;
+            std::shared_ptr<ProgressView> _progressView;
             uint64_t _targetId = 0;
             bool _uploadDone = false;
     };
