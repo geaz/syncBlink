@@ -23,7 +23,7 @@ Please head over to the [station](https://github.com/syncBlink/syncBlink/tree/ma
 Please header over to the [node](https://github.com/syncBlink/syncBlink/tree/main/node) folder for more information.
 
 ## syncBlink Webstation
-Please header over to the [node](https://github.com/syncBlink/syncBlink/tree/main/webstation) folder for more information.
+Please header over to the [webstation](https://github.com/syncBlink/syncBlink/tree/main/webstation) folder for more information.
 
 ## blinkScript
 
