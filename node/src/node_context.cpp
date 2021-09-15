@@ -18,7 +18,7 @@ namespace SyncBlink
         if(_mesh.tryJoinMesh())
         {
             Serial.printf("Connected to SyncBlink mesh! Starting operation (v%i.%i)...\n", VERSIONMAJOR, VERSIONMINOR);
-            _tcpClient.start(_mesh.getParentIp().toString());
+            _tcpClient.start(_mesh.getParentIp().toString(), 81);
             _tcpServer.start();
         }
         else if(_isStandalone)

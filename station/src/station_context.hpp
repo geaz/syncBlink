@@ -52,7 +52,7 @@ namespace SyncBlink
             Display _display;
             NodeManager _nodeManager;
             ScriptManager _ScriptManager;
-            TcpServer _tcpServer;
+            TcpServer _tcpServer = TcpServer(81);
 
             uint64_t _stationId = SyncBlink::getId();
 

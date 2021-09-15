@@ -40,8 +40,8 @@ namespace SyncBlink
 
             LED _led;
             SyncBlinkMesh _mesh;
-            TcpServer _tcpServer;
             TcpClient _tcpClient;
+            TcpServer _tcpServer = TcpServer(81);
             FrequencyAnalyzer _frequencyAnalyzer;
 
             std::string _nodeLabel;

@@ -2,9 +2,11 @@
 
 namespace SyncBlink
 {
-    void TcpClient::start(String serverIp)
+    void TcpClient::start(String serverIp, uint16_t port)
     {
         _serverIp = serverIp;
+        _port = port;
+        
         checkConnection();
     }
 

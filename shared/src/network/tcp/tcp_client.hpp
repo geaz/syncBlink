@@ -25,7 +25,7 @@ namespace SyncBlink
     class TcpClient
     {
     public:
-        void start(String _serverIp);
+        void start(String serverIp, uint16_t port);
         void loop();
         
         void sendMessage(void* message, uint32_t messageSize, Client::MessageType messageType);
@@ -49,6 +49,7 @@ namespace SyncBlink
 
         TcpStream _client;
         String _serverIp;
+        uint16_t _port;
 
         uint8_t _retryCount = 0;
         bool _wasConnected = false;

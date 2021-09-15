@@ -23,6 +23,8 @@ namespace SyncBlink
     class TcpServer
     {
     public:
+        TcpServer(uint16_t port);
+
         void start();
         void loop();
         void broadcast(void* message, uint32_t messageSize, Server::MessageType messageType);
@@ -37,7 +39,7 @@ namespace SyncBlink
         void checkNewClients();
         void handleIncomingMessages();
 
-        WiFiServer _server = WiFiServer(81);
+        WiFiServer _server;
         std::vector<TcpStream> _clients;
     };
 }
