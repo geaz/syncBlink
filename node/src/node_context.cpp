@@ -311,8 +311,7 @@ namespace SyncBlink
                 _tcpClient.sendMessage(&message.body[0], message.body.size(), (Client::MessageType)message.type);
                 break;            
             case Client::EXTERNAL_ANALYZER:
-                AudioAnalyzerMessage analyzerMessage;
-                memcpy(&analyzerMessage, &message.body[0], message.body.size());
+                auto analyzerMessage = Message::as<AudioAnalyzerMessage>(message);
                 onAnalyzerResultReceived(analyzerMessage);
 
                 _tcpClient.sendMessage(&message.body[0], message.body.size(), (Client::MessageType)message.type);

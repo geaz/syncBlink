@@ -2,31 +2,28 @@
 
 namespace SyncBlink
 {
-    ApiServer::ApiServer(TcpServer& blinkServer) : _blinkServer(blinkServer)
-    {
-        
-    }
-
-    void ApiServer::start()
-    {
-        
-    }
+    ApiServer::ApiServer(NodeManager& nodeManager) : _nodeManager(nodeManager)
+    { }
 
     void ApiServer::loop()
     {
-        
-    }
-
-    void ApiServer::onSocketServerCommandReceived(Message message)
-    {
-        switch (message.type)
+        Message message;
+        if(Message::available(Serial, message))
         {
-            case Api::PING_NODE:
+            switch (message.type)
             {
-                uint64_t targetNodeId = 0;
-                memcpy(&targetNodeId, &message.body[0], message.body.size());
-                _blinkServer.broadcast(&targetNodeId, sizeof(targetNodeId), Server::PING_NODE);
-                break;
+                case Api::GET_INFO:
+                {
+                    
+                    break;
+                }
+                case Api::PING_NODE:
+                {
+                    uint64_t targetNodeId = 0;
+                    memcpy(&targetNodeId, &message.body[0], message.body.size());
+                    _nodeManager.pingNode(targetNodeId);
+                    break;
+                }
             }
         }
     }

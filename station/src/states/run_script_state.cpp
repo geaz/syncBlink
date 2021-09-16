@@ -83,7 +83,7 @@ namespace SyncBlink
                 {                    
                     AudioAnalyzerMessage audioMessage;
                     memcpy(&audioMessage, &message[0], message.size());
-
+                    
                     uint32_t delta = millis() - _lastLedUpdate;
                     _lastLedUpdate = millis();
 

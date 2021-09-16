@@ -14,6 +14,8 @@ namespace SyncBlink
     class NodeManager
     {
         public:
+            NodeManager(TcpServer& blinkTcpServer);
+
             void addNode(Client::ConnectionMessage connectionMessage);
             void removeNode(uint64_t nodeId);
 
@@ -36,6 +38,7 @@ namespace SyncBlink
             bool _lightMode = false;
             uint64_t _activeAnalyzer = SyncBlink::getId();
 
+            TcpServer& _blinkTcpServer;
             std::vector<Client::ConnectionMessage> _connectedNodes = {{ true, true, false, SyncBlink::getId(), 0, LED_COUNT, VERSIONMAJOR, VERSIONMINOR, { 'S', 't', 'a', 't', 'i', 'o', 'n' } }};
     };
 }

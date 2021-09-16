@@ -153,32 +153,28 @@ namespace SyncBlink
             {
                 case Server::ANALYZER_UPDATE:
                 {
-                    AudioAnalyzerMessage anaMessage;
-                    memcpy(&anaMessage, &message.body[0], message.body.size());
+                    auto anaMessage = Message::as<AudioAnalyzerMessage>(message);
                     for (auto event : audioAnalyzerEvents.getEventHandlers())
                         event.second(anaMessage);
                     break;
                 }
                 case Server::MESH_UPDATE:
-                {
-                    Server::UpdateMessage updateMessage;
-                    memcpy(&updateMessage, &message.body[0], message.body.size());
+                {                    
+                    auto updateMessage = Message::as<Server::UpdateMessage>(message);
                     for (auto event : meshUpdateEvents.getEventHandlers())
                         event.second(updateMessage);
                     break;
                 }
                 case Server::SOURCE_UPDATE:
                 {
-                    uint64_t targetNodeId = 0;
-                    memcpy(&targetNodeId, &message.body[0], message.body.size());
+                    auto targetNodeId = Message::as<uint64_t>(message);
                     for (auto event : sourceUpdateEvents.getEventHandlers())
                         event.second(targetNodeId);
                     break;
                 }
                 case Server::NODE_RENAME:
                 {
-                    Server::NodeRenameMessage renameMessage;
-                    memcpy(&renameMessage, &message.body[0], message.body.size());
+                    auto renameMessage = Message::as<Server::NodeRenameMessage>(message);
                     for (auto event : nodeRenameEvents.getEventHandlers())
                         event.second(renameMessage);
                     break;
@@ -192,16 +188,14 @@ namespace SyncBlink
                 }
                 case Server::FIRMWARE_FLASH_START:
                 {
-                    uint64_t targetNodeId = 0;
-                    memcpy(&targetNodeId, &message.body[0], message.body.size());
+                    auto targetNodeId = Message::as<uint64_t>(message);
                     for (auto event : firmwareFlashEvents.getEventHandlers())
                         event.second(message.body, targetNodeId, Server::FIRMWARE_FLASH_START);
                     break;
                 }
                 case Server::FIRMWARE_FLASH_END:
                 {
-                    uint64_t targetNodeId = 0;
-                    memcpy(&targetNodeId, &message.body[0], message.body.size());
+                    auto targetNodeId = Message::as<uint64_t>(message);
                     for (auto event : firmwareFlashEvents.getEventHandlers())
                         event.second(message.body, targetNodeId, Server::FIRMWARE_FLASH_END);
                     break;
@@ -214,16 +208,14 @@ namespace SyncBlink
                 }
                 case Server::PING_NODE:
                 {
-                    uint64_t targetNodeId = 0;
-                    memcpy(&targetNodeId, &message.body[0], message.body.size());
+                    auto targetNodeId = Message::as<uint64_t>(message);
                     for (auto event : pingEvents.getEventHandlers())
                         event.second(targetNodeId);
                     break;
                 }
                 case Server::LIGHT_MODE:
                 {
-                    bool lightMode = false;
-                    memcpy(&lightMode, &message.body[0], message.body.size());
+                    auto lightMode = Message::as<bool>(message);
                     for (auto event : lightModeEvents.getEventHandlers())
                         event.second(lightMode);
                     break;

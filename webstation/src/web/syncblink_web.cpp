@@ -3,7 +3,9 @@
 #include <sstream>
 #include <LittleFS.h>
 #include <ArduinoJson.h>
-#include <network/tcp/messages/audio_analyzer_message.hpp>
+#include <messages/message.hpp>
+#include <messages/api_messages.hpp>
+#include <messages/audio_analyzer_message.hpp>
 
 namespace SyncBlink
 {
@@ -68,7 +70,9 @@ namespace SyncBlink
         std::istringstream iss(nodeIdArg.c_str());
         iss >> nodeId;
 
-        // TODO
+        auto packet = Message::toMessagePacket(&nodeId, sizeof(nodeId), Api::PING_NODE);
+        Serial.write(&packet[0], packet.size());
+
         _server.send(200, "text/plain");
     }
 
@@ -90,6 +94,19 @@ namespace SyncBlink
         String JSON;
         DynamicJsonDocument doc(4096);
         
+        auto packet = Message::toMessagePacket(0, 0, Api::GET_INFO);
+        Serial.write(&packet[0], packet.size());
+
+        auto start = millis();
+        Message meshInfoMessage;
+        while(!Message::available(Serial, meshInfoMessage) && millis() - start < 5000)
+        {
+            yield();
+        }
+
+        std::vector<Client::ConnectionMessage> connectedNodes;
+        memcpy(&connectedNodes[0], &meshInfoMessage.body[0], meshInfoMessage.body.size());
+
         // TODO
         /*
         auto connectedNodes = _nodeManager.getConnectedNodes();

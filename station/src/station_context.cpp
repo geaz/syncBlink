@@ -7,7 +7,7 @@
 namespace SyncBlink
 {
     StationContext::StationContext()
-        : _blinkServer(_led, _nodeManager), _apiServer(_blinkServer.getTcpServer())
+        : _blinkServer(_led, _nodeManager), _nodeManager(_blinkServer.getTcpServer()), _apiServer(_nodeManager)
     {
         resetState();
         checkException();
@@ -21,7 +21,6 @@ namespace SyncBlink
         _led.setup(LED_COUNT);
         _mesh.startMesh();
         _blinkServer.start();
-        _apiServer.start();
     }
 
     void StationContext::loop()

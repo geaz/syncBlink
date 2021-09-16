@@ -14,6 +14,14 @@ namespace SyncBlink
             uint8_t type;
             std::vector<uint8_t> body;
 
+            template <class T>
+            static T as(Message message)
+            {
+                T typedMessage;
+                memcpy(&typedMessage, &message.body[0], message.body.size());
+                return typedMessage;
+            }
+
             static std::vector<uint8_t> toMessagePacket(void* body, uint32_t bodySize, uint8_t messageType)
             {
                 uint32_t packageSize = bodySize + SocketHeaderSize;
@@ -67,11 +75,12 @@ namespace SyncBlink
 
                             for(uint32_t byte = 0; byte < messageSize; byte++)
                             {
-                                message.body[byte] = stream.read();
+                                while(!stream.available()) yield(); // Wait for new bytes
+                                message.body[byte] = stream.read(); // then read
                             }
 
                             #ifdef DEBUG_TCP
-                            Serial.printf("[TCP] Found message - Size: %i, Type: %i\n", message.body.size() + SocketHeaderSize, message.type);
+                            Serial.printf("[STREAM] Found message - Size: %i, Type: %i\n", message.body.size() + SocketHeaderSize, message.type);
                             #endif
 
                             receivedMessage = true;

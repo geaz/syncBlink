@@ -1,7 +1,7 @@
 #ifndef APISERVER_H
 #define APISERVER_H
 
-#include <tcp/tcp_server.hpp>
+#include "node_manager.hpp"
 #include <messages/api_messages.hpp>
 
 namespace SyncBlink
@@ -9,14 +9,11 @@ namespace SyncBlink
     class ApiServer
     {
         public:
-            ApiServer(TcpServer& blinkServer);
-            void start();
+            ApiServer(NodeManager& nodeManager);
             void loop();
 
         private:
-            void onSocketServerCommandReceived(Message message);
-
-            TcpServer& _blinkServer;
+            NodeManager& _nodeManager;
     };
 }
 

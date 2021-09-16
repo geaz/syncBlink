@@ -26,16 +26,16 @@ function Settings() {
                 let wifiInfo = await wifiResponse.json();
 
                 let analyzerList : Array<{name: string, id: string}> = [];
-                meshInfo.nodes.forEach((node: any) => {
+                meshInfo?.nodes.forEach((node: any) => {
                     if(node.isAnalyzer) {
                         analyzerList.push({name: node.label, id: node.nodeId});
                     }
                 });
 
                 setScriptList(scriptList);
-                setScript(meshInfo.script);
-                setAnalyzer(meshInfo.analyzer);
-                setLightMode(meshInfo.lightMode == "true");
+                setScript(meshInfo?.script);
+                setAnalyzer(meshInfo?.analyzer);
+                setLightMode(meshInfo?.lightMode == "true");
                 setAnalyzerList(analyzerList);
                 setSsid(wifiInfo.ssid);
             }

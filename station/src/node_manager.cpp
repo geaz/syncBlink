@@ -4,6 +4,8 @@
 
 namespace SyncBlink
 {
+    NodeManager::NodeManager(TcpServer& blinkTcpServer) : _blinkTcpServer(blinkTcpServer) { }
+
     void NodeManager::addNode(Client::ConnectionMessage connectionMessage)
     {
         _connectedNodes.push_back(connectionMessage);
@@ -22,18 +24,18 @@ namespace SyncBlink
     void NodeManager::setLightMode(bool lightMode)
     {
         _lightMode = lightMode;
-        //_socketServer.broadcast(&lightMode, sizeof(lightMode), Server::LIGHT_MODE);
+        _blinkTcpServer.broadcast(&lightMode, sizeof(lightMode), Server::LIGHT_MODE);
     }
 
     void NodeManager::setAnalyzer(uint64_t analyzerId)
     {
         _activeAnalyzer = analyzerId;
-        //_socketServer.broadcast(&analyzerId, sizeof(analyzerId), Server::SOURCE_UPDATE);
+        _blinkTcpServer.broadcast(&analyzerId, sizeof(analyzerId), Server::SOURCE_UPDATE);
     }
 
     void NodeManager::pingNode(uint64_t nodeId)
     {
-        //_socketServer.broadcast(&nodeId, sizeof(nodeId), Server::PING);
+        _blinkTcpServer.broadcast(&nodeId, sizeof(nodeId), Server::PING_NODE);
     }
 
     void NodeManager::renameNode(uint64_t nodeId, const std::string& label)
@@ -42,7 +44,7 @@ namespace SyncBlink
         message.nodeId = nodeId;
         memcpy(&message.nodeLabel[0], &label[0], MaxNodeLabelLength > label.size() ? MaxNodeLabelLength : label.size());
 
-        //_socketServer.broadcast(&message, sizeof(message), Server::NODE_RENAME);
+        _blinkTcpServer.broadcast(&message, sizeof(message), Server::NODE_RENAME);
 
         // Also save the info into the known nodes vector
         for(auto& node : _connectedNodes)
