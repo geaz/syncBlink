@@ -3,8 +3,8 @@
 
 #include "state.hpp"
 #include "station_context.hpp"
-#include "views/progress_view.cpp"
 #include "send_firmware_state.cpp"
+#include "display/views/progress_view.cpp"
 
 namespace SyncBlink
 {

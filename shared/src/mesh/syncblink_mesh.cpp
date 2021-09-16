@@ -24,23 +24,23 @@ namespace SyncBlink
 
     void SyncBlinkMesh::startMesh()
     {
-        Serial.println("Starting mesh ...");
+        Serial.println("[MESH] Starting mesh ...");
 
         _ssid = SSID + " #1";
-        WiFi.mode(WIFI_AP_STA);
+        WiFi.mode(WIFI_AP);
         WiFi.softAPConfig(IPAddress(192, 168, 1, 1), IPAddress(0, 0, 0, 0), IPAddress(255, 255, 255, 0));
         WiFi.softAP(_ssid, Password, 1, false, 8);
 
         _localIp = WiFi.localIP();
-        Serial.println("Node AP IP: " + WiFi.softAPIP().toString());
-        Serial.println("Node Local IP: " + WiFi.localIP().toString());
+        Serial.println("[MESH] Node AP IP: " + WiFi.softAPIP().toString());
+        Serial.println("[MESH] Node Local IP: " + WiFi.localIP().toString());
     }
 
     bool SyncBlinkMesh::tryJoinMesh()
     {
         bool connected = false;
 
-        Serial.println("Scanning for SyncBlink Nodes ...");
+        Serial.println("[MESH] Scanning for SyncBlink Nodes ...");
         uint8_t foundSyncblinkNetworks = 0;
         uint8_t foundNetworkCount = WiFi.scanNetworks();
 
@@ -61,7 +61,7 @@ namespace SyncBlink
                 String ssid = WiFi.SSID(i);
                 short foundNodeNr = ssid.substring(ssid.indexOf("#") + 1).toInt();
 
-                if(connectToNode == -1 || foundSyncblinkNetworks > 2 && foundNodeNr > highestNodeNr)
+                if(connectToNode == -1 || (foundSyncblinkNetworks > 2 && foundNodeNr > highestNodeNr))
                     connectToNode = i;
 
                 if(foundNodeNr > highestNodeNr) highestNodeNr = foundNodeNr;
@@ -71,12 +71,12 @@ namespace SyncBlink
 
         if (connectToNode != -1)
         {
-            Serial.println("Connecting to '" + WiFi.SSID(connectToNode) + "' (30 sec Timeout)...");
+            Serial.println("[MESH] Connecting to '" + WiFi.SSID(connectToNode) + "' (30 sec Timeout)...");
             WiFi.begin(WiFi.SSID(connectToNode), Password);
 
             if(WiFi.waitForConnectResult(30000) == WL_CONNECTED)
             {
-                Serial.println("Connected!");
+                Serial.println("[MESH] Connected!");
 
                 _ssid = SSID + " #" + String(nodeNr);
                 
@@ -85,8 +85,8 @@ namespace SyncBlink
                 WiFi.mode(WIFI_AP_STA);
                 WiFi.setAutoReconnect(false);
 
-                Serial.println("Node AP IP: " + WiFi.softAPIP().toString());
-                Serial.println("Node Local IP: " + WiFi.localIP().toString());
+                Serial.println("[MESH] Node AP IP: " + WiFi.softAPIP().toString());
+                Serial.println("[MESH] Node Local IP: " + WiFi.localIP().toString());
                 connected = true;
 
                 _parentIp = WiFi.gatewayIP();

@@ -1,22 +1,9 @@
 #include "station_wifi.hpp"
-#include "station_context.hpp"
 
 #include <EEPROM.h>
 
 namespace SyncBlink
 {
-    StationWifi::StationWifi()
-    {
-        _mesh.startMesh();
-        #ifdef DEBUG_STATIONWIFI
-        _ping.on(true,[](const AsyncPingResponse& response){
-            IPAddress addr(response.addr);
-            Serial.printf("[WIFI] Ping result from %s - sent %d recevied %d\n", addr.toString().c_str(), response.total_sent, response.total_recv);
-            return true;
-        });
-        #endif
-    }
-
     void StationWifi::connectWifi()
     {
         #ifdef DEBUG_STATIONWIFI

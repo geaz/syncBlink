@@ -6,7 +6,7 @@
 #include <vector>
 #include <string>
 #include <functional>
-#include <network/tcp/messages/audio_analyzer_message.hpp>
+#include <messages/audio_analyzer_message.hpp>
 #include <event_registration.hpp>
 
 namespace SyncBlink

@@ -3,7 +3,7 @@
 
 #include "state.hpp"
 #include "station_context.hpp"
-#include "views/progress_view.cpp"
+#include "display/views/progress_view.cpp"
 
 #include <LittleFS.h>
 
@@ -21,7 +21,7 @@ namespace SyncBlink
                     _activeFlash = LittleFS.open(FirmwarePath.c_str(), "r");
                     _flashPos = 0;
                     _flashing = true;
-                    context.getTcpServer().broadcast(&_targetId, sizeof(_targetId), Server::FIRMWARE_FLASH_START);
+                    context.getBlinkTcpServer().broadcast(&_targetId, sizeof(_targetId), Server::FIRMWARE_FLASH_START);
                 }
             }
 
@@ -36,7 +36,7 @@ namespace SyncBlink
                     {
                         _activeFlash.close();
                         _flashing = false;
-                        context.getTcpServer().broadcast(&_targetId, sizeof(_targetId), Server::FIRMWARE_FLASH_END);
+                        context.getBlinkTcpServer().broadcast(&_targetId, sizeof(_targetId), Server::FIRMWARE_FLASH_END);
                         context.resetState();
                     }
                     else
@@ -49,7 +49,7 @@ namespace SyncBlink
                         _activeFlash.readBytes(buf, readSize);
                         _flashPos += readSize;
 
-                        context.getTcpServer().broadcast(buf, readSize, Server::FIRMWARE_FLASH_DATA);
+                        context.getBlinkTcpServer().broadcast(buf, readSize, Server::FIRMWARE_FLASH_DATA);
                         _progressView->setProgress((float)_flashPos/_activeFlash.size());
                     }
                 }

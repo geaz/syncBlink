@@ -1,10 +1,10 @@
 #ifndef NODEMANAGER_H
 #define NODEMANAGER_H
 
-#include <network/mesh/syncblink_mesh.hpp>
-#include <network/tcp/tcp_server.hpp>
-#include <network/tcp/messages/client_messages.hpp>
-#include <network/tcp/messages/server_messages.hpp>
+#include <mesh/syncblink_mesh.hpp>
+#include <tcp/tcp_server.hpp>
+#include <messages/client_messages.hpp>
+#include <messages/server_messages.hpp>
 #include <vector>
 
 namespace SyncBlink
@@ -14,8 +14,6 @@ namespace SyncBlink
     class NodeManager
     {
         public:
-            NodeManager(TcpServer& tcpServer);
-
             void addNode(Client::ConnectionMessage connectionMessage);
             void removeNode(uint64_t nodeId);
 
@@ -38,7 +36,6 @@ namespace SyncBlink
             bool _lightMode = false;
             uint64_t _activeAnalyzer = SyncBlink::getId();
 
-            TcpServer& _socketServer;
             std::vector<Client::ConnectionMessage> _connectedNodes = {{ true, true, false, SyncBlink::getId(), 0, LED_COUNT, VERSIONMAJOR, VERSIONMINOR, { 'S', 't', 'a', 't', 'i', 'o', 'n' } }};
     };
 }

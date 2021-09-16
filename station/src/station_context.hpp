@@ -3,23 +3,18 @@
 
 #include <memory>
 #include <led/led.hpp>
-#include <network/tcp/tcp_server.hpp>
+#include <tcp/tcp_server.hpp>
+#include <mesh/syncblink_mesh.hpp>
 
 #include "states/state.hpp"
 #include "display/display.hpp"
 #include "scripts/script_manager.hpp"
+#include "servers/blink_server.hpp"
+#include "servers/api_server.hpp"
 #include "node_manager.hpp"
 
 namespace SyncBlink
 {
-    const uint8_t WifiRomSSIDStart = 0;
-    const uint8_t WifiRomSSIDEnd = 32;
-    const uint8_t WifiRomSSIDLength = WifiRomSSIDEnd - WifiRomSSIDStart;
-
-    const uint8_t WifiRomPwStart = 32;
-    const uint8_t WifiRomPwEnd = 96;
-    const uint8_t WifiRomPwLength = WifiRomPwEnd - WifiRomPwStart;
-
     const uint8_t ScriptRomStart = 96;
     const uint8_t ScriptRomEnd = 193;
     const uint8_t ScriptRomLength = ScriptRomEnd - ScriptRomStart;
@@ -36,7 +31,7 @@ namespace SyncBlink
             LED& getLed();
             Display& getDisplay();
             ScriptManager& getScriptManager();
-            TcpServer& getTcpServer();
+            TcpServer& getBlinkTcpServer();
             NodeManager& getNodeManager();
 
             uint64_t getStationId() const;
@@ -45,14 +40,14 @@ namespace SyncBlink
 
         private:
             void checkException();
-            void onMeshDisconnection(uint64_t clientId);
-            void onSocketServerCommandReceived(TcpMessage tcpMessage);
 
             LED _led;
             Display _display;
+            SyncBlinkMesh _mesh;
             NodeManager _nodeManager;
             ScriptManager _ScriptManager;
-            TcpServer _tcpServer = TcpServer(81);
+            BlinkServer _blinkServer;
+            ApiServer _apiServer;
 
             uint64_t _stationId = SyncBlink::getId();
 

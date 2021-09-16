@@ -6,9 +6,10 @@
 #include <led/led.hpp>
 #include <blinkscript/blink_script.hpp>
 #include <audio/frequency_analyzer.hpp>
-#include <network/mesh/syncblink_mesh.hpp>
-#include <network/tcp/tcp_server.hpp>
-#include <network/tcp/tcp_client.hpp>
+#include <mesh/syncblink_mesh.hpp>
+#include <tcp/tcp_server.hpp>
+#include <tcp/tcp_client.hpp>
+#include <messages/message.hpp>
 
 namespace SyncBlink
 {
@@ -36,7 +37,7 @@ namespace SyncBlink
             void onNodeRenameReceived(Server::NodeRenameMessage message);
             void onFirmwareFlashReceived(std::vector<uint8_t> data, uint64_t targetNodeId, Server::MessageType messageType);
 
-            void onSocketServerMessageReceived(TcpMessage message);
+            void onSocketServerMessageReceived(Message message);
 
             LED _led;
             SyncBlinkMesh _mesh;

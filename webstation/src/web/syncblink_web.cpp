@@ -7,8 +7,7 @@
 
 namespace SyncBlink
 {
-    SyncBlinkWeb::SyncBlinkWeb(StationWifi& stationWifi, ScriptManager& ScriptManager, NodeManager& nodeManager)
-        : _server(80), _stationWifi(stationWifi), _scriptManager(ScriptManager), _nodeManager(nodeManager)
+    SyncBlinkWeb::SyncBlinkWeb(StationWifi& stationWifi) : _server(80), _stationWifi(stationWifi)
     {
         _server.on("/api/mesh/ping", [this]() { pingNode(); });
         _server.on("/api/mesh/rename", [this]() { renameNode(); });
@@ -50,14 +49,14 @@ namespace SyncBlink
         std::istringstream iss(analyzerIdArg.c_str());
         iss >> analyzerId;
 
-        _nodeManager.setAnalyzer(analyzerId);
+        // TODO
         _server.send(200, "text/plain");
     }
 
     void SyncBlinkWeb::setLightMode()
     {
         bool lightMode = _server.arg("lightMode") == "true";
-        _nodeManager.setLightMode(lightMode);
+        // TODO
         _server.send(200, "text/plain");
     }
 
@@ -69,7 +68,7 @@ namespace SyncBlink
         std::istringstream iss(nodeIdArg.c_str());
         iss >> nodeId;
 
-        _nodeManager.pingNode(nodeId);
+        // TODO
         _server.send(200, "text/plain");
     }
 
@@ -82,7 +81,7 @@ namespace SyncBlink
         std::istringstream iss(nodeIdArg.c_str());
         iss >> nodeId;
 
-        _nodeManager.renameNode(nodeId, std::string(label.c_str()));
+        // TODO
         _server.send(200, "text/plain");
     }
 
@@ -91,6 +90,8 @@ namespace SyncBlink
         String JSON;
         DynamicJsonDocument doc(4096);
         
+        // TODO
+        /*
         auto connectedNodes = _nodeManager.getConnectedNodes();
         for(uint32_t i = 0; i < connectedNodes.size(); i++)
         {
@@ -112,7 +113,7 @@ namespace SyncBlink
 
         std::string activeScript = _scriptManager.getActiveScript();
         doc["script"] = activeScript.c_str();
-
+        */
         serializeJson(doc, JSON);
         _server.send(200, "application/json", JSON);
     }
@@ -142,7 +143,7 @@ namespace SyncBlink
     {
         std::string scriptName = _server.arg("name").c_str();
 
-        _scriptManager.add(scriptName);
+        // TODO
         _server.send(200, "application/json", "{ \"saved\": true }");
     }
 
@@ -155,7 +156,7 @@ namespace SyncBlink
         String scriptName = script["name"];
         String scriptContent = script["content"];
 
-        _scriptManager.save(scriptName.c_str(), scriptContent.c_str());
+        // TODO
         _server.send(200, "application/json", "{ \"saved\": true }");
     }
 
@@ -163,7 +164,7 @@ namespace SyncBlink
     {
         std::string scriptName = _server.arg("name").c_str();
 
-        _scriptManager.remove(scriptName);
+        // TODO
         _server.send(200, "application/json", "{ \"saved\": true }");
     }
 
@@ -173,10 +174,11 @@ namespace SyncBlink
         DynamicJsonDocument doc(8192);
         JsonArray files = doc.createNestedArray("scripts");
 
-        std::vector<std::string> scriptList = _scriptManager.getList();
+        // TODO
+        /*std::vector<std::string> scriptList = _scriptManager.getList();
         for(std::string scriptName : scriptList)
             files.add(scriptName.c_str());
-
+*/
         serializeJson(doc, JSON);
         _server.send(200, "application/json", JSON);
     }
@@ -186,13 +188,15 @@ namespace SyncBlink
         String JSON, scriptContent;
         StaticJsonDocument<5000> doc;    
 
+// TODO
+/*
         std::string scriptName = _server.arg("name").c_str();
         Script script = _scriptManager.get(scriptName);
         
         doc["name"] = script.Name.c_str();
         doc["content"] = script.Content.c_str();
         doc["exists"] = script.Exists;
-
+*/
         serializeJson(doc, JSON);
         _server.send(200, "application/json", JSON);
     }
@@ -200,14 +204,17 @@ namespace SyncBlink
     void SyncBlinkWeb::setActiveScript()
     {
         std::string scriptName = _server.arg("name").c_str();
-
+// TODO
+/*
         if(_scriptManager.get(scriptName).Exists) {
+            
             _scriptManager.setActiveScript(scriptName);
             _server.send(200, "application/json", "{ \"saved\": true }");
         }
         else {
             _server.send(200, "application/json", "{ \"saved\": false }");
-        }        
+        }   
+        */     
     }
 
     void SyncBlinkWeb::uploadFirmware()

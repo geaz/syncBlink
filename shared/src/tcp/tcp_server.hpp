@@ -1,8 +1,9 @@
 #ifndef TCPSERVER_H
 #define TCPSERVER_H
 
-#include "tcp_stream.hpp"
+#include "tcp_client.hpp"
 #include "event_registration.hpp"
+#include "messages/message.hpp"
 #include "messages/client_messages.hpp"
 #include "messages/server_messages.hpp"
 
@@ -18,7 +19,7 @@ extern "C" void tcp_abandon (struct tcp_pcb* pcb, int reset);
 namespace SyncBlink
 {
     typedef std::function<void(uint64_t nodeId)> ServerDisconnectionEvent;
-    typedef std::function<void(TcpMessage message)> ServerMessageEvent;
+    typedef std::function<void(Message message)> ServerMessageEvent;
 
     class TcpServer
     {
@@ -27,7 +28,7 @@ namespace SyncBlink
 
         void start();
         void loop();
-        void broadcast(void* message, uint32_t messageSize, Server::MessageType messageType);
+        void broadcast(void* body, uint32_t bodySize, Server::MessageType messageType);
 
         uint32_t getClientsCount();
 
@@ -40,7 +41,7 @@ namespace SyncBlink
         void handleIncomingMessages();
 
         WiFiServer _server;
-        std::vector<TcpStream> _clients;
+        std::vector<TcpClient> _clients;
     };
 }
 

@@ -1,9 +1,7 @@
 #ifndef SYNCBLINKWEB_H
 #define SYNCBLINKWEB_H
 
-#include "node_manager.hpp"
 #include "wifi/station_wifi.hpp"
-#include "scripts/script_manager.hpp"
 
 #include <ESP8266WebServer.h>
 #include <event_registration.hpp>
@@ -12,11 +10,12 @@
 namespace SyncBlink
 {
     typedef std::function<void(float progress, bool isStart, bool isEnd, bool isError, uint64_t targetId)> UploadEvent;
+    const std::string FirmwarePath = "/firmware.bin";
 
     class SyncBlinkWeb
     {
         public:
-            SyncBlinkWeb(StationWifi& stationWifi, ScriptManager& ScriptManager, NodeManager& nodeManager);
+            SyncBlinkWeb(StationWifi& stationWifi);
 
             void loop();
 
@@ -47,8 +46,6 @@ namespace SyncBlink
 
             ESP8266WebServer _server;
             StationWifi& _stationWifi;
-            ScriptManager& _scriptManager;
-            NodeManager& _nodeManager;
 
             File _firmwareFile;
             uint32_t _firmwareSize = 0;

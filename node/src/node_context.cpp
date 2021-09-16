@@ -90,7 +90,7 @@ namespace SyncBlink
     {
         _tcpClient
             .pingEvents
-            .addEventHandler([this](uint64_t nodeId) { if(nodeId == SyncBlink::getId()) _led.blinkNow(Yellow, 5); else _tcpServer.broadcast(&nodeId, sizeof(nodeId), Server::PING);});
+            .addEventHandler([this](uint64_t nodeId) { if(nodeId == SyncBlink::getId()) _led.blinkNow(Yellow, 5); else _tcpServer.broadcast(&nodeId, sizeof(nodeId), Server::PING_NODE);});
         _tcpClient
             .lightModeEvents
             .addEventHandler([this](bool lightMode) { _lightMode = lightMode; _tcpServer.broadcast(&lightMode, sizeof(lightMode), Server::LIGHT_MODE); });
@@ -121,7 +121,7 @@ namespace SyncBlink
             .addEventHandler([this](uint64_t nodeId) { _tcpClient.sendMessage(&nodeId, sizeof(nodeId), Client::MESH_DISCONNECTION); });
         _tcpServer
             .messageEvents
-            .addEventHandler([this](TcpMessage message) { onSocketServerMessageReceived(message); });
+            .addEventHandler([this](Message message) { onSocketServerMessageReceived(message); });
     }
 
     void NodeContext::checkNewScript()
@@ -300,22 +300,22 @@ namespace SyncBlink
          else _led.blinkNow(Red); 
     }
 
-    void NodeContext::onSocketServerMessageReceived(TcpMessage message)
+    void NodeContext::onSocketServerMessageReceived(Message message)
     {
-        switch (message.messageType)
+        switch (message.type)
         {
             case Client::MESH_CONNECTION:
             case Client::MESH_DISCONNECTION:
             case Client::MESH_UPDATED:
             case Client::SCRIPT_DISTRIBUTED:
-                _tcpClient.sendMessage(&message.message[0], message.message.size(), (Client::MessageType)message.messageType);
+                _tcpClient.sendMessage(&message.body[0], message.body.size(), (Client::MessageType)message.type);
                 break;            
             case Client::EXTERNAL_ANALYZER:
                 AudioAnalyzerMessage analyzerMessage;
-                memcpy(&analyzerMessage, &message.message[0], message.message.size());
+                memcpy(&analyzerMessage, &message.body[0], message.body.size());
                 onAnalyzerResultReceived(analyzerMessage);
 
-                _tcpClient.sendMessage(&message.message[0], message.message.size(), (Client::MessageType)message.messageType);
+                _tcpClient.sendMessage(&message.body[0], message.body.size(), (Client::MessageType)message.type);
                 break;
         }
     }
