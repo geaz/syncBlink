@@ -92,6 +92,5 @@ The message contains the *ID* of the node, the amount of LEDs, the installed *Fi
 *ID* as the parent id to the message and will send it to its parent until it reaches the station.
 
 The station will now know about the new connection in the mesh, the new node id, its parent and the installed firmware version of the connected node.
-This will trigger a **MESH_UPDATE** request to update the LED and node information on each connected node.
-After all nodes were updated a **MESH_UPDATED** message is send back to the station which will then send the currently selected led script (**DISTRIBUTE_SCRIPT**) and waits for
-**SCRIPT_DISTRIBUTED** messages from all nodes in the mesh.
+This will trigger a **MESH_UPDATE** request to update the LED and node information on each connected node. The station will then send the currently selected led script (**DISTRIBUTE_SCRIPT**)
+and waits for **SCRIPT_DISTRIBUTED** messages from all nodes in the mesh.

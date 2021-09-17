@@ -55,7 +55,7 @@ namespace SyncBlink
     
     LED& StationContext::getLed() { return _led; }
     Display& StationContext::getDisplay() { return _display; }
-    ScriptManager& StationContext::getScriptManager() { return _ScriptManager; }
+    ScriptManager& StationContext::getScriptManager() { return _scriptManager; }
     TcpServer& StationContext::getBlinkTcpServer() { return _blinkServer.getTcpServer(); }
     NodeManager& StationContext::getNodeManager() { return _nodeManager; }
     uint64_t StationContext::getStationId() const { return _stationId; }

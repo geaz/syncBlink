@@ -17,7 +17,6 @@ namespace SyncBlink
         {
             MESH_CONNECTION,    // A new node connected to the mesh
             MESH_DISCONNECTION, // A node disconnected
-            MESH_UPDATED,       // Answer to the Client::MESH_UPDATE
             SCRIPT_DISTRIBUTED, // Answer to the script distribution
             EXTERNAL_ANALYZER   // Analyzer information by an external analyzer
         };

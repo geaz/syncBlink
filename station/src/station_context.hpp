@@ -45,7 +45,7 @@ namespace SyncBlink
             Display _display;
             SyncBlinkMesh _mesh;
             NodeManager _nodeManager;
-            ScriptManager _ScriptManager;
+            ScriptManager _scriptManager;
             BlinkServer _blinkServer;
             ApiServer _apiServer;
 

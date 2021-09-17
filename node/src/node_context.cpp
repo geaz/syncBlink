@@ -176,10 +176,6 @@ namespace SyncBlink
             message.routeLedCount += _nodeLedCount;
             _tcpServer.broadcast(&message, sizeof(message), Server::MESH_UPDATE);
         }
-        else
-        {
-            _tcpClient.sendMessage(0, 0, Client::MESH_UPDATED);
-        }
     }
 
     void NodeContext::onAnalyzerResultReceived(AudioAnalyzerMessage message)
@@ -306,7 +302,6 @@ namespace SyncBlink
         {
             case Client::MESH_CONNECTION:
             case Client::MESH_DISCONNECTION:
-            case Client::MESH_UPDATED:
             case Client::SCRIPT_DISTRIBUTED:
                 _tcpClient.sendMessage(&message.body[0], message.body.size(), (Client::MessageType)message.type);
                 break;            
