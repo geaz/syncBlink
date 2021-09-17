@@ -102,7 +102,7 @@ namespace SyncBlink
             {
                 if(message.type == Client::MESH_CONNECTION)
                 {
-                    auto conMessage = Message::as<Client::ConnectionMessage>(message);
+                    auto conMessage = message.as<Client::ConnectionMessage>();
                     if(conMessage.parentId == 0)
                     {
                         if(conMessage.isNode) conMessage.parentId = SyncBlink::getId();

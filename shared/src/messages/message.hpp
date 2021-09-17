@@ -15,10 +15,10 @@ namespace SyncBlink
             std::vector<uint8_t> body;
 
             template <class T>
-            static T as(Message message)
+            T as()
             {
                 T typedMessage;
-                memcpy(&typedMessage, &message.body[0], message.body.size());
+                memcpy(&typedMessage, &body[0], body.size());
                 return typedMessage;
             }
 

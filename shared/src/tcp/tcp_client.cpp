@@ -147,34 +147,34 @@ namespace SyncBlink
     void TcpClient::handleIncomingMessages()
     {
         Message message;
-        if(Message::available(_client, message))
+        if(message.available(_client, message))
         {
             switch(message.type)
             {
                 case Server::ANALYZER_UPDATE:
                 {
-                    auto anaMessage = Message::as<AudioAnalyzerMessage>(message);
+                    auto anaMessage = message.as<AudioAnalyzerMessage>();
                     for (auto event : audioAnalyzerEvents.getEventHandlers())
                         event.second(anaMessage);
                     break;
                 }
                 case Server::MESH_UPDATE:
                 {                    
-                    auto updateMessage = Message::as<Server::UpdateMessage>(message);
+                    auto updateMessage = message.as<Server::UpdateMessage>();
                     for (auto event : meshUpdateEvents.getEventHandlers())
                         event.second(updateMessage);
                     break;
                 }
                 case Server::SOURCE_UPDATE:
                 {
-                    auto targetNodeId = Message::as<uint64_t>(message);
+                    auto targetNodeId = message.as<uint64_t>();
                     for (auto event : sourceUpdateEvents.getEventHandlers())
                         event.second(targetNodeId);
                     break;
                 }
                 case Server::NODE_RENAME:
                 {
-                    auto renameMessage = Message::as<Server::NodeRenameMessage>(message);
+                    auto renameMessage = message.as<Server::NodeRenameMessage>();
                     for (auto event : nodeRenameEvents.getEventHandlers())
                         event.second(renameMessage);
                     break;
@@ -188,14 +188,14 @@ namespace SyncBlink
                 }
                 case Server::FIRMWARE_FLASH_START:
                 {
-                    auto targetNodeId = Message::as<uint64_t>(message);
+                    auto targetNodeId = message.as<uint64_t>();
                     for (auto event : firmwareFlashEvents.getEventHandlers())
                         event.second(message.body, targetNodeId, Server::FIRMWARE_FLASH_START);
                     break;
                 }
                 case Server::FIRMWARE_FLASH_END:
                 {
-                    auto targetNodeId = Message::as<uint64_t>(message);
+                    auto targetNodeId = message.as<uint64_t>();
                     for (auto event : firmwareFlashEvents.getEventHandlers())
                         event.second(message.body, targetNodeId, Server::FIRMWARE_FLASH_END);
                     break;
@@ -208,14 +208,14 @@ namespace SyncBlink
                 }
                 case Server::PING_NODE:
                 {
-                    auto targetNodeId = Message::as<uint64_t>(message);
+                    auto targetNodeId = message.as<uint64_t>();
                     for (auto event : pingEvents.getEventHandlers())
                         event.second(targetNodeId);
                     break;
                 }
                 case Server::LIGHT_MODE:
                 {
-                    auto lightMode = Message::as<bool>(message);
+                    auto lightMode = message.as<bool>();
                     for (auto event : lightModeEvents.getEventHandlers())
                         event.second(lightMode);
                     break;

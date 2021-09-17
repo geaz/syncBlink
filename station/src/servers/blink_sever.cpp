@@ -31,7 +31,7 @@ namespace SyncBlink
         {
             case Client::MESH_CONNECTION:
             {
-                auto conMessage = Message::as<Client::ConnectionMessage>(message);
+                auto conMessage = message.as<Client::ConnectionMessage>();
                 if(conMessage.isAnalyzer && !conMessage.isNode)
                 {
                     Serial.printf("[MESH] New Analyzer connected: %s\n", conMessage.nodeLabel);
@@ -51,7 +51,7 @@ namespace SyncBlink
             }
             case Client::MESH_DISCONNECTION:
             {
-                auto nodeId = Message::as<uint64_t>(message);
+                auto nodeId = message.as<uint64_t>();
                 onMeshDisconnection(nodeId);
 
                 Serial.printf("[MESH] Node disconnected: %12llx\n", nodeId);
