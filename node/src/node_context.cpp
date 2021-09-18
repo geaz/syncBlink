@@ -120,7 +120,7 @@ namespace SyncBlink
             .serverDisconnectionEvents
             .addEventHandler([this](uint64_t nodeId) { _tcpClient.sendMessage(&nodeId, sizeof(nodeId), Client::MESH_DISCONNECTION); });
         _tcpServer
-            .messageEvents
+            .serverMessageEvents
             .addEventHandler([this](Message message) { onSocketServerMessageReceived(message); });
     }
 

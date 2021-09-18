@@ -17,8 +17,8 @@ namespace SyncBlink
         public:
             BroadcastScriptState(StationContext& context) : _context(context)
             {
-                _handleId = context.getBlinkTcpServer()
-                    .messageEvents
+                _handleId = context.getTcpServer()
+                    .serverMessageEvents
                     .addEventHandler([this](Message message)
                     { 
                         if(message.type == Client::SCRIPT_DISTRIBUTED && _broadcastStartedAt != 0)
@@ -32,8 +32,8 @@ namespace SyncBlink
 
             ~BroadcastScriptState()
             {
-                _context.getBlinkTcpServer()
-                    .messageEvents
+                _context.getTcpServer()
+                    .serverMessageEvents
                     .removeEventHandler(_handleId);
             }
 
@@ -44,26 +44,23 @@ namespace SyncBlink
                 context.getDisplay().loop();
 
                 readCurrentScript(context);
-                
+
                 if(_resetDistribution)
                 {
                     _receivedAnswers = 0;
                     _broadcastStartedAt = 0;
                 }
-                else if(_broadcastStartedAt == 0 && context.getBlinkTcpServer().getClientsCount() > 0)
+                else if(_broadcastStartedAt == 0 && context.getTcpServer().getClientsCount() > 0)
                 {                    
                     if(_activeScript.Exists)
                     {
                         _broadcastStartedAt = millis();
                         _nodeCount = context.getNodeManager().getTotalNodeCount() - 1; // Don't count station node
-                        context.getBlinkTcpServer().broadcast(
-                            (void*)_activeScript.Content.c_str(),
-                            _activeScript.Content.size(),
-                            Server::DISTRIBUTE_SCRIPT);
+                        context.getTcpServer().broadcast((void*)_activeScript.Content.c_str(), _activeScript.Content.size(), Server::DISTRIBUTE_SCRIPT);
                     }
                     else context.currentState = std::make_shared<InvalidScriptState>(context);
                 }
-                else if(context.getBlinkTcpServer().getClientsCount() == 0) _scriptDistributed = true;
+                else if(context.getTcpServer().getClientsCount() == 0) _scriptDistributed = true;
                 else if(_broadcastStartedAt + 10000 < millis()) _scriptDistributed = true; // Timeout
 
                 if(_scriptDistributed)

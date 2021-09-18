@@ -1,15 +1,15 @@
-#ifndef APISERVER_H
-#define APISERVER_H
+#ifndef SERIALAPI_H
+#define SERIALAPI_H
 
 #include "node_manager.hpp"
 #include <messages/api_messages.hpp>
 
 namespace SyncBlink
 {
-    class ApiServer
+    class SerialApi
     {
         public:
-            ApiServer(NodeManager& nodeManager);
+            SerialApi(NodeManager& nodeManager);
             void loop();
 
         private:
@@ -17,4 +17,4 @@ namespace SyncBlink
     };
 }
 
-#endif // APISERVER_H
+#endif // SERIALAPI_H

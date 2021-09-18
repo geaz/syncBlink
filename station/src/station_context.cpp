@@ -6,8 +6,7 @@
 
 namespace SyncBlink
 {
-    StationContext::StationContext()
-        : _blinkServer(_led, _nodeManager), _nodeManager(_blinkServer.getTcpServer()), _apiServer(_nodeManager)
+    StationContext::StationContext() : _nodeManager(_led, _tcpServer)
     {
         resetState();
         checkException();
@@ -20,7 +19,7 @@ namespace SyncBlink
         _display.loop();
         _led.setup(LED_COUNT);
         _mesh.startMesh();
-        _blinkServer.start();
+        _tcpServer.start();
     }
 
     void StationContext::loop()
@@ -36,8 +35,7 @@ namespace SyncBlink
 
         currentState->run(*this);
         
-        _blinkServer.loop();
-        _apiServer.loop();
+        _tcpServer.loop();
         _led.loop();
         _display.loop();
     }
@@ -55,8 +53,8 @@ namespace SyncBlink
     
     LED& StationContext::getLed() { return _led; }
     Display& StationContext::getDisplay() { return _display; }
-    ScriptManager& StationContext::getScriptManager() { return _scriptManager; }
-    TcpServer& StationContext::getBlinkTcpServer() { return _blinkServer.getTcpServer(); }
+    TcpServer& StationContext::getTcpServer() { return _tcpServer; }
     NodeManager& StationContext::getNodeManager() { return _nodeManager; }
+    ScriptManager& StationContext::getScriptManager() { return _scriptManager; }
     uint64_t StationContext::getStationId() const { return _stationId; }
 }

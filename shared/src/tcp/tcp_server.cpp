@@ -100,31 +100,59 @@ namespace SyncBlink
             Message message;
             if(Message::available(client.getWiFiClient(), message))
             {
-                if(message.type == Client::MESH_CONNECTION)
-                {
-                    auto conMessage = message.as<Client::ConnectionMessage>();
-                    if(conMessage.parentId == 0)
-                    {
-                        if(conMessage.isNode) conMessage.parentId = SyncBlink::getId();
-                        memcpy(&message.body[0], &conMessage, sizeof(conMessage));
-                        client.setStreamId(conMessage.nodeId);
+                for (auto event : serverMessageEvents.getEventHandlers())
+                    event.second(message);
 
-                        #ifdef DEBUG_TCP
-                        if(conMessage.isAnalyzer && !conMessage.isNode)
+                switch(message.type)
+                {
+                    case Client::MESH_CONNECTION:
+                    {
+                        auto conMessage = message.as<Client::ConnectionMessage>();
+                        if(conMessage.parentId == 0)
                         {
-                            Serial.printf("[TCP SERVER] New Analyzer connected: %s\n", conMessage.nodeLabel);
+                            if(conMessage.isNode) conMessage.parentId = SyncBlink::getId();
+                            memcpy(&message.body[0], &conMessage, sizeof(conMessage));
+                            client.setStreamId(conMessage.nodeId);
+
+                            #ifdef DEBUG_TCP
+                            if(conMessage.isAnalyzer && !conMessage.isNode)
+                            {
+                                Serial.printf("[TCP SERVER] New Analyzer connected: %s\n", conMessage.nodeLabel);
+                            }
+                            else
+                            {
+                                Serial.printf("[TCP SERVER] New Client: %12llx - LEDs %i - Parent %12llx - Firmware Version: %i.%i\n",
+                                    conMessage.nodeId, conMessage.ledCount,
+                                    conMessage.parentId, conMessage.majorVersion, conMessage.minorVersion);
+                            }                    
+                            #endif
+
+                            for (auto event : serverConnectionEvents.getEventHandlers())
+                                event.second(conMessage);
                         }
-                        else
-                        {
-                            Serial.printf("[TCP SERVER] New Client: %12llx - LEDs %i - Parent %12llx - Firmware Version: %i.%i\n",
-                                conMessage.nodeId, conMessage.ledCount,
-                                conMessage.parentId, conMessage.majorVersion, conMessage.minorVersion);
-                        }                    
-                        #endif
+                        break;
+                    }
+                    case Client::MESH_DISCONNECTION:
+                    {
+                        auto nodeId = message.as<uint64_t>();
+                        for (auto event : serverDisconnectionEvents.getEventHandlers())
+                            event.second(nodeId);
+                        break;
+                    }
+                    case Client::SCRIPT_DISTRIBUTED:
+                    {
+                        for (auto event : serverScriptDistributedEvents.getEventHandlers())
+                            event.second();
+                        break;
+                    }
+                    case Client::EXTERNAL_ANALYZER:
+                    {
+                        auto analyzerMessage = message.as<AudioAnalyzerMessage>();
+                        for (auto event : serverExternalAnalyzerEvent.getEventHandlers())
+                            event.second(analyzerMessage);
+                        break;
                     }
                 }
-                for (auto event : messageEvents.getEventHandlers())
-                    event.second(message);
             }
         }
     }

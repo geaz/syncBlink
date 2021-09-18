@@ -9,9 +9,8 @@
 #include "states/state.hpp"
 #include "display/display.hpp"
 #include "scripts/script_manager.hpp"
-#include "servers/blink_server.hpp"
-#include "servers/api_server.hpp"
 #include "node_manager.hpp"
+#include "serial_api.hpp"
 
 namespace SyncBlink
 {
@@ -30,10 +29,9 @@ namespace SyncBlink
 
             LED& getLed();
             Display& getDisplay();
-            ScriptManager& getScriptManager();
-            TcpServer& getBlinkTcpServer();
+            TcpServer& getTcpServer();
             NodeManager& getNodeManager();
-
+            ScriptManager& getScriptManager();
             uint64_t getStationId() const;
 
             std::shared_ptr<State> currentState;
@@ -42,12 +40,11 @@ namespace SyncBlink
             void checkException();
 
             LED _led;
+            TcpServer _tcpServer = TcpServer(81);
             Display _display;
             SyncBlinkMesh _mesh;
             NodeManager _nodeManager;
             ScriptManager _scriptManager;
-            BlinkServer _blinkServer;
-            ApiServer _apiServer;
 
             uint64_t _stationId = SyncBlink::getId();
 

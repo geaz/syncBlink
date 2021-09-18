@@ -21,7 +21,7 @@ namespace SyncBlink
                     _activeFlash = LittleFS.open(FirmwarePath.c_str(), "r");
                     _flashPos = 0;
                     _flashing = true;
-                    context.getBlinkTcpServer().broadcast(&_targetId, sizeof(_targetId), Server::FIRMWARE_FLASH_START);
+                    context.getTcpServer().broadcast(&_targetId, sizeof(_targetId), Server::FIRMWARE_FLASH_START);
                 }
             }
 
@@ -36,7 +36,7 @@ namespace SyncBlink
                     {
                         _activeFlash.close();
                         _flashing = false;
-                        context.getBlinkTcpServer().broadcast(&_targetId, sizeof(_targetId), Server::FIRMWARE_FLASH_END);
+                        context.getTcpServer().broadcast(&_targetId, sizeof(_targetId), Server::FIRMWARE_FLASH_END);
                         context.resetState();
                     }
                     else
@@ -49,7 +49,7 @@ namespace SyncBlink
                         _activeFlash.readBytes(buf, readSize);
                         _flashPos += readSize;
 
-                        context.getBlinkTcpServer().broadcast(buf, readSize, Server::FIRMWARE_FLASH_DATA);
+                        context.getTcpServer().broadcast(buf, readSize, Server::FIRMWARE_FLASH_DATA);
                         _progressView->setProgress((float)_flashPos/_activeFlash.size());
                     }
                 }

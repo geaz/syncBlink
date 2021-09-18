@@ -16,8 +16,6 @@ namespace SyncBlink
             GET_INFO,
             SET_ANALYZER,
             SET_LIGHTMODE,
-            SET_WIFI,
-            GET_WIFI,
             LIST_SCRIPTS,
             GET_SCRIPT,
             ADD_SCRIPT,

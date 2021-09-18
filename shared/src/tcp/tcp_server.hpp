@@ -18,8 +18,11 @@ extern "C" void tcp_abandon (struct tcp_pcb* pcb, int reset);
 
 namespace SyncBlink
 {
-    typedef std::function<void(uint64_t nodeId)> ServerDisconnectionEvent;
     typedef std::function<void(Message message)> ServerMessageEvent;
+    typedef std::function<void(Client::ConnectionMessage)> ServerConnectionEvent;
+    typedef std::function<void(uint64_t nodeId)> ServerDisconnectionEvent;    
+    typedef std::function<void(AudioAnalyzerMessage message)> ServerExternalAnalyzerEvent;
+    typedef std::function<void()> ServerScriptDistributedEvent;
 
     class TcpServer
     {
@@ -32,8 +35,11 @@ namespace SyncBlink
 
         uint32_t getClientsCount();
 
+        EventRegistration<ServerMessageEvent> serverMessageEvents;
+        EventRegistration<ServerConnectionEvent> serverConnectionEvents;
         EventRegistration<ServerDisconnectionEvent> serverDisconnectionEvents;
-        EventRegistration<ServerMessageEvent> messageEvents;
+        EventRegistration<ServerExternalAnalyzerEvent> serverExternalAnalyzerEvent;
+        EventRegistration<ServerScriptDistributedEvent> serverScriptDistributedEvents;
 
     private:
         void clearClients();

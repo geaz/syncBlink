@@ -1,11 +1,11 @@
-#include "api_server.hpp"
+#include "serial_api.hpp"
 
 namespace SyncBlink
 {
-    ApiServer::ApiServer(NodeManager& nodeManager) : _nodeManager(nodeManager)
+    SerialApi::SerialApi(NodeManager& nodeManager) : _nodeManager(nodeManager)
     { }
 
-    void ApiServer::loop()
+    void SerialApi::loop()
     {
         Message message;
         if(Message::available(Serial, message))
@@ -33,7 +33,6 @@ namespace SyncBlink
                 These messages just have to get forwarded - maybe a FORWARDE API CALL? */
 
 
-                case Api::GET_WIFI:
                 case Api::GET_SCRIPT:
                 case Api::LIST_SCRIPTS:
                 case Api::GET_INFO:
@@ -41,7 +40,6 @@ namespace SyncBlink
                     
                     break;
                 }
-                case Api::SET_WIFI:
                 case Api::ADD_SCRIPT:
                 case Api::UPDATE_SCRIPT:
                 case Api::DELETE_SCRIPT:

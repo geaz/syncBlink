@@ -21,8 +21,8 @@ namespace SyncBlink
             RunScriptState(StationContext& context, std::shared_ptr<BlinkScript> blinkScript) 
                 : _context(context), _blinkScript(blinkScript)
             {
-                _socketEventHandleId = context.getBlinkTcpServer()
-                    .messageEvents
+                _socketEventHandleId = context.getTcpServer()
+                    .serverMessageEvents
                     .addEventHandler([this](Message message) 
                     { 
                         _newNodeConnected = message.type == Client::MESH_CONNECTION;
@@ -41,8 +41,8 @@ namespace SyncBlink
 
             ~RunScriptState()
             {
-                _context.getBlinkTcpServer()
-                    .messageEvents
+                _context.getTcpServer()
+                    .serverMessageEvents
                     .removeEventHandler(_socketEventHandleId);
                 _context.getScriptManager()
                     .activeScriptChangedEvents
@@ -55,12 +55,12 @@ namespace SyncBlink
                 context.getDisplay().setLeftStatus(_scriptName);
                 
                 if(_activeScriptChanged || _newNodeConnected) context.resetState();
-                else handleMicrophoneSource(context.getBlinkTcpServer());
+                else handleMicrophoneSource();
             }
 
         private:
-            void handleMicrophoneSource(TcpServer& tcpServer)
-            {   
+            void handleMicrophoneSource()
+            {
                 if(checkBlinkScript() && _context.getNodeManager().getActiveAnalyzer() == _context.getStationId())
                 {
                     AudioAnalyzerResult result = _frequencyAnalyzer.loop();
@@ -69,7 +69,7 @@ namespace SyncBlink
                     uint32_t delta = millis() - _lastLedUpdate;
                     _lastLedUpdate = millis();
 
-                    tcpServer.broadcast(&message, sizeof(message), Server::ANALYZER_UPDATE);
+                    _context.getTcpServer().broadcast(&message, sizeof(message), Server::ANALYZER_UPDATE);
                     setView(message, delta);
                     _blinkScript->updateAnalyzerResult(result.volume, result.dominantFrequency);
                     _blinkScript->run(delta);
@@ -87,7 +87,7 @@ namespace SyncBlink
                     uint32_t delta = millis() - _lastLedUpdate;
                     _lastLedUpdate = millis();
 
-                    _context.getBlinkTcpServer().broadcast(&audioMessage, sizeof(audioMessage), Server::ANALYZER_UPDATE);
+                    _context.getTcpServer().broadcast(&audioMessage, sizeof(audioMessage), Server::ANALYZER_UPDATE);
                     setView(audioMessage, delta);
 
                     _blinkScript->updateAnalyzerResult(audioMessage.volume, audioMessage.frequency);
