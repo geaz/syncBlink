@@ -3,6 +3,9 @@
 
 namespace SyncBlink
 {
+    TcpServer::TcpServer(uint16_t port) : _server(WiFiServer(port))
+    { }
+
     void TcpServer::start()
     {
         _server.begin();
@@ -15,15 +18,15 @@ namespace SyncBlink
         handleIncomingMessages();
     }
 
-    void TcpServer::broadcast(void* message, uint32_t messageSize, Server::MessageType messageType)
+    void TcpServer::broadcast(void* body, uint32_t bodySize, Server::MessageType messageType)
     {
-        auto tcpMessage = TcpStream::serializeMessage(message, messageSize, messageType);
-        #ifdef DEBUG_TCPSTREAM
-        if(_clients.size() > 0) Serial.printf("[TCP SERVER] Writing message - Type: %i, Size: %i\n", messageType, tcpMessage.size());
+        auto packet = Message::toMessagePacket(body, bodySize, messageType);
+        #ifdef DEBUG_TCP
+        if(_clients.size() > 0) Serial.printf("[TCP] Writing message - Type: %i, Size: %i\n", messageType, packet.size());
         #endif
-        for(auto& client : _clients)
+        for(TcpClient& client : _clients)
         {
-            client.writeMessage(tcpMessage);
+            client.writeMessage(packet);
         }
     }
 
@@ -86,7 +89,7 @@ namespace SyncBlink
     {
         if(_server.hasClient())
         {
-            _clients.push_back(TcpStream(_server.available()));
+            _clients.push_back(TcpClient(_server.available()));
         }
     }
 
@@ -94,36 +97,62 @@ namespace SyncBlink
     {
         for(auto& client : _clients)
         {
-            TcpMessage tcpMessage;
-            if(client.checkMessage(tcpMessage))
+            Message message;
+            if(Message::available(client.getWiFiClient(), message))
             {
-                if(tcpMessage.messageType == Client::MESH_CONNECTION)
-                {
-                    Client::ConnectionMessage message;
-                    memcpy(&message, &tcpMessage.message[0], tcpMessage.message.size());
-                    
-                    if(message.parentId == 0)
-                    {
-                        if(message.isNode) message.parentId = SyncBlink::getId();
-                        memcpy(&tcpMessage.message[0], &message, sizeof(message));
-                        client.setStreamId(message.nodeId);
+                for (auto event : serverMessageEvents.getEventHandlers())
+                    event.second(message);
 
-                        #ifdef DEBUG_TCP
-                        if(message.isAnalyzer && !message.isNode)
+                switch(message.type)
+                {
+                    case Client::MESH_CONNECTION:
+                    {
+                        auto conMessage = message.as<Client::ConnectionMessage>();
+                        if(conMessage.parentId == 0)
                         {
-                            Serial.printf("[TCP SERVER] New Analyzer connected: %s\n", message.nodeLabel);
+                            if(conMessage.isNode) conMessage.parentId = SyncBlink::getId();
+                            memcpy(&message.body[0], &conMessage, sizeof(conMessage));
+                            client.setStreamId(conMessage.nodeId);
+
+                            #ifdef DEBUG_TCP
+                            if(conMessage.isAnalyzer && !conMessage.isNode)
+                            {
+                                Serial.printf("[TCP SERVER] New Analyzer connected: %s\n", conMessage.nodeLabel);
+                            }
+                            else
+                            {
+                                Serial.printf("[TCP SERVER] New Client: %12llx - LEDs %i - Parent %12llx - Firmware Version: %i.%i\n",
+                                    conMessage.nodeId, conMessage.ledCount,
+                                    conMessage.parentId, conMessage.majorVersion, conMessage.minorVersion);
+                            }                    
+                            #endif
+
+                            for (auto event : serverConnectionEvents.getEventHandlers())
+                                event.second(conMessage);
                         }
-                        else
-                        {
-                            Serial.printf("[TCP SERVER] New Client: %12llx - LEDs %i - Parent %12llx - Firmware Version: %i.%i\n",
-                                message.nodeId, message.ledCount,
-                                message.parentId, message.majorVersion, message.minorVersion);
-                        }                    
-                        #endif
+                        break;
+                    }
+                    case Client::MESH_DISCONNECTION:
+                    {
+                        auto nodeId = message.as<uint64_t>();
+                        for (auto event : serverDisconnectionEvents.getEventHandlers())
+                            event.second(nodeId);
+                        break;
+                    }
+                    case Client::SCRIPT_DISTRIBUTED:
+                    {
+                        for (auto event : serverScriptDistributedEvents.getEventHandlers())
+                            event.second();
+                        break;
+                    }
+                    case Client::EXTERNAL_ANALYZER:
+                    {
+                        auto analyzerMessage = message.as<AudioAnalyzerMessage>();
+                        for (auto event : serverExternalAnalyzerEvent.getEventHandlers())
+                            event.second(analyzerMessage);
+                        break;
                     }
                 }
-                for (auto event : messageEvents.getEventHandlers())
-                    event.second(tcpMessage);
             }
         }
     }

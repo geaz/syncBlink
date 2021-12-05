@@ -1,11 +1,12 @@
 #ifndef NODEMANAGER_H
 #define NODEMANAGER_H
 
-#include <network/mesh/syncblink_mesh.hpp>
+#include <vector>
+#include <led/led.hpp>
 #include <network/tcp/tcp_server.hpp>
+#include <network/mesh/syncblink_mesh.hpp>
 #include <network/tcp/messages/client_messages.hpp>
 #include <network/tcp/messages/server_messages.hpp>
-#include <vector>
 
 namespace SyncBlink
 {
@@ -14,10 +15,8 @@ namespace SyncBlink
     class NodeManager
     {
         public:
-            NodeManager(TcpServer& tcpServer);
-
-            void addNode(Client::ConnectionMessage connectionMessage);
-            void removeNode(uint64_t nodeId);
+            NodeManager(LED& led, TcpServer& blinkTcpServer);
+            ~NodeManager();
 
             void setLightMode(bool lightMode);
             void setAnalyzer(uint64_t analyzerId);
@@ -31,14 +30,21 @@ namespace SyncBlink
             std::vector<Client::ConnectionMessage> getConnectedNodes() const;
 
         private:
+            void onMeshConnection(Client::ConnectionMessage connectionMessage);
+            void onMeshDisconnection(uint64_t nodeId);
             void countInfos();
             
+            LED& _led;
+            TcpServer& _tcpServer;
+
+            uint32_t _conHandleId;
+            uint32_t _disConHandleId;
+
             uint32_t _totalLeds;
             uint32_t _totalNodes;
             bool _lightMode = false;
             uint64_t _activeAnalyzer = SyncBlink::getId();
 
-            TcpServer& _socketServer;
             std::vector<Client::ConnectionMessage> _connectedNodes = {{ true, true, false, SyncBlink::getId(), 0, LED_COUNT, VERSIONMAJOR, VERSIONMINOR, { 'S', 't', 'a', 't', 'i', 'o', 'n' } }};
     };
 }

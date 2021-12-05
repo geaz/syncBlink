@@ -17,14 +17,14 @@ namespace SyncBlink
             BroadcastScriptState(StationContext& context) : _context(context)
             {
                 _handleId = context.getTcpServer()
-                    .messageEvents
-                    .addEventHandler([this](TcpMessage message)
+                    .serverMessageEvents
+                    .addEventHandler([this](Message message)
                     { 
-                        if(message.messageType == Client::SCRIPT_DISTRIBUTED && _broadcastStartedAt != 0)
+                        if(message.type == Client::SCRIPT_DISTRIBUTED && _broadcastStartedAt != 0)
                         {
                             _scriptDistributed = ++_receivedAnswers == _nodeCount;
                         }
-                        _resetDistribution = message.messageType == Client::MESH_CONNECTION || message.messageType == Client::MESH_DISCONNECTION;
+                        _resetDistribution = message.type == Client::MESH_CONNECTION || message.type == Client::MESH_DISCONNECTION;
                     });
                 _broadcastScriptView = std::make_shared<IconTextView>("Broadcasting script ...", u8g2_font_open_iconic_thing_2x_t, 74);
             }
@@ -32,7 +32,7 @@ namespace SyncBlink
             ~BroadcastScriptState()
             {
                 _context.getTcpServer()
-                    .messageEvents
+                    .serverMessageEvents
                     .removeEventHandler(_handleId);
             }
 

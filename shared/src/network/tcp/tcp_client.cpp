@@ -2,10 +2,32 @@
 
 namespace SyncBlink
 {
-    void TcpClient::start(String serverIp)
+    TcpClient::TcpClient()
+    {
+        _client.setNoDelay(true);
+    }
+
+    TcpClient::TcpClient(WiFiClient client) : _client(client)
+    {
+        _client.setNoDelay(true);
+    }
+
+    void TcpClient::start(String serverIp, uint16_t port)
     {
         _serverIp = serverIp;
+        _port = port;
+        
         checkConnection();
+    }
+    
+    void TcpClient::stop()
+    {
+        _client.stop();
+    }
+
+    void TcpClient::flush()
+    {
+        _client.flush();
     }
 
     void TcpClient::loop()
@@ -16,16 +38,42 @@ namespace SyncBlink
 
     void TcpClient::sendMessage(void* message, uint32_t messageSize, Client::MessageType messageType)
     {
-        auto tcpMessage = TcpStream::serializeMessage(message, messageSize, messageType);
+        auto messagePacket = Message::toMessagePacket(message, messageSize, messageType);
         #ifdef DEBUG_TCP
-        Serial.printf("[TCP CLIENT] Writing message! Type: %i, Size: %i\n", messageType, messageSize);
+        Serial.printf("[TCP CLIENT] Sending message to server! Type: %i, Size: %i\n", messageType, messagePacket.size());
         #endif
-        _client.writeMessage(tcpMessage);
+        writeMessage(messagePacket);
+    }
+
+    void TcpClient::writeMessage(std::vector<uint8_t> message)
+    {
+        if(_client.connected())
+        {
+            long started = millis();
+            uint8_t* messagePtr = &message[0];
+            uint32_t messageSize = message.size();
+            while(messageSize > 0)
+            {
+                if(millis() - started > SocketWriteTimeout)
+                {
+                    #ifdef DEBUG_TCP
+                    Serial.printf("[TCP Client] Write Timeout\n");
+                    #endif
+                    _writeTimeout = true;
+                    break;
+                }
+                
+                uint32_t written = _client.write(messagePtr, messageSize);
+                messagePtr += written;
+                messageSize -= written;
+                if(messageSize > 0) delay(0);
+            }
+        }
     }
 
     bool TcpClient::isConnected()
     {
-        return _client.isConnected();
+        return _client.connected();
     }
 
     bool TcpClient::isDiscontinued()
@@ -33,22 +81,43 @@ namespace SyncBlink
         return _retryCount >= 10;
     }
 
+    bool TcpClient::isWriteTimeout()
+    {
+        return _writeTimeout;
+    }
+
+    void TcpClient::setStreamId(uint64_t id)
+    {
+        _streamId = id;
+    }
+
+    uint64_t TcpClient::getStreamId() const
+    {
+        return _streamId;
+    }
+
+    WiFiClient& TcpClient::getWiFiClient()
+    {
+        return _client;
+    }
+
+    IPAddress TcpClient::getRemoteIp()
+    {
+        return _client.remoteIP();
+    }
+
     void TcpClient::checkConnection()
     {
-        if(!_client.isConnected() && WiFi.status() == WL_CONNECTED && _retryCount++ < 10)
+        if(!_client.connected() && WiFi.status() == WL_CONNECTED && _retryCount++ < 10)
         {
             #ifdef DEBUG_TCP
             if(_wasConnected)
-                Serial.println("[TCP CLIENT] Disconnected! Trying to connect ...");
+                Serial.println("[TCP] Disconnected! Trying to connect ...");
             else
-                Serial.println("[TCP CLIENT] Trying to connect ...");
+                Serial.println("[TCP] Trying to connect ...");
             #endif
-            if(_client.connectTo(_serverIp, 81))
+            if(connectTo(_serverIp, 81))
             {
-                #ifdef DEBUG_TCP
-                Serial.println("[TCP CLIENT] Connected!");
-                #endif
-
                 if(!_wasConnected)
                 {
                     _wasConnected = true;
@@ -60,86 +129,93 @@ namespace SyncBlink
         }
     }
 
+    bool TcpClient::connectTo(String socketIp, uint16_t port)
+    {
+        bool connected = false;
+        #ifdef DEBUG_TCP
+        Serial.println("[TCP] Connecting to TCP '" + socketIp + "' ...");
+        #endif
+        if(_client.connect(socketIp, 81)){
+            #ifdef DEBUG_TCP
+            Serial.println("[TCP] Connected!");
+            #endif
+            connected = true;
+        }
+        return connected;
+    }
+
     void TcpClient::handleIncomingMessages()
     {
-        TcpMessage tcpMessage;
-        if(_client.checkMessage(tcpMessage))
+        Message message;
+        if(message.available(_client, message))
         {
-            switch(tcpMessage.messageType)
+            switch(message.type)
             {
                 case Server::ANALYZER_UPDATE:
                 {
-                    AudioAnalyzerMessage message;
-                    memcpy(&message, &tcpMessage.message[0], tcpMessage.message.size());
+                    auto anaMessage = message.as<AudioAnalyzerMessage>();
                     for (auto event : audioAnalyzerEvents.getEventHandlers())
-                        event.second(message);
+                        event.second(anaMessage);
                     break;
                 }
                 case Server::MESH_UPDATE:
-                {
-                    Server::UpdateMessage message;
-                    memcpy(&message, &tcpMessage.message[0], tcpMessage.message.size());
+                {                    
+                    auto updateMessage = message.as<Server::UpdateMessage>();
                     for (auto event : meshUpdateEvents.getEventHandlers())
-                        event.second(message);
+                        event.second(updateMessage);
                     break;
                 }
                 case Server::SOURCE_UPDATE:
                 {
-                    uint64_t targetNodeId = 0;
-                    memcpy(&targetNodeId, &tcpMessage.message[0], tcpMessage.message.size());
+                    auto targetNodeId = message.as<uint64_t>();
                     for (auto event : sourceUpdateEvents.getEventHandlers())
                         event.second(targetNodeId);
                     break;
                 }
                 case Server::NODE_RENAME:
                 {
-                    Server::NodeRenameMessage message;
-                    memcpy(&message, &tcpMessage.message[0], tcpMessage.message.size());
+                    auto renameMessage = message.as<Server::NodeRenameMessage>();
                     for (auto event : nodeRenameEvents.getEventHandlers())
-                        event.second(message);
+                        event.second(renameMessage);
                     break;
                 }
                 case Server::DISTRIBUTE_SCRIPT:
                 {
-                    std::string script((char*)&tcpMessage.message[0], tcpMessage.message.size());
+                    std::string script((char*)&message.body[0], message.body.size());
                     for (auto event : meshScriptEvents.getEventHandlers())
                         event.second(script);
                     break;
                 }
                 case Server::FIRMWARE_FLASH_START:
                 {
-                    uint64_t targetNodeId = 0;
-                    memcpy(&targetNodeId, &tcpMessage.message[0], tcpMessage.message.size());
+                    auto targetNodeId = message.as<uint64_t>();
                     for (auto event : firmwareFlashEvents.getEventHandlers())
-                        event.second(tcpMessage.message, targetNodeId, Server::FIRMWARE_FLASH_START);
+                        event.second(message.body, targetNodeId, Server::FIRMWARE_FLASH_START);
                     break;
                 }
                 case Server::FIRMWARE_FLASH_END:
                 {
-                    uint64_t targetNodeId = 0;
-                    memcpy(&targetNodeId, &tcpMessage.message[0], tcpMessage.message.size());
+                    auto targetNodeId = message.as<uint64_t>();
                     for (auto event : firmwareFlashEvents.getEventHandlers())
-                        event.second(tcpMessage.message, targetNodeId, Server::FIRMWARE_FLASH_END);
+                        event.second(message.body, targetNodeId, Server::FIRMWARE_FLASH_END);
                     break;
                 }
                 case Server::FIRMWARE_FLASH_DATA:
                 {
                     for (auto event : firmwareFlashEvents.getEventHandlers())
-                        event.second(tcpMessage.message, 0, Server::FIRMWARE_FLASH_DATA);
+                        event.second(message.body, 0, Server::FIRMWARE_FLASH_DATA);
                     break;
                 }
-                case Server::PING:
+                case Server::PING_NODE:
                 {
-                    uint64_t targetNodeId = 0;
-                    memcpy(&targetNodeId, &tcpMessage.message[0], tcpMessage.message.size());
+                    auto targetNodeId = message.as<uint64_t>();
                     for (auto event : pingEvents.getEventHandlers())
                         event.second(targetNodeId);
                     break;
                 }
                 case Server::LIGHT_MODE:
                 {
-                    bool lightMode = false;
-                    memcpy(&lightMode, &tcpMessage.message[0], tcpMessage.message.size());
+                    auto lightMode = message.as<bool>();
                     for (auto event : lightModeEvents.getEventHandlers())
                         event.second(lightMode);
                     break;

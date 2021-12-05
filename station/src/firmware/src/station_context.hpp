@@ -48,15 +48,13 @@ namespace SyncBlink
 
         private:
             void checkException();
-            void onMeshDisconnection(uint64_t clientId);
-            void onSocketServerCommandReceived(TcpMessage tcpMessage);
 
             LED _led;
+            TcpServer _tcpServer = TcpServer(81);
             Display _display;
             StationWifi _wifi;  
             NodeManager _nodeManager;
-            ScriptManager _ScriptManager;
-            TcpServer _tcpServer;          
+            ScriptManager _ScriptManager;       
             SyncBlinkWeb _web;
 
             uint64_t _stationId = SyncBlink::getId();

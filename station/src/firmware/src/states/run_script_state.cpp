@@ -21,12 +21,12 @@ namespace SyncBlink
                 : _context(context), _blinkScript(blinkScript)
             {
                 _socketEventHandleId = context.getTcpServer()
-                    .messageEvents
-                    .addEventHandler([this](TcpMessage message) 
+                    .serverMessageEvents
+                    .addEventHandler([this](Message message) 
                     { 
-                        _newNodeConnected = message.messageType == Client::MESH_CONNECTION;
-                        if(message.messageType == Client::MessageType::EXTERNAL_ANALYZER)
-                            handleExternalSource(message.message);
+                        _newNodeConnected = message.type == Client::MESH_CONNECTION;
+                        if(message.type == Client::MessageType::EXTERNAL_ANALYZER)
+                            handleExternalSource(message.body);
                     });
                 _scriptEventHandleId = context.getScriptManager()
                     .activeScriptChangedEvents
@@ -41,7 +41,7 @@ namespace SyncBlink
             ~RunScriptState()
             {
                 _context.getTcpServer()
-                    .messageEvents
+                    .serverMessageEvents
                     .removeEventHandler(_socketEventHandleId);
                 _context.getScriptManager()
                     .activeScriptChangedEvents
