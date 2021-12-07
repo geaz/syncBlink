@@ -27,6 +27,7 @@ namespace SyncBlink
 
         _wifi.connectWifi();
         _tcpServer.start();
+        _udpDiscover.start();
     }
 
     void StationContext::loop()
@@ -44,6 +45,7 @@ namespace SyncBlink
         currentState->run(*this);
         
         _tcpServer.loop();
+        _udpDiscover.loop();
         _led.loop();
         _web.loop();
         _display.loop();

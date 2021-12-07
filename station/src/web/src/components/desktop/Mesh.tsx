@@ -5,6 +5,7 @@ import ReactFlow, { MiniMap, Controls, Background, BackgroundVariant } from 'rea
 import SyncBlinkNode from '../../nodes/SyncBlinkNode';
 import SyncBlinkStation from '../../nodes/SyncBlinkStation';
 import SyncBlinkAnalyzer from '../../nodes/SyncBlinkAnalyzer';
+import SyncBlinkRouterNode from "../../nodes/SyncBlinkRouterNode";
 
 import Loader from '../ui/Loader';
 import Renamer from './modals/Renamer';
@@ -17,6 +18,7 @@ const nodeTypes = {
     syncBlinkStation: SyncBlinkStation,
     syncBlinkNode: SyncBlinkNode,
     syncBlinkAnalyzer: SyncBlinkAnalyzer,
+    syncBlinkRouterNode: SyncBlinkRouterNode,
 };
 
 function Mesh() {

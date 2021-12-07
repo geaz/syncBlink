@@ -91,12 +91,13 @@ namespace SyncBlink
         String JSON;
         DynamicJsonDocument doc(4096);
         
+        std::string ssid = _stationWifi.getSavedSSID();
         auto connectedNodes = _nodeManager.getConnectedNodes();
         for(uint32_t i = 0; i < connectedNodes.size(); i++)
         {
             DynamicJsonDocument nodeJson(512);
             nodeJson["isStation"] = connectedNodes[i].isStation;
-            nodeJson["isAnalyzer"] = connectedNodes[i].isAnalyzer;
+            nodeJson["isAnalyzer"] = connectedNodes[i].isAnalyzer;         
             nodeJson["isNode"] = connectedNodes[i].isNode;
             nodeJson["nodeId"] = connectedNodes[i].nodeId;
             nodeJson["parentId"] = connectedNodes[i].parentId;
@@ -104,11 +105,14 @@ namespace SyncBlink
             nodeJson["majorVersion"] = connectedNodes[i].majorVersion;
             nodeJson["minorVersion"] = connectedNodes[i].minorVersion;
             nodeJson["label"] = &connectedNodes[i].nodeLabel[0];
+            nodeJson["connectedToMeshWifi"] = connectedNodes[i].connectedToMeshWifi;   
 
             doc["nodes"][i] = nodeJson;
         }
         doc["analyzer"] = _nodeManager.getActiveAnalyzer();
         doc["lightMode"] = _nodeManager.getLightMode();
+        doc["ssid"] = ssid.c_str();
+        doc["connected"] = WiFi.status() == WL_CONNECTED;
 
         std::string activeScript = _scriptManager.getActiveScript();
         doc["script"] = activeScript.c_str();

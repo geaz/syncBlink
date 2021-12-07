@@ -4,6 +4,7 @@
 #include <memory>
 #include <led/led.hpp>
 #include <network/tcp/tcp_server.hpp>
+#include <network/tcp/udp_discover.hpp>
 
 #include "states/state.hpp"
 #include "display/display.hpp"
@@ -50,7 +51,8 @@ namespace SyncBlink
             void checkException();
 
             LED _led;
-            TcpServer _tcpServer = TcpServer(81);
+            TcpServer _tcpServer;
+            UdpDiscover _udpDiscover;
             Display _display;
             StationWifi _wifi;  
             NodeManager _nodeManager;

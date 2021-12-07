@@ -45,7 +45,7 @@ namespace SyncBlink
             bool _lightMode = false;
             uint64_t _activeAnalyzer = SyncBlink::getId();
 
-            std::vector<Client::ConnectionMessage> _connectedNodes = {{ true, true, false, SyncBlink::getId(), 0, LED_COUNT, VERSIONMAJOR, VERSIONMINOR, { 'S', 't', 'a', 't', 'i', 'o', 'n' } }};
+            std::vector<Client::ConnectionMessage> _connectedNodes = {{ true, true, false, true, SyncBlink::getId(), 0, LED_COUNT, VERSIONMAJOR, VERSIONMINOR, { 'S', 't', 'a', 't', 'i', 'o', 'n' } }};
     };
 }
 
