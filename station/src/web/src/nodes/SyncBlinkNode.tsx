@@ -1,7 +1,7 @@
 import { Node as FlowNode, Handle, Position } from 'react-flow-renderer';
 
 import IconButton from '../components/ui/IconButton';
-import { faWifi, faSquareFull, faPen, faAngleUp, faCrosshairs, faHeadphones } from '@fortawesome/free-solid-svg-icons';
+import { faWifi, faServer, faPen, faAngleUp, faCrosshairs, faHeadphones } from '@fortawesome/free-solid-svg-icons';
 
 import StyledNode from './StyledNode';
 
@@ -36,7 +36,7 @@ function SyncBlinkNode(node: FlowNode<SyncBlinkNodeProps>) {
                     active={!node.data?.connectedToMeshWiFi}
                     disabled={!node.data?.connectedToMeshWiFi}
                     onClick={() => node.data?.onSetWifi(node.data?.id, !node.data?.connectedToMeshWiFi)} />
-                <IconButton icon={faSquareFull}
+                <IconButton icon={faServer}
                     tooltip="Connect to Station WiFi"
                     active={node.data?.connectedToMeshWiFi}
                     disabled={node.data?.connectedToMeshWiFi}
