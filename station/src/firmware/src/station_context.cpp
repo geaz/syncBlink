@@ -6,7 +6,7 @@
 
 namespace SyncBlink
 {
-    StationContext::StationContext() : _nodeManager(_led, _tcpServer), _web(_wifi, _ScriptManager, _nodeManager)
+    StationContext::StationContext() : _nodeManager(_led, _tcpServer, _wifi), _web(_wifi, _ScriptManager, _nodeManager)
     {
         resetState();
         checkException();
@@ -27,7 +27,7 @@ namespace SyncBlink
 
         _wifi.connectWifi();
         _tcpServer.start();
-        _udpDiscover.start();
+        _udpDiscover.start(true);
     }
 
     void StationContext::loop()

@@ -31,6 +31,7 @@ namespace SyncBlink
 
     private:
         void registerEvents();
+
         void onSocketClientConnectionChanged(bool connected);
         void onMeshUpdateReceived(Server::UpdateMessage message);
 

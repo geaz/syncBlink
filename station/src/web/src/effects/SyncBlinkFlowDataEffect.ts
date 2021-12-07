@@ -98,9 +98,12 @@ function createMeshNodeData(
             props.majorVersion = node.majorVersion;
             props.minorVersion = node.minorVersion;
             props.ledCount = node.ledCount;
+            props.wifiAvailable = connectedToWifi;
+            props.connectedToMeshWiFi = node.connectedToMeshWifi;
             props.onFlash = (n) => setModal({ type: ModalType.Flasher, nodeId: n, text: props.label });
             props.onRename = (n, l) => setModal({ type: ModalType.Renamer, nodeId: n, text: l });
             props.onPing = (nodeId: number) => fetch('/api/mesh/ping?nodeId=' + nodeId);
+            props.onSetWifi = (nodeId: number, meshWifi: boolean) => fetch('/api/mesh/setNodeWifi?nodeId=' + nodeId + '&meshWifi=' + (meshWifi ? "true" : "false"));
 
             if(node.isAnalyzer)
             {
@@ -165,7 +168,7 @@ function createMeshNodeData(
         else if(node.isStation) {
             for(let j = 0; j < nodeData.length; j++) {
                 let otherNode = nodeData[j];
-                if(otherNode.parentId === node.nodeId && node.connectedToMeshWifi) {
+                if(otherNode.parentId === node.nodeId && otherNode.connectedToMeshWifi) {
                     edges.push({ 
                         id: node.id + '-' + otherNode.id,
                         type: 'step',

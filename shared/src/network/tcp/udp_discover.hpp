@@ -9,7 +9,7 @@ namespace SyncBlink
     class UdpDiscover
     {
     public:
-        void start();
+        void start(bool isServer);
         void loop();
         void ping();
 
@@ -17,6 +17,7 @@ namespace SyncBlink
 
     private:
         WiFiUDP _udp;
+        bool _isServer;
         bool _serverDiscovered;
         IPAddress _serverIp;
     };

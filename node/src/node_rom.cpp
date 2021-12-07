@@ -2,7 +2,7 @@
 
 #include <Arduino.h>
 #include <shared_constants.hpp>
-#include <rom_reader.hpp>
+#include <rom_funcs.hpp>
 
 namespace SyncBlink
 {
@@ -11,6 +11,9 @@ namespace SyncBlink
         tcpClient
             .nodeRenameEvents
             .addEventHandler([this, &tcpServer](Server::NodeRenameMessage message) { onNodeRenameReceived(message, tcpServer); });
+        tcpClient
+            .nodeSetWifiEvents
+            .addEventHandler([this, &tcpServer](Server::WifiSetMessage message) { onSetWifiReceived(message, tcpServer); });
     }
 
     uint32_t NodeRom::getLedCount() { readRom(); return _nodeLedCount; }
@@ -42,13 +45,24 @@ namespace SyncBlink
     {
         if(message.nodeId == SyncBlink::getId())
         {
-            for(uint8_t i = 0; i < MaxNodeLabelLength; i++)
-            {
-                EEPROM.write(i + SyncBlink::LabelRomStart, message.nodeLabel[i]);
-            }
-            EEPROM.commit();
+            SyncBlink::writeRomString(SyncBlink::LabelRomStart, &message.nodeLabel[0], MaxNodeLabelLength);
             _romRead = false;
         }
         else tcpServer.broadcast(&message, sizeof(message), Server::NODE_RENAME);
+    }
+
+    void NodeRom::onSetWifiReceived(Server::WifiSetMessage message, TcpServer& tcpServer)
+    {
+        if(message.nodeId == SyncBlink::getId())
+        {
+            Serial.println("drin");
+            Serial.println(message.ssid);
+            Serial.println(message.pw);
+
+            SyncBlink::writeRomString(SyncBlink::WifiRomSSIDStart, &message.ssid[0], WifiRomSSIDLength);
+            SyncBlink::writeRomString(SyncBlink::WifiRomPwStart, &message.pw[0], WifiRomPwLength);
+            ESP.restart();
+        }
+        else tcpServer.broadcast(&message, sizeof(message), Server::SET_WIFI);
     }
 }

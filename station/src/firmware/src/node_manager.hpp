@@ -1,6 +1,8 @@
 #ifndef NODEMANAGER_H
 #define NODEMANAGER_H
 
+#include "wifi\station_wifi.hpp"
+
 #include <vector>
 #include <led/led.hpp>
 #include <network/tcp/tcp_server.hpp>
@@ -15,13 +17,14 @@ namespace SyncBlink
     class NodeManager
     {
         public:
-            NodeManager(LED& led, TcpServer& blinkTcpServer);
+            NodeManager(LED& led, TcpServer& blinkTcpServer, StationWifi& stationWifi);
             ~NodeManager();
 
             void setLightMode(bool lightMode);
             void setAnalyzer(uint64_t analyzerId);
             void pingNode(uint64_t nodeId);
             void renameNode(uint64_t nodeId, const std::string& label);
+            void setWifi(uint64_t nodeId, bool meshWifi);
 
             bool getLightMode() const;
             uint64_t getActiveAnalyzer() const;
@@ -36,6 +39,7 @@ namespace SyncBlink
             
             LED& _led;
             TcpServer& _tcpServer;
+            StationWifi& _stationWifi;
 
             uint32_t _conHandleId;
             uint32_t _disConHandleId;

@@ -13,11 +13,9 @@ namespace SyncBlink
 
     const uint8_t WifiRomSSIDStart = 4;
     const uint8_t WifiRomSSIDEnd = 36;
-    const uint8_t WifiRomSSIDLength = WifiRomSSIDEnd - WifiRomSSIDStart;
 
     const uint8_t WifiRomPwStart = 36;
     const uint8_t WifiRomPwEnd = 100;
-    const uint8_t WifiRomPwLength = WifiRomPwEnd - WifiRomPwStart;
     
     class NodeRom
     {
@@ -31,7 +29,10 @@ namespace SyncBlink
     
     private:
         void readRom();
+        void setWifi(std::string ssid, std::string pw);
+        
         void onNodeRenameReceived(Server::NodeRenameMessage message, TcpServer& tcpServer);
+        void onSetWifiReceived(Server::WifiSetMessage message, TcpServer& tcpServer);
 
         bool _romRead = false;
         uint32_t _nodeLedCount = 0;

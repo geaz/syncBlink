@@ -179,6 +179,13 @@ namespace SyncBlink
                         event.second(renameMessage);
                     break;
                 }
+                case Server::SET_WIFI:
+                {
+                    auto setWifiMessage = message.as<Server::WifiSetMessage>();
+                    for (auto event : nodeSetWifiEvents.getEventHandlers())
+                        event.second(setWifiMessage);
+                    break;
+                }
                 case Server::DISTRIBUTE_SCRIPT:
                 {
                     std::string script((char*)&message.body[0], message.body.size());

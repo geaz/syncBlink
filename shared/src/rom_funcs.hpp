@@ -7,6 +7,12 @@
 
 namespace SyncBlink
 {
+    inline void writeRomString(uint8_t start, char *stringArr, uint8_t length)
+    {
+        for (uint8_t i = 0; i < length; i++) EEPROM.write(start + i, stringArr[i]);
+        EEPROM.commit();
+    }
+
     inline std::string readRomString(uint8_t start, uint8_t maxLength)
     {
         int i = start;

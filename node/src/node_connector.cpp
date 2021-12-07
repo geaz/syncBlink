@@ -5,6 +5,7 @@ namespace SyncBlink
     NodeConnector::NodeConnector(NodeRom& nodeRom, LED& led) : _nodeRom(nodeRom), _led(led)
     {
         registerEvents();
+        _udpDiscover.start(false);
     }
 
     void NodeConnector::loop()
@@ -23,12 +24,13 @@ namespace SyncBlink
             {
                 Serial.printf("Connected to Wifi! Starting operation (v%i.%i)...\n", VERSIONMAJOR, VERSIONMINOR);
                 _connectedToMeshWiFi = false;
-                _udpDiscover.ping();
 
                 uint64_t start = millis();
                 while(!_udpDiscover.serverDiscovered(_serverIP) && start + 5000 > millis())
-                { 
-                    delay(100);
+                {
+                    _udpDiscover.ping();
+                    delay(500);
+                    _udpDiscover.loop();
                 }
                 
                 _tcpClient.start(_serverIP.toString(), 81);
@@ -49,7 +51,7 @@ namespace SyncBlink
             _tcpClient.start(_serverIP.toString(), 81);
             _tcpServer.start();
         }
-        else Serial.print("Station NOT found!");
+        else Serial.print("Station NOT found!\n");
 
         return WiFi.isConnected() && _tcpClient.isConnected();
     }

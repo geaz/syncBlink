@@ -17,15 +17,12 @@ namespace SyncBlink
 {
     const uint8_t WifiRomSSIDStart = 0;
     const uint8_t WifiRomSSIDEnd = 32;
-    const uint8_t WifiRomSSIDLength = WifiRomSSIDEnd - WifiRomSSIDStart;
 
     const uint8_t WifiRomPwStart = 32;
     const uint8_t WifiRomPwEnd = 96;
-    const uint8_t WifiRomPwLength = WifiRomPwEnd - WifiRomPwStart;
 
     const uint8_t ScriptRomStart = 96;
-    const uint8_t ScriptRomEnd = 193;
-    const uint8_t ScriptRomLength = ScriptRomEnd - ScriptRomStart;
+    const uint8_t ScriptRomEnd = 192;
 
     class StationContext
     {

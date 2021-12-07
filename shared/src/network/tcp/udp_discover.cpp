@@ -2,9 +2,10 @@
 
 namespace SyncBlink
 {
-    void UdpDiscover::start()
+    void UdpDiscover::start(bool isServer)
     {
         _udp.begin(4210);
+        _isServer = isServer;
     }
 
     void UdpDiscover::loop()
@@ -16,9 +17,9 @@ namespace SyncBlink
             int len = _udp.read(packet, 255);
             packet[len] = '\0';
             
-            if(std::string(packet) == "syncPing")
+            if(std::string(packet) == "syncPing" && _isServer)
             {
-                _udp.beginPacket(_udp.remoteIP(), _udp.remotePort());
+                _udp.beginPacket(_udp.remoteIP(), 4210);
                 _udp.write("syncPong");
                 _udp.endPacket();
             }
@@ -35,7 +36,7 @@ namespace SyncBlink
         IPAddress localIp = WiFi.localIP();
         IPAddress broadcastIp = IPAddress(localIp[0], localIp[1], localIp[2], 255);
 
-        _udp.beginPacket(broadcastIp, _udp.remotePort());
+        _udp.beginPacket(broadcastIp, 4210);
         _udp.write("syncPing");
         _udp.endPacket();
     }

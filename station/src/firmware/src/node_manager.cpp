@@ -4,7 +4,7 @@
 
 namespace SyncBlink
 {
-    NodeManager::NodeManager(LED& led, TcpServer& tcpServer) : _led(led), _tcpServer(tcpServer)
+    NodeManager::NodeManager(LED& led, TcpServer& tcpServer, StationWifi& stationWifi) : _led(led), _tcpServer(tcpServer), _stationWifi(stationWifi)
     {
         _conHandleId = _tcpServer.serverConnectionEvents
             .addEventHandler([this](Client::ConnectionMessage connectionMessage) { onMeshConnection(connectionMessage); });
@@ -52,6 +52,23 @@ namespace SyncBlink
                 break;
             }
         }
+    }
+
+    void NodeManager::setWifi(uint64_t nodeId, bool meshWifi)
+    {
+        Server::WifiSetMessage message;
+        message.nodeId = nodeId;
+
+        memset(&message.ssid[0], 0, WifiRomSSIDLength);
+        memset(&message.pw[0], 0, WifiRomPwLength);
+        
+        if(!meshWifi)
+        {
+            memcpy(&message.ssid[0], &_stationWifi.getSavedSSID()[0], _stationWifi.getSavedSSID().size());
+            memcpy(&message.pw[0], &_stationWifi.getSavedPass()[0], _stationWifi.getSavedPass().size());
+        }
+
+        _tcpServer.broadcast(&message, sizeof(message), Server::SET_WIFI);
     }
 
     void NodeManager::onMeshConnection(Client::ConnectionMessage connectionMessage)

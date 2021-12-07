@@ -12,6 +12,7 @@ namespace SyncBlink
     {
         _server.on("/api/mesh/ping", [this]() { pingNode(); });
         _server.on("/api/mesh/rename", [this]() { renameNode(); });
+        _server.on("/api/mesh/setNodeWifi", [this]() { setNodeWifi(); });
         _server.on("/api/mesh/info", [this]() { getMeshInfo(); });
         _server.on("/api/mesh/setAnalyzer", [this]() { setAnalyzer(); });
         _server.on("/api/mesh/setLightMode", [this]() { setLightMode(); });
@@ -83,6 +84,19 @@ namespace SyncBlink
         iss >> nodeId;
 
         _nodeManager.renameNode(nodeId, std::string(label.c_str()));
+        _server.send(200, "text/plain");
+    }
+
+    void SyncBlinkWeb::setNodeWifi()
+    {
+        String nodeIdArg = _server.arg("nodeId");
+        bool meshWifi = _server.arg("meshWifi") == "true";
+
+        uint64_t nodeId;
+        std::istringstream iss(nodeIdArg.c_str());
+        iss >> nodeId;
+
+        _nodeManager.setWifi(nodeId, meshWifi);
         _server.send(200, "text/plain");
     }
 

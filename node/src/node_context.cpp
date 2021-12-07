@@ -20,6 +20,7 @@ namespace SyncBlink
         _led.loop();
         _nodeAnalyzer.loop();
         _nodeConnector.loop();
+
         if(!_nodeConnector.isConnected() && !_nodeAnalyzer.runsStandalone())
         {
             Serial.print("Going to sleep ...\n");
