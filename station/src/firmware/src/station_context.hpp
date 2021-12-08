@@ -4,6 +4,7 @@
 #include <memory>
 #include <led/led.hpp>
 #include <network/tcp/tcp_server.hpp>
+#include <network/tcp/udp_discover.hpp>
 
 #include "states/state.hpp"
 #include "display/display.hpp"
@@ -16,15 +17,12 @@ namespace SyncBlink
 {
     const uint8_t WifiRomSSIDStart = 0;
     const uint8_t WifiRomSSIDEnd = 32;
-    const uint8_t WifiRomSSIDLength = WifiRomSSIDEnd - WifiRomSSIDStart;
 
     const uint8_t WifiRomPwStart = 32;
     const uint8_t WifiRomPwEnd = 96;
-    const uint8_t WifiRomPwLength = WifiRomPwEnd - WifiRomPwStart;
 
     const uint8_t ScriptRomStart = 96;
-    const uint8_t ScriptRomEnd = 193;
-    const uint8_t ScriptRomLength = ScriptRomEnd - ScriptRomStart;
+    const uint8_t ScriptRomEnd = 192;
 
     class StationContext
     {
@@ -50,7 +48,8 @@ namespace SyncBlink
             void checkException();
 
             LED _led;
-            TcpServer _tcpServer = TcpServer(81);
+            TcpServer _tcpServer;
+            UdpDiscover _udpDiscover;
             Display _display;
             StationWifi _wifi;  
             NodeManager _nodeManager;

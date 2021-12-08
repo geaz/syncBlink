@@ -4,6 +4,7 @@ import { Elements } from 'react-flow-renderer';
 import { SyncBlinkNodeProps } from '../nodes/SyncBlinkNode';
 import { SyncBlinkStationProps } from '../nodes/SyncBlinkStation';
 import { SyncBlinkAnalyzerProps } from '../nodes/SyncBlinkAnalyzer';
+import { SyncBlinkRouterNodeProps } from '../nodes/SyncBlinkRouterNode';
 
 export enum ModalType {
     Renamer,
@@ -33,6 +34,8 @@ async function loadMeshInfo(reloadData: () => void, setModal: Dispatch<SetStateA
             meshJson.analyzer,
             meshJson.lightMode,
             scriptName,
+            meshJson.connected,
+            meshJson.ssid,
             setModal,
             reloadData,
             async (analyzerId: number) => { await fetch('/api/mesh/setAnalyzer?analyzerId=' + analyzerId); reloadData(); });
@@ -44,11 +47,14 @@ function createMeshNodeData(
     nodeData: any, 
     activeAnalyzer: number,
     lightMode: boolean,
-    runningScript: string, 
+    runningScript: string,
+    connectedToWifi: boolean,
+    ssid: string,
     setModal: Dispatch<SetStateAction<ModalInfo | undefined>>,
     onRefresh: () => void,
     onSetAnalyzer: (analyzerId: number) => void) 
 {
+    let wifiNode: any = undefined;
     let stationNode: any = undefined;
     for(let i = 0; i < nodeData.length; i++) {
         let node = nodeData[i];
@@ -92,9 +98,12 @@ function createMeshNodeData(
             props.majorVersion = node.majorVersion;
             props.minorVersion = node.minorVersion;
             props.ledCount = node.ledCount;
+            props.wifiAvailable = connectedToWifi;
+            props.connectedToMeshWiFi = node.connectedToMeshWifi;
             props.onFlash = (n) => setModal({ type: ModalType.Flasher, nodeId: n, text: props.label });
             props.onRename = (n, l) => setModal({ type: ModalType.Renamer, nodeId: n, text: l });
             props.onPing = (nodeId: number) => fetch('/api/mesh/ping?nodeId=' + nodeId);
+            props.onSetWifi = (nodeId: number, meshWifi: boolean) => fetch('/api/mesh/setNodeWifi?nodeId=' + nodeId + '&meshWifi=' + (meshWifi ? "true" : "false"));
 
             if(node.isAnalyzer)
             {
@@ -108,32 +117,66 @@ function createMeshNodeData(
         }
     }
 
+    if(connectedToWifi) {
+        let props = {} as SyncBlinkRouterNodeProps;
+        props.wifiName = ssid;
+
+        wifiNode = {} as any;
+        wifiNode.id = Date.now();
+        wifiNode.isAnalyzer = false;
+        wifiNode.isStation = false;
+        wifiNode.isNode = false;
+        wifiNode.isWifiNode = true;
+        wifiNode.position = { x: 0, y: 0 };
+        wifiNode.data = props;
+        wifiNode.type = 'syncBlinkRouterNode';
+
+        nodeData.push(wifiNode);
+    }
+
     let edges = [];
     for(let i = 0; i < nodeData.length; i++) {
         let node = nodeData[i];
-        
         if(node.isAnalyzer && !node.isStation && !node.isNode){
             edges.push({ 
                 id: node.id + '-' + stationNode.id,
                 type: 'step',
                 arrowHeadType: 'arrowclosed',
                 source: `${node.id}`, 
-                target: `${stationNode.id}`,
+                target: node.connectedToMeshWifi ? `${stationNode.id}` : `${wifiNode.id}`,
                 animated: activeAnalyzer === node.nodeId
             });
-            continue;
         }
-
-        for(let j = 0; j < nodeData.length; j++) {
-            let otherNode = nodeData[j];
-            if(otherNode.parentId === node.nodeId) {
-                edges.push({ 
-                    id: node.id + '-' + otherNode.id,
-                    type: 'step',
-                    animated: true,
-                    source: `${node.id}`, 
-                    target: `${otherNode.id}`
-                });
+        else if(node.isWifiNode) {
+            edges.push({ 
+                id: node.id + '-' + stationNode.id,
+                type: 'step',
+                source: `${node.id}`, 
+                target: `${stationNode.id}`,
+                animated: true
+            });
+        }
+        else if(node.isNode && !node.connectedToMeshWifi) {
+            edges.push({ 
+                id: node.id + '-' + wifiNode.id,
+                type: 'step',
+                animated: true,
+                source: `${node.id}`, 
+                target: `${wifiNode.id}`
+            });
+        }
+        else if(node.isStation) {
+            for(let j = 0; j < nodeData.length; j++) {
+                let otherNode = nodeData[j];
+                if(otherNode.parentId === node.nodeId && otherNode.connectedToMeshWifi) {
+                    edges.push({ 
+                        id: node.id + '-' + otherNode.id,
+                        type: 'step',
+                        animated: true,
+                        source: `${node.id}`, 
+                        target: `${otherNode.id}`
+                    });
+                }
             }
         }
     }

@@ -25,6 +25,10 @@ namespace SyncBlink
         1 /* message type */;
     static const uint8_t SocketWriteTimeout = 100;
     static const uint8_t MaxNodeLabelLength = 16;
+
+    static const uint8_t WifiRomSSIDLength = 32;
+    static const uint8_t WifiRomPwLength = 64;
+    static const uint8_t ScriptRomLength = 96;
 }
 
 #endif // SHAREDCONSTANTS_H

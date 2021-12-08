@@ -16,7 +16,7 @@
     "build": "react-scripts build",
     "eject": "react-scripts eject"
   },
-  "proxy": "http://192.168.178.25",
+  "proxy": "http://192.168.178.44",
   "eslintConfig": {
     "extends": [
       "react-app"

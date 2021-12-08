@@ -27,6 +27,7 @@ namespace SyncBlink
             bool isStation;
             bool isAnalyzer;
             bool isNode;
+            bool connectedToMeshWifi;
             uint64_t nodeId;
             uint64_t parentId;
             uint16_t ledCount;

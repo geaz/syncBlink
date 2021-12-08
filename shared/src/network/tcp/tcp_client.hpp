@@ -20,6 +20,7 @@ namespace SyncBlink
     typedef std::function<void(Server::UpdateMessage message)> MeshUpdateEvent;
     typedef std::function<void(uint64_t nodeId)> SourceUpdateEvent;
     typedef std::function<void(Server::NodeRenameMessage message)> NodeRenameEvent;
+    typedef std::function<void(Server::WifiSetMessage message)> NodeSetWifiEvent;
     typedef std::function<void(std::vector<uint8_t> data, uint64_t targetNodeId, Server::MessageType messageType)> FirmwareFlashEvent;
 
     class TcpClient
@@ -55,6 +56,7 @@ namespace SyncBlink
         EventRegistration<MeshUpdateEvent> meshUpdateEvents;
         EventRegistration<SourceUpdateEvent> sourceUpdateEvents;
         EventRegistration<NodeRenameEvent> nodeRenameEvents;
+        EventRegistration<NodeSetWifiEvent> nodeSetWifiEvents;
         EventRegistration<FirmwareFlashEvent> firmwareFlashEvents;
 
     private:

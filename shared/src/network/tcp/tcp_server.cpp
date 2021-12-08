@@ -3,9 +3,6 @@
 
 namespace SyncBlink
 {
-    TcpServer::TcpServer(uint16_t port) : _server(WiFiServer(port))
-    { }
-
     void TcpServer::start()
     {
         _server.begin();

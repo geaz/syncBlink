@@ -12,6 +12,7 @@ namespace SyncBlink
     {
         _server.on("/api/mesh/ping", [this]() { pingNode(); });
         _server.on("/api/mesh/rename", [this]() { renameNode(); });
+        _server.on("/api/mesh/setNodeWifi", [this]() { setNodeWifi(); });
         _server.on("/api/mesh/info", [this]() { getMeshInfo(); });
         _server.on("/api/mesh/setAnalyzer", [this]() { setAnalyzer(); });
         _server.on("/api/mesh/setLightMode", [this]() { setLightMode(); });
@@ -86,17 +87,31 @@ namespace SyncBlink
         _server.send(200, "text/plain");
     }
 
+    void SyncBlinkWeb::setNodeWifi()
+    {
+        String nodeIdArg = _server.arg("nodeId");
+        bool meshWifi = _server.arg("meshWifi") == "true";
+
+        uint64_t nodeId;
+        std::istringstream iss(nodeIdArg.c_str());
+        iss >> nodeId;
+
+        _nodeManager.setWifi(nodeId, meshWifi);
+        _server.send(200, "text/plain");
+    }
+
     void SyncBlinkWeb::getMeshInfo()
     {
         String JSON;
         DynamicJsonDocument doc(4096);
         
+        std::string ssid = _stationWifi.getSavedSSID();
         auto connectedNodes = _nodeManager.getConnectedNodes();
         for(uint32_t i = 0; i < connectedNodes.size(); i++)
         {
             DynamicJsonDocument nodeJson(512);
             nodeJson["isStation"] = connectedNodes[i].isStation;
-            nodeJson["isAnalyzer"] = connectedNodes[i].isAnalyzer;
+            nodeJson["isAnalyzer"] = connectedNodes[i].isAnalyzer;         
             nodeJson["isNode"] = connectedNodes[i].isNode;
             nodeJson["nodeId"] = connectedNodes[i].nodeId;
             nodeJson["parentId"] = connectedNodes[i].parentId;
@@ -104,11 +119,14 @@ namespace SyncBlink
             nodeJson["majorVersion"] = connectedNodes[i].majorVersion;
             nodeJson["minorVersion"] = connectedNodes[i].minorVersion;
             nodeJson["label"] = &connectedNodes[i].nodeLabel[0];
+            nodeJson["connectedToMeshWifi"] = connectedNodes[i].connectedToMeshWifi;   
 
             doc["nodes"][i] = nodeJson;
         }
         doc["analyzer"] = _nodeManager.getActiveAnalyzer();
         doc["lightMode"] = _nodeManager.getLightMode();
+        doc["ssid"] = ssid.c_str();
+        doc["connected"] = WiFi.status() == WL_CONNECTED;
 
         std::string activeScript = _scriptManager.getActiveScript();
         doc["script"] = activeScript.c_str();
