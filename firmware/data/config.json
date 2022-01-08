@@ -1,0 +1,5 @@
+{
+    "name": "Node",
+    "led_count": "9",
+    "is_hub": "true"
+}

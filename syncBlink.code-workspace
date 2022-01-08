@@ -1,19 +1,16 @@
 {
 	"folders": [
 		{
-			"path": "node"
-		},
-		{
-			"path": "shared"
-		},
-		{
-			"path": "station\\src\\firmware"
-		},
-		{
-			"path": "station\\src\\web"
-		},
-		{
 			"path": "."
+		},
+		{
+			"path": "firmware"
+		},
+		{
+			"path": "web"
+		},
+		{
+			"path": "firmware\\lib\\blinkscript"
 		}
 	],
 	"settings": {
@@ -24,6 +21,7 @@
 			"bit": "cpp",
 			"bitset": "cpp",
 			"cctype": "cpp",
+			"charconv": "cpp",
 			"chrono": "cpp",
 			"cinttypes": "cpp",
 			"clocale": "cpp",
@@ -42,6 +40,8 @@
 			"cwctype": "cpp",
 			"deque": "cpp",
 			"exception": "cpp",
+			"format": "cpp",
+			"forward_list": "cpp",
 			"fstream": "cpp",
 			"functional": "cpp",
 			"future": "cpp",
@@ -98,7 +98,8 @@
 			"xtr1common": "cpp",
 			"xtree": "cpp",
 			"xutility": "cpp",
-			"*.tcc": "cpp"
+			"any": "cpp",
+			"typeindex": "cpp"
 		}
 	}
 }
