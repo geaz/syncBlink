@@ -6,9 +6,7 @@
 namespace SyncBlink
 {
     ScriptManager::ScriptManager(EventBus& eventBus, Config& config) : _eventBus(eventBus), _config(config)
-    { 
-        _eventBus.trigger<Events::ScriptChangeEvent>({ getActiveScript() });
-    }
+    { }
 
     Script ScriptManager::get(const std::string& scriptName)
     {

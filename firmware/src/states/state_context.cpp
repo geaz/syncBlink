@@ -1,5 +1,5 @@
 #include "state_context.hpp"
-#include "fail_safe_state.cpp"
+#include "run_script_state.cpp"
 
 namespace SyncBlink
 {
@@ -9,12 +9,17 @@ namespace SyncBlink
         _display(display),
         _scriptManager(scriptManager) 
     {
-        _currentState = std::make_shared<FailSafeState>(_eventBus, _led, _display);
+        _currentState = std::make_shared<RunScriptState>(*this);
     }
     
     void StateContext::loop()
     {
         _currentState->loop();
+    }
+
+    void StateContext::resetState()
+    {
+        _currentState = std::make_shared<RunScriptState>(*this);
     }
 
     void StateContext::changeState(std::shared_ptr<State> state)

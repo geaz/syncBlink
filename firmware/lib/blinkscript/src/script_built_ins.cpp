@@ -3,8 +3,8 @@
 #include "blink_script.hpp"
 #include "vm/model/objects/native_function_object.hpp"
 #include "vm/model/value.hpp"
-#include "led/color.hpp"
 
+#include <color.hpp>
 #include <Arduino.h>
 #include <math.h>
 

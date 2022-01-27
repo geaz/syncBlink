@@ -1,5 +1,5 @@
 {
-    "name": "Node",
+    "name": "Hub",
     "led_count": "9",
     "is_hub": "true"
 }

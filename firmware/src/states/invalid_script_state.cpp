@@ -1,5 +1,5 @@
-#ifndef FAILSAFESTATE_H
-#define FAILSAFESTATE_H
+#ifndef INVALIDSCRIPTSTATE_H
+#define INVALIDSCRIPTSTATE_H
 
 #include <led.hpp>
 #include <display.hpp>
@@ -7,32 +7,34 @@
 #include "state.hpp"
 #include "state_context.hpp"
 #include "event/event_bus.hpp"
+#include "event/events/script_change_event.hpp"
 #include "views/icon_text_view.cpp"
 #include "scripting/script_manager.hpp"
-#include "event/events/script_change_event.hpp"
+#include "fail_safe_state.cpp"
 
 namespace SyncBlink
 {
-    class FailSafeState : public State, public EventHandler<Events::ScriptChangeEvent>
+    class InvalidScriptState : public State, public EventHandler<Events::ScriptChangeEvent>
     {
         public:
-            FailSafeState(StateContext& context) : _context(context)
+            InvalidScriptState(StateContext& context) : _context(context)
             {
                 _scriptEventHandleId = _context.getEventBus().addEventHandler<Events::ScriptChangeEvent>(this);
-                _failSafeView = std::make_shared<IconTextView>("Fail Safe!", u8g2_font_open_iconic_thing_2x_t, 78);
+                _invalidScriptView = std::make_shared<IconTextView>("Invalid script!", u8g2_font_open_iconic_check_2x_t, 66);
             }
 
-            ~FailSafeState()
+            ~InvalidScriptState()
             {
                 _context.getEventBus().removeEventHandler(_scriptEventHandleId);
             }
 
             void loop()
             {
-                _context.getLed().setAllLeds(Colors::Yellow);
-                _context.getDisplay().setView(_failSafeView);
+                _context.getLed().setAllLeds(Colors::Red);
+                _context.getDisplay().setView(_invalidScriptView);
                 
                 if(_activeScriptChanged) _context.resetState();
+                _context.changeState(std::make_shared<FailSafeState>(_context));
             }
 
             void onEvent(const Events::ScriptChangeEvent& event)
@@ -42,10 +44,10 @@ namespace SyncBlink
 
         private:
             StateContext& _context;
-            std::shared_ptr<IconTextView> _failSafeView;            
+            std::shared_ptr<IconTextView> _invalidScriptView;            
             uint32_t _scriptEventHandleId = 0;
             bool _activeScriptChanged = false;
     };
 }
 
-#endif // FAILSAFESTATE_H
+#endif // INVALIDSCRIPTSTATE_H

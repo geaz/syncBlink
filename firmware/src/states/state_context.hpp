@@ -17,6 +17,7 @@ namespace SyncBlink
             StateContext(EventBus& eventBus, LED& led, Display& display, ScriptManager& scriptManager);
 
             void loop();
+            void resetState();
             void changeState(std::shared_ptr<State> state);
 
             LED& getLed();

@@ -10,11 +10,6 @@ namespace SyncBlink
         public:
             virtual void loop() = 0;
     };
-    
-    struct StateChangeEvent
-    {
-        std::shared_ptr<State> NewState;
-    };
 }
 
 #endif

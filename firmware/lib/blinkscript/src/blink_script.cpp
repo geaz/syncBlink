@@ -5,7 +5,6 @@
 #include "vm/compiler.hpp"
 #include "vm/model/objects/native_function_object.hpp"
 #include "vm/model/value.hpp"
-#include "audio/analyzer_constants.hpp"
 
 namespace SyncBlink
 {

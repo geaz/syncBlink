@@ -5,6 +5,7 @@ namespace SyncBlink
 {
     enum EventType
     {
+        AnalyzerUpdateEvent,
         MeshConnectionEvent,
         MeshUpdateEvent,
         ScriptChangeEvent,
