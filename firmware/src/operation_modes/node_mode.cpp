@@ -1,9 +1,12 @@
 #include "node_mode.hpp"
+
 #include <ESP8266WiFi.h>
 
 namespace SyncBlink
 {
-    NodeMode::NodeMode(Config& config) : _config(config) { }
+    NodeMode::NodeMode(Config& config) : _config(config)
+    {
+    }
 
     void NodeMode::setup()
     {
@@ -19,10 +22,10 @@ namespace SyncBlink
 
     void NodeMode::checkConnection()
     {
-        if(WiFi.isConnected()) return;
+        if (WiFi.isConnected())
+            return;
         _led.showNow(Colors::Blue);
 
         // Try connect to hub
-
     }
 }

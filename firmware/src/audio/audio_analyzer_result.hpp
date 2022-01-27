@@ -1,12 +1,12 @@
 #ifndef AUDIOANALYZERRESULT_H
 #define AUDIOANALYZERRESULT_H
 
-#include <array>
-
-#include "map_funcs.hpp"
-#include "network/get_id.hpp"
 #include "analyzer_constants.hpp"
 #include "event/events/analyzer_update_event.hpp"
+#include "map_funcs.hpp"
+#include "network/get_id.hpp"
+
+#include <array>
 
 namespace SyncBlink
 {
@@ -19,7 +19,7 @@ namespace SyncBlink
 
         Events::AnalyzerUpdateEvent ToEvent()
         {
-            Events::AnalyzerUpdateEvent analyzerEvent = { getId(), decibel, volume, dominantFrequency };
+            Events::AnalyzerUpdateEvent analyzerEvent = {getId(), decibel, volume, dominantFrequency};
 
             // Map the values and amount of amplitudes
             // to the AnalyzerUpdateEvent freqBin array (32 values in range of 0 - 255)

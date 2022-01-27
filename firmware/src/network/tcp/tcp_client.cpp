@@ -1,5 +1,7 @@
 #include "tcp_client.hpp"
+
 #include "message.hpp"
+
 #include <event/events/script_change_event.hpp>
 
 namespace SyncBlink
@@ -13,10 +15,10 @@ namespace SyncBlink
     {
         _serverIp = serverIp;
         _port = port;
-        
+
         checkConnection();
     }
-    
+
     void TcpClient::stop()
     {
         _client.stop();
@@ -41,24 +43,25 @@ namespace SyncBlink
 
     void TcpClient::writeMessage(std::vector<uint8_t> message)
     {
-        if(_client.connected())
+        if (_client.connected())
         {
             long started = millis();
             uint8_t* messagePtr = &message[0];
             uint32_t messageSize = message.size();
-            while(messageSize > 0)
+            while (messageSize > 0)
             {
-                if(millis() - started > SocketWriteTimeout)
+                if (millis() - started > SocketWriteTimeout)
                 {
                     Serial.printf("[TCP Client] Write Timeout\n");
                     _writeTimeout = true;
                     break;
                 }
-                
+
                 uint32_t written = _client.write(messagePtr, messageSize);
                 messagePtr += written;
                 messageSize -= written;
-                if(messageSize > 0) delay(0);
+                if (messageSize > 0)
+                    delay(0);
             }
         }
     }
@@ -100,16 +103,16 @@ namespace SyncBlink
 
     void TcpClient::checkConnection()
     {
-        if(!_client.connected() && WiFi.status() == WL_CONNECTED && _retryCount++ < 10)
+        if (!_client.connected() && WiFi.status() == WL_CONNECTED && _retryCount++ < 10)
         {
-            if(_wasConnected)
+            if (_wasConnected)
                 Serial.println("[TCP Client] Disconnected! Trying to connect ...");
             else
                 Serial.println("[TCP Client] Trying to connect ...");
 
-            if(connectTo(_serverIp, 81))
+            if (connectTo(_serverIp, 81))
             {
-                if(!_wasConnected)
+                if (!_wasConnected)
                 {
                     _wasConnected = true;
                 }
@@ -122,7 +125,8 @@ namespace SyncBlink
     {
         bool connected = false;
         Serial.println("[TCP Client] Connecting to TCP '" + socketIp + "' ...");
-        if(_client.connect(socketIp, 81)){
+        if (_client.connect(socketIp, 81))
+        {
             Serial.println("[TCP Client] Connected!");
             connected = true;
         }
@@ -132,14 +136,14 @@ namespace SyncBlink
     void TcpClient::handleIncomingMessages()
     {
         Message message;
-        if(message.available(_client, message))
+        if (message.available(_client, message))
         {
-            switch(message.type)
+            switch (message.type)
             {
-                case EventType::ScriptChangeEvent:
-                    auto scriptChangeEvent = message.as<Events::ScriptChangeEvent>();
-                    _eventBus.trigger<Events::ScriptChangeEvent>(scriptChangeEvent);
-                    break;
+            case EventType::ScriptChangeEvent:
+                auto scriptChangeEvent = message.as<Events::ScriptChangeEvent>();
+                _eventBus.trigger<Events::ScriptChangeEvent>(scriptChangeEvent);
+                break;
             }
         }
     }

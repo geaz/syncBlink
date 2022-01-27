@@ -9,11 +9,11 @@ namespace SyncBlink
 
     class Config
     {
-        public:
-            void load();
-            void save();
+    public:
+        void load();
+        void save();
 
-            StaticJsonDocument<512> Values;
+        StaticJsonDocument<512> Values;
     };
 }
 

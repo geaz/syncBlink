@@ -1,4 +1,5 @@
 #include "frequency_analyzer.hpp"
+
 #include "analyzer_constants.hpp"
 #include "map_funcs.hpp"
 

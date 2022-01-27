@@ -1,14 +1,13 @@
 #ifndef FREQUENCYANALYZER_H
 #define FREQUENCYANALYZER_H
 
-#include <math.h>
-#include <memory>
-
 #include "audio_analyzer_result.hpp"
 #include "band_pass_filter.hpp"
 
+#include <memory>
+
 namespace SyncBlink
-{    
+{
     struct FFTData
     {
         float fftReal[FFTDataSize];

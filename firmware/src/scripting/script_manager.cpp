@@ -6,7 +6,8 @@
 namespace SyncBlink
 {
     ScriptManager::ScriptManager(EventBus& eventBus, Config& config) : _eventBus(eventBus), _config(config)
-    { }
+    {
+    }
 
     Script ScriptManager::get(const std::string& scriptName)
     {
@@ -15,10 +16,11 @@ namespace SyncBlink
         script.Exists = true;
 
         std::string path = "/scripts/" + scriptName;
-        if(LittleFS.exists(path.c_str()))
+        if (LittleFS.exists(path.c_str()))
         {
             File file = LittleFS.open(path.c_str(), "r");
-            while (file.available()) {
+            while (file.available())
+            {
                 script.Content = file.readString().c_str();
             }
             file.close();
@@ -26,7 +28,7 @@ namespace SyncBlink
         else
         {
             script.Exists = false;
-        }        
+        }
 
         return script;
     }
@@ -55,11 +57,11 @@ namespace SyncBlink
         File file = LittleFS.open(("/scripts/" + scriptName).c_str(), "w");
         file.print(content.c_str());
         file.close();
-        
+
         Script activeScript = getActiveScript();
-        if(activeScript.Name == scriptName)
+        if (activeScript.Name == scriptName)
         {
-            _eventBus.trigger<Events::ScriptChangeEvent>({ activeScript });
+            _eventBus.trigger<Events::ScriptChangeEvent>({activeScript});
         }
     }
 
@@ -68,10 +70,10 @@ namespace SyncBlink
         Script activeScript = getActiveScript();
         LittleFS.remove(("/scripts/" + scriptName).c_str());
 
-        if(activeScript.Name == scriptName)
+        if (activeScript.Name == scriptName)
         {
             activeScript = getActiveScript();
-            _eventBus.trigger<Events::ScriptChangeEvent>({ activeScript });
+            _eventBus.trigger<Events::ScriptChangeEvent>({activeScript});
         }
     }
 
@@ -79,18 +81,18 @@ namespace SyncBlink
     {
         Script script;
         const char* activeScriptName = _config.Values["active_script"];
-        if(activeScriptName != nullptr)
+        if (activeScriptName != nullptr)
         {
             Serial.printf("[SCRIPTMANAGER] Active Script: %s\n", activeScriptName);
             script = get(activeScriptName);
         }
 
-        if(!script.Exists)
-        {            
+        if (!script.Exists)
+        {
             Serial.println("[SCRIPTMANAGER] Currently active script not found! Falling back ...");
 
             std::vector<std::string> scriptList = getList();
-            if(scriptList.size() > 0)
+            if (scriptList.size() > 0)
             {
                 setActiveScript(getList().front());
                 script = getActiveScript();
@@ -101,13 +103,13 @@ namespace SyncBlink
 
     void ScriptManager::setActiveScript(const std::string& scriptName)
     {
-        if (scriptName.length() > 0) 
+        if (scriptName.length() > 0)
         {
             Serial.printf("[ScriptManager] Saving active script (%s) ...\n", scriptName.c_str());
             _config.Values["active_script"] = scriptName.c_str();
             _config.save();
 
-            _eventBus.trigger<Events::ScriptChangeEvent>({ getActiveScript() });
+            _eventBus.trigger<Events::ScriptChangeEvent>({getActiveScript()});
         }
     }
 }

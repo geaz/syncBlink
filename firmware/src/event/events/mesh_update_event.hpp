@@ -4,7 +4,7 @@
 #include <cinttypes>
 
 namespace SyncBlink
-{    
+{
     namespace Events
     {
         struct MeshUpdateEvent

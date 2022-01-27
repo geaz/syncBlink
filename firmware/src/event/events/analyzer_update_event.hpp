@@ -9,7 +9,7 @@ namespace SyncBlink
     namespace Events
     {
         struct AnalyzerUpdateEvent
-        {            
+        {
             uint64_t analyzerId;
             float decibel;
             uint8_t volume;                   // The current registered volume

@@ -1,11 +1,10 @@
 #ifndef TCPCLIENT_H
 #define TCPCLIENT_H
 
-#include <functional>
 #include <ESP8266WiFi.h>
-
 #include <event/event_bus.hpp>
 #include <event/event_types.hpp>
+#include <functional>
 
 namespace SyncBlink
 {
@@ -19,7 +18,7 @@ namespace SyncBlink
         void flush();
 
         void loop();
-                
+
         void sendMessage(void* message, uint32_t messageSize, EventType eventType);
         void writeMessage(std::vector<uint8_t> message);
 

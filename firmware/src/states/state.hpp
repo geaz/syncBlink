@@ -7,8 +7,8 @@ namespace SyncBlink
 {
     class State
     {
-        public:
-            virtual void loop() = 0;
+    public:
+        virtual void loop() = 0;
     };
 }
 

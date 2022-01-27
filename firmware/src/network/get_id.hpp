@@ -1,8 +1,8 @@
 #ifndef GETID_H
 #define GETID_H
 
-#include <cinttypes>
 #include <ESP8266WiFi.h>
+#include <cinttypes>
 
 namespace SyncBlink
 {
@@ -10,11 +10,11 @@ namespace SyncBlink
     {
         uint8_t mac[6];
         wifi_get_macaddr(STATION_IF, mac);
-        
+
         uint64_t id = 0;
-        for(uint8_t i = 0; i < 6; i++)
+        for (uint8_t i = 0; i < 6; i++)
         {
-            id += (uint64_t)mac[i] << (i*8);
+            id += (uint64_t)mac[i] << (i * 8);
         }
         return id;
     }

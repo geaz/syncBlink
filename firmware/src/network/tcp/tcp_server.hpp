@@ -2,16 +2,16 @@
 #define TCPSERVER_H
 
 #include "tcp_client.hpp"
-#include <event/event_bus.hpp>
 
-#include <vector>
-#include <lwip/tcp.h>
 #include <ESP8266WiFi.h>
+#include <event/event_bus.hpp>
+#include <lwip/tcp.h>
+#include <vector>
 
 struct tcp_pcb;
 extern struct tcp_pcb* tcp_tw_pcbs;
 extern struct tcp_pcb* tcp_active_pcbs;
-extern "C" void tcp_abandon (struct tcp_pcb* pcb, int reset);
+extern "C" void tcp_abandon(struct tcp_pcb* pcb, int reset);
 
 namespace SyncBlink
 {

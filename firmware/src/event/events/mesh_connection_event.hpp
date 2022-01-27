@@ -13,9 +13,9 @@ namespace SyncBlink
         uint16_t ledCount;
         uint8_t majorVersion;
         uint8_t minorVersion;
-        //char nodeLabel[MaxNodeLabelLength];
+        // char nodeLabel[MaxNodeLabelLength];
     };
-    
+
     namespace Events
     {
         struct MeshConnectionEvent

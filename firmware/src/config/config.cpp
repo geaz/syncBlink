@@ -5,7 +5,7 @@
 namespace SyncBlink
 {
     void Config::load()
-    {        
+    {
         File file = LittleFS.open(ConfigPath.c_str(), "r");
         deserializeJson(Values, file);
         file.close();
