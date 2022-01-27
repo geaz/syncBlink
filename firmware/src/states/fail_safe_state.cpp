@@ -1,9 +1,7 @@
 #ifndef FAILSAFESTATE_H
 #define FAILSAFESTATE_H
 
-#include "event/event_bus.hpp"
 #include "event/events/script_change_event.hpp"
-#include "scripting/script_manager.hpp"
 #include "state.hpp"
 #include "state_context.hpp"
 #include "views/icon_text_view.cpp"
