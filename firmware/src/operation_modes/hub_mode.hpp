@@ -1,10 +1,10 @@
 #ifndef HUBMODE_H
 #define HUBMODE_H
 
+#include "analyzer_mode.hpp"
 #include "config/config.hpp"
 #include "event/event_bus.hpp"
 #include "network/mesh/syncblink_mesh.hpp"
-#include "operation_mode.hpp"
 #include "scripting/script_manager.hpp"
 #include "states/state_context.hpp"
 
@@ -14,7 +14,7 @@
 
 namespace SyncBlink
 {
-    class HubMode : public OperationMode
+    class HubMode : public AnalyzerMode
     {
     public:
         HubMode(Config& config);

@@ -5,8 +5,9 @@
 namespace SyncBlink
 {
     HubMode::HubMode(Config& config)
-        : _config(config), _mesh(_config.Values["wifi_ssid"], _config.Values["wifi_pw"]),
-          _scriptManager(_eventBus, _config), _stateContext(_eventBus, _led, _display, _scriptManager)
+        : AnalyzerMode(_eventBus, config.Values["is_analyzer"] == "true"), _config(config),
+          _mesh(config.Values["wifi_ssid"], config.Values["wifi_pw"]), _scriptManager(_eventBus, config),
+          _stateContext(_eventBus, _led, _display, _scriptManager)
     {
     }
 
@@ -27,6 +28,7 @@ namespace SyncBlink
         _display.setLeftStatus("");
         _display.setRightStatus(WiFi.localIP().toString().c_str());
 
+        AnalyzerMode::loop();
         _stateContext.loop();
 
         _led.loop();

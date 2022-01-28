@@ -42,7 +42,6 @@ namespace SyncBlink
         template <typename EventType> void trigger(const EventType eventMessage)
         {
             const auto typeIndex = std::type_index(typeid(EventType));
-            _events[typeIndex] = std::shared_ptr<const void>(&eventMessage);
 
             const auto range = _registrations.equal_range(typeIndex);
             for (auto it = range.first; it != range.second; it++)
@@ -52,19 +51,13 @@ namespace SyncBlink
             }
         }
 
-        template <typename EventType>
-        uint32_t addEventHandler(EventHandler<EventType>* handler, bool replayLast = false)
+        template <typename EventType> uint32_t addEventHandler(EventHandler<EventType>* handler)
         {
             uint32_t id = _nextId++;
             const auto typeIndex = std::type_index(typeid(EventType));
 
             EventRegistration eventRegistration(id, handler);
             _registrations.emplace(typeIndex, eventRegistration);
-
-            if (replayLast && _events.find(typeIndex) != _events.end())
-            {
-                handler->onEvent(*((EventType*)_events[typeIndex].get()));
-            }
 
             return eventRegistration.id();
         }
@@ -84,7 +77,6 @@ namespace SyncBlink
     private:
         uint32_t _nextId = 0;
         std::unordered_multimap<std::type_index, EventRegistration> _registrations;
-        std::unordered_map<std::type_index, std::shared_ptr<const void>> _events;
     };
 }
 

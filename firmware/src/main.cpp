@@ -19,8 +19,7 @@ void setup()
     config.load();
 
     pinMode(LED_PIN, OUTPUT);
-    if (config.Values["mic_pin"] != nullptr)
-        pinMode(config.Values["mic_pin"], INPUT);
+    pinMode(A0, INPUT);
 
     if (config.Values["is_hub"] == "true")
     {

@@ -1,5 +1,6 @@
 {
     "name": "Hub",
     "led_count": "9",
-    "is_hub": "true"
+    "is_hub": "true",
+    "is_analyzer": "true"
 }

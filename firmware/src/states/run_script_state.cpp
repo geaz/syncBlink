@@ -1,8 +1,8 @@
 #ifndef RUNSCRIPTSTATE_H
 #define RUNSCRIPTSTATE_H
 
-#include "audio/audio_analyzer_result.hpp"
-#include "audio/frequency_analyzer.hpp"
+#include "audio/analyzer_constants.hpp"
+#include "event/events/analyzer_update_event.hpp"
 #include "event/events/script_change_event.hpp"
 #include "state.hpp"
 #include "state_context.hpp"
@@ -13,13 +13,16 @@
 
 namespace SyncBlink
 {
-    class RunScriptState : public State, public EventHandler<Events::ScriptChangeEvent>
+    class RunScriptState : public State,
+                           public EventHandler<Events::AnalyzerUpdateEvent>,
+                           public EventHandler<Events::ScriptChangeEvent>
     {
     public:
         RunScriptState(StateContext& context) : _context(context)
         {
             _runScriptView = std::make_shared<RunScriptView>();
             _scriptEventHandleId = _context.getEventBus().addEventHandler<Events::ScriptChangeEvent>(this);
+            _analyzerEventHandleId = _context.getEventBus().addEventHandler<Events::AnalyzerUpdateEvent>(this);
         }
 
         ~RunScriptState()
@@ -45,8 +48,19 @@ namespace SyncBlink
                     _blinkScript->init();
                 }
             }
-            else
-                handleMicrophoneSource();
+        }
+
+        void onEvent(const Events::AnalyzerUpdateEvent& event)
+        {
+            if (_blinkScript == nullptr)
+                return;
+
+            uint32_t delta = millis() - _lastLedUpdate;
+            _lastLedUpdate = millis();
+
+            setView(event, delta);
+            _blinkScript->updateAnalyzerResult(event.volume, event.frequency);
+            _blinkScript->run(delta);
         }
 
         void onEvent(const Events::ScriptChangeEvent& event)
@@ -55,22 +69,6 @@ namespace SyncBlink
         }
 
     private:
-        void handleMicrophoneSource()
-        {
-            if (checkBlinkScript())
-            {
-                AudioAnalyzerResult result = _frequencyAnalyzer.loop();
-                Events::AnalyzerUpdateEvent event = result.ToEvent();
-
-                uint32_t delta = millis() - _lastLedUpdate;
-                _lastLedUpdate = millis();
-
-                setView(event, delta);
-                _blinkScript->updateAnalyzerResult(result.volume, result.dominantFrequency);
-                _blinkScript->run(delta);
-            }
-        }
-
         bool checkBlinkScript()
         {
             bool valid = true;
@@ -104,10 +102,11 @@ namespace SyncBlink
         std::shared_ptr<RunScriptView> _runScriptView;
 
         std::string _scriptName;
-        uint32_t _scriptEventHandleId = 0;
         bool _activeScriptChanged = false;
 
-        FrequencyAnalyzer _frequencyAnalyzer;
+        uint32_t _scriptEventHandleId = 0;
+        uint32_t _analyzerEventHandleId = 0;
+
         uint64_t _lastLedUpdate = millis();
     };
 }

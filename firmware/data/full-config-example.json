@@ -1,9 +1,9 @@
 {
     "name": "Node",
-    "led_count": "9", 
-    "mic_pin": "A0",
+    "led_count": "9",
     "hub": "ID",
     "is_hub": "false",
+    "is_analyzer": "false",
     "active_script": "MeshSnake",
     "wifi_ssid": "WIFI",
     "wifi_pw": "PW"
