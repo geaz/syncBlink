@@ -60,8 +60,7 @@ namespace SyncBlink
                 uint32_t written = _client.write(messagePtr, messageSize);
                 messagePtr += written;
                 messageSize -= written;
-                if (messageSize > 0)
-                    delay(0);
+                if (messageSize > 0) delay(0);
             }
         }
     }
@@ -105,8 +104,7 @@ namespace SyncBlink
     {
         if (!_client.connected() && WiFi.status() == WL_CONNECTED && _retryCount++ < 10)
         {
-            if (_wasConnected)
-                Serial.println("[TCP Client] Disconnected! Trying to connect ...");
+            if (_wasConnected) Serial.println("[TCP Client] Disconnected! Trying to connect ...");
             else
                 Serial.println("[TCP Client] Trying to connect ...");
 

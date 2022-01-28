@@ -41,8 +41,7 @@ namespace SyncBlink
             package[5] = (uint8_t)(bodySize >> 8);
             package[6] = (uint8_t)(bodySize >> 0);
             package[7] = eventType;
-            if (bodySize > 0)
-                memcpy(&package[8], body, bodySize);
+            if (bodySize > 0) memcpy(&package[8], body, bodySize);
 
             return package;
         }

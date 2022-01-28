@@ -53,8 +53,7 @@ namespace SyncBlink
         {
             for (uint8_t i = 0; i < _freqBars.size(); i++)
             {
-                if (_freqBars[i] > 0)
-                    _freqBars[i]--;
+                if (_freqBars[i] > 0) _freqBars[i]--;
             }
         }
 

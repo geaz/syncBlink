@@ -16,8 +16,7 @@ namespace SyncBlink
         AudioAnalyzerResult result;
         FFTData data = collectSamples();
         calculateVolumeAndBandPass(data, result);
-        if (result.volume > 0)
-            calculateDominantFrequency(data, result);
+        if (result.volume > 0) calculateDominantFrequency(data, result);
         else
             result.dominantFrequency = 0;
 

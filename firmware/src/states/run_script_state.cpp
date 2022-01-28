@@ -28,6 +28,7 @@ namespace SyncBlink
         ~RunScriptState()
         {
             _context.getEventBus().removeEventHandler(_scriptEventHandleId);
+            _context.getEventBus().removeEventHandler(_analyzerEventHandleId);
         }
 
         void loop()
@@ -35,8 +36,7 @@ namespace SyncBlink
             _context.getDisplay().setView(_runScriptView);
             _context.getDisplay().setLeftStatus(_scriptName);
 
-            if (_activeScriptChanged)
-                _context.resetState();
+            if (_activeScriptChanged) _context.resetState();
             else if (_blinkScript == nullptr)
             {
                 auto script = _context.getScriptManager().getActiveScript();
@@ -52,8 +52,7 @@ namespace SyncBlink
 
         void onEvent(const Events::AnalyzerUpdateEvent& event)
         {
-            if (_blinkScript == nullptr)
-                return;
+            if (_blinkScript == nullptr) return;
 
             uint32_t delta = millis() - _lastLedUpdate;
             _lastLedUpdate = millis();

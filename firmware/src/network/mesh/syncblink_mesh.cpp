@@ -72,10 +72,8 @@ namespace SyncBlink
                 if ((connectToNode == -1 || foundSyncblinkNetworks > 2) && foundNodeNr > highestNodeNr)
                     connectToNode = i;
 
-                if (foundNodeNr > highestNodeNr)
-                    highestNodeNr = foundNodeNr;
-                if (foundNodeNr >= nodeNr)
-                    nodeNr = foundNodeNr + 1;
+                if (foundNodeNr > highestNodeNr) highestNodeNr = foundNodeNr;
+                if (foundNodeNr >= nodeNr) nodeNr = foundNodeNr + 1;
             }
         }
 

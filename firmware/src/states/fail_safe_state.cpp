@@ -30,8 +30,7 @@ namespace SyncBlink
             _context.getLed().setAllLeds(Colors::Yellow);
             _context.getDisplay().setView(_failSafeView);
 
-            if (_activeScriptChanged)
-                _context.resetState();
+            if (_activeScriptChanged) _context.resetState();
         }
 
         void onEvent(const Events::ScriptChangeEvent& event)

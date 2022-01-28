@@ -29,9 +29,7 @@ namespace SyncBlink
             _context.getLed().setAllLeds(Colors::Red);
             _context.getDisplay().setView(_invalidScriptView);
 
-            if (_activeScriptChanged)
-                _context.resetState();
-            _context.changeState(std::make_shared<FailSafeState>(_context));
+            if (_activeScriptChanged) _context.resetState();
         }
 
         void onEvent(const Events::ScriptChangeEvent& event)

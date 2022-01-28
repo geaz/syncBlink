@@ -1,10 +1,11 @@
 ﻿---
 BasedOnStyle: Microsoft
+ColumnLimit: 120
 AccessModifierOffset: '-4'
 NamespaceIndentation: All
 FixNamespaceComments: 'false'
 IncludeBlocks: Regroup
 PointerAlignment: Left
 TabWidth: '4'
-
+AllowShortIfStatementsOnASingleLine: Always
 ...

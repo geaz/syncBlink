@@ -22,8 +22,7 @@ namespace SyncBlink
 
     void NodeMode::checkConnection()
     {
-        if (WiFi.isConnected())
-            return;
+        if (WiFi.isConnected()) return;
         _led.showNow(Colors::Blue);
 
         // Try connect to hub
