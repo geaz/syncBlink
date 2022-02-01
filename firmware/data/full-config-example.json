@@ -4,6 +4,7 @@
     "hub": "ID",
     "is_hub": "false",
     "is_analyzer": "false",
+    "has_display": "false",
     "active_script": "MeshSnake",
     "wifi_ssid": "WIFI",
     "wifi_pw": "PW"

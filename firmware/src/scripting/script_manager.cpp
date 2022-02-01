@@ -6,8 +6,7 @@
 namespace SyncBlink
 {
     ScriptManager::ScriptManager(EventBus& eventBus, Config& config) : _eventBus(eventBus), _config(config)
-    {
-    }
+    { }
 
     Script ScriptManager::get(const std::string& scriptName)
     {

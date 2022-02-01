@@ -1,14 +1,21 @@
 #include "config/config.hpp"
-#include "operation_modes/hub_mode.hpp"
-#include "operation_modes/node_mode.hpp"
-#include "operation_modes/operation_mode.hpp"
+#include "event/event_bus.hpp"
+#include "scripting/script_manager.hpp"
+#include "modules/analyzer_module.hpp"
+#include "modules/display_module.hpp"
+#include "modules/script_module.hpp"
 
+#include <vector>
 #include <EEPROM.h>
 #include <LittleFS.h>
 #include <Wire.h>
+#include <led.hpp>
 
+SyncBlink::LED led;
 SyncBlink::Config config;
-std::unique_ptr<SyncBlink::OperationMode> operationMode;
+SyncBlink::EventBus eventBus;
+SyncBlink::ScriptManager scriptManager(eventBus, config);
+std::vector<std::shared_ptr<SyncBlink::Module>> modules;
 
 void setup()
 {
@@ -16,26 +23,42 @@ void setup()
     EEPROM.begin(512);
     LittleFS.begin();
 
-    config.load();
-
     pinMode(LED_PIN, OUTPUT);
     pinMode(A0, INPUT);
+
+    config.load();
+    led.setup(config.Values["led_count"]);
+
+    if(config.Values["is_analyzer"] == "true")
+    {
+        Serial.println("[MAIN] Adding Analyzer Module ...");
+        modules.push_back(std::make_shared<SyncBlink::AnalyzerModule>(eventBus));
+    }
+    if(config.Values["has_display"] == "true")
+    {
+        Serial.println("[MAIN] Adding Display Module ...");
+        modules.push_back(std::make_shared<SyncBlink::DisplayModule>(eventBus));
+    }
 
     if (config.Values["is_hub"] == "true")
     {
         Serial.println("[MAIN] Starting Hub mode ...");
-        operationMode = std::unique_ptr<SyncBlink::OperationMode>(new SyncBlink::HubMode(config));
-        operationMode->setup();
+        modules.push_back(std::make_shared<SyncBlink::ScriptModule>(led, eventBus, scriptManager.getActiveScript()));
     }
     else
     {
         Serial.println("[MAIN] Starting Node mode ...");
-        operationMode = std::unique_ptr<SyncBlink::OperationMode>(new SyncBlink::NodeMode(config));
-        operationMode->setup();
+    }
+
+    for (auto module: modules) {
+        module->setup();
     }
 }
 
 void loop()
 {
-    operationMode->loop();
+    for (auto module: modules) {
+        module->loop();
+    }
+    led.loop();
 }
