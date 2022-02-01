@@ -1,9 +1,8 @@
 #include "tcp_server.hpp"
 
 #include "message.hpp"
-#include "network/get_id.hpp"
-
-#include <event/events/mesh_connection_event.hpp>
+#include "core/network/get_id.hpp"
+#include "core/event/events/mesh_connection_event.hpp"
 
 namespace SyncBlink
 {

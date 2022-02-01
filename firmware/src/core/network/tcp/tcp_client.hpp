@@ -1,9 +1,10 @@
 #ifndef TCPCLIENT_H
 #define TCPCLIENT_H
 
+#include "core/event/event_bus.hpp"
+#include "core/event/event_types.hpp"
+
 #include <ESP8266WiFi.h>
-#include <event/event_bus.hpp>
-#include <event/event_types.hpp>
 #include <functional>
 
 namespace SyncBlink

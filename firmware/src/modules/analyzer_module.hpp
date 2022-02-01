@@ -2,8 +2,8 @@
 #define ANALYZERMODULE_H
 
 #include "module.hpp"
-#include "audio/frequency_analyzer.hpp"
-#include "event/event_bus.hpp"
+#include "core/audio/frequency_analyzer.hpp"
+#include "core/event/event_bus.hpp"
 
 namespace SyncBlink
 {

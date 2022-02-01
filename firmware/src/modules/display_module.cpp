@@ -1,6 +1,6 @@
 #include "display_module.hpp"
 
-#include "views/splash_view.cpp"
+#include "core/views/splash_view.cpp"
 
 #include <ESP8266WiFi.h>
 

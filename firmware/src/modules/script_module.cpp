@@ -1,6 +1,6 @@
 #include "script_module.hpp"
-#include "audio/analyzer_constants.hpp"
-#include "event/commands/set_display.hpp"
+#include "core/audio/analyzer_constants.hpp"
+#include "core/event/commands/set_display.hpp"
 
 namespace SyncBlink
 {

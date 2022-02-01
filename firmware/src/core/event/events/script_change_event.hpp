@@ -1,7 +1,7 @@
 #ifndef SCRIPTCHANGEEVENT_H
 #define SCRIPTCHANGEEVENT_H
 
-#include "scripting/script.hpp"
+#include "core/scripting/script.hpp"
 
 namespace SyncBlink
 {

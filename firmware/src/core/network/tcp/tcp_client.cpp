@@ -1,8 +1,7 @@
 #include "tcp_client.hpp"
 
 #include "message.hpp"
-
-#include <event/events/script_change_event.hpp>
+#include "core/event/events/script_change_event.hpp"
 
 namespace SyncBlink
 {

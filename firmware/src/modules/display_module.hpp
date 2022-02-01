@@ -2,8 +2,8 @@
 #define DISPLAYMODULE_H
 
 #include "module.hpp"
-#include "event/event_bus.hpp"
-#include "event/commands/set_display.hpp"
+#include "core/event/event_bus.hpp"
+#include "core/event/commands/set_display.hpp"
 
 #include <display.hpp>
 

@@ -1,7 +1,7 @@
 #ifndef RUNSCRIPTVIEW_H
 #define RUNSCRIPTVIEW_H
 
-#include "audio/map_funcs.hpp"
+#include "core/audio/map_funcs.hpp"
 
 #include <display.hpp>
 #include <view.hpp>

@@ -2,9 +2,9 @@
 #define TCPSERVER_H
 
 #include "tcp_client.hpp"
+#include "core/event/event_bus.hpp"
 
 #include <ESP8266WiFi.h>
-#include <event/event_bus.hpp>
 #include <lwip/tcp.h>
 #include <vector>
 

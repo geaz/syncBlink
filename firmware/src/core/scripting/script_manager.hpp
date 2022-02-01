@@ -1,10 +1,10 @@
 #ifndef SCRIPTMANAGER_H
 #define SCRIPTMANAGER_H
 
-#include "config/config.hpp"
-#include "event/event_bus.hpp"
-#include "event/events/script_change_event.hpp"
 #include "script.hpp"
+#include "core/config/config.hpp"
+#include "core/event/event_bus.hpp"
+#include "core/event/events/script_change_event.hpp"
 
 #include <functional>
 #include <string>

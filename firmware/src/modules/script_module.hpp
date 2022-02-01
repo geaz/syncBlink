@@ -2,12 +2,12 @@
 #define SCRIPTMODULE_H
 
 #include "module.hpp"
-#include "event/event_bus.hpp"
-#include "scripting/script.hpp"
-#include "views/icon_text_view.cpp"
-#include "views/run_script_view.cpp"
-#include "event/events/script_change_event.hpp"
-#include "event/events/analyzer_update_event.hpp"
+#include "core/event/event_bus.hpp"
+#include "core/scripting/script.hpp"
+#include "core/views/icon_text_view.cpp"
+#include "core/views/run_script_view.cpp"
+#include "core/event/events/script_change_event.hpp"
+#include "core/event/events/analyzer_update_event.hpp"
 
 #include <string>
 #include <memory>
