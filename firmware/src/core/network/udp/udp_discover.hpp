@@ -10,6 +10,7 @@ namespace SyncBlink
     {
     public:
         void start(bool isServer);
+        void stop();
         void loop();
         void ping();
 

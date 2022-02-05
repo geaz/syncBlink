@@ -5,6 +5,11 @@
 
 namespace SyncBlink
 {
+    TcpClient::TcpClient(EventBus& eventBus) : _eventBus(eventBus)
+    {
+        _client.setNoDelay(true);
+    }
+
     TcpClient::TcpClient(EventBus& eventBus, WiFiClient client) : _eventBus(eventBus), _client(client)
     {
         _client.setNoDelay(true);
@@ -51,7 +56,6 @@ namespace SyncBlink
             {
                 if (millis() - started > SocketWriteTimeout)
                 {
-                    Serial.printf("[TCP Client] Write Timeout\n");
                     _writeTimeout = true;
                     break;
                 }
@@ -137,10 +141,24 @@ namespace SyncBlink
         {
             switch (message.type)
             {
-            case EventType::ScriptChangeEvent:
-                auto scriptChangeEvent = message.as<Events::ScriptChangeEvent>();
-                _eventBus.trigger<Events::ScriptChangeEvent>(scriptChangeEvent);
-                break;
+                case EventType::ScriptChangeEvent:
+                {
+                    auto scriptChangeEvent = message.as<Events::ScriptChangeEvent>();
+                    _eventBus.trigger(scriptChangeEvent);
+                    break;
+                }
+                case EventType::AnalyzerUpdateEvent:
+                {
+                    auto analyzerUpdateEvent = message.as<Events::AnalyzerUpdateEvent>();
+                    _eventBus.trigger(analyzerUpdateEvent);
+                    break;
+                }
+                case EventType::MeshUpdateEvent:
+                {
+                    auto meshUpdateEvent = message.as<Events::MeshUpdateEvent>();
+                    _eventBus.trigger(meshUpdateEvent);
+                    break;
+                }
             }
         }
     }

@@ -7,7 +7,7 @@ namespace SyncBlink
     {
     public:
         virtual void setup() { };
-        virtual void loop() = 0;
+        virtual void loop() { };
     };
 }
 

@@ -19,7 +19,7 @@ namespace SyncBlink
     static const uint8_t MaxFreqBinIndex = (uint8_t)((float)MaxFrequency / ((float)SampleRate / (float)FFTDataSize));
 
     static const float EfAlpha = 0.4f;
-    static const int8_t MinDB = -35;
+    static const int8_t MinDB = -30;
 }
 
 #endif // ANALYZERCONSTANTS_H

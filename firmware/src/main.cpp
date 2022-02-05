@@ -1,9 +1,11 @@
 #include "core/config/config.hpp"
 #include "core/event/event_bus.hpp"
-#include "core/scripting/script_manager.hpp"
 #include "modules/analyzer_module.hpp"
 #include "modules/display_module.hpp"
 #include "modules/script_module.hpp"
+#include "modules/blinkscript_module.hpp"
+#include "modules/hub_wifi_module.hpp"
+#include "modules/node_wifi_module.hpp"
 
 #include <vector>
 #include <EEPROM.h>
@@ -14,7 +16,6 @@
 SyncBlink::LED led;
 SyncBlink::Config config;
 SyncBlink::EventBus eventBus;
-SyncBlink::ScriptManager scriptManager(eventBus, config);
 std::vector<std::shared_ptr<SyncBlink::Module>> modules;
 
 void setup()
@@ -25,7 +26,7 @@ void setup()
 
     pinMode(LED_PIN, OUTPUT);
     pinMode(A0, INPUT);
-
+    
     config.load();
     led.setup(config.Values["led_count"]);
 
@@ -34,6 +35,7 @@ void setup()
         Serial.println("[MAIN] Adding Analyzer Module ...");
         modules.push_back(std::make_shared<SyncBlink::AnalyzerModule>(eventBus));
     }
+    
     if(config.Values["has_display"] == "true")
     {
         Serial.println("[MAIN] Adding Display Module ...");
@@ -43,11 +45,18 @@ void setup()
     if (config.Values["is_hub"] == "true")
     {
         Serial.println("[MAIN] Starting Hub mode ...");
-        modules.push_back(std::make_shared<SyncBlink::ScriptModule>(led, eventBus, scriptManager.getActiveScript()));
+
+        auto scriptModule = std::make_shared<SyncBlink::ScriptModule>(eventBus, config);
+        modules.push_back(scriptModule);
+        
+        modules.push_back(std::make_shared<SyncBlink::HubWifiModule>(config, eventBus, *scriptModule.get()));
+        modules.push_back(std::make_shared<SyncBlink::BlinkScriptModule>(led, eventBus, scriptModule->getActiveScript()));
     }
     else
     {
         Serial.println("[MAIN] Starting Node mode ...");
+        modules.push_back(std::make_shared<SyncBlink::NodeWifiModule>(config, eventBus));
+        modules.push_back(std::make_shared<SyncBlink::BlinkScriptModule>(led, eventBus));
     }
 
     for (auto module: modules) {

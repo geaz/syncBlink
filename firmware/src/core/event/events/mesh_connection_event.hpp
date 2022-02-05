@@ -1,6 +1,8 @@
 #ifndef MESHCONNECTIONEVENT_H
 #define MESHCONNECTIONEVENT_H
 
+#include <string>
+
 namespace SyncBlink
 {
     struct NodeInfo
@@ -13,7 +15,7 @@ namespace SyncBlink
         uint16_t ledCount;
         uint8_t majorVersion;
         uint8_t minorVersion;
-        // char nodeLabel[MaxNodeLabelLength];
+        std::string nodeLabel;
     };
 
     namespace Events

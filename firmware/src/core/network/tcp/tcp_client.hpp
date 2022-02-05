@@ -3,6 +3,9 @@
 
 #include "core/event/event_bus.hpp"
 #include "core/event/event_types.hpp"
+#include "core/event/events/analyzer_update_event.hpp"
+#include "core/event/events/script_change_event.hpp"
+#include "core/event/events/mesh_update_event.hpp"
 
 #include <ESP8266WiFi.h>
 #include <functional>
@@ -12,6 +15,7 @@ namespace SyncBlink
     class TcpClient
     {
     public:
+        TcpClient(EventBus& eventBus);
         TcpClient(EventBus& eventBus, WiFiClient client);
 
         void start(String serverIp, uint16_t port);

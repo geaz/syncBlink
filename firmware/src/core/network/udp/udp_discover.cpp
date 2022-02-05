@@ -8,6 +8,11 @@ namespace SyncBlink
         _isServer = isServer;
     }
 
+    void UdpDiscover::stop()
+    {
+        _udp.stop();
+    }
+
     void UdpDiscover::loop()
     {
         int packetSize = _udp.parsePacket();

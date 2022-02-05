@@ -1,6 +1,7 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
+#define ARDUINOJSON_ENABLE_STD_STRING 1
 #include <ArduinoJson.h>
 
 namespace SyncBlink

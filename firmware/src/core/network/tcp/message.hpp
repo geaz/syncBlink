@@ -27,7 +27,7 @@ namespace SyncBlink
             return typedMessage;
         }
 
-        static std::vector<uint8_t> toMessagePacket(void* body, uint32_t bodySize, uint8_t eventType)
+        static std::vector<uint8_t> toMessagePacket(const void* body, uint32_t bodySize, uint8_t eventType)
         {
             uint32_t packageSize = bodySize + SocketHeaderSize;
 

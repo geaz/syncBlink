@@ -1,81 +1,114 @@
 #include "script_module.hpp"
-#include "core/audio/analyzer_constants.hpp"
-#include "core/event/commands/set_display.hpp"
+
+#include <EEPROM.h>
+#include <LittleFS.h>
 
 namespace SyncBlink
 {
-    ScriptModule::ScriptModule(LED& led, EventBus& eventBus, Script initalScript) : _led(led), _eventBus(eventBus), _currentScript(initalScript)
-    {   
-        _scriptEventHandleId = _eventBus.addEventHandler<Events::ScriptChangeEvent>(this);
-        _analyzerEventHandleId = _eventBus.addEventHandler<Events::AnalyzerUpdateEvent>(this);
-        
-        _runScriptView = std::make_shared<RunScriptView>();
-        _invalidScriptView = std::make_shared<IconTextView>("Invalid script!", u8g2_font_open_iconic_check_2x_t, 66);
-        _failSafeView = std::make_shared<IconTextView>("Fail Safe!", u8g2_font_open_iconic_thing_2x_t, 78);
-    }
-    
-    ScriptModule::~ScriptModule()
-    {
-        _eventBus.removeEventHandler(_scriptEventHandleId);
-        _eventBus.removeEventHandler(_analyzerEventHandleId);
-    }
+    ScriptModule::ScriptModule(EventBus& eventBus, Config& config) : _eventBus(eventBus), _config(config)
+    { }
 
-    void ScriptModule::loop()
-    {   
-        if ((_activeScriptChanged || _blinkScript == nullptr) && _currentScript.Exists)
+    Script ScriptModule::get(const std::string& scriptName)
+    {
+        Script script;
+        script.Name = scriptName;
+        script.Exists = true;
+
+        std::string path = "/scripts/" + scriptName;
+        if (LittleFS.exists(path.c_str()))
         {
-            Commands::SetDisplay command = { _runScriptView, _currentScript.Name };
-            _eventBus.trigger(command);
-
-            _blinkScript = std::make_shared<BlinkScript>(_led, _currentScript.Content, MaxFrequency);
-            _blinkScript->updateLedInfo(0, 0, _led.getLedCount());
-            _blinkScript->init();
-        }
-    }
-
-    void ScriptModule::onEvent(const Events::AnalyzerUpdateEvent& event)
-    {
-        if (_blinkScript == nullptr) return;
-
-        uint32_t delta = millis() - _lastLedUpdate;
-        _lastLedUpdate = millis();
-
-        setView(event, delta);
-        _blinkScript->updateAnalyzerResult(event.volume, event.frequency);
-        _blinkScript->run(delta);
-    }
-
-    void ScriptModule::onEvent(const Events::ScriptChangeEvent& event)
-    {
-        _activeScriptChanged = true;
-    }
-
-    bool ScriptModule::checkBlinkScript()
-    {
-        bool valid = true;
-        if (_blinkScript->isFaulted())
-        {
-            Commands::SetDisplay command = { _invalidScriptView, _currentScript.Name };
-            _eventBus.trigger(command);
-            valid = false;
-        }
-        return valid;
-    }
-
-    void ScriptModule::setView(Events::AnalyzerUpdateEvent event, uint32_t delta)
-    {
-        _runScriptView->delta = delta;
-        _runScriptView->volume = event.volume;
-        _runScriptView->decibel = event.decibel;
-        if (event.volume > 0 && event.frequency > 0)
-        {
-            _runScriptView->dominantFrequency = event.frequency;
-            _runScriptView->setFreqBars(event.freqBins);
+            File file = LittleFS.open(path.c_str(), "r");
+            while (file.available())
+            {
+                script.Content = file.readString().c_str();
+            }
+            file.close();
         }
         else
         {
-            _runScriptView->dominantFrequency = 0;
-            _runScriptView->fadeFrequencyRange();
+            script.Exists = false;
+        }
+
+        return script;
+    }
+
+    std::vector<std::string> ScriptModule::getList()
+    {
+        std::vector<std::string> scriptList;
+
+        Dir dir = LittleFS.openDir("scripts");
+        while (dir.next())
+        {
+            scriptList.push_back(dir.fileName().c_str());
+        }
+
+        return scriptList;
+    }
+
+    void ScriptModule::add(const std::string& scriptName)
+    {
+        File file = LittleFS.open(("/scripts/" + scriptName).c_str(), "w");
+        file.close();
+    }
+
+    void ScriptModule::save(const std::string& scriptName, const std::string& content)
+    {
+        File file = LittleFS.open(("/scripts/" + scriptName).c_str(), "w");
+        file.print(content.c_str());
+        file.close();
+
+        Script activeScript = getActiveScript();
+        if (activeScript.Name == scriptName)
+        {
+            _eventBus.trigger<Events::ScriptChangeEvent>({activeScript});
+        }
+    }
+
+    void ScriptModule::remove(const std::string& scriptName)
+    {
+        Script activeScript = getActiveScript();
+        LittleFS.remove(("/scripts/" + scriptName).c_str());
+
+        if (activeScript.Name == scriptName)
+        {
+            activeScript = getActiveScript();
+            _eventBus.trigger<Events::ScriptChangeEvent>({activeScript});
+        }
+    }
+
+    Script ScriptModule::getActiveScript()
+    {
+        Script script;
+        const char* activeScriptName = _config.Values["active_script"];
+        if (activeScriptName != nullptr)
+        {
+            Serial.printf("[SCRIPTMANAGER] Active Script: %s\n", activeScriptName);
+            script = get(activeScriptName);
+        }
+
+        if (!script.Exists)
+        {
+            Serial.println("[SCRIPTMANAGER] Currently active script not found! Falling back ...");
+
+            std::vector<std::string> scriptList = getList();
+            if (scriptList.size() > 0)
+            {
+                setActiveScript(getList().front());
+                script = getActiveScript();
+            }
+        }
+        return script;
+    }
+
+    void ScriptModule::setActiveScript(const std::string& scriptName)
+    {
+        if (scriptName.length() > 0)
+        {
+            Serial.printf("[ScriptManager] Saving active script (%s) ...\n", scriptName.c_str());
+            _config.Values["active_script"] = scriptName.c_str();
+            _config.save();
+
+            _eventBus.trigger<Events::ScriptChangeEvent>({getActiveScript()});
         }
     }
 }
