@@ -1,6 +1,7 @@
 #ifndef TCPCLIENT_H
 #define TCPCLIENT_H
 
+#include "core/message/message.hpp"
 #include "core/message/message_bus.hpp"
 #include "core/message/message_types.hpp"
 #include "core/message/messages/analyzer_update.hpp"
@@ -24,7 +25,7 @@ namespace SyncBlink
 
         void loop();
 
-        void sendMessage(void* message, uint32_t messageSize, MessageType msgType);
+        void sendMessage(Message message);
         void writeMessage(std::vector<uint8_t> message);
 
         bool isConnected();

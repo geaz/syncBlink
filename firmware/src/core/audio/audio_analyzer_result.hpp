@@ -17,12 +17,12 @@ namespace SyncBlink
         uint16_t dominantFrequency;
         std::array<float, HalfFFTDataSize> amplitudes;
 
-        Messages::AnalyzerUpdate ToEvent()
+        Messages::AnalyzerUpdate ToMessage()
         {
             Messages::AnalyzerUpdate analyzerMsg = {getId(), decibel, volume, dominantFrequency};
 
             // Map the values and amount of amplitudes
-            // to the AnalyzerUpdateEvent freqBin array (32 values in range of 0 - 255)
+            // to the Messages::AnalyzerUpdate freqBin array (32 values in range of 0 - 255)
             // This way we only need ~ half the amount of values and instead of 4bytes per value (float)
             // just 1 byte (uint8_t). Smaller size = faster transmission
             std::array<float, MaxFreqBinIndex> copyAmplitudes;

@@ -1,6 +1,5 @@
 #include "node_wifi_module.hpp"
 #include "core/network/get_id.hpp"
-#include "core/message/message_types.hpp"
 #include "core/message/messages/mesh_connection.hpp"
 
 namespace SyncBlink
@@ -28,8 +27,10 @@ namespace SyncBlink
         uint16_t ledCount = _config.Values["led_count"];
         std::string nodeLabel = _config.Values["name"];
 
-        Messages::MeshConnection msg = { SyncBlink::getId(), true, { false,  isAnalyzer, true, _mesh.isConnectedToMeshWifi(),  0, ledCount, VERSIONMAJOR, VERSIONMINOR, nodeLabel } };
-        _tcpClient->sendMessage(&msg, sizeof(msg), MessageType::MeshConnection);
+        Messages::MeshConnection msg = { SyncBlink::getId(), true };
+        msg.nodeInfo = { false,  isAnalyzer, true, _mesh.isConnectedToMeshWifi(),  0, ledCount, VERSIONMAJOR, VERSIONMINOR, nodeLabel };
+
+        _tcpClient->sendMessage(msg);
     }
 
     void NodeWifiModule::loop()

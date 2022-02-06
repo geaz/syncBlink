@@ -38,7 +38,7 @@ namespace SyncBlink
         void onMsg(const Messages::MeshUpdate& msg);
 
     private:
-        void broadcast(const void* body, uint32_t bodySize, MessageType msgType);
+        void broadcast(std::vector<uint8_t> message);
         void clearClients();
         void checkNewClients();
         void handleIncomingMessages();

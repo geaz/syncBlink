@@ -1,7 +1,5 @@
 #include "tcp_client.hpp"
 
-#include "message.hpp"
-
 namespace SyncBlink
 {
     TcpClient::TcpClient(MessageBus& messageBus) : _messageBus(messageBus)
@@ -38,10 +36,9 @@ namespace SyncBlink
         handleIncomingMessages();
     }
 
-    void TcpClient::sendMessage(void* message, uint32_t messageSize, MessageType eventType)
+    void TcpClient::sendMessage(Message message)
     {
-        auto messagePacket = Message::toMessagePacket(message, messageSize, eventType);
-        writeMessage(messagePacket);
+        writeMessage(message.toPackage());
     }
 
     void TcpClient::writeMessage(std::vector<uint8_t> message)
@@ -135,26 +132,32 @@ namespace SyncBlink
 
     void TcpClient::handleIncomingMessages()
     {
-        Message message;
-        if (message.available(_client, message))
+        MessagePackage package;
+        if (MessagePackage::available(_client, package))
         {
-            switch (message.type)
+            switch (package.type)
             {
                 case MessageType::ScriptChange:
                 {
-                    auto scriptChangeMsg = message.as<Messages::ScriptChange>();
+                    Messages::ScriptChange scriptChangeMsg;
+                    scriptChangeMsg.loadPackage(package);
+
                     _messageBus.trigger(scriptChangeMsg);
                     break;
                 }
                 case MessageType::AnalyzerUpdate:
                 {
-                    auto analyzerUpdateMsg = message.as<Messages::AnalyzerUpdate>();
+                    Messages::AnalyzerUpdate analyzerUpdateMsg;
+                    analyzerUpdateMsg.loadPackage(package);
+
                     _messageBus.trigger(analyzerUpdateMsg);
                     break;
                 }
                 case MessageType::MeshUpdate:
                 {
-                    auto meshUpdateMsg = message.as<Messages::MeshUpdate>();
+                    Messages::MeshUpdate meshUpdateMsg;
+                    meshUpdateMsg.loadPackage(package);
+                    
                     _messageBus.trigger(meshUpdateMsg);
                     break;
                 }

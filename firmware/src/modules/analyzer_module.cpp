@@ -8,7 +8,7 @@ namespace SyncBlink
     void AnalyzerModule::loop()
     {
         AudioAnalyzerResult result = _frequencyAnalyzer.loop();
-        Messages::AnalyzerUpdate msg = result.ToEvent();
+        Messages::AnalyzerUpdate msg = result.ToMessage();
         _messageBus.trigger(msg);
     }
 }

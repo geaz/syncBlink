@@ -5,6 +5,7 @@ namespace SyncBlink
 {
     enum MessageType
     {
+        Base,
         AnalyzerUpdate,
         MeshConnection,
         MeshUpdate,

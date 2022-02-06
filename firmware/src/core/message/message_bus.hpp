@@ -1,15 +1,19 @@
-#ifndef EVENTBUS_H
-#define EVENTBUS_H
+#ifndef MESSAGEBUS_H
+#define MESSAGEBUS_H
+
+#include "message.hpp"
 
 #include <functional>
 #include <memory>
 #include <typeindex>
 #include <typeinfo>
 #include <unordered_map>
+#include <type_traits>
 
 namespace SyncBlink
 {
-    template <class T> class MessageHandler
+    template <class T, typename std::enable_if<std::is_base_of<Message, T>::value>::type* = nullptr>
+    class MessageHandler
     {
     public:
         virtual void onMsg(const T&) = 0;
@@ -40,22 +44,24 @@ namespace SyncBlink
     class MessageBus
     {
     public:
-        template <typename MsgType> void trigger(const MsgType message)
+        template <typename T, typename std::enable_if<std::is_base_of<Message, T>::value>::type* = nullptr>
+        void trigger(const T message)
         {
-            const auto typeIndex = std::type_index(typeid(MsgType));
+            const auto typeIndex = std::type_index(typeid(T));
 
             const auto range = _registrations.equal_range(typeIndex);
             for (auto it = range.first; it != range.second; it++)
             {
-                auto fun = (MessageHandler<MsgType>*)it->second.handler();
+                auto fun = (MessageHandler<T>*)it->second.handler();
                 fun->onMsg(message);
             }
         }
 
-        template <typename MsgType> uint32_t addMsgHandler(MessageHandler<MsgType>* handler)
+        template <typename T, typename std::enable_if<std::is_base_of<Message, T>::value>::type* = nullptr>
+        uint32_t addMsgHandler(MessageHandler<T>* handler)
         {
             uint32_t id = _nextId++;
-            const auto typeIndex = std::type_index(typeid(MsgType));
+            const auto typeIndex = std::type_index(typeid(T));
 
             MsgRegistration msgRegistration(id, handler);
             _registrations.emplace(typeIndex, msgRegistration);
@@ -81,4 +87,4 @@ namespace SyncBlink
     };
 }
 
-#endif // EVENTBUS_H
+#endif // MESSAGEBUS_H

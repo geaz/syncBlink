@@ -1,6 +1,9 @@
 #ifndef ANALYZERUPDATEMSG_H
 #define ANALYZERUPDATEMSG_H
 
+#include "core/message/message.hpp"
+#include "core/message/message_types.hpp"
+
 #include <array>
 #include <cinttypes>
 
@@ -8,8 +11,14 @@ namespace SyncBlink
 {
     namespace Messages
     {
-        struct AnalyzerUpdate
+        struct AnalyzerUpdate : public Message
         {
+            AnalyzerUpdate(){}
+            AnalyzerUpdate(uint64_t _analyzerId, float _decibel, uint8_t _volume, uint16_t _frequency)
+                : analyzerId{_analyzerId}, decibel{_decibel}, volume{_volume}, frequency{_frequency} {}
+
+            MessageType getMessageType() const { return MessageType::AnalyzerUpdate; }
+
             uint64_t analyzerId;
             float decibel;
             uint8_t volume;                   // The current registered volume

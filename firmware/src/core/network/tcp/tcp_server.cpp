@@ -1,6 +1,6 @@
 #include "tcp_server.hpp"
 
-#include "message.hpp"
+#include "core/message/message.hpp"
 #include "core/network/get_id.hpp"
 #include "core/message/message_types.hpp"
 
@@ -39,25 +39,24 @@ namespace SyncBlink
 
     void TcpServer::onMsg(const Messages::AnalyzerUpdate& msg)
     {
-        broadcast(&msg, sizeof(msg), MessageType::AnalyzerUpdate);
+        broadcast(msg.toPackage());
     }
 
     void TcpServer::onMsg(const Messages::ScriptChange& msg)
     {
-        broadcast(&msg, sizeof(msg), MessageType::ScriptChange);
+        broadcast(msg.toPackage());
     }
 
     void TcpServer::onMsg(const Messages::MeshUpdate& msg)
     {
-        broadcast(&msg, sizeof(msg), MessageType::MeshUpdate);
+        broadcast(msg.toPackage());
     }
 
-    void TcpServer::broadcast(const void* body, uint32_t bodySize, MessageType msgType)
+    void TcpServer::broadcast(std::vector<uint8_t> message)
     {
-        auto packet = Message::toMessagePacket(body, bodySize, msgType);
         for (auto client : _clients)
         {
-            client->writeMessage(packet);
+            client->writeMessage(message);
         }
     }
 
@@ -121,14 +120,16 @@ namespace SyncBlink
     {
         for(auto& client : _clients)
         {
-            Message message;
-            if(Message::available(client->getWiFiClient(), message))
+            MessagePackage package;
+            if(MessagePackage::available(client->getWiFiClient(), package))
             {
-                switch(message.type)
+                switch(package.type)
                 {
                     case MessageType::MeshConnection:
                     {
-                        auto connectionMsg = message.as<Messages::MeshConnection>();
+                        Messages::MeshConnection connectionMsg;
+                        connectionMsg.loadPackage(package);
+
                         auto& nodeInfo = connectionMsg.nodeInfo;
                         if(connectionMsg.isConnected && nodeInfo.parentId == 0)
                         {
@@ -155,7 +156,9 @@ namespace SyncBlink
                     }
                     case MessageType::AnalyzerUpdate:
                     {
-                        auto analyzerMsg = message.as<Messages::AnalyzerUpdate>();
+                        Messages::AnalyzerUpdate analyzerMsg;
+                        analyzerMsg.loadPackage(package);
+
                         _messageBus.trigger(analyzerMsg);
                         break;
                     }
