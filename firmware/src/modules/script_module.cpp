@@ -1,6 +1,5 @@
 #include "script_module.hpp"
 
-#include <EEPROM.h>
 #include <LittleFS.h>
 
 namespace SyncBlink

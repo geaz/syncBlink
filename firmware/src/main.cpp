@@ -8,10 +8,9 @@
 #include "modules/node_wifi_module.hpp"
 
 #include <vector>
-#include <EEPROM.h>
-#include <LittleFS.h>
 #include <Wire.h>
 #include <led.hpp>
+#include <LittleFS.h>
 
 SyncBlink::LED led;
 SyncBlink::Config config;
@@ -21,7 +20,6 @@ std::vector<std::shared_ptr<SyncBlink::Module>> modules;
 void setup()
 {
     Serial.begin(74880);
-    EEPROM.begin(512);
     LittleFS.begin();
 
     pinMode(LED_PIN, OUTPUT);
