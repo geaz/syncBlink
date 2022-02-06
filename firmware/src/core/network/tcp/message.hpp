@@ -1,8 +1,6 @@
 #ifndef MESSAGE_H
 #define MESSAGE_H
 
-#include "core/event/event_bus.hpp"
-
 #include <Arduino.h>
 #include <Stream.h>
 #include <vector>

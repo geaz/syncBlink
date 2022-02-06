@@ -1,16 +1,15 @@
 #include "tcp_client.hpp"
 
 #include "message.hpp"
-#include "core/event/events/script_change_event.hpp"
 
 namespace SyncBlink
 {
-    TcpClient::TcpClient(EventBus& eventBus) : _eventBus(eventBus)
+    TcpClient::TcpClient(MessageBus& messageBus) : _messageBus(messageBus)
     {
         _client.setNoDelay(true);
     }
 
-    TcpClient::TcpClient(EventBus& eventBus, WiFiClient client) : _eventBus(eventBus), _client(client)
+    TcpClient::TcpClient(MessageBus& messageBus, WiFiClient client) : _messageBus(messageBus), _client(client)
     {
         _client.setNoDelay(true);
     }
@@ -39,7 +38,7 @@ namespace SyncBlink
         handleIncomingMessages();
     }
 
-    void TcpClient::sendMessage(void* message, uint32_t messageSize, EventType eventType)
+    void TcpClient::sendMessage(void* message, uint32_t messageSize, MessageType eventType)
     {
         auto messagePacket = Message::toMessagePacket(message, messageSize, eventType);
         writeMessage(messagePacket);
@@ -141,22 +140,22 @@ namespace SyncBlink
         {
             switch (message.type)
             {
-                case EventType::ScriptChangeEvent:
+                case MessageType::ScriptChange:
                 {
-                    auto scriptChangeEvent = message.as<Events::ScriptChangeEvent>();
-                    _eventBus.trigger(scriptChangeEvent);
+                    auto scriptChangeMsg = message.as<Messages::ScriptChange>();
+                    _messageBus.trigger(scriptChangeMsg);
                     break;
                 }
-                case EventType::AnalyzerUpdateEvent:
+                case MessageType::AnalyzerUpdate:
                 {
-                    auto analyzerUpdateEvent = message.as<Events::AnalyzerUpdateEvent>();
-                    _eventBus.trigger(analyzerUpdateEvent);
+                    auto analyzerUpdateMsg = message.as<Messages::AnalyzerUpdate>();
+                    _messageBus.trigger(analyzerUpdateMsg);
                     break;
                 }
-                case EventType::MeshUpdateEvent:
+                case MessageType::MeshUpdate:
                 {
-                    auto meshUpdateEvent = message.as<Events::MeshUpdateEvent>();
-                    _eventBus.trigger(meshUpdateEvent);
+                    auto meshUpdateMsg = message.as<Messages::MeshUpdate>();
+                    _messageBus.trigger(meshUpdateMsg);
                     break;
                 }
             }

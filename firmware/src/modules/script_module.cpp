@@ -5,7 +5,7 @@
 
 namespace SyncBlink
 {
-    ScriptModule::ScriptModule(EventBus& eventBus, Config& config) : _eventBus(eventBus), _config(config)
+    ScriptModule::ScriptModule(MessageBus& messageBus, Config& config) : _messageBus(messageBus), _config(config)
     { }
 
     Script ScriptModule::get(const std::string& scriptName)
@@ -60,7 +60,7 @@ namespace SyncBlink
         Script activeScript = getActiveScript();
         if (activeScript.Name == scriptName)
         {
-            _eventBus.trigger<Events::ScriptChangeEvent>({activeScript});
+            _messageBus.trigger<Messages::ScriptChange>({activeScript});
         }
     }
 
@@ -72,7 +72,7 @@ namespace SyncBlink
         if (activeScript.Name == scriptName)
         {
             activeScript = getActiveScript();
-            _eventBus.trigger<Events::ScriptChangeEvent>({activeScript});
+            _messageBus.trigger<Messages::ScriptChange>({activeScript});
         }
     }
 
@@ -108,7 +108,7 @@ namespace SyncBlink
             _config.Values["active_script"] = scriptName.c_str();
             _config.save();
 
-            _eventBus.trigger<Events::ScriptChangeEvent>({getActiveScript()});
+            _messageBus.trigger<Messages::ScriptChange>({getActiveScript()});
         }
     }
 }

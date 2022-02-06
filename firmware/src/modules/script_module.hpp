@@ -4,8 +4,8 @@
 #include "module.hpp"
 #include "core/script.hpp"
 #include "core/config/config.hpp"
-#include "core/event/event_bus.hpp"
-#include "core/event/events/script_change_event.hpp"
+#include "core/message/message_bus.hpp"
+#include "core/message/messages/script_change.hpp"
 
 #include <string>
 #include <vector>
@@ -15,7 +15,7 @@ namespace SyncBlink
     class ScriptModule : public Module
     {
     public:
-        ScriptModule(EventBus& eventBus, Config& config);
+        ScriptModule(MessageBus& messageBus, Config& config);
 
         Script get(const std::string& scriptName);
         std::vector<std::string> getList();
@@ -28,7 +28,7 @@ namespace SyncBlink
         void setActiveScript(const std::string& scriptName);
 
     private:
-        EventBus& _eventBus;
+        MessageBus& _messageBus;
         Config& _config;
     };
 }

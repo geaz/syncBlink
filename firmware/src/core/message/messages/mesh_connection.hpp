@@ -1,5 +1,5 @@
-#ifndef MESHCONNECTIONEVENT_H
-#define MESHCONNECTIONEVENT_H
+#ifndef MESHCONNECTIONMSG_H
+#define MESHCONNECTIONMSG_H
 
 #include <string>
 
@@ -18,9 +18,9 @@ namespace SyncBlink
         std::string nodeLabel;
     };
 
-    namespace Events
+    namespace Messages
     {
-        struct MeshConnectionEvent
+        struct MeshConnection
         {
             uint64_t nodeId;
             bool isConnected;
@@ -29,4 +29,4 @@ namespace SyncBlink
     }
 }
 
-#endif // MESHCONNECTIONEVENT_H
+#endif // MESHCONNECTIONMSG_H

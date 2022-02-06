@@ -1,5 +1,5 @@
 #include "core/config/config.hpp"
-#include "core/event/event_bus.hpp"
+#include "core/message/message_bus.hpp"
 #include "modules/analyzer_module.hpp"
 #include "modules/display_module.hpp"
 #include "modules/script_module.hpp"
@@ -15,7 +15,7 @@
 
 SyncBlink::LED led;
 SyncBlink::Config config;
-SyncBlink::EventBus eventBus;
+SyncBlink::MessageBus messageBus;
 std::vector<std::shared_ptr<SyncBlink::Module>> modules;
 
 void setup()
@@ -33,30 +33,30 @@ void setup()
     if(config.Values["is_analyzer"] == "true")
     {
         Serial.println("[MAIN] Adding Analyzer Module ...");
-        modules.push_back(std::make_shared<SyncBlink::AnalyzerModule>(eventBus));
+        modules.push_back(std::make_shared<SyncBlink::AnalyzerModule>(messageBus));
     }
     
     if(config.Values["has_display"] == "true")
     {
         Serial.println("[MAIN] Adding Display Module ...");
-        modules.push_back(std::make_shared<SyncBlink::DisplayModule>(eventBus));
+        modules.push_back(std::make_shared<SyncBlink::DisplayModule>(messageBus));
     }
 
     if (config.Values["is_hub"] == "true")
     {
         Serial.println("[MAIN] Starting Hub mode ...");
 
-        auto scriptModule = std::make_shared<SyncBlink::ScriptModule>(eventBus, config);
+        auto scriptModule = std::make_shared<SyncBlink::ScriptModule>(messageBus, config);
         modules.push_back(scriptModule);
         
-        modules.push_back(std::make_shared<SyncBlink::HubWifiModule>(config, eventBus, *scriptModule.get()));
-        modules.push_back(std::make_shared<SyncBlink::BlinkScriptModule>(led, eventBus, scriptModule->getActiveScript()));
+        modules.push_back(std::make_shared<SyncBlink::HubWifiModule>(config, messageBus, *scriptModule.get()));
+        modules.push_back(std::make_shared<SyncBlink::BlinkScriptModule>(led, messageBus, scriptModule->getActiveScript()));
     }
     else
     {
         Serial.println("[MAIN] Starting Node mode ...");
-        modules.push_back(std::make_shared<SyncBlink::NodeWifiModule>(config, eventBus));
-        modules.push_back(std::make_shared<SyncBlink::BlinkScriptModule>(led, eventBus));
+        modules.push_back(std::make_shared<SyncBlink::NodeWifiModule>(config, messageBus));
+        modules.push_back(std::make_shared<SyncBlink::BlinkScriptModule>(led, messageBus));
     }
 
     for (auto module: modules) {

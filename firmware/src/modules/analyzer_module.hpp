@@ -3,19 +3,19 @@
 
 #include "module.hpp"
 #include "core/audio/frequency_analyzer.hpp"
-#include "core/event/event_bus.hpp"
+#include "core/message/message_bus.hpp"
 
 namespace SyncBlink
 {
     class AnalyzerModule : public Module
     {
     public:
-        AnalyzerModule(EventBus& eventBus);
+        AnalyzerModule(MessageBus& messageBus);
 
         void loop();
 
     private:
-        EventBus& _eventBus;
+        MessageBus& _messageBus;
         FrequencyAnalyzer _frequencyAnalyzer;
     };
 }

@@ -2,8 +2,8 @@
 #define DISPLAYMODULE_H
 
 #include "module.hpp"
-#include "core/event/event_bus.hpp"
-#include "core/event/commands/set_display.hpp"
+#include "core/message/message_bus.hpp"
+#include "core/message/commands/set_display.hpp"
 
 #include <display.hpp>
 
@@ -11,20 +11,20 @@ namespace SyncBlink
 {
     class DisplayModule : 
         public Module,
-        public EventHandler<Commands::SetDisplay>
+        public MessageHandler<Commands::SetDisplay>
     {
     public:
-        DisplayModule(EventBus& eventBus);
+        DisplayModule(MessageBus& messageBus);
         ~DisplayModule();
 
         void setup() override;
         void loop();
 
-        void onEvent(const Commands::SetDisplay& command);
+        void onMsg(const Commands::SetDisplay& command);
 
     private:
         Display _display;
-        EventBus& _eventBus;
+        MessageBus& _messageBus;
         uint32_t _displayCommandHandleId = 0;
     };
 }

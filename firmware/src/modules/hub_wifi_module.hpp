@@ -7,7 +7,7 @@
 #include "core/network/tcp/tcp_server.hpp"
 #include "core/network/udp/udp_discover.hpp"
 #include "core/network/mesh/syncblink_mesh.hpp"
-#include "core/event/events/mesh_connection_event.hpp"
+#include "core/message/messages/mesh_connection.hpp"
 
 #include <map>
 
@@ -15,16 +15,16 @@ namespace SyncBlink
 {
     class HubWifiModule : 
         public Module,
-        public EventHandler<Events::MeshConnectionEvent>
+        public MessageHandler<Messages::MeshConnection>
     {
     public:
-        HubWifiModule(Config& config, EventBus& eventBus, ScriptModule& scriptModule);
+        HubWifiModule(Config& config, MessageBus& messageBus, ScriptModule& scriptModule);
         ~HubWifiModule();
 
         void setup() override;
         void loop();
 
-        void onEvent(const Events::MeshConnectionEvent& event);
+        void onMsg(const Messages::MeshConnection& msg);
 
     private:
         void addNode(uint64_t nodeId, NodeInfo nodeInfo);
@@ -32,7 +32,7 @@ namespace SyncBlink
         void countLeds();
 
         Config& _config;
-        EventBus& _eventBus;
+        MessageBus& _messageBus;
         ScriptModule& _scriptModule;
 
         SyncBlinkMesh _mesh;

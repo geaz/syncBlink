@@ -2,17 +2,17 @@
 
 namespace SyncBlink
 {
-    HubWifiModule::HubWifiModule(Config& config, EventBus& eventBus, ScriptModule& scriptModule) : 
-        _config(config), _eventBus(eventBus), _scriptModule(scriptModule), 
+    HubWifiModule::HubWifiModule(Config& config, MessageBus& messageBus, ScriptModule& scriptModule) : 
+        _config(config), _messageBus(messageBus), _scriptModule(scriptModule), 
         _mesh(config.Values["wifi_ssid"], config.Values["wifi_pw"]),
-        _tcpServer(eventBus)
+        _tcpServer(messageBus)
     {        
-        _meshConHandleId = _eventBus.addEventHandler<Events::MeshConnectionEvent>(this);
+        _meshConHandleId = _messageBus.addMsgHandler<Messages::MeshConnection>(this);
     }
 
     HubWifiModule::~HubWifiModule()
     {
-        _eventBus.removeEventHandler(_meshConHandleId);
+        _messageBus.removeMsgHandler(_meshConHandleId);
     }
 
     void HubWifiModule::setup()
@@ -30,16 +30,16 @@ namespace SyncBlink
         _udpDiscover.loop();
     }
         
-    void HubWifiModule::onEvent(const Events::MeshConnectionEvent& event)
+    void HubWifiModule::onMsg(const Messages::MeshConnection& msg)
     {
-        if(event.isConnected) addNode(event.nodeId, event.nodeInfo);
-        else removeNode(event.nodeId);
+        if(msg.isConnected) addNode(msg.nodeId, msg.nodeInfo);
+        else removeNode(msg.nodeId);
 
         countLeds();
 
         Script activeScript = _scriptModule.getActiveScript();
-        Events::MeshUpdateEvent updateEvent = {activeScript, _config.Values["led_count"], 1, _totalLeds, _totalNodes};
-        _eventBus.trigger(updateEvent);
+        Messages::MeshUpdate updateMsg = {activeScript, _config.Values["led_count"], 1, _totalLeds, _totalNodes};
+        _messageBus.trigger(updateMsg);
     }
 
     void HubWifiModule::addNode(uint64_t nodeId, NodeInfo nodeInfo)

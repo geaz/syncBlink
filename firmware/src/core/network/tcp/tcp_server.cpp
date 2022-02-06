@@ -2,23 +2,22 @@
 
 #include "message.hpp"
 #include "core/network/get_id.hpp"
-#include "core/event/event_types.hpp"
-#include "core/event/events/mesh_connection_event.hpp"
+#include "core/message/message_types.hpp"
 
 namespace SyncBlink
 {
-    TcpServer::TcpServer(EventBus& eventBus) : _eventBus(eventBus)
+    TcpServer::TcpServer(MessageBus& messageBus) : _messageBus(messageBus)
     {
-        _analyzerEventHandleId = _eventBus.addEventHandler<Events::AnalyzerUpdateEvent>(this);
-        _scriptEventHandleId = _eventBus.addEventHandler<Events::ScriptChangeEvent>(this);
-        _meshUpdateEventHandleId = _eventBus.addEventHandler<Events::MeshUpdateEvent>(this);
+        _analyzerHandleId = _messageBus.addMsgHandler<Messages::AnalyzerUpdate>(this);
+        _scriptHandleId = _messageBus.addMsgHandler<Messages::ScriptChange>(this);
+        _meshUpdateHandleId = _messageBus.addMsgHandler<Messages::MeshUpdate>(this);
     }
 
     TcpServer::~TcpServer()
     {
-        _eventBus.removeEventHandler(_analyzerEventHandleId);
-        _eventBus.removeEventHandler(_scriptEventHandleId);
-        _eventBus.removeEventHandler(_meshUpdateEventHandleId);
+        _messageBus.removeMsgHandler(_analyzerHandleId);
+        _messageBus.removeMsgHandler(_scriptHandleId);
+        _messageBus.removeMsgHandler(_meshUpdateHandleId);
     }
 
     void TcpServer::start()
@@ -38,24 +37,24 @@ namespace SyncBlink
         return _clients.size();
     }
 
-    void TcpServer::onEvent(const Events::AnalyzerUpdateEvent& event)
+    void TcpServer::onMsg(const Messages::AnalyzerUpdate& msg)
     {
-        broadcast(&event, sizeof(event), EventType::AnalyzerUpdateEvent);
+        broadcast(&msg, sizeof(msg), MessageType::AnalyzerUpdate);
     }
 
-    void TcpServer::onEvent(const Events::ScriptChangeEvent& event)
+    void TcpServer::onMsg(const Messages::ScriptChange& msg)
     {
-        broadcast(&event, sizeof(event), EventType::ScriptChangeEvent);
+        broadcast(&msg, sizeof(msg), MessageType::ScriptChange);
     }
 
-    void TcpServer::onEvent(const Events::MeshUpdateEvent& event)
+    void TcpServer::onMsg(const Messages::MeshUpdate& msg)
     {
-        broadcast(&event, sizeof(event), EventType::MeshUpdateEvent);
+        broadcast(&msg, sizeof(msg), MessageType::MeshUpdate);
     }
 
-    void TcpServer::broadcast(const void* body, uint32_t bodySize, EventType eventType)
+    void TcpServer::broadcast(const void* body, uint32_t bodySize, MessageType msgType)
     {
-        auto packet = Message::toMessagePacket(body, bodySize, eventType);
+        auto packet = Message::toMessagePacket(body, bodySize, msgType);
         for (auto client : _clients)
         {
             client->writeMessage(packet);
@@ -89,7 +88,7 @@ namespace SyncBlink
                 {
                     Serial.printf("[TCP SERVER] Client lost connection: %12llx (AP Connected: %i, Write Timeout: %i)\n",
                                   client->getStreamId(), connectedToAp, client->isWriteTimeout());
-                    _eventBus.trigger<Events::MeshConnectionEvent>({client->getStreamId(), false});
+                    _messageBus.trigger<Messages::MeshConnection>({client->getStreamId(), false});
                 }
                 client->flush();
                 client->stop();
@@ -114,7 +113,7 @@ namespace SyncBlink
     {
         if (_server.hasClient())
         {
-            _clients.push_back(std::make_shared<TcpClient>(_eventBus, _server.available()));
+            _clients.push_back(std::make_shared<TcpClient>(_messageBus, _server.available()));
         }
     }
 
@@ -127,14 +126,14 @@ namespace SyncBlink
             {
                 switch(message.type)
                 {
-                    case EventType::MeshConnectionEvent:
+                    case MessageType::MeshConnection:
                     {
-                        auto event = message.as<Events::MeshConnectionEvent>();
-                        auto& nodeInfo = event.nodeInfo;
-                        if(event.isConnected && nodeInfo.parentId == 0)
+                        auto connectionMsg = message.as<Messages::MeshConnection>();
+                        auto& nodeInfo = connectionMsg.nodeInfo;
+                        if(connectionMsg.isConnected && nodeInfo.parentId == 0)
                         {
                             if(nodeInfo.isNode) nodeInfo.parentId = SyncBlink::getId();
-                            client->setStreamId(event.nodeId);
+                            client->setStreamId(connectionMsg.nodeId);
 
                             if(nodeInfo.isAnalyzer && !nodeInfo.isNode)
                             {
@@ -143,21 +142,21 @@ namespace SyncBlink
                             else
                             {
                                 Serial.printf("[TCP SERVER] New Client: %12llx - LEDs %i - Parent %12llx - Firmware Version: %i.%i\n",
-                                    event.nodeId, nodeInfo.ledCount,
+                                    connectionMsg.nodeId, nodeInfo.ledCount,
                                     nodeInfo.parentId, nodeInfo.majorVersion, nodeInfo.minorVersion);
                             }
                         }
-                        else if(!event.isConnected)
+                        else if(!connectionMsg.isConnected)
                         {
-                            Serial.printf("[TCP SERVER] Node disconnected: %12llx\n", event.nodeId);
+                            Serial.printf("[TCP SERVER] Node disconnected: %12llx\n", connectionMsg.nodeId);
                         }
-                        _eventBus.trigger(event);
+                        _messageBus.trigger(connectionMsg);
                         break;
                     }
-                    case EventType::AnalyzerUpdateEvent:
+                    case MessageType::AnalyzerUpdate:
                     {
-                        auto analyzerEvent = message.as<Events::AnalyzerUpdateEvent>();
-                        _eventBus.trigger(analyzerEvent);
+                        auto analyzerMsg = message.as<Messages::AnalyzerUpdate>();
+                        _messageBus.trigger(analyzerMsg);
                         break;
                     }
                 }

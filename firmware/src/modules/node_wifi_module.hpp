@@ -12,14 +12,14 @@ namespace SyncBlink
     class NodeWifiModule : public Module
     {
     public:
-        NodeWifiModule(Config& config, EventBus& eventBus);
+        NodeWifiModule(Config& config, MessageBus& messageBus);
 
         void setup() override;
         void loop();
 
     private:
         Config& _config;
-        EventBus& _eventBus;
+        MessageBus& _messageBus;
         SyncBlinkMesh _mesh;
         TcpServer _tcpServer;
         std::shared_ptr<TcpClient> _tcpClient;

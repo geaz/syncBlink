@@ -3,12 +3,12 @@
 
 #include "module.hpp"
 #include "core/script.hpp"
-#include "core/event/event_bus.hpp"
+#include "core/message/message_bus.hpp"
 #include "core/views/icon_text_view.cpp"
 #include "core/views/run_script_view.cpp"
-#include "core/event/events/script_change_event.hpp"
-#include "core/event/events/analyzer_update_event.hpp"
-#include "core/event/events/mesh_update_event.hpp"
+#include "core/message/messages/script_change.hpp"
+#include "core/message/messages/analyzer_update.hpp"
+#include "core/message/messages/mesh_update.hpp"
 
 #include <string>
 #include <memory>
@@ -18,26 +18,26 @@ namespace SyncBlink
 {
     class BlinkScriptModule : 
         public Module,
-        public EventHandler<Events::AnalyzerUpdateEvent>,
-        public EventHandler<Events::ScriptChangeEvent>
+        public MessageHandler<Messages::AnalyzerUpdate>,
+        public MessageHandler<Messages::ScriptChange>
     {
     public:
-        BlinkScriptModule(LED& led, EventBus& eventBus);
-        BlinkScriptModule(LED& led, EventBus& eventBus, Script initialScript);
+        BlinkScriptModule(LED& led, MessageBus& messageBus);
+        BlinkScriptModule(LED& led, MessageBus& messageBus, Script initialScript);
         ~BlinkScriptModule();
 
         void loop();
 
-        void onEvent(const Events::AnalyzerUpdateEvent& event);
-        void onEvent(const Events::ScriptChangeEvent& event);
-        void onEvent(const Events::MeshUpdateEvent& event);
+        void onMsg(const Messages::AnalyzerUpdate& msg);
+        void onMsg(const Messages::ScriptChange& msg);
+        void onMsg(const Messages::MeshUpdate& msg);
 
     private:
         bool checkBlinkScript();
-        void setView(Events::AnalyzerUpdateEvent event, uint32_t delta);
+        void setView(Messages::AnalyzerUpdate msg, uint32_t delta);
 
         LED& _led;
-        EventBus& _eventBus;
+        MessageBus& _messageBus;
 
         Script _currentScript;
         std::shared_ptr<BlinkScript> _blinkScript;
@@ -47,8 +47,8 @@ namespace SyncBlink
         std::shared_ptr<IconTextView> _invalidScriptView;
         std::shared_ptr<IconTextView> _failSafeView;
 
-        uint32_t _scriptEventHandleId = 0;
-        uint32_t _analyzerEventHandleId = 0;
+        uint32_t _scriptHandleId = 0;
+        uint32_t _analyzerHandleId = 0;
 
         uint64_t _lastLedUpdate = millis();
     };

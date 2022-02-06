@@ -9,16 +9,16 @@
 
 namespace SyncBlink
 {
-    template <class T> class EventHandler
+    template <class T> class MessageHandler
     {
     public:
-        virtual void onEvent(const T&) = 0;
+        virtual void onMsg(const T&) = 0;
     };
 
-    class EventRegistration
+    class MsgRegistration
     {
     public:
-        EventRegistration(uint32_t id, void* handler) : _id(id), _handler(handler)
+        MsgRegistration(uint32_t id, void* handler) : _id(id), _handler(handler)
         {
         }
 
@@ -26,6 +26,7 @@ namespace SyncBlink
         {
             return _handler;
         }
+
         uint32_t id()
         {
             return _id;
@@ -36,33 +37,33 @@ namespace SyncBlink
         void* _handler;
     };
 
-    class EventBus
+    class MessageBus
     {
     public:
-        template <typename EventType> void trigger(const EventType eventMessage)
+        template <typename MsgType> void trigger(const MsgType message)
         {
-            const auto typeIndex = std::type_index(typeid(EventType));
+            const auto typeIndex = std::type_index(typeid(MsgType));
 
             const auto range = _registrations.equal_range(typeIndex);
             for (auto it = range.first; it != range.second; it++)
             {
-                auto fun = (EventHandler<EventType>*)it->second.handler();
-                fun->onEvent(eventMessage);
+                auto fun = (MessageHandler<MsgType>*)it->second.handler();
+                fun->onMsg(message);
             }
         }
 
-        template <typename EventType> uint32_t addEventHandler(EventHandler<EventType>* handler)
+        template <typename MsgType> uint32_t addMsgHandler(MessageHandler<MsgType>* handler)
         {
             uint32_t id = _nextId++;
-            const auto typeIndex = std::type_index(typeid(EventType));
+            const auto typeIndex = std::type_index(typeid(MsgType));
 
-            EventRegistration eventRegistration(id, handler);
-            _registrations.emplace(typeIndex, eventRegistration);
+            MsgRegistration msgRegistration(id, handler);
+            _registrations.emplace(typeIndex, msgRegistration);
 
-            return eventRegistration.id();
+            return msgRegistration.id();
         }
 
-        void removeEventHandler(uint32_t id)
+        void removeMsgHandler(uint32_t id)
         {
             for (auto it = _registrations.begin(); it != _registrations.end(); it++)
             {
@@ -76,7 +77,7 @@ namespace SyncBlink
 
     private:
         uint32_t _nextId = 0;
-        std::unordered_multimap<std::type_index, EventRegistration> _registrations;
+        std::unordered_multimap<std::type_index, MsgRegistration> _registrations;
     };
 }
 

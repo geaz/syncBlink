@@ -1,14 +1,14 @@
-#ifndef ANALYZERUPDATEEVENT_H
-#define ANALYZERUPDATEEVENT_H
+#ifndef ANALYZERUPDATEMSG_H
+#define ANALYZERUPDATEMSG_H
 
 #include <array>
 #include <cinttypes>
 
 namespace SyncBlink
 {
-    namespace Events
+    namespace Messages
     {
-        struct AnalyzerUpdateEvent
+        struct AnalyzerUpdate
         {
             uint64_t analyzerId;
             float decibel;
@@ -19,4 +19,4 @@ namespace SyncBlink
     }
 }
 
-#endif // ANALYZERUPDATEEVENT_H
+#endif // ANALYZERUPDATEMSG_H

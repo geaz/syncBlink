@@ -2,13 +2,13 @@
 
 namespace SyncBlink
 {
-    AnalyzerModule::AnalyzerModule(EventBus& eventBus) : _eventBus(eventBus)
+    AnalyzerModule::AnalyzerModule(MessageBus& messageBus) : _messageBus(messageBus)
     { }
 
     void AnalyzerModule::loop()
     {
         AudioAnalyzerResult result = _frequencyAnalyzer.loop();
-        Events::AnalyzerUpdateEvent event = result.ToEvent();
-        _eventBus.trigger(event);
+        Messages::AnalyzerUpdate msg = result.ToEvent();
+        _messageBus.trigger(msg);
     }
 }

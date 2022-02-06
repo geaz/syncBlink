@@ -1,5 +1,5 @@
-#ifndef MESHUPDATEEVENT_H
-#define MESHUPDATEEVENT_H
+#ifndef MESHUPDATEMSG_H
+#define MESHUPDATEMSG_H
 
 #include "core/script.hpp"
 
@@ -7,9 +7,9 @@
 
 namespace SyncBlink
 {
-    namespace Events
+    namespace Messages
     {
-        struct MeshUpdateEvent
+        struct MeshUpdate
         {
             Script script;
             uint32_t routeLedCount;
@@ -20,4 +20,4 @@ namespace SyncBlink
     }
 }
 
-#endif // MESHUPDATEEVENT_H
+#endif // MESHUPDATEMSG_H

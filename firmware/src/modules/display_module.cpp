@@ -6,14 +6,14 @@
 
 namespace SyncBlink
 {
-    DisplayModule::DisplayModule(EventBus& eventBus) : _eventBus(eventBus)
+    DisplayModule::DisplayModule(MessageBus& messageBus) : _messageBus(messageBus)
     {   
-        _displayCommandHandleId = _eventBus.addEventHandler<Commands::SetDisplay>(this);
+        _displayCommandHandleId = _messageBus.addMsgHandler<Commands::SetDisplay>(this);
     }
     
     DisplayModule::~DisplayModule()
     {
-        _eventBus.removeEventHandler(_displayCommandHandleId);
+        _messageBus.removeMsgHandler(_displayCommandHandleId);
     }
 
     void DisplayModule::setup()
@@ -29,7 +29,7 @@ namespace SyncBlink
         _display.loop();
     }
 
-    void DisplayModule::onEvent(const Commands::SetDisplay& command)
+    void DisplayModule::onMsg(const Commands::SetDisplay& command)
     {
         _display.setView(command.view);
         _display.setLeftStatus(command.leftStatus);

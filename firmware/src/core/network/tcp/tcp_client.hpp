@@ -1,11 +1,11 @@
 #ifndef TCPCLIENT_H
 #define TCPCLIENT_H
 
-#include "core/event/event_bus.hpp"
-#include "core/event/event_types.hpp"
-#include "core/event/events/analyzer_update_event.hpp"
-#include "core/event/events/script_change_event.hpp"
-#include "core/event/events/mesh_update_event.hpp"
+#include "core/message/message_bus.hpp"
+#include "core/message/message_types.hpp"
+#include "core/message/messages/analyzer_update.hpp"
+#include "core/message/messages/script_change.hpp"
+#include "core/message/messages/mesh_update.hpp"
 
 #include <ESP8266WiFi.h>
 #include <functional>
@@ -15,8 +15,8 @@ namespace SyncBlink
     class TcpClient
     {
     public:
-        TcpClient(EventBus& eventBus);
-        TcpClient(EventBus& eventBus, WiFiClient client);
+        TcpClient(MessageBus& messageBus);
+        TcpClient(MessageBus& messageBus, WiFiClient client);
 
         void start(String serverIp, uint16_t port);
         void stop();
@@ -24,7 +24,7 @@ namespace SyncBlink
 
         void loop();
 
-        void sendMessage(void* message, uint32_t messageSize, EventType eventType);
+        void sendMessage(void* message, uint32_t messageSize, MessageType msgType);
         void writeMessage(std::vector<uint8_t> message);
 
         bool isConnected();
@@ -42,7 +42,7 @@ namespace SyncBlink
         bool connectTo(String socketIp, uint16_t port);
         void handleIncomingMessages();
 
-        EventBus& _eventBus;
+        MessageBus& _messageBus;
         WiFiClient _client;
         String _serverIp;
         uint16_t _port;
