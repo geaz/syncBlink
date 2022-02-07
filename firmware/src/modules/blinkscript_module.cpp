@@ -7,7 +7,8 @@ namespace SyncBlink
     BlinkScriptModule::BlinkScriptModule(LED& led, MessageBus& messageBus) : BlinkScriptModule(led, messageBus, Script())
     { }
 
-    BlinkScriptModule::BlinkScriptModule(LED& led, MessageBus& messageBus, Script initalScript) : _led(led), _messageBus(messageBus), _currentScript(initalScript)
+    BlinkScriptModule::BlinkScriptModule(LED& led, MessageBus& messageBus, Script initalScript)
+        : _led(led), _messageBus(messageBus), _currentScript(initalScript), _meshLedCount(_led.getLedCount())
     {   
         _meshHandleId = _messageBus.addMsgHandler<Messages::MeshUpdate>(this);
         _scriptHandleId = _messageBus.addMsgHandler<Messages::ScriptChange>(this);
@@ -33,7 +34,7 @@ namespace SyncBlink
             _messageBus.trigger(command);
 
             _blinkScript = std::make_shared<BlinkScript>(_led, _currentScript.Content, MaxFrequency);
-            _blinkScript->updateLedInfo(0, 0, _led.getLedCount());
+            _blinkScript->updateLedInfo(_previousNodeCount, _previousLedCount, _meshLedCount);
             _blinkScript->init();
             
             _activeScriptChanged = false;
@@ -62,6 +63,10 @@ namespace SyncBlink
     {
         _activeScriptChanged = true;
         _currentScript = msg.script;
+
+        _previousNodeCount = msg.routeNodeCount;
+        _previousLedCount = msg.routeLedCount;
+        _meshLedCount = msg.meshLedCount;
     }
 
     bool BlinkScriptModule::checkBlinkScript()

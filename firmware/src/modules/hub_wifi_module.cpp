@@ -32,13 +32,28 @@ namespace SyncBlink
         
     void HubWifiModule::onMsg(const Messages::MeshConnection& msg)
     {
-        if(msg.isConnected) addNode(msg.nodeId, msg.nodeInfo);
-        else removeNode(msg.nodeId);
+        if(msg.isConnected) 
+        {
+            addNode(msg.nodeId, msg.nodeInfo);
+            if(msg.nodeInfo.isAnalyzer && !msg.nodeInfo.isNode)
+            {
+                Serial.printf("[WIFI] New Analyzer connected: %s\n", msg.nodeInfo.nodeLabel.c_str());
+            }
+            else
+            {
+                Serial.printf("[WIFI] New Client: %12llx - LEDs %i - Parent %12llx - Firmware Version: %i.%i\n",
+                    msg.nodeId, msg.nodeInfo.ledCount, msg.nodeInfo.parentId, msg.nodeInfo.majorVersion, msg.nodeInfo.minorVersion);
+            }
+        }
+        else
+        {
+            removeNode(msg.nodeId);
+            Serial.printf("[WIFI] Node disconnected: %12llx\n", msg.nodeId);
+        }
 
         countLeds();
 
-        Script activeScript = _scriptModule.getActiveScript();
-        Messages::MeshUpdate updateMsg = {activeScript, _config.Values["led_count"], 1, _totalLeds, _totalNodes};
+        Messages::MeshUpdate updateMsg = {_scriptModule.getActiveScript(), _config.Values["led_count"], 1, _totalLeds, _totalNodes};
         _messageBus.trigger(updateMsg);
     }
 

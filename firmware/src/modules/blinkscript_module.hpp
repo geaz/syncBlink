@@ -52,6 +52,10 @@ namespace SyncBlink
         uint32_t _scriptHandleId = 0;
         uint32_t _analyzerHandleId = 0;
 
+        uint32_t _previousNodeCount = 0;
+        uint32_t _previousLedCount = 0;
+        uint32_t _meshLedCount = 0;
+
         uint64_t _lastLedUpdate = millis();
     };
 }

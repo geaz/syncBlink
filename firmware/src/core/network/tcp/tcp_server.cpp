@@ -140,22 +140,8 @@ namespace SyncBlink
                         {
                             if(nodeInfo.isNode) nodeInfo.parentId = SyncBlink::getId();
                             client->setStreamId(connectionMsg.nodeId);
-
-                            if(nodeInfo.isAnalyzer && !nodeInfo.isNode)
-                            {
-                                Serial.printf("[TCP SERVER] New Analyzer connected: %s\n", nodeInfo.nodeLabel.c_str());
-                            }
-                            else
-                            {
-                                Serial.printf("[TCP SERVER] New Client: %12llx - LEDs %i - Parent %12llx - Firmware Version: %i.%i\n",
-                                    connectionMsg.nodeId, nodeInfo.ledCount,
-                                    nodeInfo.parentId, nodeInfo.majorVersion, nodeInfo.minorVersion);
-                            }
                         }
-                        else if(!connectionMsg.isConnected)
-                        {
-                            Serial.printf("[TCP SERVER] Node disconnected: %12llx\n", connectionMsg.nodeId);
-                        }
+                        
                         _messageBus.trigger(connectionMsg);
                         break;
                     }

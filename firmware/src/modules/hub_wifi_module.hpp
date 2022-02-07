@@ -42,7 +42,6 @@ namespace SyncBlink
         uint32_t _meshConHandleId;
         uint32_t _totalLeds;
         uint32_t _totalNodes;
-        uint64_t _activeAnalyzer = 0;
         std::map<uint64_t, NodeInfo> _connectedNodes;
     };
 }

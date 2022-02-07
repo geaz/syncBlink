@@ -8,7 +8,14 @@ namespace SyncBlink
         _config(config), _messageBus(messageBus),
         _mesh(_config.Values["wifi_ssid"], _config.Values["wifi_pw"]),
         _tcpServer(_messageBus)
-    { }
+    {
+        _meshHandleId = _messageBus.addMsgHandler<Messages::MeshUpdate>(this);
+    }
+
+    NodeWifiModule::~NodeWifiModule()
+    {
+        _messageBus.removeMsgHandler(_meshHandleId);
+    }
 
     void NodeWifiModule::setup()
     { 
@@ -23,14 +30,11 @@ namespace SyncBlink
         _tcpClient->start(_mesh.getParentIp().toString(), 81);
         _tcpServer.start();
 
-        bool isAnalyzer = _config.Values["is_analyzer"] == "true";
-        uint16_t ledCount = _config.Values["led_count"];
-        std::string nodeLabel = _config.Values["name"];
-
         Messages::MeshConnection msg;
         msg.nodeId = SyncBlink::getId();
         msg.isConnected = true;
-        msg.nodeInfo = { false, isAnalyzer, true, _mesh.isConnectedToMeshWifi(),  0, ledCount, VERSIONMAJOR, VERSIONMINOR, nodeLabel };
+        msg.nodeInfo = { false, _config.Values["is_analyzer"], true, _mesh.isConnectedToMeshWifi(), 
+            0, _config.Values["led_count"], VERSIONMAJOR, VERSIONMINOR, _config.Values["name"] };
 
         _tcpClient->writeMessage(msg.toPackage());
     }
@@ -39,5 +43,17 @@ namespace SyncBlink
     {   
         _tcpServer.loop();
         _tcpClient->loop();
+    }
+
+    void NodeWifiModule::onMsg(const Messages::MeshUpdate& msg)
+    {
+        Messages::MeshUpdate updatedMsg;
+        updatedMsg.script = msg.script;
+        updatedMsg.meshLedCount = msg.meshLedCount;
+        updatedMsg.meshNodeCount = msg.meshLedCount;
+        updatedMsg.routeLedCount = msg.routeLedCount + _config.Values["led_count"].as<uint32_t>();
+        updatedMsg.routeNodeCount = msg.routeNodeCount + 1;
+
+        _tcpClient->writeMessage(updatedMsg.toPackage());
     }
 }
