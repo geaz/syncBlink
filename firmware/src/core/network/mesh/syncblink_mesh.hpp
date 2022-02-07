@@ -35,7 +35,7 @@ namespace SyncBlink
         String _ssid = SSID;
         IPAddress _parentIp = IPAddress(0, 0, 0, 0);
         IPAddress _localIp = IPAddress(0, 0, 0, 0);
-        
+
         bool _connectedToMeshWiFi = true;
     };
 }

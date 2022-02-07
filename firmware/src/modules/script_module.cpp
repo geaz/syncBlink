@@ -5,7 +5,8 @@
 namespace SyncBlink
 {
     ScriptModule::ScriptModule(MessageBus& messageBus, Config& config) : _messageBus(messageBus), _config(config)
-    { }
+    {
+    }
 
     Script ScriptModule::get(const std::string& scriptName)
     {

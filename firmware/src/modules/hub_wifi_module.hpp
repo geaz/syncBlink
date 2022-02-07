@@ -1,21 +1,22 @@
 #ifndef HUBWIFIMODULE_H
 #define HUBWIFIMODULE_H
 
-#include "module.hpp"
-#include "script_module.hpp"
 #include "core/config/config.hpp"
+#include "core/message/messages/mesh_connection.hpp"
+#include "core/network/mesh/syncblink_mesh.hpp"
 #include "core/network/tcp/tcp_server.hpp"
 #include "core/network/udp/udp_discover.hpp"
-#include "core/network/mesh/syncblink_mesh.hpp"
-#include "core/message/messages/mesh_connection.hpp"
+#include "module.hpp"
+#include "script_module.hpp"
 
 #include <map>
 
 namespace SyncBlink
 {
-    class HubWifiModule : 
-        public Module,
-        public MessageHandler<Messages::MeshConnection>
+    class HubWifiModule : public Module,
+                          public MessageHandler<Messages::MeshConnection>,
+                          public MessageHandler<Messages::AnalyzerUpdate>,
+                          public MessageHandler<Messages::ScriptChange>
     {
     public:
         HubWifiModule(Config& config, MessageBus& messageBus, ScriptModule& scriptModule);
@@ -25,6 +26,8 @@ namespace SyncBlink
         void loop();
 
         void onMsg(const Messages::MeshConnection& msg);
+        void onMsg(const Messages::AnalyzerUpdate& msg);
+        void onMsg(const Messages::ScriptChange& msg);
 
     private:
         void addNode(uint64_t nodeId, NodeInfo nodeInfo);
@@ -39,7 +42,10 @@ namespace SyncBlink
         TcpServer _tcpServer;
         UdpDiscover _udpDiscover;
 
-        uint32_t _meshConHandleId;
+        uint32_t _meshHandleId = 0;
+        uint32_t _analyzerHandleId = 0;
+        uint32_t _scriptHandleId = 0;
+
         uint32_t _totalLeds;
         uint32_t _totalNodes;
         std::map<uint64_t, NodeInfo> _connectedNodes;

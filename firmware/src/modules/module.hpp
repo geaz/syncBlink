@@ -6,8 +6,8 @@ namespace SyncBlink
     class Module
     {
     public:
-        virtual void setup() { };
-        virtual void loop() { };
+        virtual void setup(){};
+        virtual void loop(){};
     };
 }
 

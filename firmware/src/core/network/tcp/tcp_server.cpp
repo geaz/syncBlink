@@ -1,23 +1,13 @@
 #include "tcp_server.hpp"
 
 #include "core/message/message.hpp"
-#include "core/network/get_id.hpp"
 #include "core/message/message_types.hpp"
+#include "core/network/get_id.hpp"
 
 namespace SyncBlink
 {
     TcpServer::TcpServer(MessageBus& messageBus) : _messageBus(messageBus)
     {
-        _analyzerHandleId = _messageBus.addMsgHandler<Messages::AnalyzerUpdate>(this);
-        _scriptHandleId = _messageBus.addMsgHandler<Messages::ScriptChange>(this);
-        _meshUpdateHandleId = _messageBus.addMsgHandler<Messages::MeshUpdate>(this);
-    }
-
-    TcpServer::~TcpServer()
-    {
-        _messageBus.removeMsgHandler(_analyzerHandleId);
-        _messageBus.removeMsgHandler(_scriptHandleId);
-        _messageBus.removeMsgHandler(_meshUpdateHandleId);
     }
 
     void TcpServer::start()
@@ -32,32 +22,17 @@ namespace SyncBlink
         handleIncomingMessages();
     }
 
-    uint32_t TcpServer::getClientsCount()
-    {
-        return _clients.size();
-    }
-
-    void TcpServer::onMsg(const Messages::AnalyzerUpdate& msg)
-    {
-        broadcast(msg.toPackage());
-    }
-
-    void TcpServer::onMsg(const Messages::ScriptChange& msg)
-    {
-        broadcast(msg.toPackage());
-    }
-
-    void TcpServer::onMsg(const Messages::MeshUpdate& msg)
-    {
-        broadcast(msg.toPackage());
-    }
-
     void TcpServer::broadcast(std::vector<uint8_t> message)
     {
         for (auto client : _clients)
         {
             client->writeMessage(message);
         }
+    }
+
+    uint32_t TcpServer::getClientsCount()
+    {
+        return _clients.size();
     }
 
     void TcpServer::clearClients()
@@ -109,7 +84,8 @@ namespace SyncBlink
                 }
                 _clients.erase(iter);
             }
-            else iter++;
+            else
+                iter++;
         }
     }
 
@@ -123,36 +99,34 @@ namespace SyncBlink
 
     void TcpServer::handleIncomingMessages()
     {
-        for(auto& client : _clients)
+        for (auto& client : _clients)
         {
             MessagePackage package;
-            if(MessagePackage::available(client->getWiFiClient(), package))
+            if (MessagePackage::available(client->getWiFiClient(), package))
             {
-                switch(package.type)
+                switch (package.type)
                 {
-                    case MessageType::MeshConnection:
-                    {
-                        Messages::MeshConnection connectionMsg;
-                        connectionMsg.loadPackage(package);
+                case MessageType::MeshConnection: {
+                    Messages::MeshConnection connectionMsg;
+                    connectionMsg.loadPackage(package);
 
-                        auto& nodeInfo = connectionMsg.nodeInfo;
-                        if(connectionMsg.isConnected && nodeInfo.parentId == 0)
-                        {
-                            if(nodeInfo.isNode) nodeInfo.parentId = SyncBlink::getId();
-                            client->setStreamId(connectionMsg.nodeId);
-                        }
-                        
-                        _messageBus.trigger(connectionMsg);
-                        break;
-                    }
-                    case MessageType::AnalyzerUpdate:
+                    auto& nodeInfo = connectionMsg.nodeInfo;
+                    if (connectionMsg.isConnected && nodeInfo.parentId == 0)
                     {
-                        Messages::AnalyzerUpdate analyzerMsg;
-                        analyzerMsg.loadPackage(package);
-
-                        _messageBus.trigger(analyzerMsg);
-                        break;
+                        if (nodeInfo.isNode) nodeInfo.parentId = SyncBlink::getId();
+                        client->setStreamId(connectionMsg.nodeId);
                     }
+
+                    _messageBus.trigger(connectionMsg);
+                    break;
+                }
+                case MessageType::AnalyzerUpdate: {
+                    Messages::AnalyzerUpdate analyzerMsg;
+                    analyzerMsg.loadPackage(package);
+
+                    _messageBus.trigger(analyzerMsg);
+                    break;
+                }
                 }
             }
         }

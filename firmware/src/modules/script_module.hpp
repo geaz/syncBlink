@@ -1,11 +1,11 @@
 #ifndef SCRIPTMODULE_H
 #define SCRIPTMODULE_H
 
-#include "module.hpp"
-#include "core/script.hpp"
 #include "core/config/config.hpp"
 #include "core/message/message_bus.hpp"
 #include "core/message/messages/script_change.hpp"
+#include "core/script.hpp"
+#include "module.hpp"
 
 #include <string>
 #include <vector>

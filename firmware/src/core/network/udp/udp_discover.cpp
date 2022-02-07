@@ -16,19 +16,19 @@ namespace SyncBlink
     void UdpDiscover::loop()
     {
         int packetSize = _udp.parsePacket();
-        if (packetSize) 
+        if (packetSize)
         {
             char packet[255];
             int len = _udp.read(packet, 255);
             packet[len] = '\0';
-            
-            if(std::string(packet) == "syncPing" && _isServer)
+
+            if (std::string(packet) == "syncPing" && _isServer)
             {
                 _udp.beginPacket(_udp.remoteIP(), 4210);
                 _udp.write("syncPong");
                 _udp.endPacket();
             }
-            else if(std::string(packet) == "syncPong")
+            else if (std::string(packet) == "syncPong")
             {
                 _serverDiscovered = true;
                 _serverIp = _udp.remoteIP();
@@ -48,7 +48,7 @@ namespace SyncBlink
 
     bool UdpDiscover::serverDiscovered(IPAddress& serverIp)
     {
-        if(_serverDiscovered) serverIp = _serverIp;
+        if (_serverDiscovered) serverIp = _serverIp;
         return _serverDiscovered;
     }
 }

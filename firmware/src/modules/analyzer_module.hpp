@@ -1,9 +1,9 @@
 #ifndef ANALYZERMODULE_H
 #define ANALYZERMODULE_H
 
-#include "module.hpp"
 #include "core/audio/frequency_analyzer.hpp"
 #include "core/message/message_bus.hpp"
+#include "module.hpp"
 
 namespace SyncBlink
 {

@@ -13,7 +13,9 @@ namespace SyncBlink
     {
         struct SetDisplay : public Message
         {
-            SetDisplay(std::shared_ptr<View> _view, std::string _leftStatus) : view{_view}, leftStatus{_leftStatus} {}
+            SetDisplay(std::shared_ptr<View> _view, std::string _leftStatus) : view{_view}, leftStatus{_leftStatus}
+            {
+            }
 
             std::shared_ptr<View> view;
             std::string leftStatus;

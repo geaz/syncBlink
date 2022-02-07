@@ -1,11 +1,11 @@
 #ifndef MESSAGE_H
 #define MESSAGE_H
 
-#include "message_types.hpp"
 #include "message_package.hpp"
+#include "message_types.hpp"
 
-#include <vector>
 #include <cstring>
+#include <vector>
 
 namespace SyncBlink
 {
@@ -40,16 +40,19 @@ namespace SyncBlink
         virtual std::vector<uint8_t> getPackageBody() const
         {
             std::vector<uint8_t> package;
-            addBytes(package, (void*) this, sizeof(*this));
+            addBytes(package, (void*)this, sizeof(*this));
             return package;
         }
 
         virtual void loadPackage(MessagePackage package)
         {
-            loadBytes(&package.body[0], (void*) this, sizeof(*this));
+            loadBytes(&package.body[0], (void*)this, sizeof(*this));
         }
 
-        virtual MessageType getMessageType() const { return MessageType::Base; };
+        virtual MessageType getMessageType() const
+        {
+            return MessageType::Base;
+        };
 
     protected:
         void addBytes(std::vector<uint8_t>& byteVec, const void* dataPtr, int32_t dataSize) const
@@ -70,8 +73,8 @@ namespace SyncBlink
         {
             const char* stringCStr = string.c_str();
             uint32_t stringSize = string.length();
-            addBytes(byteVec, (void*) &stringSize, sizeof(stringSize));
-            addBytes(byteVec, (void*) stringCStr, stringSize);
+            addBytes(byteVec, (void*)&stringSize, sizeof(stringSize));
+            addBytes(byteVec, (void*)stringCStr, stringSize);
         }
 
         uint32_t loadStringBytes(uint8_t* srcPtr, std::string& targetStr)

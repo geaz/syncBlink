@@ -1,8 +1,8 @@
 #ifndef UDPDISCOVERY_H
 #define UDPDISCOVERY_H
 
-#include <WiFiUdp.h>
 #include <ESP8266WiFi.h>
+#include <WiFiUdp.h>
 
 namespace SyncBlink
 {

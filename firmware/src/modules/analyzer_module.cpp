@@ -3,7 +3,8 @@
 namespace SyncBlink
 {
     AnalyzerModule::AnalyzerModule(MessageBus& messageBus) : _messageBus(messageBus)
-    { }
+    {
+    }
 
     void AnalyzerModule::loop()
     {

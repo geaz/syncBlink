@@ -5,10 +5,10 @@
 
 #include <functional>
 #include <memory>
+#include <type_traits>
 #include <typeindex>
 #include <typeinfo>
 #include <unordered_map>
-#include <type_traits>
 
 namespace SyncBlink
 {

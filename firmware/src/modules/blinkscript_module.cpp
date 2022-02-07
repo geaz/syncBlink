@@ -1,24 +1,27 @@
 #include "blinkscript_module.hpp"
+
 #include "core/audio/analyzer_constants.hpp"
 #include "core/message/commands/set_display.hpp"
 
 namespace SyncBlink
 {
-    BlinkScriptModule::BlinkScriptModule(LED& led, MessageBus& messageBus) : BlinkScriptModule(led, messageBus, Script())
-    { }
+    BlinkScriptModule::BlinkScriptModule(LED& led, MessageBus& messageBus)
+        : BlinkScriptModule(led, messageBus, Script())
+    {
+    }
 
     BlinkScriptModule::BlinkScriptModule(LED& led, MessageBus& messageBus, Script initalScript)
         : _led(led), _messageBus(messageBus), _currentScript(initalScript), _meshLedCount(_led.getLedCount())
-    {   
+    {
         _meshHandleId = _messageBus.addMsgHandler<Messages::MeshUpdate>(this);
         _scriptHandleId = _messageBus.addMsgHandler<Messages::ScriptChange>(this);
         _analyzerHandleId = _messageBus.addMsgHandler<Messages::AnalyzerUpdate>(this);
-        
+
         _runScriptView = std::make_shared<RunScriptView>();
         _invalidScriptView = std::make_shared<IconTextView>("Invalid script!", u8g2_font_open_iconic_check_2x_t, 66);
         _failSafeView = std::make_shared<IconTextView>("Fail Safe!", u8g2_font_open_iconic_thing_2x_t, 78);
     }
-    
+
     BlinkScriptModule::~BlinkScriptModule()
     {
         _messageBus.removeMsgHandler(_meshHandleId);
@@ -27,16 +30,16 @@ namespace SyncBlink
     }
 
     void BlinkScriptModule::loop()
-    {   
+    {
         if ((_activeScriptChanged || _blinkScript == nullptr) && _currentScript.Exists)
         {
-            Commands::SetDisplay command = { _runScriptView, _currentScript.Name };
+            Commands::SetDisplay command = {_runScriptView, _currentScript.Name};
             _messageBus.trigger(command);
 
             _blinkScript = std::make_shared<BlinkScript>(_led, _currentScript.Content, MaxFrequency);
             _blinkScript->updateLedInfo(_previousNodeCount, _previousLedCount, _meshLedCount);
             _blinkScript->init();
-            
+
             _activeScriptChanged = false;
         }
     }
@@ -74,7 +77,7 @@ namespace SyncBlink
         bool valid = true;
         if (_blinkScript->isFaulted())
         {
-            Commands::SetDisplay command = { _invalidScriptView, _currentScript.Name };
+            Commands::SetDisplay command = {_invalidScriptView, _currentScript.Name};
             _messageBus.trigger(command);
             valid = false;
         }

@@ -1,10 +1,10 @@
 #ifndef AUDIOANALYZERRESULT_H
 #define AUDIOANALYZERRESULT_H
 
-#include "map_funcs.hpp"
 #include "analyzer_constants.hpp"
-#include "core/network/get_id.hpp"
 #include "core/message/messages/analyzer_update.hpp"
+#include "core/network/get_id.hpp"
+#include "map_funcs.hpp"
 
 #include <array>
 

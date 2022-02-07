@@ -45,15 +45,15 @@ namespace SyncBlink
     bool SyncBlinkMesh::tryJoinMesh()
     {
         bool connected = WiFi.isConnected();
-        if(connected)
+        if (connected)
         {
             Serial.println("[WIFI] Node is connected to mesh via WiFi network.");
             Serial.println("[WIFI] Searching for available hubs ...");
-            
+
             _connectedToMeshWiFi = false;
             _udpDiscover.start(false);
             uint64_t start = millis();
-            while(!_udpDiscover.serverDiscovered(_parentIp) && start + 5000 > millis())
+            while (!_udpDiscover.serverDiscovered(_parentIp) && start + 5000 > millis())
             {
                 _udpDiscover.ping();
                 delay(500);
@@ -102,7 +102,8 @@ namespace SyncBlink
 
                     _ssid = SSID + " #" + String(nodeNr);
 
-                    WiFi.softAPConfig(IPAddress(192, 168, nodeNr, 1), IPAddress(0, 0, 0, 0), IPAddress(255, 255, 255, 0));
+                    WiFi.softAPConfig(IPAddress(192, 168, nodeNr, 1), IPAddress(0, 0, 0, 0),
+                                      IPAddress(255, 255, 255, 0));
                     WiFi.softAP(_ssid, Password, 1, false, 8);
                     WiFi.setAutoReconnect(false);
 
@@ -114,7 +115,7 @@ namespace SyncBlink
                     _localIp = WiFi.localIP();
                 }
             }
-        }        
+        }
         return connected;
     }
 

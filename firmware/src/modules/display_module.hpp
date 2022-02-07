@@ -1,17 +1,15 @@
 #ifndef DISPLAYMODULE_H
 #define DISPLAYMODULE_H
 
-#include "module.hpp"
-#include "core/message/message_bus.hpp"
 #include "core/message/commands/set_display.hpp"
+#include "core/message/message_bus.hpp"
+#include "module.hpp"
 
 #include <display.hpp>
 
 namespace SyncBlink
 {
-    class DisplayModule : 
-        public Module,
-        public MessageHandler<Commands::SetDisplay>
+    class DisplayModule : public Module, public MessageHandler<Commands::SetDisplay>
     {
     public:
         DisplayModule(MessageBus& messageBus);

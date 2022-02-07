@@ -132,30 +132,27 @@ namespace SyncBlink
         {
             switch (package.type)
             {
-                case MessageType::ScriptChange:
-                {
-                    Messages::ScriptChange scriptChangeMsg;
-                    scriptChangeMsg.loadPackage(package);
+            case MessageType::ScriptChange: {
+                Messages::ScriptChange scriptChangeMsg;
+                scriptChangeMsg.loadPackage(package);
 
-                    _messageBus.trigger(scriptChangeMsg);
-                    break;
-                }
-                case MessageType::AnalyzerUpdate:
-                {
-                    Messages::AnalyzerUpdate analyzerUpdateMsg;
-                    analyzerUpdateMsg.loadPackage(package);
+                _messageBus.trigger(scriptChangeMsg);
+                break;
+            }
+            case MessageType::AnalyzerUpdate: {
+                Messages::AnalyzerUpdate analyzerUpdateMsg;
+                analyzerUpdateMsg.loadPackage(package);
 
-                    _messageBus.trigger(analyzerUpdateMsg);
-                    break;
-                }
-                case MessageType::MeshUpdate:
-                {
-                    Messages::MeshUpdate meshUpdateMsg;
-                    meshUpdateMsg.loadPackage(package);
-                    
-                    _messageBus.trigger(meshUpdateMsg);
-                    break;
-                }
+                _messageBus.trigger(analyzerUpdateMsg);
+                break;
+            }
+            case MessageType::MeshUpdate: {
+                Messages::MeshUpdate meshUpdateMsg;
+                meshUpdateMsg.loadPackage(package);
+
+                _messageBus.trigger(meshUpdateMsg);
+                break;
+            }
             }
         }
     }
