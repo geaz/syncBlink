@@ -23,13 +23,44 @@ namespace SyncBlink
 
     namespace Messages
     {
-        struct MeshConnection : public Message
+        class MeshConnection : public Message
         {
-            MeshConnection(){}
-            MeshConnection(uint64_t _nodeId, bool _isConnected)
-                : nodeId{_nodeId}, isConnected{_isConnected} {}
+        public:
+            std::vector<uint8_t> getPackageBody() const override
+            {
+                std::vector<uint8_t> package;
+                addBytes(package, (void*) &nodeId, sizeof(nodeId));
+                addBytes(package, (void*) &isConnected, sizeof(isConnected));
+                addBytes(package, (void*) &nodeInfo.isStation, sizeof(nodeInfo.isStation));
+                addBytes(package, (void*) &nodeInfo.isAnalyzer, sizeof(nodeInfo.isAnalyzer));
+                addBytes(package, (void*) &nodeInfo.isNode, sizeof(nodeInfo.isNode));
+                addBytes(package, (void*) &nodeInfo.connectedToMeshWifi, sizeof(nodeInfo.connectedToMeshWifi));
+                addBytes(package, (void*) &nodeInfo.parentId, sizeof(nodeInfo.parentId));
+                addBytes(package, (void*) &nodeInfo.ledCount, sizeof(nodeInfo.ledCount));
+                addBytes(package, (void*) &nodeInfo.majorVersion, sizeof(nodeInfo.majorVersion));
+                addBytes(package, (void*) &nodeInfo.minorVersion, sizeof(nodeInfo.minorVersion));
+                addStringBytes(package, nodeInfo.nodeLabel);
 
-            MessageType getMessageType() const { return MessageType::MeshConnection; }
+                return package;
+            }
+
+            void loadPackage(MessagePackage package) override
+            {
+                uint32_t offset = 0;
+                offset += loadBytes(&package.body[offset], (void*) &nodeId, sizeof(nodeId));
+                offset += loadBytes(&package.body[offset], (void*) &isConnected, sizeof(isConnected));
+                offset += loadBytes(&package.body[offset], (void*) &nodeInfo.isStation, sizeof(nodeInfo.isStation));
+                offset += loadBytes(&package.body[offset], (void*) &nodeInfo.isAnalyzer, sizeof(nodeInfo.isAnalyzer));
+                offset += loadBytes(&package.body[offset], (void*) &nodeInfo.isNode, sizeof(nodeInfo.isNode));
+                offset += loadBytes(&package.body[offset], (void*) &nodeInfo.connectedToMeshWifi, sizeof(nodeInfo.connectedToMeshWifi));
+                offset += loadBytes(&package.body[offset], (void*) &nodeInfo.parentId, sizeof(nodeInfo.parentId));
+                offset += loadBytes(&package.body[offset], (void*) &nodeInfo.ledCount, sizeof(nodeInfo.ledCount));
+                offset += loadBytes(&package.body[offset], (void*) &nodeInfo.majorVersion, sizeof(nodeInfo.majorVersion));
+                offset += loadBytes(&package.body[offset], (void*) &nodeInfo.minorVersion, sizeof(nodeInfo.minorVersion));
+                loadStringBytes(&package.body[offset], nodeInfo.nodeLabel);
+            }
+
+            MessageType getMessageType() const override { return MessageType::MeshConnection; }
 
             uint64_t nodeId;
             bool isConnected;

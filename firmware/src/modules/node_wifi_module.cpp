@@ -27,10 +27,12 @@ namespace SyncBlink
         uint16_t ledCount = _config.Values["led_count"];
         std::string nodeLabel = _config.Values["name"];
 
-        Messages::MeshConnection msg = { SyncBlink::getId(), true };
-        msg.nodeInfo = { false,  isAnalyzer, true, _mesh.isConnectedToMeshWifi(),  0, ledCount, VERSIONMAJOR, VERSIONMINOR, nodeLabel };
+        Messages::MeshConnection msg;
+        msg.nodeId = SyncBlink::getId();
+        msg.isConnected = true;
+        msg.nodeInfo = { false, isAnalyzer, true, _mesh.isConnectedToMeshWifi(),  0, ledCount, VERSIONMAJOR, VERSIONMINOR, nodeLabel };
 
-        _tcpClient->sendMessage(msg);
+        _tcpClient->writeMessage(msg.toPackage());
     }
 
     void NodeWifiModule::loop()

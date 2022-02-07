@@ -24,8 +24,7 @@ namespace SyncBlink
         void flush();
 
         void loop();
-
-        void sendMessage(Message message);
+        
         void writeMessage(std::vector<uint8_t> message);
 
         bool isConnected();

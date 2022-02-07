@@ -36,11 +36,6 @@ namespace SyncBlink
         handleIncomingMessages();
     }
 
-    void TcpClient::sendMessage(Message message)
-    {
-        writeMessage(message.toPackage());
-    }
-
     void TcpClient::writeMessage(std::vector<uint8_t> message)
     {
         if (_client.connected())

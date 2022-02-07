@@ -6,9 +6,9 @@
 #include "core/message/message_bus.hpp"
 #include "core/views/icon_text_view.cpp"
 #include "core/views/run_script_view.cpp"
+#include "core/message/messages/mesh_update.hpp"
 #include "core/message/messages/script_change.hpp"
 #include "core/message/messages/analyzer_update.hpp"
-#include "core/message/messages/mesh_update.hpp"
 
 #include <string>
 #include <memory>
@@ -17,9 +17,10 @@
 namespace SyncBlink
 {
     class BlinkScriptModule : 
-        public Module,
-        public MessageHandler<Messages::AnalyzerUpdate>,
-        public MessageHandler<Messages::ScriptChange>
+        public Module,      
+        public MessageHandler<Messages::MeshUpdate>,
+        public MessageHandler<Messages::ScriptChange>,
+        public MessageHandler<Messages::AnalyzerUpdate>
     {
     public:
         BlinkScriptModule(LED& led, MessageBus& messageBus);
@@ -47,6 +48,7 @@ namespace SyncBlink
         std::shared_ptr<IconTextView> _invalidScriptView;
         std::shared_ptr<IconTextView> _failSafeView;
 
+        uint32_t _meshHandleId = 0;
         uint32_t _scriptHandleId = 0;
         uint32_t _analyzerHandleId = 0;
 
