@@ -28,19 +28,19 @@ void setup()
     config.load();
     led.setup(config.Values["led_count"]);
 
-    if(config.Values["is_analyzer"].as<bool>())
+    if(config.Values["is_analyzer"])
     {
         Serial.println("[MAIN] Adding Analyzer Module ...");
         modules.push_back(std::make_shared<SyncBlink::AnalyzerModule>(messageBus));
     }
     
-    if(config.Values["has_display"].as<bool>())
+    if(config.Values["has_display"])
     {
         Serial.println("[MAIN] Adding Display Module ...");
         modules.push_back(std::make_shared<SyncBlink::DisplayModule>(messageBus));
     }
 
-    if (config.Values["is_hub"].as<bool>())
+    if (config.Values["is_hub"])
     {
         Serial.println("[MAIN] Starting Hub mode ...");
 

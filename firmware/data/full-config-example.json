@@ -1,11 +1,11 @@
 {
     "name": "Node",
-    "led_count": "9",
+    "led_count": 9,
     "hub": "ID",
-    "is_hub": "false",
-    "is_analyzer": "false",
-    "has_display": "false",
-    "active_script": "MeshSnake",
+    "is_hub": false,
+    "is_analyzer": false,
+    "has_display": false,
+    "active_script": "Snake",
     "wifi_ssid": "WIFI",
     "wifi_pw": "PW"
 }

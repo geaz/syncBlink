@@ -1,8 +1,8 @@
 {
     "name": "Hub",
-    "led_count": "9",
-    "is_hub": "true",
-    "is_analyzer": "true",
-    "has_display": "true",
+    "led_count": 9,
+    "is_hub": true,
+    "is_analyzer": true,
+    "has_display": true,
     "active_script": "Snake"
 }
