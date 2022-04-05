@@ -15,7 +15,7 @@ namespace SyncBlink
             ScriptChange()
             {
             }
-            
+
             ScriptChange(Script _script) : script{_script}
             {
             }

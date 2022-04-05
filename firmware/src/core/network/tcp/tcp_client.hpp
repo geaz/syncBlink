@@ -47,9 +47,8 @@ namespace SyncBlink
         String _serverIp;
         uint16_t _port;
 
-        uint8_t _retryCount = 0;
-        bool _wasConnected = false;
         uint64_t _streamId = 0;
+        uint8_t _retryCount = 0;
         bool _writeTimeout = false;
     };
 }

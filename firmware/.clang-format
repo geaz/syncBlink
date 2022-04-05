@@ -1,6 +1,6 @@
 ﻿---
 BasedOnStyle: Microsoft
-ColumnLimit: 120
+ColumnLimit: 140
 AccessModifierOffset: '-4'
 NamespaceIndentation: All
 FixNamespaceComments: 'false'

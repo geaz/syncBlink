@@ -44,9 +44,8 @@ namespace SyncBlink
             }
             else
             {
-                Serial.printf("[WIFI] New Client: %12llx - LEDs %i - Parent %12llx - Firmware Version: %i.%i\n",
-                              msg.nodeId, msg.nodeInfo.ledCount, msg.nodeInfo.parentId, msg.nodeInfo.majorVersion,
-                              msg.nodeInfo.minorVersion);
+                Serial.printf("[WIFI] New Client: %12llx - LEDs %i - Parent %12llx - Firmware Version: %i.%i\n", msg.nodeId,
+                              msg.nodeInfo.ledCount, msg.nodeInfo.parentId, msg.nodeInfo.majorVersion, msg.nodeInfo.minorVersion);
             }
         }
         else
@@ -57,8 +56,7 @@ namespace SyncBlink
 
         countLeds();
 
-        Messages::MeshUpdate updateMsg = {_scriptModule.getActiveScript(), _config.Values["led_count"], 1, _totalLeds,
-                                          _totalNodes};
+        Messages::MeshUpdate updateMsg = {_scriptModule.getActiveScript(), _config.Values["led_count"], 1, _totalLeds, _totalNodes};
         _tcpServer.broadcast(updateMsg.toPackage());
     }
 

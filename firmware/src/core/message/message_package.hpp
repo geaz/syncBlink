@@ -9,8 +9,7 @@ namespace SyncBlink
 {
     static const uint8_t SocketWriteTimeout = 100;
     static const char PacketMagicBytes[3] = {'S', 'B', 'M'};
-    static const uint8_t PacketHeaderSize =
-        4 /* package size info */ + 3 /* magic bytes = 'SBM' */ + 1 /* message type */;
+    static const uint8_t PacketHeaderSize = 4 /* package size info */ + 3 /* magic bytes = 'SBM' */ + 1 /* message type */;
 
     class MessagePackage
     {
@@ -31,8 +30,7 @@ namespace SyncBlink
                     magicBuf[1] = stream.read();
                     if (magicBuf[0] == PacketMagicBytes[1] && magicBuf[1] == PacketMagicBytes[2])
                     {
-                        uint32_t messageSize =
-                            (stream.read() << 24) + (stream.read() << 16) + (stream.read() << 8) + stream.read();
+                        uint32_t messageSize = (stream.read() << 24) + (stream.read() << 16) + (stream.read() << 8) + stream.read();
                         uint8_t messageType = stream.read();
 
                         uint8_t checksum = 0;

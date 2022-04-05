@@ -83,8 +83,7 @@ namespace SyncBlink
                     // We seek for an evenly distributed mesh
                     // Thats why we always connect to the "highest node number", if we found
                     // more than two nodes in range.
-                    if (connectToNode == -1 || (foundSyncblinkNetworks > 2 && foundNodeNr > highestNodeNr))
-                        connectToNode = i;
+                    if (connectToNode == -1 || (foundSyncblinkNetworks > 2 && foundNodeNr > highestNodeNr)) connectToNode = i;
 
                     if (foundNodeNr > highestNodeNr) highestNodeNr = foundNodeNr;
                     if (foundNodeNr >= nodeNr) nodeNr = foundNodeNr + 1;
@@ -102,8 +101,7 @@ namespace SyncBlink
 
                     _ssid = SSID + " #" + String(nodeNr);
 
-                    WiFi.softAPConfig(IPAddress(192, 168, nodeNr, 1), IPAddress(0, 0, 0, 0),
-                                      IPAddress(255, 255, 255, 0));
+                    WiFi.softAPConfig(IPAddress(192, 168, nodeNr, 1), IPAddress(0, 0, 0, 0), IPAddress(255, 255, 255, 0));
                     WiFi.softAP(_ssid, Password, 1, false, 8);
                     WiFi.setAutoReconnect(false);
 

@@ -83,8 +83,7 @@ namespace SyncBlink
             for (uint8_t i = 0; i <= height; i++)
             {
                 uint8_t x = 5 + (index * 2) /* gap */ + (index * 5) /* size */;
-                uint8_t y =
-                    display.getDisplayHeight() - 17 /* bottom start (statusbar) */ - (i * 4) /* gap and height */;
+                uint8_t y = display.getDisplayHeight() - 17 /* bottom start (statusbar) */ - (i * 4) /* gap and height */;
                 display.drawBox(x, y, 5, 2);
             }
         }

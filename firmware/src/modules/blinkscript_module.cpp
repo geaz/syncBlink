@@ -5,8 +5,7 @@
 
 namespace SyncBlink
 {
-    BlinkScriptModule::BlinkScriptModule(LED& led, MessageBus& messageBus)
-        : BlinkScriptModule(led, messageBus, Script())
+    BlinkScriptModule::BlinkScriptModule(LED& led, MessageBus& messageBus) : BlinkScriptModule(led, messageBus, Script())
     {
     }
 

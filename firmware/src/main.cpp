@@ -48,8 +48,7 @@ void setup()
         modules.push_back(scriptModule);
 
         modules.push_back(std::make_shared<SyncBlink::HubWifiModule>(config, messageBus, *scriptModule.get()));
-        modules.push_back(
-            std::make_shared<SyncBlink::BlinkScriptModule>(led, messageBus, scriptModule->getActiveScript()));
+        modules.push_back(std::make_shared<SyncBlink::BlinkScriptModule>(led, messageBus, scriptModule->getActiveScript()));
     }
     else
     {

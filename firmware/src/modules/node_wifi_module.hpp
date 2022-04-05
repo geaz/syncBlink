@@ -10,6 +10,8 @@
 
 namespace SyncBlink
 {
+    static const uint8_t SleepSeconds = 30;
+
     class NodeWifiModule : public Module,
                            public MessageHandler<Messages::MeshUpdate>,
                            public MessageHandler<Messages::MeshConnection>,

@@ -96,20 +96,9 @@ namespace SyncBlink
 
     void TcpClient::checkConnection()
     {
-        if (!_client.connected() && WiFi.status() == WL_CONNECTED && _retryCount++ < 10)
+        if (!_client.connected() && WiFi.status() == WL_CONNECTED && _retryCount++ < 10 && connectTo(_serverIp, 81))
         {
-            if (_wasConnected) Serial.println("[TCP Client] Disconnected! Trying to connect ...");
-            else
-                Serial.println("[TCP Client] Trying to connect ...");
-
-            if (connectTo(_serverIp, 81))
-            {
-                if (!_wasConnected)
-                {
-                    _wasConnected = true;
-                }
-                _retryCount = 0;
-            }
+            _retryCount = 0;
         }
     }
 

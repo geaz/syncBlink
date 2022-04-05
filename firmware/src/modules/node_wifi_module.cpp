@@ -6,8 +6,7 @@
 namespace SyncBlink
 {
     NodeWifiModule::NodeWifiModule(Config& config, MessageBus& messageBus)
-        : _config(config), _messageBus(messageBus), _mesh(_config.Values["wifi_ssid"], _config.Values["wifi_pw"]),
-          _tcpServer(_messageBus)
+        : _config(config), _messageBus(messageBus), _mesh(_config.Values["wifi_ssid"], _config.Values["wifi_pw"]), _tcpServer(_messageBus)
     {
         _meshHandleId = _messageBus.addMsgHandler<Messages::MeshConnection>(this);
         _meshUpdateHandleId = _messageBus.addMsgHandler<Messages::MeshUpdate>(this);
@@ -29,7 +28,7 @@ namespace SyncBlink
         if (!_mesh.tryJoinMesh())
         {
             Serial.print("[WIFI] Not connected to mesh. Going to sleep and trying again later ...\n");
-            ESP.deepSleep(30 * 1000000);
+            ESP.deepSleep(SleepSeconds * 1000000);
         }
 
         _tcpClient = std::make_shared<TcpClient>(_messageBus);
@@ -39,15 +38,9 @@ namespace SyncBlink
         Messages::MeshConnection msg;
         msg.nodeId = SyncBlink::getId();
         msg.isConnected = true;
-        msg.nodeInfo = {false,
-                        _config.Values["is_analyzer"],
-                        true,
-                        _mesh.isConnectedToMeshWifi(),
-                        0,
-                        _config.Values["led_count"],
-                        VERSIONMAJOR,
-                        VERSIONMINOR,
-                        _config.Values["name"]};
+        msg.nodeInfo = {
+            false,        _config.Values["is_analyzer"], true, _mesh.isConnectedToMeshWifi(), 0, _config.Values["led_count"], VERSIONMAJOR,
+            VERSIONMINOR, _config.Values["name"]};
 
         _tcpClient->writeMessage(msg.toPackage());
     }
@@ -56,6 +49,12 @@ namespace SyncBlink
     {
         _tcpServer.loop();
         _tcpClient->loop();
+
+        if (!_tcpClient->isConnected())
+        {
+            Serial.print("Going to sleep ...\n");
+            ESP.deepSleep(SleepSeconds * 1000000);
+        }
     }
 
     void NodeWifiModule::onMsg(const Messages::MeshConnection& msg)

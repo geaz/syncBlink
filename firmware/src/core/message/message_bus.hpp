@@ -12,8 +12,7 @@
 
 namespace SyncBlink
 {
-    template <class T, typename std::enable_if<std::is_base_of<Message, T>::value>::type* = nullptr>
-    class MessageHandler
+    template <class T, typename std::enable_if<std::is_base_of<Message, T>::value>::type* = nullptr> class MessageHandler
     {
     public:
         virtual void onMsg(const T&) = 0;
@@ -44,8 +43,7 @@ namespace SyncBlink
     class MessageBus
     {
     public:
-        template <typename T, typename std::enable_if<std::is_base_of<Message, T>::value>::type* = nullptr>
-        void trigger(const T message)
+        template <typename T, typename std::enable_if<std::is_base_of<Message, T>::value>::type* = nullptr> void trigger(const T message)
         {
             const auto typeIndex = std::type_index(typeid(T));
 

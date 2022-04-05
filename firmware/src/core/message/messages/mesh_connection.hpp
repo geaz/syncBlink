@@ -52,14 +52,11 @@ namespace SyncBlink
                 offset += loadBytes(&package.body[offset], (void*)&nodeInfo.isStation, sizeof(nodeInfo.isStation));
                 offset += loadBytes(&package.body[offset], (void*)&nodeInfo.isAnalyzer, sizeof(nodeInfo.isAnalyzer));
                 offset += loadBytes(&package.body[offset], (void*)&nodeInfo.isNode, sizeof(nodeInfo.isNode));
-                offset += loadBytes(&package.body[offset], (void*)&nodeInfo.connectedToMeshWifi,
-                                    sizeof(nodeInfo.connectedToMeshWifi));
+                offset += loadBytes(&package.body[offset], (void*)&nodeInfo.connectedToMeshWifi, sizeof(nodeInfo.connectedToMeshWifi));
                 offset += loadBytes(&package.body[offset], (void*)&nodeInfo.parentId, sizeof(nodeInfo.parentId));
                 offset += loadBytes(&package.body[offset], (void*)&nodeInfo.ledCount, sizeof(nodeInfo.ledCount));
-                offset +=
-                    loadBytes(&package.body[offset], (void*)&nodeInfo.majorVersion, sizeof(nodeInfo.majorVersion));
-                offset +=
-                    loadBytes(&package.body[offset], (void*)&nodeInfo.minorVersion, sizeof(nodeInfo.minorVersion));
+                offset += loadBytes(&package.body[offset], (void*)&nodeInfo.majorVersion, sizeof(nodeInfo.majorVersion));
+                offset += loadBytes(&package.body[offset], (void*)&nodeInfo.minorVersion, sizeof(nodeInfo.minorVersion));
                 loadStringBytes(&package.body[offset], nodeInfo.nodeLabel);
             }
 
