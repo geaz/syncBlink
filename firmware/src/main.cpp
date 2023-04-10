@@ -6,6 +6,7 @@
 #include "modules/hub_wifi_module.hpp"
 #include "modules/node_wifi_module.hpp"
 #include "modules/script_module.hpp"
+#include "modules/web_module.hpp"
 
 #include <LittleFS.h>
 #include <Wire.h>
@@ -45,10 +46,13 @@ void setup()
         Serial.println("[MAIN] Starting Hub mode ...");
 
         auto scriptModule = std::make_shared<SyncBlink::ScriptModule>(messageBus, config);
-        modules.push_back(scriptModule);
+        auto wifiModule = std::make_shared<SyncBlink::HubWifiModule>(config, messageBus, *scriptModule.get());
+        auto blinkScriptModule = std::make_shared<SyncBlink::BlinkScriptModule>(led, messageBus, scriptModule->getActiveScript());
 
-        modules.push_back(std::make_shared<SyncBlink::HubWifiModule>(config, messageBus, *scriptModule.get()));
-        modules.push_back(std::make_shared<SyncBlink::BlinkScriptModule>(led, messageBus, scriptModule->getActiveScript()));
+        modules.push_back(scriptModule);
+        modules.push_back(wifiModule);
+        modules.push_back(blinkScriptModule);
+        modules.push_back(std::make_shared<SyncBlink::WebModule>(messageBus, *scriptModule.get(), *blinkScriptModule.get(), *wifiModule.get(), config));
     }
     else
     {

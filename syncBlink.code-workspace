@@ -99,7 +99,10 @@
 			"xtree": "cpp",
 			"xutility": "cpp",
 			"any": "cpp",
-			"typeindex": "cpp"
+			"typeindex": "cpp",
+			"ranges": "cpp",
+			"span": "cpp",
+			"*.tcc": "cpp"
 		}
 	}
 }

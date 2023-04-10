@@ -99,4 +99,7 @@ namespace SyncBlink
             _runScriptView->fadeFrequencyRange();
         }
     }
+
+    bool BlinkScriptModule::getLightMode() const { return _lightMode; }
+    uint64_t BlinkScriptModule::getActiveAnalyzer() const { return _activeAnalyzer; }
 }

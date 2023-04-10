@@ -1,6 +1,7 @@
 #ifndef BLINKSCRIPTMODULE_H
 #define BLINKSCRIPTMODULE_H
 
+#include "core/network/get_id.hpp"
 #include "core/message/message_bus.hpp"
 #include "core/message/messages/analyzer_update.hpp"
 #include "core/message/messages/mesh_update.hpp"
@@ -32,6 +33,9 @@ namespace SyncBlink
         void onMsg(const Messages::ScriptChange& msg);
         void onMsg(const Messages::MeshUpdate& msg);
 
+        bool getLightMode() const;
+        uint64_t getActiveAnalyzer() const;
+
     private:
         bool checkBlinkScript();
         void setView(Messages::AnalyzerUpdate msg, uint32_t delta);
@@ -42,6 +46,7 @@ namespace SyncBlink
         Script _currentScript;
         std::shared_ptr<BlinkScript> _blinkScript;
         bool _activeScriptChanged = false;
+        bool _lightMode = false;
 
         std::shared_ptr<RunScriptView> _runScriptView;
         std::shared_ptr<IconTextView> _invalidScriptView;
@@ -56,6 +61,7 @@ namespace SyncBlink
         uint32_t _meshLedCount = 0;
 
         uint64_t _lastLedUpdate = millis();
+        uint64_t _activeAnalyzer = SyncBlink::getId();
     };
 }
 

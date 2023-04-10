@@ -10,6 +10,7 @@
 #include "script_module.hpp"
 
 #include <map>
+#include <tuple>
 
 namespace SyncBlink
 {
@@ -28,6 +29,10 @@ namespace SyncBlink
         void onMsg(const Messages::MeshConnection& msg);
         void onMsg(const Messages::AnalyzerUpdate& msg);
         void onMsg(const Messages::ScriptChange& msg);
+
+        std::tuple<uint64_t, NodeInfo> getStationInfo() const;
+        std::map<uint64_t, NodeInfo> getConnectedNodes() const;
+
 
     private:
         void addNode(uint64_t nodeId, NodeInfo nodeInfo);
@@ -48,6 +53,7 @@ namespace SyncBlink
 
         uint32_t _totalLeds;
         uint32_t _totalNodes;
+        
         std::map<uint64_t, NodeInfo> _connectedNodes;
     };
 }
