@@ -100,6 +100,13 @@ namespace SyncBlink
         }
     }
 
-    bool BlinkScriptModule::getLightMode() const { return _lightMode; }
-    uint64_t BlinkScriptModule::getActiveAnalyzer() const { return _activeAnalyzer; }
+    bool BlinkScriptModule::getLightMode() const
+    {
+        return _lightMode;
+    }
+    
+    uint64_t BlinkScriptModule::getActiveAnalyzer() const
+    {
+        return _activeAnalyzer;
+    }
 }

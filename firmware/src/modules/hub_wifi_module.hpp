@@ -33,7 +33,6 @@ namespace SyncBlink
         std::tuple<uint64_t, NodeInfo> getStationInfo() const;
         std::map<uint64_t, NodeInfo> getConnectedNodes() const;
 
-
     private:
         void addNode(uint64_t nodeId, NodeInfo nodeInfo);
         void removeNode(uint64_t nodeId);
@@ -53,7 +52,7 @@ namespace SyncBlink
 
         uint32_t _totalLeds;
         uint32_t _totalNodes;
-        
+
         std::map<uint64_t, NodeInfo> _connectedNodes;
     };
 }

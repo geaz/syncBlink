@@ -52,7 +52,8 @@ void setup()
         modules.push_back(scriptModule);
         modules.push_back(wifiModule);
         modules.push_back(blinkScriptModule);
-        modules.push_back(std::make_shared<SyncBlink::WebModule>(messageBus, *scriptModule.get(), *blinkScriptModule.get(), *wifiModule.get(), config));
+        modules.push_back(
+            std::make_shared<SyncBlink::WebModule>(messageBus, *scriptModule.get(), *blinkScriptModule.get(), *wifiModule.get(), config));
     }
     else
     {

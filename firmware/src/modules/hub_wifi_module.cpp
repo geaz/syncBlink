@@ -1,4 +1,5 @@
 #include "hub_wifi_module.hpp"
+
 #include "core/network/get_id.hpp"
 
 namespace SyncBlink
@@ -105,9 +106,13 @@ namespace SyncBlink
 
     std::tuple<uint64_t, NodeInfo> HubWifiModule::getStationInfo() const
     {
-        NodeInfo stationInfo = { true, true, false, true, 0, _config.Values["led_count"], VERSIONMAJOR, VERSIONMINOR, _config.Values["name"] };
+        NodeInfo stationInfo = {
+            true, true, false, true, 0, _config.Values["led_count"], VERSIONMAJOR, VERSIONMINOR, _config.Values["name"]};
         return std::make_tuple(SyncBlink::getId(), stationInfo);
     }
-    
-    std::map<uint64_t, NodeInfo> HubWifiModule::getConnectedNodes() const { return _connectedNodes; }
+
+    std::map<uint64_t, NodeInfo> HubWifiModule::getConnectedNodes() const
+    {
+        return _connectedNodes;
+    }
 }

@@ -1,11 +1,11 @@
 #ifndef BLINKSCRIPTMODULE_H
 #define BLINKSCRIPTMODULE_H
 
-#include "core/network/get_id.hpp"
 #include "core/message/message_bus.hpp"
 #include "core/message/messages/analyzer_update.hpp"
 #include "core/message/messages/mesh_update.hpp"
 #include "core/message/messages/script_change.hpp"
+#include "core/network/get_id.hpp"
 #include "core/script.hpp"
 #include "core/views/icon_text_view.cpp"
 #include "core/views/run_script_view.cpp"
