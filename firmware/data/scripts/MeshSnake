@@ -30,4 +30,3 @@ let init = fun(){
         colors[i] = xrgb(0,0,0)
     }
 }
-let scriptName = "meshSnake"

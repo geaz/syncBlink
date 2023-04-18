@@ -35,7 +35,8 @@ namespace SyncBlink
             Commands::SetDisplay command = {_runScriptView, _currentScript.Name};
             _messageBus.trigger(command);
 
-            _blinkScript = std::make_shared<BlinkScript>(_led, _currentScript.Content, MaxFrequency);
+            if (_blinkScript != nullptr) delete _blinkScript;
+            _blinkScript = new BlinkScript(_led, _currentScript.Content, MaxFrequency);
             _blinkScript->updateLedInfo(_previousNodeCount, _previousLedCount, _meshLedCount);
             _blinkScript->init();
 

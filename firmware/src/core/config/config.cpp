@@ -16,5 +16,7 @@ namespace SyncBlink
         File file = LittleFS.open(ConfigPath.c_str(), "w");
         serializeJson(Values, file);
         file.close();
+
+        load(); // reread config after saving
     }
 }

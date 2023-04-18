@@ -135,15 +135,6 @@ namespace SyncBlink
             _delay = delay;
     }
 
-    std::string BlinkScript::getScriptName()
-    {
-        std::string scriptName = "(undefined)";
-        auto scriptValue = _vm.getFrame().get("scriptName");
-        if (scriptValue.getType() != ValueType::NIL)
-            scriptName = static_cast<StringObj*>(scriptValue.object)->getString();
-        return scriptName;
-    }
-
     bool BlinkScript::checkEvalError(const std::string& step, bool hasError, std::tuple<int, std::string> error)
     {
         if (hasError)

@@ -82,13 +82,12 @@ namespace SyncBlink
         const char* activeScriptName = _config.Values["active_script"];
         if (activeScriptName != nullptr)
         {
-            Serial.printf("[SCRIPTMANAGER] Active Script: %s\n", activeScriptName);
             script = get(activeScriptName);
         }
 
         if (!script.Exists)
         {
-            Serial.println("[SCRIPTMANAGER] Currently active script not found! Falling back ...");
+            Serial.println("[ScriptManager] Currently active script not found! Falling back ...");
 
             std::vector<std::string> scriptList = getList();
             if (scriptList.size() > 0)
@@ -107,8 +106,8 @@ namespace SyncBlink
             Serial.printf("[ScriptManager] Saving active script (%s) ...\n", scriptName.c_str());
             _config.Values["active_script"] = scriptName.c_str();
             _config.save();
-
-            _messageBus.trigger<Messages::ScriptChange>({getActiveScript()});
+            
+            _messageBus.trigger<Messages::ScriptChange>(getActiveScript());
         }
     }
 }

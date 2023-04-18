@@ -94,7 +94,7 @@ The script language is pretty basic and comes with the following features:
 
 ### Minimal example script
 
-Each script has to define two functions and a script name as given in the following example.
+Each script has to define two functions as given in the following example.
 
 ```
 let update = fun(delta) {
@@ -105,8 +105,6 @@ let update = fun(delta) {
 let init = fun(){
     // this function gets executed ONCE at start of the script
 }
-
-let scriptName = "Minimum example"
 ```
 
 ## Mesh

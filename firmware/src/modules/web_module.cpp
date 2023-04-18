@@ -115,7 +115,7 @@ namespace SyncBlink
         for (; iter != endIter;)
         {
             auto node = iter->second;
-            DynamicJsonDocument nodeJson(512);
+            StaticJsonDocument<512> nodeJson;
             nodeJson["isStation"] = node.isStation;
             nodeJson["isAnalyzer"] = node.isAnalyzer;
             nodeJson["isNode"] = node.isNode;
@@ -155,9 +155,9 @@ namespace SyncBlink
     void WebModule::getWifi()
     {
         std::string ssid = _config.Values["wifi_ssid"];
-
         String JSON;
-        DynamicJsonDocument doc(512);
+        
+        StaticJsonDocument<256> doc;
         doc["ssid"] = ssid.c_str();
         doc["connected"] = WiFi.status() == WL_CONNECTED;
 
@@ -175,12 +175,12 @@ namespace SyncBlink
 
     void WebModule::saveScript()
     {
-        String body = _server.arg("plain");
-        StaticJsonDocument<5000> script;
+        std::string body = _server.arg("plain").c_str();
+        DynamicJsonDocument script(5000);
         deserializeJson(script, body);
 
-        String scriptName = script["name"];
-        String scriptContent = script["content"];
+        std::string scriptName = script["name"];
+        std::string scriptContent = script["content"];
 
         _scriptModule.save(scriptName.c_str(), scriptContent.c_str());
         _server.send(200, "application/json", "{ \"saved\": true }");
@@ -197,7 +197,7 @@ namespace SyncBlink
     void WebModule::getScriptList()
     {
         String JSON;
-        DynamicJsonDocument doc(8192);
+        DynamicJsonDocument doc(4096);
         JsonArray files = doc.createNestedArray("scripts");
 
         std::vector<std::string> scriptList = _scriptModule.getList();
@@ -210,8 +210,8 @@ namespace SyncBlink
 
     void WebModule::getScriptContent()
     {
-        String JSON, scriptContent;
-        StaticJsonDocument<5000> doc;
+        String JSON;
+        DynamicJsonDocument doc(5000);
 
         std::string scriptName = _server.arg("name").c_str();
         Script script = _scriptModule.get(scriptName);

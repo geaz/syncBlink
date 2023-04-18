@@ -35,4 +35,3 @@ let init = fun(){
     	setLinearGroupsOf(16)
     }
 }
-let scriptName = "snake"

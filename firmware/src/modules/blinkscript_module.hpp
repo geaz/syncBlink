@@ -44,7 +44,7 @@ namespace SyncBlink
         MessageBus& _messageBus;
 
         Script _currentScript;
-        std::shared_ptr<BlinkScript> _blinkScript;
+        BlinkScript* _blinkScript;
         bool _activeScriptChanged = false;
         bool _lightMode = false;
 

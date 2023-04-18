@@ -26,7 +26,6 @@ namespace SyncBlink
         bool isFaulted();
         LED& getLed();
         void setDelay(uint32_t delay);
-        std::string getScriptName();
 
     private:
         bool checkEvalError(const std::string& step, bool hasError, std::tuple<int, std::string> error);
