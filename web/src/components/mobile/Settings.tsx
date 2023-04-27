@@ -35,7 +35,7 @@ function Settings() {
                 setScriptList(scriptList);
                 setScript(meshInfo.script);
                 setAnalyzer(meshInfo.analyzer);
-                setLightMode(meshInfo.lightMode == "true");
+                setLightMode(meshInfo.lightMode === "true");
                 setAnalyzerList(analyzerList);
                 setSsid(wifiInfo.ssid);
             }

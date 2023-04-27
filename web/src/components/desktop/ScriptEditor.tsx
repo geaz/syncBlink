@@ -1,15 +1,16 @@
 import styled from "styled-components";
 import { useEffect, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus, faTrashAlt, faSave } from '@fortawesome/free-solid-svg-icons';
+import { faPlus, faTrashAlt, faSave, faSyncAlt } from '@fortawesome/free-solid-svg-icons';
 
 import Loader from '../ui/Loader';
 import Editor from '../ui/Editor';
 
 function ScriptEditor() {
-    const [showLoader, setShowLoader] = useState(false);
+    const [showLoader, setShowLoader] = useState(true);
     const [showAddScript, setShowAddScript] = useState(false);
     const [scriptChanged, setScriptChanged] = useState(false);
+    const [scriptSaving, setScriptSaving] = useState(false);
     const [loaderMessage, setLoaderMessage] = useState('Loading scripts...');
 
     const [script, setScript] = useState<string>();  
@@ -32,6 +33,7 @@ function ScriptEditor() {
     };
 
     let saveScript = async () => {
+        setScriptSaving(true);
         let scriptInfo = {
             name: script,
             content: scriptContent
@@ -46,6 +48,7 @@ function ScriptEditor() {
         else {
             alert("Error during script save!");
         }
+        setScriptSaving(false);
     };
 
     let deleteScript = async (scriptName: string) => {
@@ -85,6 +88,8 @@ function ScriptEditor() {
     useEffect(() => setScriptChanged(scriptContent !== originalScriptContent), [scriptContent, originalScriptContent]);
 
     useEffect(() => {
+        setLoaderMessage('Loading script...');
+        setShowLoader(true);
         if(script === undefined) return;
         (async () => {
             let response = await fetch("/api/scripts/get?name=" + script);
@@ -94,6 +99,7 @@ function ScriptEditor() {
                 setOriginalScriptContent(script.content);
             }
             else { throw new Error("Error during script get request!"); }
+            setShowLoader(false);
         })();
     }, [script]);
 
@@ -101,12 +107,15 @@ function ScriptEditor() {
         return (<li key={i} onClick={() => setScript(item) } className={ script === item ? 'active' : '' }>
             <a href="#" className="main-link" onClick={() => setScript(item) }>{item}</a>
 
-            { script === item && !scriptChanged && 
+            { script === item && !scriptChanged && !scriptSaving &&
                 <span className="deactivated-tool"><FontAwesomeIcon icon={faSave}/></span>
             }
-            { script === item && scriptChanged && 
+            { script === item && scriptChanged && !scriptSaving &&
                 <a href="#" onClick={saveScript} className="tool"><FontAwesomeIcon icon={faSave}/></a>
-            }            
+            }
+            { script === item && scriptSaving &&
+                <span className="deactivated-tool"><FontAwesomeIcon icon={faSyncAlt} spin={true} /></span>                 
+            }       
 
             <a href="#" onClick={ () => deleteScript(item) } className={'tool hover-hidden ' + (script === item ? 'visible' : '') }><FontAwesomeIcon className="hover-red" icon={faTrashAlt}/></a>
         </li>)
