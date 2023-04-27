@@ -145,11 +145,13 @@ namespace SyncBlink
 
     void WebModule::setWifi()
     {
-        String ssid = _server.arg("ssid");
-        String pass = _server.arg("pass");
-        // _stationWifi.saveWifi(ssid.c_str(), pass.c_str());
-        // config change wifi
+        _config.Values["wifi_ssid"] = _server.arg("ssid");
+        _config.Values["wifi_pw"] = _server.arg("pass");
+        _config.save();
+
         _server.send(200, "application/json");
+        delay(500);
+        ESP.restart();
     }
 
     void WebModule::getWifi()
