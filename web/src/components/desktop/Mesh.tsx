@@ -9,7 +9,6 @@ import SyncBlinkRouterNode from "../../nodes/SyncBlinkRouterNode";
 
 import Loader from '../ui/Loader';
 import Renamer from './modals/Renamer';
-import Flasher from './modals/Flasher';
 import ScriptChanger from './modals/ScriptChanger';
 import useDagreLayout from '../../effects/DagreLayoutEffect';
 import useSyncBlinkFlowData, { ModalInfo, ModalType } from '../../effects/SyncBlinkFlowDataEffect';
@@ -52,13 +51,6 @@ function Mesh() {
                 setLoaderMessage={setLoaderMessage}
                 setModal={setModal}
                 afterSave={() => reloadData()} />
-        }
-        { modalInfo?.type === ModalType.Flasher && 
-            <Flasher nodeId={modalInfo.nodeId} 
-                nodeLabel={modalInfo.text}
-                setShowLoader={setShowLoader}
-                setLoaderMessage={setLoaderMessage}
-                setModal={setModal}/>
         }
         { modalInfo?.type === ModalType.ScriptChanger && 
             <ScriptChanger currentScript={modalInfo.text}

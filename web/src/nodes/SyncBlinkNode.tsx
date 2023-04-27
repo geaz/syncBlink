@@ -16,7 +16,6 @@ export interface SyncBlinkNodeProps {
     wifiAvailable: boolean;
     connectedToMeshWiFi: boolean;
     onPing: (nodeId: number) => void;
-    onFlash: (nodeId: number) => void;
     onSetWifi: (nodeId: number, meshWifi: boolean) => void;
     onRename: (nodeId: number, newLabel: string) => void;
     onSetAnalyzer?: (analyzerId: number) => void;
@@ -58,7 +57,6 @@ function SyncBlinkNode(node: FlowNode<SyncBlinkNodeProps>) {
             }
             <IconButton icon={faPen} tooltip="Rename" onClick={() => node.data?.onRename(node.data?.id, node.data?.label)} />
             <IconButton icon={faCrosshairs} tooltip="Ping" onClick={() => node.data?.onPing(node.data?.id)} />
-            <IconButton icon={faAngleUp} tooltip="Update Firmware" onClick={() => node.data?.onFlash(node.data?.id)} />
         </div>
         <Handle
             type="source"

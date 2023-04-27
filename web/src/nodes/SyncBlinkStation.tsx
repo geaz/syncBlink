@@ -15,7 +15,6 @@ export interface SyncBlinkStationProps {
     runningScript: string;
     onRefresh: () => void;
     onChangeScript: () => void;
-    onFlash: () => void;
     onLightMode: () => void;
     onSetAnalyzer: (analyzerId: number) => void;
 }
@@ -35,9 +34,6 @@ function SyncBlinkStation(node: FlowNode<SyncBlinkStationProps>) {
             <IconButton icon={faSync}
                 tooltip="Refresh Mesh"
                 onClick={() => node.data?.onRefresh()} />
-            <IconButton icon={faAngleDoubleUp}
-                tooltip="Update ALL nodes"
-                onClick={() => node.data?.onFlash()} />
         </div>
         <div className="node-frame">
             <div className="node-label">Station</div>

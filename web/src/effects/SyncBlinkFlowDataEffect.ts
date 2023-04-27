@@ -72,7 +72,6 @@ function createMeshNodeData(
             props.onSetAnalyzer = onSetAnalyzer;
             props.onRefresh = onRefresh;
             props.onChangeScript = () => setModal({ type: ModalType.ScriptChanger, text: runningScript } as ModalInfo);
-            props.onFlash = () => setModal({ type: ModalType.Flasher, nodeId: 0, text: 'All Nodes' });
             props.onLightMode = async () => { await fetch('/api/mesh/setLightMode?lightMode=' + (lightMode ? "false" : "true")); onRefresh(); }
 
             node.data = props;
@@ -100,7 +99,6 @@ function createMeshNodeData(
             props.ledCount = node.ledCount;
             props.wifiAvailable = connectedToWifi;
             props.connectedToMeshWiFi = node.connectedToMeshWifi;
-            props.onFlash = (n) => setModal({ type: ModalType.Flasher, nodeId: n, text: props.label });
             props.onRename = (n, l) => setModal({ type: ModalType.Renamer, nodeId: n, text: l });
             props.onPing = (nodeId: number) => fetch('/api/mesh/ping?nodeId=' + nodeId);
             props.onSetWifi = (nodeId: number, meshWifi: boolean) => fetch('/api/mesh/setNodeWifi?nodeId=' + nodeId + '&meshWifi=' + (meshWifi ? "true" : "false"));
