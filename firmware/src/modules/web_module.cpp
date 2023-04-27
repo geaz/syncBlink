@@ -1,4 +1,5 @@
 #include "web_module.hpp"
+#include "core/message/messages/node_command.hpp"
 
 #include <ArduinoJson.h>
 #include <LittleFS.h>
@@ -13,7 +14,6 @@ namespace SyncBlink
     {
         _server.on("/api/mesh/ping", [this]() { pingNode(); });
         _server.on("/api/mesh/rename", [this]() { renameNode(); });
-        _server.on("/api/mesh/setNodeWifi", [this]() { setNodeWifi(); });
         _server.on("/api/mesh/info", [this]() { getMeshInfo(); });
         _server.on("/api/mesh/setAnalyzer", [this]() { setAnalyzer(); });
         _server.on("/api/mesh/setLightMode", [this]() { setLightMode(); });
@@ -80,20 +80,6 @@ namespace SyncBlink
 
         //_nodeManager.renameNode(nodeId, std::string(label.c_str()));
         // RenameMessage
-        _server.send(200, "text/plain");
-    }
-
-    void WebModule::setNodeWifi()
-    {
-        String nodeIdArg = _server.arg("nodeId");
-        bool meshWifi = _server.arg("meshWifi") == "true";
-
-        uint64_t nodeId;
-        std::istringstream iss(nodeIdArg.c_str());
-        iss >> nodeId;
-
-        // _nodeManager.setWifi(nodeId, meshWifi);
-        // NodeWifiChangeMessage
         _server.send(200, "text/plain");
     }
 

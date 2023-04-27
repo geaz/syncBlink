@@ -33,15 +33,6 @@ namespace SyncBlink
                         uint32_t messageSize = (stream.read() << 24) + (stream.read() << 16) + (stream.read() << 8) + stream.read();
                         uint8_t messageType = stream.read();
 
-                        uint8_t checksum = 0;
-                        checksum += PacketMagicBytes[0] % 2;
-                        checksum += PacketMagicBytes[1] % 2;
-                        checksum += PacketMagicBytes[2] % 2;
-                        checksum += (uint8_t)(messageSize >> 24) % 2;
-                        checksum += (uint8_t)(messageSize >> 16) % 2;
-                        checksum += (uint8_t)(messageSize >> 8) % 2;
-                        checksum += (uint8_t)(messageSize >> 0) % 2;
-
                         message.type = messageType;
                         message.body.resize(messageSize);
 

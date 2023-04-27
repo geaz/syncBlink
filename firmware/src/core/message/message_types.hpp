@@ -10,6 +10,7 @@ namespace SyncBlink
         MeshConnection,
         MeshUpdate,
         ScriptChange,
+        NodeCommand
     };
 }
 

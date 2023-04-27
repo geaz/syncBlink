@@ -97,11 +97,8 @@ function createMeshNodeData(
             props.majorVersion = node.majorVersion;
             props.minorVersion = node.minorVersion;
             props.ledCount = node.ledCount;
-            props.wifiAvailable = connectedToWifi;
-            props.connectedToMeshWiFi = node.connectedToMeshWifi;
             props.onRename = (n, l) => setModal({ type: ModalType.Renamer, nodeId: n, text: l });
             props.onPing = (nodeId: number) => fetch('/api/mesh/ping?nodeId=' + nodeId);
-            props.onSetWifi = (nodeId: number, meshWifi: boolean) => fetch('/api/mesh/setNodeWifi?nodeId=' + nodeId + '&meshWifi=' + (meshWifi ? "true" : "false"));
 
             if(node.isAnalyzer)
             {

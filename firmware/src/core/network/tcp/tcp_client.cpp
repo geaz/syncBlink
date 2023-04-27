@@ -33,7 +33,7 @@ namespace SyncBlink
     void TcpClient::loop()
     {
         checkConnection();
-        handleIncomingMessages();
+        handleIncomingServerMessages();
     }
 
     void TcpClient::writeMessage(std::vector<uint8_t> message)
@@ -114,7 +114,7 @@ namespace SyncBlink
         return connected;
     }
 
-    void TcpClient::handleIncomingMessages()
+    void TcpClient::handleIncomingServerMessages()
     {
         MessagePackage package;
         if (MessagePackage::available(_client, package))
@@ -140,6 +140,13 @@ namespace SyncBlink
                 meshUpdateMsg.loadPackage(package);
 
                 _messageBus.trigger(meshUpdateMsg);
+                break;
+            }
+            case MessageType::NodeCommand: {
+                Messages::NodeCommand nodeCommandMsg;
+                nodeCommandMsg.loadPackage(package);
+
+                _messageBus.trigger(nodeCommandMsg);
                 break;
             }
             }

@@ -12,6 +12,7 @@ namespace SyncBlink
         _meshUpdateHandleId = _messageBus.addMsgHandler<Messages::MeshUpdate>(this);
         _analyzerHandleId = _messageBus.addMsgHandler<Messages::AnalyzerUpdate>(this);
         _scriptHandleId = _messageBus.addMsgHandler<Messages::ScriptChange>(this);
+        _nodeCommandHandleId = _messageBus.addMsgHandler<Messages::NodeCommand>(this);
     }
 
     NodeWifiModule::~NodeWifiModule()
@@ -20,6 +21,7 @@ namespace SyncBlink
         _messageBus.removeMsgHandler(_meshUpdateHandleId);
         _messageBus.removeMsgHandler(_analyzerHandleId);
         _messageBus.removeMsgHandler(_scriptHandleId);
+        _messageBus.removeMsgHandler(_nodeCommandHandleId);
     }
 
     void NodeWifiModule::setup()
@@ -82,5 +84,33 @@ namespace SyncBlink
     void NodeWifiModule::onMsg(const Messages::ScriptChange& msg)
     {
         _tcpServer.broadcast(msg.toPackage());
+    }
+
+    void NodeWifiModule::onMsg(const Messages::NodeCommand& msg)
+    {
+        if(msg.recipientId != SyncBlink::getId())
+        {
+             _tcpServer.broadcast(msg.toPackage());
+             return;
+        }
+
+        switch (msg.commandType)
+        {
+        case Messages::NodeCommandType::WifiChange:
+            if(msg.commandInfo.flag)
+            {
+                _config.Values["wifi_ssid"] = nullptr;
+                _config.Values["wifi_pw"] = nullptr;
+            }
+            else
+            {
+                _config.Values["wifi_ssid"] = msg.commandInfo.stringInfo1;
+                _config.Values["wifi_pw"] = msg.commandInfo.stringInfo2;                
+            }
+
+            _config.save();
+            ESP.restart();
+            break;
+        }
     }
 }

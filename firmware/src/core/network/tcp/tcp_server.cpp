@@ -19,7 +19,7 @@ namespace SyncBlink
     {
         clearClients();
         checkNewClients();
-        handleIncomingMessages();
+        handleIncomingClientMessages();
     }
 
     void TcpServer::broadcast(std::vector<uint8_t> message)
@@ -97,7 +97,7 @@ namespace SyncBlink
         }
     }
 
-    void TcpServer::handleIncomingMessages()
+    void TcpServer::handleIncomingClientMessages()
     {
         for (auto& client : _clients)
         {

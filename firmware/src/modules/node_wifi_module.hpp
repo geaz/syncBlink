@@ -3,6 +3,7 @@
 
 #include "core/config/config.hpp"
 #include "core/message/messages/mesh_update.hpp"
+#include "core/message/messages/node_command.hpp"
 #include "core/network/mesh/syncblink_mesh.hpp"
 #include "core/network/tcp/tcp_client.hpp"
 #include "core/network/tcp/tcp_server.hpp"
@@ -16,6 +17,7 @@ namespace SyncBlink
                            public MessageHandler<Messages::MeshUpdate>,
                            public MessageHandler<Messages::MeshConnection>,
                            public MessageHandler<Messages::AnalyzerUpdate>,
+                           public MessageHandler<Messages::NodeCommand>,
                            public MessageHandler<Messages::ScriptChange>
     {
     public:
@@ -25,6 +27,7 @@ namespace SyncBlink
         void setup() override;
         void loop();
 
+        void onMsg(const Messages::NodeCommand& msg);
         void onMsg(const Messages::MeshUpdate& msg);
         void onMsg(const Messages::MeshConnection& msg);
         void onMsg(const Messages::AnalyzerUpdate& msg);
@@ -38,6 +41,7 @@ namespace SyncBlink
         std::shared_ptr<TcpClient> _tcpClient;
 
         uint32_t _meshHandleId = 0;
+        uint32_t _nodeCommandHandleId = 0;
         uint32_t _meshUpdateHandleId = 0;
         uint32_t _analyzerHandleId = 0;
         uint32_t _scriptHandleId = 0;

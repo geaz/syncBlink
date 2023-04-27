@@ -54,6 +54,8 @@ namespace SyncBlink
             return MessageType::Base;
         };
 
+        uint64_t recipientId = 0;
+
     protected:
         void addBytes(std::vector<uint8_t>& byteVec, const void* dataPtr, int32_t dataSize) const
         {

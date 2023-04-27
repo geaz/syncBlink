@@ -10,6 +10,7 @@ namespace SyncBlink
     {
         _meshHandleId = _messageBus.addMsgHandler<Messages::MeshConnection>(this);
         _analyzerHandleId = _messageBus.addMsgHandler<Messages::AnalyzerUpdate>(this);
+        _nodeCommandHandleId = _messageBus.addMsgHandler<Messages::NodeCommand>(this);
         _scriptHandleId = _messageBus.addMsgHandler<Messages::ScriptChange>(this);
     }
 
@@ -17,6 +18,7 @@ namespace SyncBlink
     {
         _messageBus.removeMsgHandler(_meshHandleId);
         _messageBus.removeMsgHandler(_analyzerHandleId);
+        _messageBus.removeMsgHandler(_nodeCommandHandleId);
         _messageBus.removeMsgHandler(_scriptHandleId);
     }
 
@@ -26,13 +28,11 @@ namespace SyncBlink
         _mesh.startMesh();
 
         _tcpServer.start();
-        _udpDiscover.start(true);
     }
 
     void HubWifiModule::loop()
     {
         _tcpServer.loop();
-        _udpDiscover.loop();
     }
 
     void HubWifiModule::onMsg(const Messages::MeshConnection& msg)
@@ -68,6 +68,11 @@ namespace SyncBlink
     }
 
     void HubWifiModule::onMsg(const Messages::ScriptChange& msg)
+    {
+        _tcpServer.broadcast(msg.toPackage());
+    }
+
+    void HubWifiModule::onMsg(const Messages::NodeCommand& msg)
     {
         _tcpServer.broadcast(msg.toPackage());
     }

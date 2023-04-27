@@ -32,7 +32,7 @@ namespace SyncBlink
     private:
         void clearClients();
         void checkNewClients();
-        void handleIncomingMessages();
+        void handleIncomingClientMessages();
 
         MessageBus& _messageBus;
         WiFiServer _server = WiFiServer(81);

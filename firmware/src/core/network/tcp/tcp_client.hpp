@@ -7,6 +7,7 @@
 #include "core/message/messages/analyzer_update.hpp"
 #include "core/message/messages/mesh_update.hpp"
 #include "core/message/messages/script_change.hpp"
+#include "core/message/messages/node_command.hpp"
 
 #include <ESP8266WiFi.h>
 #include <functional>
@@ -40,7 +41,7 @@ namespace SyncBlink
     private:
         void checkConnection();
         bool connectTo(String socketIp, uint16_t port);
-        void handleIncomingMessages();
+        void handleIncomingServerMessages();
 
         MessageBus& _messageBus;
         WiFiClient _client;
