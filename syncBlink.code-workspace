@@ -4,13 +4,16 @@
 			"path": "."
 		},
 		{
-			"path": "firmware"
+			"path": "src\\firmware"
 		},
 		{
-			"path": "web"
+			"path": "src\\web"
 		},
 		{
-			"path": "firmware\\lib\\blinkscript"
+			"path": "src\\firmware\\lib\\blinkscript"
+		},
+		{
+			"path": "src\\api"
 		}
 	],
 	"settings": {
