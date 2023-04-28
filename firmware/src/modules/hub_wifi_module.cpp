@@ -74,6 +74,11 @@ namespace SyncBlink
 
     void HubWifiModule::onMsg(const Messages::NodeCommand& msg)
     {
+        if(msg.commandType == Messages::NodeCommandType::Rename)
+        {
+            removeNode(msg.recipientId);
+            Serial.printf("[WIFI] Removing Node due to renaming: %12llx\n", msg.recipientId);
+        }
         _tcpServer.broadcast(msg.toPackage());
     }
 

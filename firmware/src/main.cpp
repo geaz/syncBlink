@@ -58,7 +58,7 @@ void setup()
     else
     {
         Serial.println("[MAIN] Starting Node mode ...");
-        modules.push_back(std::make_shared<SyncBlink::NodeWifiModule>(config, messageBus));
+        modules.push_back(std::make_shared<SyncBlink::NodeWifiModule>(config, led, messageBus));
         modules.push_back(std::make_shared<SyncBlink::BlinkScriptModule>(led, messageBus));
     }
 

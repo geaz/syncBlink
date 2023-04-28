@@ -9,6 +9,8 @@
 #include "core/network/tcp/tcp_server.hpp"
 #include "module.hpp"
 
+#include <led.hpp>
+
 namespace SyncBlink
 {
     static const uint8_t SleepSeconds = 30;
@@ -21,7 +23,7 @@ namespace SyncBlink
                            public MessageHandler<Messages::ScriptChange>
     {
     public:
-        NodeWifiModule(Config& config, MessageBus& messageBus);
+        NodeWifiModule(Config& config, LED& led, MessageBus& messageBus);
         ~NodeWifiModule();
 
         void setup() override;
@@ -35,6 +37,7 @@ namespace SyncBlink
 
     private:
         Config& _config;
+        LED& _led;
         MessageBus& _messageBus;
         SyncBlinkMesh _mesh;
         TcpServer _tcpServer;

@@ -65,7 +65,11 @@ namespace SyncBlink
         std::istringstream iss(nodeIdArg.c_str());
         iss >> nodeId;
 
-        // PingMessage
+        Messages::NodeCommand msg;
+        msg.recipientId = nodeId;
+        msg.commandType = Messages::NodeCommandType::Ping;
+
+        _messageBus.trigger(msg);
         _server.send(200, "text/plain");
     }
 
@@ -78,8 +82,12 @@ namespace SyncBlink
         std::istringstream iss(nodeIdArg.c_str());
         iss >> nodeId;
 
-        //_nodeManager.renameNode(nodeId, std::string(label.c_str()));
-        // RenameMessage
+        Messages::NodeCommand msg;
+        msg.recipientId = nodeId;
+        msg.commandType = Messages::NodeCommandType::Rename;
+        msg.commandInfo.stringInfo1 = label.c_str();
+
+        _messageBus.trigger(msg);
         _server.send(200, "text/plain");
     }
 

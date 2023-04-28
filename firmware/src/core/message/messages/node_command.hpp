@@ -12,14 +12,13 @@ namespace SyncBlink
     {
         enum NodeCommandType
         {
-            WifiChange
+            Ping,
+            Rename
         };
 
         struct CommandInfo
         {
-            bool flag;
             std::string stringInfo1;
-            std::string stringInfo2;
         };
 
         class NodeCommand : public Message
@@ -29,9 +28,8 @@ namespace SyncBlink
             {
                 std::vector<uint8_t> package;                
                 addBytes(package, (void*)&recipientId, sizeof(recipientId));
-                addBytes(package, (void*)&commandInfo.flag, sizeof(commandInfo.flag));
+                addBytes(package, (void*)&commandType, sizeof(commandType));
                 addStringBytes(package, commandInfo.stringInfo1);
-                addStringBytes(package, commandInfo.stringInfo2);
 
                 return package;
             }
@@ -40,9 +38,8 @@ namespace SyncBlink
             {
                 uint32_t offset = 0;
                 offset += loadBytes(&package.body[offset], (void*)&recipientId, sizeof(recipientId));
-                offset += loadBytes(&package.body[offset], (void*)&commandInfo.flag, sizeof(commandInfo.flag));
-                offset += loadStringBytes(&package.body[offset], commandInfo.stringInfo1);
-                loadStringBytes(&package.body[offset], commandInfo.stringInfo2);
+                offset += loadBytes(&package.body[offset], (void*)&commandType, sizeof(commandType));
+                loadStringBytes(&package.body[offset], commandInfo.stringInfo1);
             }
 
             MessageType getMessageType() const override

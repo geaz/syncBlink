@@ -5,8 +5,8 @@
 
 namespace SyncBlink
 {
-    NodeWifiModule::NodeWifiModule(Config& config, MessageBus& messageBus)
-        : _config(config), _messageBus(messageBus), _mesh(_config.Values["wifi_ssid"], _config.Values["wifi_pw"]), _tcpServer(_messageBus)
+    NodeWifiModule::NodeWifiModule(Config& config, LED& led, MessageBus& messageBus)
+        : _config(config), _led(led), _messageBus(messageBus), _mesh(_config.Values["wifi_ssid"], _config.Values["wifi_pw"]), _tcpServer(_messageBus)
     {
         _meshHandleId = _messageBus.addMsgHandler<Messages::MeshConnection>(this);
         _meshUpdateHandleId = _messageBus.addMsgHandler<Messages::MeshUpdate>(this);
@@ -88,26 +88,21 @@ namespace SyncBlink
 
     void NodeWifiModule::onMsg(const Messages::NodeCommand& msg)
     {
+        Serial.printf("[NODE] Received NodeCommand for: %12llx - Mine: %12llx\n", msg.recipientId, SyncBlink::getId());
         if(msg.recipientId != SyncBlink::getId())
         {
+            Serial.printf("[NODE] Forwarding NodeCommand\n");
              _tcpServer.broadcast(msg.toPackage());
              return;
         }
 
         switch (msg.commandType)
         {
-        case Messages::NodeCommandType::WifiChange:
-            if(msg.commandInfo.flag)
-            {
-                _config.Values["wifi_ssid"] = nullptr;
-                _config.Values["wifi_pw"] = nullptr;
-            }
-            else
-            {
-                _config.Values["wifi_ssid"] = msg.commandInfo.stringInfo1;
-                _config.Values["wifi_pw"] = msg.commandInfo.stringInfo2;                
-            }
-
+        case Messages::NodeCommandType::Ping:
+            _led.blinkNow(Colors::Blue);
+            break;
+        case Messages::NodeCommandType::Rename:
+            _config.Values["name"] = msg.commandInfo.stringInfo1;
             _config.save();
             ESP.restart();
             break;
