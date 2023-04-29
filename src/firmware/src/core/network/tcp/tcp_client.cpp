@@ -1,4 +1,5 @@
 #include "tcp_client.hpp"
+#include "tcp_stream_helper.hpp"
 
 namespace SyncBlink
 {
@@ -117,7 +118,7 @@ namespace SyncBlink
     void TcpClient::handleIncomingServerMessages()
     {
         MessagePackage package;
-        if (MessagePackage::available(_client, package))
+        if (TcpStreamHelper::messageAvailable(_client, package))
         {
             switch (package.type)
             {

@@ -1,5 +1,6 @@
 #include "web_module.hpp"
 #include "core/message/messages/node_command.hpp"
+#include "core/message/messages/analyzer_change.hpp"
 
 #include <ArduinoJson.h>
 #include <LittleFS.h>
@@ -8,9 +9,9 @@
 namespace SyncBlink
 {
     WebModule::WebModule(MessageBus& messageBus, ScriptModule& scriptModule, BlinkScriptModule& blinkScriptModule,
-                         HubWifiModule& wifiModule, Config& config)
-        : _server(80), _messageBus(messageBus), _scriptModule(scriptModule), _blinkScriptModule(blinkScriptModule), _wifiModule(wifiModule),
-          _config(config)
+                         AnalyzerModule& analyzerModule, HubWifiModule& wifiModule, Config& config)
+        : _server(80), _messageBus(messageBus), _scriptModule(scriptModule), _blinkScriptModule(blinkScriptModule),
+          _analyzerModule(analyzerModule), _wifiModule(wifiModule), _config(config)
     {
         _server.on("/api/mesh/ping", [this]() { pingNode(); });
         _server.on("/api/mesh/rename", [this]() { renameNode(); });
@@ -46,7 +47,10 @@ namespace SyncBlink
         std::istringstream iss(analyzerIdArg.c_str());
         iss >> analyzerId;
 
-        // BlinkScriptModule Set AnalyzerChange Message
+        Messages::AnalyzerChange msg;
+        msg.analyzerId = analyzerId;
+
+        _messageBus.trigger(msg);
         _server.send(200, "text/plain");
     }
 
@@ -125,7 +129,7 @@ namespace SyncBlink
             ++iter;
         }
 
-        doc["analyzer"] = _blinkScriptModule.getActiveAnalyzer();
+        doc["analyzer"] = _analyzerModule.getActiveAnalyzer();
         doc["lightMode"] = _blinkScriptModule.getLightMode();
         doc["ssid"] = ssid.c_str();
         doc["connected"] = WiFi.status() == WL_CONNECTED;

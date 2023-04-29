@@ -1,8 +1,8 @@
 {
     "name": "Node",
     "led_count": 9,
-    "hub": "ID",
     "is_hub": false,
+    "is_node": true,
     "is_analyzer": false,
     "has_display": false,
     "active_script": "Snake",

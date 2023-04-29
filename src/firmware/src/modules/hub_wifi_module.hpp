@@ -3,6 +3,7 @@
 
 #include "core/config/config.hpp"
 #include "core/message/messages/node_command.hpp"
+#include "core/message/messages/analyzer_change.hpp"
 #include "core/message/messages/mesh_connection.hpp"
 #include "core/network/mesh/syncblink_mesh.hpp"
 #include "core/network/tcp/tcp_server.hpp"
@@ -17,6 +18,7 @@ namespace SyncBlink
     class HubWifiModule : public Module,
                           public MessageHandler<Messages::MeshConnection>,
                           public MessageHandler<Messages::AnalyzerUpdate>,
+                          public MessageHandler<Messages::AnalyzerChange>,
                           public MessageHandler<Messages::NodeCommand>,
                           public MessageHandler<Messages::ScriptChange>
     {
@@ -29,6 +31,7 @@ namespace SyncBlink
 
         void onMsg(const Messages::MeshConnection& msg);
         void onMsg(const Messages::AnalyzerUpdate& msg);
+        void onMsg(const Messages::AnalyzerChange& msg);
         void onMsg(const Messages::ScriptChange& msg);
         void onMsg(const Messages::NodeCommand& msg);
 
@@ -49,6 +52,7 @@ namespace SyncBlink
 
         uint32_t _meshHandleId = 0;
         uint32_t _analyzerHandleId = 0;
+        uint32_t _analyzerChangeHandleId = 0;
         uint32_t _nodeCommandHandleId = 0;
         uint32_t _scriptHandleId = 0;
 

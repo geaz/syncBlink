@@ -9,6 +9,7 @@
 #include "hub_wifi_module.hpp"
 #include "module.hpp"
 #include "script_module.hpp"
+#include "analyzer_module.hpp"
 
 #include <ESP8266WebServer.h>
 #include <string>
@@ -19,8 +20,8 @@ namespace SyncBlink
     class WebModule : public Module
     {
     public:
-        WebModule(MessageBus& messageBus, ScriptModule& scriptModule, BlinkScriptModule& blinkScriptModule, HubWifiModule& wifiModule,
-                  Config& config);
+        WebModule(MessageBus& messageBus, ScriptModule& scriptModule, BlinkScriptModule& blinkScriptModule, 
+                  AnalyzerModule& analyzerModule, HubWifiModule& wifiModule, Config& config);
 
         void loop();
 
@@ -48,8 +49,11 @@ namespace SyncBlink
         MessageBus& _messageBus;
         ScriptModule& _scriptModule;
         BlinkScriptModule& _blinkScriptModule;
+        AnalyzerModule& _analyzerModule;
         HubWifiModule& _wifiModule;
         Config& _config;
+        
+        uint64_t _activeAnalzyerId;
     };
 }
 

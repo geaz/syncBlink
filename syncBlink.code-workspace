@@ -105,7 +105,15 @@
 			"typeindex": "cpp",
 			"ranges": "cpp",
 			"span": "cpp",
-			"*.tcc": "cpp"
+			"*.tcc": "cpp",
+			"coroutine": "cpp",
+			"source_location": "cpp",
+			"string_view": "cpp",
+			"strstream": "cpp",
+			"*.ipp": "cpp",
+			"codecvt": "cpp",
+			"complex": "cpp",
+			"csignal": "cpp"
 		}
 	}
 }

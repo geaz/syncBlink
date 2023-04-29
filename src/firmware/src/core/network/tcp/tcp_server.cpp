@@ -1,5 +1,6 @@
 #include "tcp_server.hpp"
 
+#include "tcp_stream_helper.hpp"
 #include "core/message/message.hpp"
 #include "core/message/message_types.hpp"
 #include "core/network/get_id.hpp"
@@ -102,7 +103,7 @@ namespace SyncBlink
         for (auto& client : _clients)
         {
             MessagePackage package;
-            if (MessagePackage::available(client->getWiFiClient(), package))
+            if (TcpStreamHelper::messageAvailable(client->getWiFiClient(), package))
             {
                 switch (package.type)
                 {

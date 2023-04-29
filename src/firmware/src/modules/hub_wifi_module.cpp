@@ -10,6 +10,7 @@ namespace SyncBlink
     {
         _meshHandleId = _messageBus.addMsgHandler<Messages::MeshConnection>(this);
         _analyzerHandleId = _messageBus.addMsgHandler<Messages::AnalyzerUpdate>(this);
+        _analyzerChangeHandleId = _messageBus.addMsgHandler<Messages::AnalyzerChange>(this);
         _nodeCommandHandleId = _messageBus.addMsgHandler<Messages::NodeCommand>(this);
         _scriptHandleId = _messageBus.addMsgHandler<Messages::ScriptChange>(this);
     }
@@ -18,6 +19,7 @@ namespace SyncBlink
     {
         _messageBus.removeMsgHandler(_meshHandleId);
         _messageBus.removeMsgHandler(_analyzerHandleId);
+        _messageBus.removeMsgHandler(_analyzerChangeHandleId);
         _messageBus.removeMsgHandler(_nodeCommandHandleId);
         _messageBus.removeMsgHandler(_scriptHandleId);
     }
@@ -26,8 +28,12 @@ namespace SyncBlink
     {
         _mesh.connectWifi();
         _mesh.startMesh();
-
         _tcpServer.start();
+
+        // Set the hub as the analyzer at start
+        Messages::AnalyzerChange msg;
+        msg.analyzerId = SyncBlink::getId();
+        _messageBus.trigger(msg);
     }
 
     void HubWifiModule::loop()
@@ -63,6 +69,11 @@ namespace SyncBlink
     }
 
     void HubWifiModule::onMsg(const Messages::AnalyzerUpdate& msg)
+    {
+        _tcpServer.broadcast(msg.toPackage());
+    }
+
+    void HubWifiModule::onMsg(const Messages::AnalyzerChange& msg)
     {
         _tcpServer.broadcast(msg.toPackage());
     }

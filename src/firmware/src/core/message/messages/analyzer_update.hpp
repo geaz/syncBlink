@@ -30,6 +30,7 @@ namespace SyncBlink
                 addBytes(package, (void*)&decibel, sizeof(decibel));
                 addBytes(package, (void*)&volume, sizeof(volume));
                 addBytes(package, (void*)&frequency, sizeof(frequency));
+                addBytes(package, (void*)&freqBins[0], 32 * sizeof(uint8_t));
 
                 return package;
             }
@@ -40,7 +41,8 @@ namespace SyncBlink
                 offset += loadBytes(&package.body[offset], (void*)&analyzerId, sizeof(analyzerId));
                 offset += loadBytes(&package.body[offset], (void*)&decibel, sizeof(decibel));
                 offset += loadBytes(&package.body[offset], (void*)&volume, sizeof(volume));
-                loadBytes(&package.body[offset], (void*)&frequency, sizeof(frequency));
+                offset += loadBytes(&package.body[offset], (void*)&frequency, sizeof(frequency));
+                loadBytes(&package.body[offset], (void*)&freqBins[0], 32 * sizeof(uint8_t));
             }
 
             MessageType getMessageType() const override

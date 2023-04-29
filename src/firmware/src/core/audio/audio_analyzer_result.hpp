@@ -3,7 +3,6 @@
 
 #include "analyzer_constants.hpp"
 #include "core/message/messages/analyzer_update.hpp"
-#include "core/network/get_id.hpp"
 #include "map_funcs.hpp"
 
 #include <array>
@@ -17,9 +16,9 @@ namespace SyncBlink
         uint16_t dominantFrequency;
         std::array<float, HalfFFTDataSize> amplitudes;
 
-        Messages::AnalyzerUpdate ToMessage()
+        Messages::AnalyzerUpdate ToMessage(uint64_t analyzerId)
         {
-            Messages::AnalyzerUpdate analyzerMsg = {getId(), decibel, volume, dominantFrequency};
+            Messages::AnalyzerUpdate analyzerMsg = {analyzerId, decibel, volume, dominantFrequency};
 
             // Map the values and amount of amplitudes
             // to the Messages::AnalyzerUpdate freqBin array (32 values in range of 0 - 255)
