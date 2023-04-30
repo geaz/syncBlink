@@ -27,7 +27,7 @@ namespace SyncBlink
     {
         for (auto client : _clients)
         {
-            client.writeMessage(message);
+            client->writeMessage(message);
         }
     }
 
@@ -40,13 +40,14 @@ namespace SyncBlink
     {
         for (auto iter = _clients.begin(); iter != _clients.end();)
         {
+            auto client = iter->get();
             // check if client is still connected to ap
             bool connectedToAp = false;
             struct station_info* statInfo = wifi_softap_get_station_info();
             while (statInfo != nullptr)
             {
                 IPAddress clientIp = IPAddress((&statInfo->ip)->addr);
-                if (clientIp == iter->getRemoteIp())
+                if (clientIp == client->getRemoteIp())
                 {
                     connectedToAp = true;
                     break;
@@ -56,27 +57,27 @@ namespace SyncBlink
             wifi_softap_free_station_info();
 
             // Analyzers are not connected to the AP. Thats why we check the client AND the AP connection
-            if (iter->isWriteTimeout() || (!connectedToAp && !iter->isConnected()))
+            if (client->isWriteTimeout() || (!connectedToAp && !client->isConnected()))
             {
-                if (iter->getStreamId() != 0)
+                if (client->getStreamId() != 0)
                 {
                     Serial.printf("[TCP SERVER] Client lost connection: %12llx (AP Connected: %i, Write Timeout: %i)\n",
-                                  iter->getStreamId(), connectedToAp, iter->isWriteTimeout());
+                                  client->getStreamId(), connectedToAp, client->isWriteTimeout());
 
                     Messages::MeshConnection msg;
-                    msg.nodeId = iter->getStreamId();
+                    msg.nodeId = client->getStreamId();
                     msg.isConnected = false;
 
                     _messageBus.trigger(msg);
                 }
-                iter->flush();
-                iter->stop();
+                client->flush();
+                client->stop();
 
                 // We explicity abandon without reset (this will also purge the unsent message memory)
                 for (auto pcb = tcp_active_pcbs; pcb != nullptr; pcb = pcb->next)
                 {
                     IPAddress ip = pcb->remote_ip;
-                    if (ip == iter->getRemoteIp())
+                    if (ip == client->getRemoteIp())
                     {
                         tcp_abandon(pcb, 0);
                         break;
@@ -93,7 +94,7 @@ namespace SyncBlink
     {
         if (_server.hasClient())
         {
-            _clients.push_back(TcpClientHandle(_server.available()));
+            _clients.push_back(std::make_shared<TcpClient>(_messageBus, _server.available()));
         }
     }
 
@@ -102,8 +103,8 @@ namespace SyncBlink
         for (auto& client : _clients)
         {
             MessagePackage package;
-            if (TcpStreamHelper::messageAvailable(client.getWiFiClient(), package))
-            {                
+            if (TcpStreamHelper::messageAvailable(client->getWiFiClient(), package))
+            {
                 if(package.type == MessageType::MeshConnection)
                 {
                     Messages::MeshConnection connectionMsg;
@@ -113,20 +114,8 @@ namespace SyncBlink
                     if (connectionMsg.isConnected && nodeInfo.parentId == 0)
                     {
                         if (nodeInfo.isNode) nodeInfo.parentId = SyncBlink::getId();
-                        client.setStreamId(connectionMsg.nodeId);
+                        client->setStreamId(connectionMsg.nodeId);
                     }
-
-                    NodeInfo info = connectionMsg.nodeInfo;
-                    if(info.isAnalyzer && !info.isNode)
-                    {
-                        Serial.printf("[TCP SERVER] New Analyzer connected: %s\n", info.nodeLabel.c_str());
-                    }
-                    else
-                    {
-                        Serial.printf("[TCP SERVER] New Client: %12llx - LEDs %i - Parent %12llx - Firmware Version: %i.%i\n",
-                            connectionMsg.nodeId, info.ledCount, info.parentId, info.majorVersion, info.minorVersion);
-                    }
-
                     _messageBus.trigger(connectionMsg);
                 }
                 else MessageBus::packageToBus(_messageBus, package);

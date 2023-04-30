@@ -18,17 +18,25 @@ namespace SyncBlink
     {
     public:
         TcpClient(MessageBus& messageBus);
+        TcpClient(MessageBus& messageBus, WiFiClient client);
 
         void start(String serverIp, uint16_t port);
+        void stop();
+        void flush();
 
         void loop();
+
         void writeMessage(std::vector<uint8_t> message);
 
         bool isConnected();
         bool isDiscontinued();
+        bool isWriteTimeout();
 
         void setStreamId(uint64_t id);
         uint64_t getStreamId() const;
+
+        WiFiClient& getWiFiClient();
+        IPAddress getRemoteIp();
 
     private:
         void checkConnection();
@@ -39,6 +47,8 @@ namespace SyncBlink
         WiFiClient _client;
         String _serverIp;
         uint16_t _port;
+
+        uint64_t _streamId = 0;
         uint8_t _retryCount = 0;
         bool _writeTimeout = false;
     };

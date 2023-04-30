@@ -29,7 +29,7 @@ namespace SyncBlink
         _mesh.connectWifi();
         if (!_mesh.tryJoinMesh())
         {
-            Serial.print("[WIFI] Not connected to mesh. Going to sleep and trying again later ...\n");
+            Serial.print("[NODE] Not connected to mesh. Going to sleep and trying again later ...\n");
             ESP.deepSleep(SleepSeconds * 1000000);
         }
 
