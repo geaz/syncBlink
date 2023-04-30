@@ -105,9 +105,8 @@ namespace SyncBlink
             MessagePackage package;
             if (TcpStreamHelper::messageAvailable(client->getWiFiClient(), package))
             {
-                switch (package.type)
+                if(package.type == MessageType::MeshConnection)
                 {
-                case MessageType::MeshConnection: {
                     Messages::MeshConnection connectionMsg;
                     connectionMsg.loadPackage(package);
 
@@ -117,18 +116,9 @@ namespace SyncBlink
                         if (nodeInfo.isNode) nodeInfo.parentId = SyncBlink::getId();
                         client->setStreamId(connectionMsg.nodeId);
                     }
-
                     _messageBus.trigger(connectionMsg);
-                    break;
                 }
-                case MessageType::AnalyzerUpdate: {
-                    Messages::AnalyzerUpdate analyzerMsg;
-                    analyzerMsg.loadPackage(package);
-
-                    _messageBus.trigger(analyzerMsg);
-                    break;
-                }
-                }
+                else MessageBus::packageToBus(_messageBus, package);
             }
         }
     }

@@ -120,37 +120,7 @@ namespace SyncBlink
         MessagePackage package;
         if (TcpStreamHelper::messageAvailable(_client, package))
         {
-            switch (package.type)
-            {
-            case MessageType::ScriptChange: {
-                Messages::ScriptChange scriptChangeMsg;
-                scriptChangeMsg.loadPackage(package);
-
-                _messageBus.trigger(scriptChangeMsg);
-                break;
-            }
-            case MessageType::AnalyzerUpdate: {
-                Messages::AnalyzerUpdate analyzerUpdateMsg;
-                analyzerUpdateMsg.loadPackage(package);
-
-                _messageBus.trigger(analyzerUpdateMsg);
-                break;
-            }
-            case MessageType::MeshUpdate: {
-                Messages::MeshUpdate meshUpdateMsg;
-                meshUpdateMsg.loadPackage(package);
-
-                _messageBus.trigger(meshUpdateMsg);
-                break;
-            }
-            case MessageType::NodeCommand: {
-                Messages::NodeCommand nodeCommandMsg;
-                nodeCommandMsg.loadPackage(package);
-
-                _messageBus.trigger(nodeCommandMsg);
-                break;
-            }
-            }
+            MessageBus::packageToBus(_messageBus, package);
         }
     }
 }

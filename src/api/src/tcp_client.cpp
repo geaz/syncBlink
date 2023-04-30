@@ -81,7 +81,7 @@ namespace SyncBlink
                                 package.type = messageType;
                                 package.body.resize(messageSize);
 
-                                uint32_t readBytes = 0;
+                                size_t readBytes = 0;
                                 while(readBytes < messageSize)
                                 {
                                     readBytes += asio::read(_socket, asio::buffer(&package.body[readBytes], messageSize-readBytes));

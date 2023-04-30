@@ -2,6 +2,12 @@
 #define MESSAGEBUS_H
 
 #include "message.hpp"
+#include "messages/analyzer_change.hpp"
+#include "messages/analyzer_update.hpp"
+#include "messages/mesh_connection.hpp"
+#include "messages/mesh_update.hpp"
+#include "messages/node_command.hpp"
+#include "messages/script_change.hpp"
 
 #include <functional>
 #include <memory>
@@ -77,6 +83,50 @@ namespace SyncBlink
                     break;
                 }
             }
+        }
+
+        static void packageToBus(MessageBus& bus, MessagePackage& package)
+        {
+            switch (package.type)
+            {
+            case MessageType::AnalyzerChange: {
+                Messages::AnalyzerChange message;
+                message.loadPackage(package);
+                bus.trigger(message);
+                break;
+            }
+            case MessageType::AnalyzerUpdate: {
+                Messages::AnalyzerUpdate message;
+                message.loadPackage(package);
+                bus.trigger(message);
+                break;
+            }
+            case MessageType::MeshConnection: {
+                Messages::MeshConnection message;
+                message.loadPackage(package);
+                bus.trigger(message);
+                break;
+            }
+            case MessageType::MeshUpdate: {
+                Messages::MeshUpdate message;
+                message.loadPackage(package);
+                bus.trigger(message);
+                break;
+            }
+            case MessageType::NodeCommand: {
+                Messages::NodeCommand message;
+                message.loadPackage(package);
+                bus.trigger(message);
+                break;
+            }
+            case MessageType::ScriptChange: {
+                Messages::ScriptChange message;
+                message.loadPackage(package);
+                bus.trigger(message);
+                break;
+            }
+            }
+            
         }
 
     private:
