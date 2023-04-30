@@ -10,7 +10,7 @@ namespace SyncBlink
         return (x - inMin) / (inMax - inMin) * (outMax - outMin) + outMin;
     }
 
-    template <typename T, int U, typename S, int V> std::array<T, U> mapa(std::array<S, V>& values, T outMax)
+    template <typename T, int U, typename S, int V> std::array<T, U> mapa(const std::array<S, V>& values, T outMax)
     {
         std::array<T, U> mappedValues;
         std::array<S, mappedValues.size()> combinedValues;

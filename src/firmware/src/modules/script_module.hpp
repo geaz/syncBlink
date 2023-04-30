@@ -17,6 +17,8 @@ namespace SyncBlink
     public:
         ScriptModule(MessageBus& messageBus, Config& config);
 
+        void setup() override;
+
         Script get(const std::string& scriptName);
         std::vector<std::string> getList();
 

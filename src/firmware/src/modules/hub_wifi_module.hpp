@@ -24,7 +24,7 @@ namespace SyncBlink
                           public MessageHandler<Messages::ScriptChange>
     {
     public:
-        HubWifiModule(Config& config, MessageBus& messageBus, ScriptModule& scriptModule);
+        HubWifiModule(Config& config, MessageBus& messageBus);
         ~HubWifiModule();
 
         void setup() override;
@@ -46,11 +46,12 @@ namespace SyncBlink
 
         Config& _config;
         MessageBus& _messageBus;
-        ScriptModule& _scriptModule;
 
         SyncBlinkMesh _mesh;
         TcpServer _tcpServer;
         UdpDiscover _udpDiscover;
+
+        Script _activeScript;
 
         uint32_t _meshHandleId = 0;
         uint32_t _analyzerHandleId = 0;

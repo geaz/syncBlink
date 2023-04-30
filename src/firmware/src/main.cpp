@@ -37,11 +37,11 @@ void setup()
     {
         Serial.println(F("[MAIN] Starting Hub mode ..."));
 
-        auto scriptModule = std::make_shared<SyncBlink::ScriptModule>(messageBus, config);
-        auto wifiModule = std::make_shared<SyncBlink::HubWifiModule>(config, messageBus, *scriptModule.get());
-        auto blinkScriptModule = std::make_shared<SyncBlink::BlinkScriptModule>(led, messageBus, scriptModule->getActiveScript());
+        auto wifiModule = std::make_shared<SyncBlink::HubWifiModule>(config, messageBus);
+        auto blinkScriptModule = std::make_shared<SyncBlink::BlinkScriptModule>(led, messageBus);
         auto analyzerModule = std::make_shared<SyncBlink::AnalyzerModule>(messageBus);
         auto displayModule = std::make_shared<SyncBlink::DisplayModule>(messageBus);
+        auto scriptModule = std::make_shared<SyncBlink::ScriptModule>(messageBus, config);
 
         modules.push_back(analyzerModule);
         modules.push_back(displayModule);

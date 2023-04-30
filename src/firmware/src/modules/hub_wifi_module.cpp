@@ -4,9 +4,8 @@
 
 namespace SyncBlink
 {
-    HubWifiModule::HubWifiModule(Config& config, MessageBus& messageBus, ScriptModule& scriptModule)
-        : _config(config), _messageBus(messageBus), _scriptModule(scriptModule),
-          _mesh(config.Values[F("wifi_ssid")], config.Values[F("wifi_pw")]), _tcpServer(messageBus)
+    HubWifiModule::HubWifiModule(Config& config, MessageBus& messageBus)
+        : _config(config), _messageBus(messageBus), _mesh(config.Values[F("wifi_ssid")], config.Values[F("wifi_pw")]), _tcpServer(messageBus)
     {
         _meshHandleId = _messageBus.addMsgHandler<Messages::MeshConnection>(this);
         _analyzerHandleId = _messageBus.addMsgHandler<Messages::AnalyzerUpdate>(this);
@@ -64,7 +63,7 @@ namespace SyncBlink
 
         countLeds();
 
-        Messages::MeshUpdate updateMsg = {_scriptModule.getActiveScript(), _config.Values[F("led_count")], 1, _totalLeds, _totalNodes};
+        Messages::MeshUpdate updateMsg = {_activeScript, _config.Values[F("led_count")], 1, _totalLeds, _totalNodes};
         _tcpServer.broadcast(updateMsg.toPackage());
     }
 
@@ -80,6 +79,7 @@ namespace SyncBlink
 
     void HubWifiModule::onMsg(const Messages::ScriptChange& msg)
     {
+        _activeScript = msg.script;
         _tcpServer.broadcast(msg.toPackage());
     }
 

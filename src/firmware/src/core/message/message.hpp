@@ -38,22 +38,9 @@ namespace SyncBlink
             return package;
         }
 
-        virtual std::vector<uint8_t> getPackageBody() const
-        {
-            std::vector<uint8_t> package;
-            addBytes(package, (void*)this, sizeof(*this));
-            return package;
-        }
-
-        virtual void loadPackage(MessagePackage package)
-        {
-            loadBytes(&package.body[0], (void*)this, sizeof(*this));
-        }
-
-        virtual MessageType getMessageType() const
-        {
-            return MessageType::Base;
-        };
+        virtual std::vector<uint8_t> getPackageBody() const = 0;
+        virtual void loadPackage(MessagePackage package)  = 0;
+        virtual MessageType getMessageType() const  = 0;
 
         uint64_t recipientId = 0;
 

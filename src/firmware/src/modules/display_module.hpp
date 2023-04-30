@@ -1,15 +1,22 @@
 #ifndef DISPLAYMODULE_H
 #define DISPLAYMODULE_H
 
-#include "core/message/commands/set_display.hpp"
+#include "core/views/icon_text_view.cpp"
+#include "core/views/run_script_view.cpp"
 #include "core/message/message_bus.hpp"
+#include "core/message/messages/script_change.hpp"
+#include "core/message/messages/script_error.hpp"
+#include "core/message/messages/analyzer_update.hpp"
 #include "module.hpp"
 
 #include <display.hpp>
 
 namespace SyncBlink
 {
-    class DisplayModule : public Module, public MessageHandler<Commands::SetDisplay>
+    class DisplayModule : public Module, 
+                          public MessageHandler<Messages::ScriptChange>,
+                          public MessageHandler<Messages::ScriptError>,
+                          public MessageHandler<Messages::AnalyzerUpdate>
     {
     public:
         DisplayModule(MessageBus& messageBus);
@@ -18,12 +25,21 @@ namespace SyncBlink
         void setup() override;
         void loop();
 
-        void onMsg(const Commands::SetDisplay& command);
+        void onMsg(const Messages::ScriptChange& msg);
+        void onMsg(const Messages::ScriptError& msg);
+        void onMsg(const Messages::AnalyzerUpdate& msg);
 
     private:
         Display _display;
         MessageBus& _messageBus;
-        uint32_t _displayCommandHandleId = 0;
+        uint32_t _scriptChangeHandleId = 0;
+        uint32_t _scriptErrorHandleId = 0;
+        uint32_t _analyzerUpdateHandleId = 0;
+        uint64_t _lastUpdate = millis();
+
+        std::shared_ptr<RunScriptView> _runScriptView;
+        std::shared_ptr<IconTextView> _invalidScriptView;
+        std::shared_ptr<IconTextView> _failSafeView;
     };
 }
 

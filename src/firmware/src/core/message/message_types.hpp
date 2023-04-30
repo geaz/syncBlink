@@ -11,6 +11,7 @@ namespace SyncBlink
         MeshConnection,
         MeshUpdate,
         ScriptChange,
+        ScriptError,
         NodeCommand
     };
 }

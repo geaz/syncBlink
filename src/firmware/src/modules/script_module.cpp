@@ -8,6 +8,11 @@ namespace SyncBlink
     {
     }
 
+    void ScriptModule::setup()
+    {
+        _messageBus.trigger<Messages::ScriptChange>(getActiveScript());
+    }
+
     Script ScriptModule::get(const std::string& scriptName)
     {
         Script script;

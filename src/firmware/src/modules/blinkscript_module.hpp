@@ -7,8 +7,6 @@
 #include "core/message/messages/script_change.hpp"
 #include "core/network/get_id.hpp"
 #include "core/script.hpp"
-#include "core/views/icon_text_view.cpp"
-#include "core/views/run_script_view.cpp"
 #include "module.hpp"
 
 #include <blink_script.hpp>
@@ -24,7 +22,6 @@ namespace SyncBlink
     {
     public:
         BlinkScriptModule(LED& led, MessageBus& messageBus);
-        BlinkScriptModule(LED& led, MessageBus& messageBus, Script initialScript);
         ~BlinkScriptModule();
 
         void loop();
@@ -38,7 +35,6 @@ namespace SyncBlink
 
     private:
         bool checkBlinkScript();
-        void setView(Messages::AnalyzerUpdate msg, uint32_t delta);
 
         LED& _led;
         MessageBus& _messageBus;
@@ -47,10 +43,6 @@ namespace SyncBlink
         BlinkScript* _blinkScript;
         bool _activeScriptChanged = false;
         bool _lightMode = false;
-
-        std::shared_ptr<RunScriptView> _runScriptView;
-        std::shared_ptr<IconTextView> _invalidScriptView;
-        std::shared_ptr<IconTextView> _failSafeView;
 
         uint32_t _meshHandleId = 0;
         uint32_t _scriptHandleId = 0;
