@@ -18,6 +18,10 @@ SyncBlink::Config config;
 SyncBlink::MessageBus messageBus;
 std::vector<std::shared_ptr<SyncBlink::Module>> modules;
 
+#ifdef LOG_HEAP
+long lastHeapLog;
+#endif
+
 void setup()
 {
     Serial.begin(74880);
@@ -82,4 +86,12 @@ void loop()
         module->loop();
     }
     led.loop();
+
+    #ifdef LOG_HEAP
+    if(millis() - lastHeapLog > 1000)
+    {
+        Serial.println(ESP.getFreeHeap(), DEC);
+        lastHeapLog = millis();
+    }
+    #endif
 }
