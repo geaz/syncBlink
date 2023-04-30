@@ -104,6 +104,10 @@ namespace SyncBlink
             MessagePackage package;
             if (TcpStreamHelper::messageAvailable(client.getWiFiClient(), package))
             {
+                #ifdef DEBUG_TCP
+                Serial.println("[TCP SERVER] Got message!");                   
+                #endif
+                
                 if(package.type == MessageType::MeshConnection)
                 {
                     Messages::MeshConnection connectionMsg;
@@ -115,6 +119,20 @@ namespace SyncBlink
                         if (nodeInfo.isNode) nodeInfo.parentId = SyncBlink::getId();
                         client.setStreamId(connectionMsg.nodeId);
                     }
+
+                    #ifdef DEBUG_TCP
+                    NodeInfo info = connectionMsg.nodeInfo;
+                    if(info.isAnalyzer && !info.isNode)
+                    {
+                        Serial.printf("[TCP SERVER] New Analyzer connected: %s\n", info.nodeLabel.c_str());
+                    }
+                    else
+                    {
+                        Serial.printf("[TCP SERVER] New Client: %12llx - LEDs %i - Parent %12llx - Firmware Version: %i.%i\n",
+                            connectionMsg.nodeId, info.ledCount, info.parentId, info.majorVersion, info.minorVersion);
+                    }                    
+                    #endif
+
                     _messageBus.trigger(connectionMsg);
                 }
                 else MessageBus::packageToBus(_messageBus, package);
