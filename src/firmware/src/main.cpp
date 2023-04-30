@@ -48,8 +48,8 @@ void setup()
         modules.push_back(scriptModule);
         modules.push_back(wifiModule);
         modules.push_back(blinkScriptModule);
-        modules.push_back(
-            std::make_shared<SyncBlink::WebModule>(messageBus, *scriptModule.get(), *blinkScriptModule.get(), *analyzerModule.get(), *wifiModule.get(), config));
+        modules.push_back(std::make_shared<SyncBlink::WebModule>(messageBus, *scriptModule.get(), *blinkScriptModule.get(),
+                                                                 *analyzerModule.get(), *wifiModule.get(), config));
     }
     else
     {
@@ -65,7 +65,7 @@ void setup()
             modules.push_back(std::make_shared<SyncBlink::DisplayModule>(messageBus));
         }
 
-        if (config.Values[F("is_node")]) 
+        if (config.Values[F("is_node")])
         {
             Serial.println(F("[MAIN] Starting Node mode ..."));
             modules.push_back(std::make_shared<SyncBlink::NodeWifiModule>(config, led, messageBus));
@@ -87,11 +87,11 @@ void loop()
     }
     led.loop();
 
-    #ifdef LOG_HEAP
-    if(millis() - lastHeapLog > 1000)
+#ifdef LOG_HEAP
+    if (millis() - lastHeapLog > 1000)
     {
         Serial.println(ESP.getFreeHeap(), DEC);
         lastHeapLog = millis();
     }
-    #endif
+#endif
 }

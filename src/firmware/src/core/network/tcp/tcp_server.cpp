@@ -1,9 +1,9 @@
 #include "tcp_server.hpp"
 
-#include "tcp_stream_helper.hpp"
 #include "core/message/message.hpp"
 #include "core/message/message_types.hpp"
 #include "core/network/get_id.hpp"
+#include "tcp_stream_helper.hpp"
 
 namespace SyncBlink
 {
@@ -100,7 +100,7 @@ namespace SyncBlink
             MessagePackage package;
             if (TcpStreamHelper::messageAvailable(client->getWiFiClient(), package))
             {
-                if(package.type == MessageType::MeshConnection)
+                if (package.type == MessageType::MeshConnection)
                 {
                     Messages::MeshConnection connectionMsg;
                     connectionMsg.loadPackage(package);
@@ -113,7 +113,8 @@ namespace SyncBlink
                     }
                     _messageBus.trigger(connectionMsg);
                 }
-                else MessageBus::packageToBus(_messageBus, package);
+                else
+                    MessageBus::packageToBus(_messageBus, package);
             }
         }
     }

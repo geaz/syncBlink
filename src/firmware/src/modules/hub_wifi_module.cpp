@@ -85,8 +85,7 @@ namespace SyncBlink
 
     void HubWifiModule::onMsg(const Messages::NodeCommand& msg)
     {
-        if(msg.commandType == Messages::NodeCommandType::Rename
-        || msg.commandType == Messages::NodeCommandType::WifiChange)
+        if (msg.commandType == Messages::NodeCommandType::Rename || msg.commandType == Messages::NodeCommandType::WifiChange)
         {
             removeNode(msg.recipientId);
             Serial.printf("[HUB] Removing Node due to disconnecting command: %12llx\n", msg.recipientId);

@@ -106,7 +106,7 @@ namespace SyncBlink
             Serial.printf("[ScriptManager] Saving active script (%s) ...\n", scriptName.c_str());
             _config.Values[F("active_script")] = scriptName.c_str();
             _config.save();
-            
+
             _messageBus.trigger<Messages::ScriptChange>(getActiveScript());
         }
     }

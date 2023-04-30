@@ -16,8 +16,8 @@ namespace SyncBlink
 
     void AnalyzerModule::loop()
     {
-        if(_activeAnalzyerId != _ownId || millis() - _lastUpdate < UpdateTimeout) return;
-        
+        if (_activeAnalzyerId != _ownId || millis() - _lastUpdate < UpdateTimeout) return;
+
         AudioAnalyzerResult result = _frequencyAnalyzer.loop();
         Messages::AnalyzerUpdate msg = result.ToMessage(_ownId);
         _messageBus.trigger(msg);
@@ -28,7 +28,7 @@ namespace SyncBlink
     {
         _activeAnalzyerId = msg.analyzerId;
     }
-    
+
     uint64_t AnalyzerModule::getActiveAnalyzer() const
     {
         return _activeAnalzyerId;

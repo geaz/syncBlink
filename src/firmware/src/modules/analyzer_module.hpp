@@ -2,8 +2,8 @@
 #define ANALYZERMODULE_H
 
 #include "core/audio/frequency_analyzer.hpp"
-#include "core/message/messages/analyzer_change.hpp"
 #include "core/message/message_bus.hpp"
+#include "core/message/messages/analyzer_change.hpp"
 #include "core/network/get_id.hpp"
 #include "module.hpp"
 
@@ -13,8 +13,7 @@ namespace SyncBlink
     // before reaching an ERR_MEM from lwip. Thats why we delay the analyzer updates a bit.
     static const int8_t UpdateTimeout = 25;
 
-    class AnalyzerModule :  public Module,
-                            public MessageHandler<Messages::AnalyzerChange>
+    class AnalyzerModule : public Module, public MessageHandler<Messages::AnalyzerChange>
     {
     public:
         AnalyzerModule(MessageBus& messageBus);
@@ -23,7 +22,7 @@ namespace SyncBlink
         void loop();
 
         void onMsg(const Messages::AnalyzerChange& msg);
-        
+
         uint64_t getActiveAnalyzer() const;
 
     private:

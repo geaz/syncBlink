@@ -5,8 +5,8 @@
 #include "message_types.hpp"
 
 #include <cstring>
-#include <vector>
 #include <string>
+#include <vector>
 
 namespace SyncBlink
 {

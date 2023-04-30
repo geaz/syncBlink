@@ -6,7 +6,8 @@
 namespace SyncBlink
 {
     NodeWifiModule::NodeWifiModule(Config& config, LED& led, MessageBus& messageBus)
-        : _config(config), _led(led), _messageBus(messageBus), _mesh(_config.Values[F("wifi_ssid")], _config.Values[F("wifi_pw")]), _tcpServer(_messageBus)
+        : _config(config), _led(led), _messageBus(messageBus), _mesh(_config.Values[F("wifi_ssid")], _config.Values[F("wifi_pw")]),
+          _tcpServer(_messageBus)
     {
         _meshHandleId = _messageBus.addMsgHandler<Messages::MeshConnection>(this);
         _meshUpdateHandleId = _messageBus.addMsgHandler<Messages::MeshUpdate>(this);
@@ -40,9 +41,15 @@ namespace SyncBlink
         Messages::MeshConnection msg;
         msg.nodeId = SyncBlink::getId();
         msg.isConnected = true;
-        msg.nodeInfo = {
-            false,        _config.Values[F("is_analyzer")], true, _mesh.isConnectedToMeshWifi(), 0, _config.Values[F("led_count")], VERSIONMAJOR,
-            VERSIONMINOR, _config.Values[F("name")]};
+        msg.nodeInfo = {false,
+                        _config.Values[F("is_analyzer")],
+                        true,
+                        _mesh.isConnectedToMeshWifi(),
+                        0,
+                        _config.Values[F("led_count")],
+                        VERSIONMAJOR,
+                        VERSIONMINOR,
+                        _config.Values[F("name")]};
 
         _tcpClient->writeMessage(msg.toPackage());
     }
@@ -88,10 +95,10 @@ namespace SyncBlink
 
     void NodeWifiModule::onMsg(const Messages::NodeCommand& msg)
     {
-        if(msg.recipientId != SyncBlink::getId())
+        if (msg.recipientId != SyncBlink::getId())
         {
-             _tcpServer.broadcast(msg.toPackage());
-             return;
+            _tcpServer.broadcast(msg.toPackage());
+            return;
         }
 
         switch (msg.commandType)
@@ -105,7 +112,7 @@ namespace SyncBlink
             ESP.restart();
             break;
         case Messages::NodeCommandType::WifiChange:
-            if(msg.commandInfo.flag)
+            if (msg.commandInfo.flag)
             {
                 _config.Values[F("wifi_ssid")] = nullptr;
                 _config.Values[F("wifi_pw")] = nullptr;
@@ -113,7 +120,7 @@ namespace SyncBlink
             else
             {
                 _config.Values[F("wifi_ssid")] = msg.commandInfo.stringInfo1;
-                _config.Values[F("wifi_pw")] = msg.commandInfo.stringInfo2;                
+                _config.Values[F("wifi_pw")] = msg.commandInfo.stringInfo2;
             }
 
             _config.save();

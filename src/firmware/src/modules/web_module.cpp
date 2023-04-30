@@ -1,6 +1,7 @@
 #include "web_module.hpp"
-#include "core/message/messages/node_command.hpp"
+
 #include "core/message/messages/analyzer_change.hpp"
+#include "core/message/messages/node_command.hpp"
 
 #include <ArduinoJson.h>
 #include <LittleFS.h>
@@ -177,7 +178,7 @@ namespace SyncBlink
     {
         std::string ssid = _config.Values[F("wifi_ssid")];
         String JSON;
-        
+
         StaticJsonDocument<256> doc;
         doc[F("ssid")] = ssid.c_str();
         doc[F("connected")] = WiFi.status() == WL_CONNECTED;

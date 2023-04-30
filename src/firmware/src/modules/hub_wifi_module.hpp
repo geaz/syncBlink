@@ -2,9 +2,9 @@
 #define HUBWIFIMODULE_H
 
 #include "core/config/config.hpp"
-#include "core/message/messages/node_command.hpp"
 #include "core/message/messages/analyzer_change.hpp"
 #include "core/message/messages/mesh_connection.hpp"
+#include "core/message/messages/node_command.hpp"
 #include "core/network/mesh/syncblink_mesh.hpp"
 #include "core/network/tcp/tcp_server.hpp"
 #include "core/network/udp/udp_discover.hpp"

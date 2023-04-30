@@ -6,8 +6,8 @@
 #include "core/message/message_types.hpp"
 #include "core/message/messages/analyzer_update.hpp"
 #include "core/message/messages/mesh_update.hpp"
-#include "core/message/messages/script_change.hpp"
 #include "core/message/messages/node_command.hpp"
+#include "core/message/messages/script_change.hpp"
 
 #include <ESP8266WiFi.h>
 #include <functional>

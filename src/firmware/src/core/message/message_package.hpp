@@ -1,9 +1,9 @@
 #ifndef MESSAGEPACKAGE_H
 #define MESSAGEPACKAGE_H
 
-#include <vector>
 #include <cinttypes>
 #include <cstring>
+#include <vector>
 
 namespace SyncBlink
 {

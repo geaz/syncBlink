@@ -13,8 +13,13 @@ namespace SyncBlink
         class AnalyzerChange : public Message
         {
         public:
-            AnalyzerChange() { }
-            AnalyzerChange(uint64_t analyzerId) : analyzerId{analyzerId} { }
+            AnalyzerChange()
+            {
+            }
+            
+            AnalyzerChange(uint64_t analyzerId) : analyzerId{analyzerId}
+            {
+            }
 
             std::vector<uint8_t> getPackageBody() const override
             {

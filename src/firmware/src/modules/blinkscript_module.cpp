@@ -105,7 +105,7 @@ namespace SyncBlink
     {
         return _lightMode;
     }
-    
+
     uint64_t BlinkScriptModule::getActiveAnalyzer() const
     {
         return _activeAnalyzer;

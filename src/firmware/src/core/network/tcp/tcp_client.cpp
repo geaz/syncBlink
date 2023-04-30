@@ -1,4 +1,5 @@
 #include "tcp_client.hpp"
+
 #include "tcp_stream_helper.hpp"
 
 namespace SyncBlink

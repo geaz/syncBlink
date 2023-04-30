@@ -29,7 +29,7 @@ namespace SyncBlink
         public:
             std::vector<uint8_t> getPackageBody() const override
             {
-                std::vector<uint8_t> package;                
+                std::vector<uint8_t> package;
                 addBytes(package, (void*)&recipientId, sizeof(recipientId));
                 addBytes(package, (void*)&commandType, sizeof(commandType));
                 addBytes(package, (void*)&commandInfo.flag, sizeof(commandInfo.flag));
@@ -53,7 +53,7 @@ namespace SyncBlink
             {
                 return MessageType::NodeCommand;
             }
-                        
+
             CommandInfo commandInfo;
             NodeCommandType commandType;
         };
