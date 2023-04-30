@@ -31,8 +31,7 @@ namespace SyncBlink
 
             void loadPackage(MessagePackage package) override
             {
-                uint32_t offset = 0;
-                loadBytes(&package.body[offset], (void*)&analyzerId, sizeof(analyzerId));
+                loadBytes(&package.body[0], (void*)&analyzerId, sizeof(analyzerId));
             }
 
             MessageType getMessageType() const override
