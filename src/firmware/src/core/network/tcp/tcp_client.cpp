@@ -65,15 +65,9 @@ namespace SyncBlink
 
     bool TcpClient::connectTo(String socketIp, uint16_t port)
     {
-        #ifdef DEBUG_TCP
-        Serial.println("[TCP] Connecting to TCP '" + socketIp + "' ...");
-        #endif
         bool connected = false;
         if (_client.connect(socketIp, 81))
         {
-            #ifdef DEBUG_TCP
-            Serial.println("[TCP] Connected!");
-            #endif
             connected = true;
         }
         return connected;
@@ -84,9 +78,6 @@ namespace SyncBlink
         MessagePackage package;
         if (TcpStreamHelper::messageAvailable(_client, package))
         {
-            #ifdef DEBUG_TCP
-            Serial.println("[TCP] Got message!");                   
-            #endif
             MessageBus::packageToBus(_messageBus, package);
         }
     }
