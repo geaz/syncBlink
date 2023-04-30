@@ -27,7 +27,7 @@ namespace SyncBlink
     {
         for (auto client : _clients)
         {
-            client->writeMessage(message);
+            client.writeMessage(message);
         }
     }
 
@@ -40,14 +40,13 @@ namespace SyncBlink
     {
         for (auto iter = _clients.begin(); iter != _clients.end();)
         {
-            auto client = iter->get();
             // check if client is still connected to ap
             bool connectedToAp = false;
             struct station_info* statInfo = wifi_softap_get_station_info();
             while (statInfo != nullptr)
             {
                 IPAddress clientIp = IPAddress((&statInfo->ip)->addr);
-                if (clientIp == client->getRemoteIp())
+                if (clientIp == iter->getRemoteIp())
                 {
                     connectedToAp = true;
                     break;
@@ -57,27 +56,27 @@ namespace SyncBlink
             wifi_softap_free_station_info();
 
             // Analyzers are not connected to the AP. Thats why we check the client AND the AP connection
-            if (client->isWriteTimeout() || (!connectedToAp && !client->isConnected()))
+            if (iter->isWriteTimeout() || (!connectedToAp && !iter->isConnected()))
             {
-                if (client->getStreamId() != 0)
+                if (iter->getStreamId() != 0)
                 {
                     Serial.printf("[TCP SERVER] Client lost connection: %12llx (AP Connected: %i, Write Timeout: %i)\n",
-                                  client->getStreamId(), connectedToAp, client->isWriteTimeout());
+                                  iter->getStreamId(), connectedToAp, iter->isWriteTimeout());
 
                     Messages::MeshConnection msg;
-                    msg.nodeId = client->getStreamId();
+                    msg.nodeId = iter->getStreamId();
                     msg.isConnected = false;
 
                     _messageBus.trigger(msg);
                 }
-                client->flush();
-                client->stop();
+                iter->flush();
+                iter->stop();
 
                 // We explicity abandon without reset (this will also purge the unsent message memory)
                 for (auto pcb = tcp_active_pcbs; pcb != nullptr; pcb = pcb->next)
                 {
                     IPAddress ip = pcb->remote_ip;
-                    if (ip == client->getRemoteIp())
+                    if (ip == iter->getRemoteIp())
                     {
                         tcp_abandon(pcb, 0);
                         break;
@@ -94,7 +93,7 @@ namespace SyncBlink
     {
         if (_server.hasClient())
         {
-            _clients.push_back(std::make_shared<TcpClient>(_messageBus, _server.available()));
+            _clients.push_back(TcpClientHandle(_server.available()));
         }
     }
 
@@ -103,7 +102,7 @@ namespace SyncBlink
         for (auto& client : _clients)
         {
             MessagePackage package;
-            if (TcpStreamHelper::messageAvailable(client->getWiFiClient(), package))
+            if (TcpStreamHelper::messageAvailable(client.getWiFiClient(), package))
             {
                 if(package.type == MessageType::MeshConnection)
                 {
@@ -114,7 +113,7 @@ namespace SyncBlink
                     if (connectionMsg.isConnected && nodeInfo.parentId == 0)
                     {
                         if (nodeInfo.isNode) nodeInfo.parentId = SyncBlink::getId();
-                        client->setStreamId(connectionMsg.nodeId);
+                        client.setStreamId(connectionMsg.nodeId);
                     }
                     _messageBus.trigger(connectionMsg);
                 }

@@ -52,7 +52,7 @@ namespace SyncBlink
 
         void TcpClient::startRead()
         {
-            asio::async_read(_socket, asio::buffer(_singleByte, 1), [this](const asio::error_code& ec, std::size_t n) {
+            asio::async_read(_socket, asio::buffer(_singleByte, 1), [this](const asio::error_code& ec, std::size_t n) {                
                 if (ec)
                 {
                     std::cout << "Error: " << ec.message() << "\n";

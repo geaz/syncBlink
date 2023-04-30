@@ -5,7 +5,7 @@
 #include "core/message/messages/analyzer_update.hpp"
 #include "core/message/messages/mesh_connection.hpp"
 #include "core/message/messages/script_change.hpp"
-#include "tcp_client.hpp"
+#include "tcp_client_handle.hpp"
 
 #include <ESP8266WiFi.h>
 #include <lwip/tcp.h>
@@ -36,7 +36,7 @@ namespace SyncBlink
 
         MessageBus& _messageBus;
         WiFiServer _server = WiFiServer(81);
-        std::vector<std::shared_ptr<TcpClient>> _clients;
+        std::vector<TcpClientHandle> _clients;
     };
 }
 

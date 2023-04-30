@@ -1,5 +1,5 @@
-#ifndef TCPCLIENT_H
-#define TCPCLIENT_H
+#ifndef TCPCLIENTHANDLE_H
+#define TCPCLIENTHANDLE_H
 
 #include "core/message/message.hpp"
 #include "core/message/message_bus.hpp"
@@ -14,34 +14,30 @@
 
 namespace SyncBlink
 {
-    class TcpClient
+    class TcpClientHandle
     {
     public:
-        TcpClient(MessageBus& messageBus);
+        TcpClientHandle(WiFiClient client);
 
-        void start(String serverIp, uint16_t port);
-
-        void loop();
         void writeMessage(std::vector<uint8_t> message);
+        void stop();
+        void flush();
 
         bool isConnected();
-        bool isDiscontinued();
+        bool isWriteTimeout();
 
         void setStreamId(uint64_t id);
         uint64_t getStreamId() const;
 
-    private:
-        void checkConnection();
-        bool connectTo(String socketIp, uint16_t port);
-        void handleIncomingServerMessages();
+        WiFiClient& getWiFiClient();
+        IPAddress getRemoteIp();
 
-        MessageBus& _messageBus;
+    private:
         WiFiClient _client;
-        String _serverIp;
-        uint16_t _port;
-        uint8_t _retryCount = 0;
+
+        uint64_t _streamId = 0;
         bool _writeTimeout = false;
     };
 }
 
-#endif // TCPCLIENT_H
+#endif // TCPCLIENTHANDLE_H
