@@ -16,11 +16,12 @@ namespace SyncBlink
 
     void AnalyzerModule::loop()
     {
-        if(_activeAnalzyerId != _ownId) return;
+        if(_activeAnalzyerId != _ownId || millis() - _lastUpdate < UpdateTimeout) return;
         
         AudioAnalyzerResult result = _frequencyAnalyzer.loop();
         Messages::AnalyzerUpdate msg = result.ToMessage(_ownId);
         _messageBus.trigger(msg);
+        _lastUpdate = millis();
     }
 
     void AnalyzerModule::onMsg(const Messages::AnalyzerChange& msg)
