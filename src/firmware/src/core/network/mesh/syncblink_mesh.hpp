@@ -1,6 +1,8 @@
 #ifndef MESH_H
 #define MESH_H
 
+#include "core/network/udp/udp_discover.hpp"
+
 #include <Arduino.h>
 #include <ESP8266WiFi.h>
 
@@ -27,6 +29,8 @@ namespace SyncBlink
     private:
         const char* _wifiSsid;
         const char* _wifiPw;
+
+        UdpDiscover _udpDiscover;
 
         String _ssid = SSID;
         IPAddress _parentIp = IPAddress(0, 0, 0, 0);

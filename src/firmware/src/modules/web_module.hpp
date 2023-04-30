@@ -28,6 +28,7 @@ namespace SyncBlink
     private:
         void pingNode();
         void renameNode();
+        void setNodeWifi();
         void getMeshInfo();
         void flashMesh();
         void setAnalyzer();

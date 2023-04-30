@@ -88,7 +88,7 @@ namespace SyncBlink
 
     void NodeWifiModule::onMsg(const Messages::NodeCommand& msg)
     {
-        Serial.printf("[NODE] Received NodeCommand for: %12llx - Mine: %12llx\n", msg.recipientId, SyncBlink::getId());
+        Serial.printf("[NODE] Received NodeCommand (%d) for: %12llx - Mine: %12llx\n", msg.commandType, msg.recipientId, SyncBlink::getId());
         if(msg.recipientId != SyncBlink::getId())
         {
             Serial.printf("[NODE] Forwarding NodeCommand\n");
@@ -103,6 +103,21 @@ namespace SyncBlink
             break;
         case Messages::NodeCommandType::Rename:
             _config.Values["name"] = msg.commandInfo.stringInfo1;
+            _config.save();
+            ESP.restart();
+            break;
+        case Messages::NodeCommandType::WifiChange:
+            if(msg.commandInfo.flag)
+            {
+                _config.Values["wifi_ssid"] = nullptr;
+                _config.Values["wifi_pw"] = nullptr;
+            }
+            else
+            {
+                _config.Values["wifi_ssid"] = msg.commandInfo.stringInfo1;
+                _config.Values["wifi_pw"] = msg.commandInfo.stringInfo2;                
+            }
+
             _config.save();
             ESP.restart();
             break;

@@ -113,7 +113,8 @@
 			"*.ipp": "cpp",
 			"codecvt": "cpp",
 			"complex": "cpp",
-			"csignal": "cpp"
+			"csignal": "cpp",
+			"semaphore": "cpp"
 		}
 	}
 }

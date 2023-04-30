@@ -29,6 +29,7 @@ namespace SyncBlink
         _mesh.connectWifi();
         _mesh.startMesh();
         _tcpServer.start();
+        _udpDiscover.start(true);
 
         // Set the hub as the analyzer at start
         Messages::AnalyzerChange msg;
@@ -39,6 +40,7 @@ namespace SyncBlink
     void HubWifiModule::loop()
     {
         _tcpServer.loop();
+        _udpDiscover.loop();
     }
 
     void HubWifiModule::onMsg(const Messages::MeshConnection& msg)

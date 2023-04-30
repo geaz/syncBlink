@@ -15,6 +15,7 @@ namespace SyncBlink
     {
         _server.on("/api/mesh/ping", [this]() { pingNode(); });
         _server.on("/api/mesh/rename", [this]() { renameNode(); });
+        _server.on("/api/mesh/setNodeWifi", [this]() { setNodeWifi(); });
         _server.on("/api/mesh/info", [this]() { getMeshInfo(); });
         _server.on("/api/mesh/setAnalyzer", [this]() { setAnalyzer(); });
         _server.on("/api/mesh/setLightMode", [this]() { setLightMode(); });
@@ -90,6 +91,29 @@ namespace SyncBlink
         msg.recipientId = nodeId;
         msg.commandType = Messages::NodeCommandType::Rename;
         msg.commandInfo.stringInfo1 = label.c_str();
+
+        _messageBus.trigger(msg);
+        _server.send(200, "text/plain");
+    }
+
+    void WebModule::setNodeWifi()
+    {
+        String nodeIdArg = _server.arg("nodeId");
+        bool meshWifi = _server.arg("meshWifi") == "true";
+
+        uint64_t nodeId;
+        std::istringstream iss(nodeIdArg.c_str());
+        iss >> nodeId;
+
+        std::string ssid = _config.Values["wifi_ssid"];
+        std::string pw = _config.Values["wifi_pw"];
+
+        Messages::NodeCommand msg;
+        msg.recipientId = nodeId;
+        msg.commandType = Messages::NodeCommandType::WifiChange;
+        msg.commandInfo.flag = meshWifi;
+        msg.commandInfo.stringInfo1 = ssid;
+        msg.commandInfo.stringInfo2 = pw;
 
         _messageBus.trigger(msg);
         _server.send(200, "text/plain");

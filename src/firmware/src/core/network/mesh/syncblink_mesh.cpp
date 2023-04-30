@@ -44,59 +44,76 @@ namespace SyncBlink
 
     bool SyncBlinkMesh::tryJoinMesh()
     {
-        Serial.println("[WIFI] Scanning for SyncBlink Nodes ...");
-
         bool connected = WiFi.isConnected();
-        uint8_t foundSyncblinkNetworks = 0;
-        uint8_t foundNetworkCount = WiFi.scanNetworks();
-
-        uint8_t nodeNr = 1;
-        uint8_t highestNodeNr = 0;
-        int8_t connectToNode = -1;
-
-        for (int i = 0; i < foundNetworkCount; ++i)
+        if (connected)
         {
-            if (WiFi.SSID(i).startsWith(SSID))
+            Serial.println("[WIFI] Node is connected to mesh via WiFi network.");
+            Serial.println("[WIFI] Searching for available hubs ...");
+
+            _connectedToMeshWiFi = false;
+            _udpDiscover.start(false);
+            uint64_t start = millis();
+            while (!_udpDiscover.serverDiscovered(_parentIp) && start + 5000 > millis())
             {
-                foundSyncblinkNetworks++;
+                _udpDiscover.ping();
+                delay(500);
+                _udpDiscover.loop();
+            }
+            _udpDiscover.stop();
+        }
+        else
+        {
+            Serial.println("[WIFI] Scanning for SyncBlink Nodes ...");
+            uint8_t foundSyncblinkNetworks = 0;
+            uint8_t foundNetworkCount = WiFi.scanNetworks();
 
-                String ssid = WiFi.SSID(i);
-                short foundNodeNr = ssid.substring(ssid.indexOf("#") + 1).toInt();
+            uint8_t nodeNr = 1;
+            uint8_t highestNodeNr = 0;
+            int8_t connectToNode = -1;
 
-                // We seek for an evenly distributed mesh
-                // Thats why we always connect to the "highest node number", if we found
-                // more than two nodes in range.
-                if (connectToNode == -1 || (foundSyncblinkNetworks > 2 && foundNodeNr > highestNodeNr)) connectToNode = i;
+            for (int i = 0; i < foundNetworkCount; ++i)
+            {
+                if (WiFi.SSID(i).startsWith(SSID))
+                {
+                    foundSyncblinkNetworks++;
 
-                if (foundNodeNr > highestNodeNr) highestNodeNr = foundNodeNr;
-                if (foundNodeNr >= nodeNr) nodeNr = foundNodeNr + 1;
+                    String ssid = WiFi.SSID(i);
+                    short foundNodeNr = ssid.substring(ssid.indexOf("#") + 1).toInt();
+
+                    // We seek for an evenly distributed mesh
+                    // Thats why we always connect to the "highest node number", if we found
+                    // more than two nodes in range.
+                    if (connectToNode == -1 || (foundSyncblinkNetworks > 2 && foundNodeNr > highestNodeNr)) connectToNode = i;
+
+                    if (foundNodeNr > highestNodeNr) highestNodeNr = foundNodeNr;
+                    if (foundNodeNr >= nodeNr) nodeNr = foundNodeNr + 1;
+                }
+            }
+
+            if (connectToNode != -1)
+            {
+                Serial.println("[WIFI] Connecting to '" + WiFi.SSID(connectToNode) + "' (30 sec Timeout)...");
+                WiFi.begin(WiFi.SSID(connectToNode), Password);
+
+                if (WiFi.waitForConnectResult(30000) == WL_CONNECTED)
+                {
+                    Serial.println("[WIFI] Connected!");
+
+                    _ssid = SSID + " #" + String(nodeNr);
+
+                    WiFi.softAPConfig(IPAddress(192, 168, nodeNr, 1), IPAddress(0, 0, 0, 0), IPAddress(255, 255, 255, 0));
+                    WiFi.softAP(_ssid, Password, 1, false, 8);
+                    WiFi.setAutoReconnect(false);
+
+                    Serial.println("[WIFI] Node AP IP: " + WiFi.softAPIP().toString());
+                    Serial.println("[WIFI] Node Local IP: " + WiFi.localIP().toString());
+                    connected = true;
+
+                    _parentIp = WiFi.gatewayIP();
+                    _localIp = WiFi.localIP();
+                }
             }
         }
-
-        if (connectToNode != -1)
-        {
-            Serial.println("[WIFI] Connecting to '" + WiFi.SSID(connectToNode) + "' (30 sec Timeout)...");
-            WiFi.begin(WiFi.SSID(connectToNode), Password);
-
-            if (WiFi.waitForConnectResult(30000) == WL_CONNECTED)
-            {
-                Serial.println("[WIFI] Connected!");
-
-                _ssid = SSID + " #" + String(nodeNr);
-
-                WiFi.softAPConfig(IPAddress(192, 168, nodeNr, 1), IPAddress(0, 0, 0, 0), IPAddress(255, 255, 255, 0));
-                WiFi.softAP(_ssid, Password, 1, false, 8);
-                WiFi.setAutoReconnect(false);
-
-                Serial.println("[WIFI] Node AP IP: " + WiFi.softAPIP().toString());
-                Serial.println("[WIFI] Node Local IP: " + WiFi.localIP().toString());
-                connected = true;
-
-                _parentIp = WiFi.gatewayIP();
-                _localIp = WiFi.localIP();
-            }
-        }
-        
         return connected;
     }
 

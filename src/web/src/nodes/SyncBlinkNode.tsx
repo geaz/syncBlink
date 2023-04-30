@@ -13,7 +13,10 @@ export interface SyncBlinkNodeProps {
     minorVersion: number;
     isActive: boolean;
     isAnalyzer: boolean;
+    wifiAvailable: boolean;
+    connectedToMeshWiFi: boolean;
     onPing: (nodeId: number) => void;
+    onSetWifi: (nodeId: number, meshWifi: boolean) => void;
     onRename: (nodeId: number, newLabel: string) => void;
     onSetAnalyzer?: (analyzerId: number) => void;
 }
@@ -25,6 +28,20 @@ function SyncBlinkNode(node: FlowNode<SyncBlinkNodeProps>) {
             position={Position.Top}
             style={{ background: '#555' }}
         />
+        {node.data?.wifiAvailable && 
+            <div className="node-buttons-left">
+                <IconButton icon={faWifi}
+                    tooltip="Connect to WiFi"
+                    active={!node.data?.connectedToMeshWiFi}
+                    disabled={!node.data?.connectedToMeshWiFi}
+                    onClick={() => node.data?.onSetWifi(node.data?.id, !node.data?.connectedToMeshWiFi)} />
+                <IconButton icon={faServer}
+                    tooltip="Connect to Station WiFi"
+                    active={node.data?.connectedToMeshWiFi}
+                    disabled={node.data?.connectedToMeshWiFi}
+                    onClick={() => node.data?.onSetWifi(node.data?.id, !node.data?.connectedToMeshWiFi)} />
+            </div>
+        }
         <div className="node-frame">
             <div className="node-label">{node.data?.label}</div>
             <div className="node-id">ID {node.data?.id.toString(16).toUpperCase()}</div>

@@ -7,6 +7,7 @@
 #include "core/message/messages/mesh_connection.hpp"
 #include "core/network/mesh/syncblink_mesh.hpp"
 #include "core/network/tcp/tcp_server.hpp"
+#include "core/network/udp/udp_discover.hpp"
 #include "module.hpp"
 #include "script_module.hpp"
 
@@ -49,6 +50,7 @@ namespace SyncBlink
 
         SyncBlinkMesh _mesh;
         TcpServer _tcpServer;
+        UdpDiscover _udpDiscover;
 
         uint32_t _meshHandleId = 0;
         uint32_t _analyzerHandleId = 0;
