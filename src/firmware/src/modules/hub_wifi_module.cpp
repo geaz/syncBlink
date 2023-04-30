@@ -6,7 +6,7 @@ namespace SyncBlink
 {
     HubWifiModule::HubWifiModule(Config& config, MessageBus& messageBus, ScriptModule& scriptModule)
         : _config(config), _messageBus(messageBus), _scriptModule(scriptModule),
-          _mesh(config.Values["wifi_ssid"], config.Values["wifi_pw"]), _tcpServer(messageBus)
+          _mesh(config.Values[F("wifi_ssid")], config.Values[F("wifi_pw")]), _tcpServer(messageBus)
     {
         _meshHandleId = _messageBus.addMsgHandler<Messages::MeshConnection>(this);
         _analyzerHandleId = _messageBus.addMsgHandler<Messages::AnalyzerUpdate>(this);
@@ -66,7 +66,7 @@ namespace SyncBlink
 
         countLeds();
 
-        Messages::MeshUpdate updateMsg = {_scriptModule.getActiveScript(), _config.Values["led_count"], 1, _totalLeds, _totalNodes};
+        Messages::MeshUpdate updateMsg = {_scriptModule.getActiveScript(), _config.Values[F("led_count")], 1, _totalLeds, _totalNodes};
         _tcpServer.broadcast(updateMsg.toPackage());
     }
 
@@ -131,7 +131,7 @@ namespace SyncBlink
     std::tuple<uint64_t, NodeInfo> HubWifiModule::getStationInfo() const
     {
         NodeInfo stationInfo = {
-            true, true, false, true, 0, _config.Values["led_count"], VERSIONMAJOR, VERSIONMINOR, _config.Values["name"]};
+            true, true, false, true, 0, _config.Values[F("led_count")], VERSIONMAJOR, VERSIONMINOR, _config.Values[F("name")]};
         return std::make_tuple(SyncBlink::getId(), stationInfo);
     }
 

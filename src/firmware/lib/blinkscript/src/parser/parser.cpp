@@ -183,8 +183,7 @@ namespace SyncBlink
         auto iter = _nud.find(currentToken.getTokenType());
         if (iter == _nud.end())
         {
-            _parserError = std::tuple<int, std::string>(currentToken.getLine(),
-                                                        "Unexpected sytax! Expected a known expression (NUD).");
+            _parserError = std::tuple<int, std::string>(currentToken.getLine(), "Expected NUD!");
         }
         else
         {
@@ -198,8 +197,7 @@ namespace SyncBlink
                 auto iter = _led.find(currentToken.getTokenType());
                 if (iter == _led.end())
                 {
-                    _parserError = std::tuple<int, std::string>(currentToken.getLine(),
-                                                                "Unexpected sytax! Expected a known expression (LED).");
+                    _parserError = std::tuple<int, std::string>(currentToken.getLine(), "Expected LED!");
                 }
                 else
                 {
@@ -330,8 +328,7 @@ namespace SyncBlink
             if (assignStatement == nullptr || conditionExpression == nullptr || incrementorStatement == nullptr)
             {
                 _parserError =
-                    std::tuple<int, std::string>(_scanner.getCurrent().getLine(),
-                                                 "For loop requires three parameters (assign, condition, iterator)!");
+                    std::tuple<int, std::string>(_scanner.getCurrent().getLine(), "Missing loop parameter!");
             }
             else if (assertToken(_scanner.peek(), {TokenType::LEFT_BRACE}))
             {

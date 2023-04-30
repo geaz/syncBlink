@@ -225,7 +225,7 @@ namespace SyncBlink
                 _stack.push_back(leftValue);
                 break;
             default:
-                _vmError = std::make_tuple(program.getLines()[i], "VM: Invalid infix operator for boolean values!");
+                _vmError = std::make_tuple(program.getLines()[i], "VM: Invalid infix operator for boolean!");
                 break;
             }
         }
@@ -280,7 +280,7 @@ namespace SyncBlink
                 break;
             }
             default:
-                _vmError = std::make_tuple(program.getLines()[i], "VM: Invalid infix operator for number values!");
+                _vmError = std::make_tuple(program.getLines()[i], "VM: Invalid infix operator for number!");
                 break;
             }
         }
@@ -311,7 +311,7 @@ namespace SyncBlink
                     break;
                 }
                 default:
-                    _vmError = std::make_tuple(program.getLines()[i], "VM: Invalid infix operator for string objects!");
+                    _vmError = std::make_tuple(program.getLines()[i], "VM: Invalid infix operator for string!");
                     break;
                 }
             }

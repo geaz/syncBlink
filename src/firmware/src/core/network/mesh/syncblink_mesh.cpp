@@ -16,14 +16,14 @@ namespace SyncBlink
             Serial.println("[WIFI] Connecting to Network '" + String(_wifiSsid) + "'  ...");
             WiFi.begin(_wifiSsid, _wifiPw);
 
-            Serial.println("[WIFI] Waiting for Wifi to connect (30 sec timeout)...");
+            Serial.println(F("[WIFI] Waiting for Wifi to connect (30 sec timeout)..."));
             if (WiFi.waitForConnectResult(30000) == WL_CONNECTED)
             {
-                Serial.println("[WIFI] Connected!");
+                Serial.println(F("[WIFI] Connected!"));
             }
             else
             {
-                Serial.println("[WIFI] Couldn't connect to network!");
+                Serial.println(F("[WIFI] Couldn't connect to network!"));
                 WiFi.disconnect();
             }
         }
@@ -31,7 +31,7 @@ namespace SyncBlink
 
     void SyncBlinkMesh::startMesh()
     {
-        Serial.println("[WIFI] Starting mesh ...");
+        Serial.println(F("[WIFI] Starting mesh ..."));
 
         _ssid = SSID + " #1";
         WiFi.softAPConfig(IPAddress(192, 168, 1, 1), IPAddress(0, 0, 0, 0), IPAddress(255, 255, 255, 0));
@@ -47,8 +47,8 @@ namespace SyncBlink
         bool connected = WiFi.isConnected();
         if (connected)
         {
-            Serial.println("[WIFI] Node is connected to mesh via WiFi network.");
-            Serial.println("[WIFI] Searching for available hubs ...");
+            Serial.println(F("[WIFI] Node is connected to mesh via WiFi network."));
+            Serial.println(F("[WIFI] Searching for available hubs ..."));
 
             _connectedToMeshWiFi = false;
             _udpDiscover.start(false);
@@ -63,7 +63,7 @@ namespace SyncBlink
         }
         else
         {
-            Serial.println("[WIFI] Scanning for SyncBlink Nodes ...");
+            Serial.println(F("[WIFI] Scanning for SyncBlink Nodes ..."));
             uint8_t foundSyncblinkNetworks = 0;
             uint8_t foundNetworkCount = WiFi.scanNetworks();
 
@@ -97,7 +97,7 @@ namespace SyncBlink
 
                 if (WiFi.waitForConnectResult(30000) == WL_CONNECTED)
                 {
-                    Serial.println("[WIFI] Connected!");
+                    Serial.println(F("[WIFI] Connected!"));
 
                     _ssid = SSID + " #" + String(nodeNr);
 

@@ -36,7 +36,7 @@ namespace SyncBlink
     {
         std::vector<std::string> scriptList;
 
-        Dir dir = LittleFS.openDir("scripts");
+        Dir dir = LittleFS.openDir(F("scripts"));
         while (dir.next())
         {
             scriptList.push_back(dir.fileName().c_str());
@@ -79,7 +79,7 @@ namespace SyncBlink
     Script ScriptModule::getActiveScript()
     {
         Script script;
-        const char* activeScriptName = _config.Values["active_script"];
+        const char* activeScriptName = _config.Values[F("active_script")];
         if (activeScriptName != nullptr)
         {
             script = get(activeScriptName);
@@ -87,7 +87,7 @@ namespace SyncBlink
 
         if (!script.Exists)
         {
-            Serial.println("[ScriptManager] Currently active script not found! Falling back ...");
+            Serial.println(F("[ScriptManager] Currently active script not found! Falling back ..."));
 
             std::vector<std::string> scriptList = getList();
             if (scriptList.size() > 0)
@@ -104,7 +104,7 @@ namespace SyncBlink
         if (scriptName.length() > 0)
         {
             Serial.printf("[ScriptManager] Saving active script (%s) ...\n", scriptName.c_str());
-            _config.Values["active_script"] = scriptName.c_str();
+            _config.Values[F("active_script")] = scriptName.c_str();
             _config.save();
             
             _messageBus.trigger<Messages::ScriptChange>(getActiveScript());

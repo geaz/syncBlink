@@ -109,7 +109,7 @@ namespace SyncBlink
         Serial.println("[TCP Client] Connecting to TCP '" + socketIp + "' ...");
         if (_client.connect(socketIp, 81))
         {
-            Serial.println("[TCP Client] Connected!");
+            Serial.println(F("[TCP Client] Connected!"));
             connected = true;
         }
         return connected;

@@ -13,23 +13,23 @@ namespace SyncBlink
         : _server(80), _messageBus(messageBus), _scriptModule(scriptModule), _blinkScriptModule(blinkScriptModule),
           _analyzerModule(analyzerModule), _wifiModule(wifiModule), _config(config)
     {
-        _server.on("/api/mesh/ping", [this]() { pingNode(); });
-        _server.on("/api/mesh/rename", [this]() { renameNode(); });
-        _server.on("/api/mesh/setNodeWifi", [this]() { setNodeWifi(); });
-        _server.on("/api/mesh/info", [this]() { getMeshInfo(); });
-        _server.on("/api/mesh/setAnalyzer", [this]() { setAnalyzer(); });
-        _server.on("/api/mesh/setLightMode", [this]() { setLightMode(); });
+        _server.on(F("/api/mesh/ping"), [this]() { pingNode(); });
+        _server.on(F("/api/mesh/rename"), [this]() { renameNode(); });
+        _server.on(F("/api/mesh/setNodeWifi"), [this]() { setNodeWifi(); });
+        _server.on(F("/api/mesh/info"), [this]() { getMeshInfo(); });
+        _server.on(F("/api/mesh/setAnalyzer"), [this]() { setAnalyzer(); });
+        _server.on(F("/api/mesh/setLightMode"), [this]() { setLightMode(); });
 
-        _server.on("/api/wifi/set", [this]() { setWifi(); });
-        _server.on("/api/wifi/get", [this]() { getWifi(); });
+        _server.on(F("/api/wifi/set"), [this]() { setWifi(); });
+        _server.on(F("/api/wifi/get"), [this]() { getWifi(); });
 
-        _server.on("/api/scripts/list", [this]() { getScriptList(); });
-        _server.on("/api/scripts/get", [this]() { getScriptContent(); });
+        _server.on(F("/api/scripts/list"), [this]() { getScriptList(); });
+        _server.on(F("/api/scripts/get"), [this]() { getScriptContent(); });
 
-        _server.on("/api/scripts/add", [this]() { addScript(); });
-        _server.on("/api/scripts/save", [this]() { saveScript(); });
-        _server.on("/api/scripts/delete", [this]() { deleteScript(); });
-        _server.on("/api/scripts/set", [this]() { setActiveScript(); });
+        _server.on(F("/api/scripts/add"), [this]() { addScript(); });
+        _server.on(F("/api/scripts/save"), [this]() { saveScript(); });
+        _server.on(F("/api/scripts/delete"), [this]() { deleteScript(); });
+        _server.on(F("/api/scripts/set"), [this]() { setActiveScript(); });
 
         _server.serveStatic("/", LittleFS, "/public/");
         _server.begin();
@@ -42,7 +42,7 @@ namespace SyncBlink
 
     void WebModule::setAnalyzer()
     {
-        String analyzerIdArg = _server.arg("analyzerId");
+        String analyzerIdArg = _server.arg(F("analyzerId"));
 
         uint64_t analyzerId;
         std::istringstream iss(analyzerIdArg.c_str());
@@ -57,14 +57,14 @@ namespace SyncBlink
 
     void WebModule::setLightMode()
     {
-        bool lightMode = _server.arg("lightMode") == "true";
+        bool lightMode = _server.arg(F("lightMode")) == F("true");
         // LightModeChange Message
         _server.send(200, "text/plain");
     }
 
     void WebModule::pingNode()
     {
-        String nodeIdArg = _server.arg("nodeId");
+        String nodeIdArg = _server.arg(F("nodeId"));
 
         uint64_t nodeId;
         std::istringstream iss(nodeIdArg.c_str());
@@ -80,8 +80,8 @@ namespace SyncBlink
 
     void WebModule::renameNode()
     {
-        String nodeIdArg = _server.arg("nodeId");
-        String label = _server.arg("label");
+        String nodeIdArg = _server.arg(F("nodeId"));
+        String label = _server.arg(F("label"));
 
         uint64_t nodeId;
         std::istringstream iss(nodeIdArg.c_str());
@@ -98,15 +98,15 @@ namespace SyncBlink
 
     void WebModule::setNodeWifi()
     {
-        String nodeIdArg = _server.arg("nodeId");
-        bool meshWifi = _server.arg("meshWifi") == "true";
+        String nodeIdArg = _server.arg(F("nodeId"));
+        bool meshWifi = _server.arg(F("meshWifi")) == F("true");
 
         uint64_t nodeId;
         std::istringstream iss(nodeIdArg.c_str());
         iss >> nodeId;
 
-        std::string ssid = _config.Values["wifi_ssid"];
-        std::string pw = _config.Values["wifi_pw"];
+        std::string ssid = _config.Values[F("wifi_ssid")];
+        std::string pw = _config.Values[F("wifi_pw")];
 
         Messages::NodeCommand msg;
         msg.recipientId = nodeId;
@@ -124,7 +124,7 @@ namespace SyncBlink
         String JSON;
         DynamicJsonDocument doc(4096);
 
-        std::string ssid = _config.Values["wifi_ssid"];
+        std::string ssid = _config.Values[F("wifi_ssid")];
 
         auto stationInfo = _wifiModule.getStationInfo();
         auto connectedNodes = _wifiModule.getConnectedNodes();
@@ -138,37 +138,37 @@ namespace SyncBlink
         {
             auto node = iter->second;
             StaticJsonDocument<512> nodeJson;
-            nodeJson["isStation"] = node.isStation;
-            nodeJson["isAnalyzer"] = node.isAnalyzer;
-            nodeJson["isNode"] = node.isNode;
-            nodeJson["nodeId"] = iter->first;
-            nodeJson["parentId"] = node.parentId;
-            nodeJson["ledCount"] = node.ledCount;
-            nodeJson["majorVersion"] = node.majorVersion;
-            nodeJson["minorVersion"] = node.minorVersion;
-            nodeJson["label"] = &node.nodeLabel[0];
-            nodeJson["connectedToMeshWifi"] = node.connectedToMeshWifi;
+            nodeJson[F("isStation")] = node.isStation;
+            nodeJson[F("isAnalyzer")] = node.isAnalyzer;
+            nodeJson[F("isNode")] = node.isNode;
+            nodeJson[F("nodeId")] = iter->first;
+            nodeJson[F("parentId")] = node.parentId;
+            nodeJson[F("ledCount")] = node.ledCount;
+            nodeJson[F("majorVersion")] = node.majorVersion;
+            nodeJson[F("minorVersion")] = node.minorVersion;
+            nodeJson[F("label")] = &node.nodeLabel[0];
+            nodeJson[F("connectedToMeshWifi")] = node.connectedToMeshWifi;
 
-            doc["nodes"][i++] = nodeJson;
+            doc[F("nodes")][i++] = nodeJson;
             ++iter;
         }
 
-        doc["analyzer"] = _analyzerModule.getActiveAnalyzer();
-        doc["lightMode"] = _blinkScriptModule.getLightMode();
-        doc["ssid"] = ssid.c_str();
-        doc["connected"] = WiFi.status() == WL_CONNECTED;
+        doc[F("analyzer")] = _analyzerModule.getActiveAnalyzer();
+        doc[F("lightMode")] = _blinkScriptModule.getLightMode();
+        doc[F("ssid")] = ssid.c_str();
+        doc[F("connected")] = WiFi.status() == WL_CONNECTED;
 
         std::string activeScript = _scriptModule.getActiveScript().Name;
-        doc["script"] = activeScript.c_str();
+        doc[F("script")] = activeScript.c_str();
 
         serializeJson(doc, JSON);
-        _server.send(200, "application/json", JSON);
+        _server.send(200, F("application/json"), JSON);
     }
 
     void WebModule::setWifi()
     {
-        _config.Values["wifi_ssid"] = _server.arg("ssid");
-        _config.Values["wifi_pw"] = _server.arg("pass");
+        _config.Values[F("wifi_ssid")] = _server.arg(F("ssid"));
+        _config.Values[F("wifi_pw")] = _server.arg(F("pass"));
         _config.save();
 
         _server.send(200, "application/json");
@@ -178,58 +178,58 @@ namespace SyncBlink
 
     void WebModule::getWifi()
     {
-        std::string ssid = _config.Values["wifi_ssid"];
+        std::string ssid = _config.Values[F("wifi_ssid")];
         String JSON;
         
         StaticJsonDocument<256> doc;
-        doc["ssid"] = ssid.c_str();
-        doc["connected"] = WiFi.status() == WL_CONNECTED;
+        doc[F("ssid")] = ssid.c_str();
+        doc[F("connected")] = WiFi.status() == WL_CONNECTED;
 
         serializeJson(doc, JSON);
-        _server.send(200, "application/json", JSON);
+        _server.send(200, F("application/json"), JSON);
     }
 
     void WebModule::addScript()
     {
-        std::string scriptName = _server.arg("name").c_str();
+        std::string scriptName = _server.arg(F("name")).c_str();
 
         _scriptModule.add(scriptName);
-        _server.send(200, "application/json", "{ \"saved\": true }");
+        _server.send(200, F("application/json"), "{ \"saved\": true }");
     }
 
     void WebModule::saveScript()
     {
-        std::string body = _server.arg("plain").c_str();
+        std::string body = _server.arg(F("plain")).c_str();
         DynamicJsonDocument script(5000);
         deserializeJson(script, body);
 
-        std::string scriptName = script["name"];
-        std::string scriptContent = script["content"];
+        std::string scriptName = script[F("name")];
+        std::string scriptContent = script[F("content")];
 
         _scriptModule.save(scriptName.c_str(), scriptContent.c_str());
-        _server.send(200, "application/json", "{ \"saved\": true }");
+        _server.send(200, F("application/json"), F("{ \"saved\": true }"));
     }
 
     void WebModule::deleteScript()
     {
-        std::string scriptName = _server.arg("name").c_str();
+        std::string scriptName = _server.arg(F("name")).c_str();
 
         _scriptModule.remove(scriptName);
-        _server.send(200, "application/json", "{ \"saved\": true }");
+        _server.send(200, F("application/json"), F("{ \"saved\": true }"));
     }
 
     void WebModule::getScriptList()
     {
         String JSON;
         DynamicJsonDocument doc(4096);
-        JsonArray files = doc.createNestedArray("scripts");
+        JsonArray files = doc.createNestedArray(F("scripts"));
 
         std::vector<std::string> scriptList = _scriptModule.getList();
         for (std::string scriptName : scriptList)
             files.add(scriptName.c_str());
 
         serializeJson(doc, JSON);
-        _server.send(200, "application/json", JSON);
+        _server.send(200, F("application/json"), JSON);
     }
 
     void WebModule::getScriptContent()
@@ -237,29 +237,29 @@ namespace SyncBlink
         String JSON;
         DynamicJsonDocument doc(5000);
 
-        std::string scriptName = _server.arg("name").c_str();
+        std::string scriptName = _server.arg(F("name")).c_str();
         Script script = _scriptModule.get(scriptName);
 
-        doc["name"] = script.Name.c_str();
-        doc["content"] = script.Content.c_str();
-        doc["exists"] = script.Exists;
+        doc[F("name")] = script.Name.c_str();
+        doc[F("content")] = script.Content.c_str();
+        doc[F("exists")] = script.Exists;
 
         serializeJson(doc, JSON);
-        _server.send(200, "application/json", JSON);
+        _server.send(200, F("application/json"), JSON);
     }
 
     void WebModule::setActiveScript()
     {
-        std::string scriptName = _server.arg("name").c_str();
+        std::string scriptName = _server.arg(F("name")).c_str();
 
         if (_scriptModule.get(scriptName).Exists)
         {
             _scriptModule.setActiveScript(scriptName);
-            _server.send(200, "application/json", "{ \"saved\": true }");
+            _server.send(200, F("application/json"), F("{ \"saved\": true }"));
         }
         else
         {
-            _server.send(200, "application/json", "{ \"saved\": false }");
+            _server.send(200, F("application/json"), F("{ \"saved\": false }"));
         }
     }
 }
