@@ -32,9 +32,7 @@ namespace SyncBlink
         _udpDiscover.start(true);
 
         // Set the hub as the analyzer at start
-        Messages::AnalyzerChange msg;
-        msg.analyzerId = SyncBlink::getId();
-        _messageBus.trigger(msg);
+        _messageBus.trigger<Messages::AnalyzerChange>({SyncBlink::getId()});
     }
 
     void HubWifiModule::loop()

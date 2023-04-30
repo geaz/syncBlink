@@ -48,10 +48,7 @@ namespace SyncBlink
         std::istringstream iss(analyzerIdArg.c_str());
         iss >> analyzerId;
 
-        Messages::AnalyzerChange msg;
-        msg.analyzerId = analyzerId;
-
-        _messageBus.trigger(msg);
+        _messageBus.trigger<Messages::AnalyzerChange>({analyzerId});
         _server.send(200, "text/plain");
     }
 

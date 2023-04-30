@@ -26,6 +26,9 @@ namespace SyncBlink
         class MeshConnection : public Message
         {
         public:
+            MeshConnection() { }
+            MeshConnection(uint64_t nodeId, bool isConnected) : nodeId{nodeId}, isConnected{isConnected} { }
+            
             std::vector<uint8_t> getPackageBody() const override
             {
                 std::vector<uint8_t> package;

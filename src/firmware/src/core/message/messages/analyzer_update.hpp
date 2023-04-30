@@ -14,14 +14,10 @@ namespace SyncBlink
         class AnalyzerUpdate : public Message
         {
         public:
-            AnalyzerUpdate()
-            {
-            }
-
+            AnalyzerUpdate() { }
             AnalyzerUpdate(uint64_t _analyzerId, float _decibel, uint8_t _volume, uint16_t _frequency)
                 : analyzerId{_analyzerId}, decibel{_decibel}, volume{_volume}, frequency{_frequency}
-            {
-            }
+            { }
 
             std::vector<uint8_t> getPackageBody() const override
             {
