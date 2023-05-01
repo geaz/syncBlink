@@ -1,5 +1,6 @@
 {
     "name": "Node",
+    "type": "nodeType",
     "led_count": 9,
     "is_hub": false,
     "is_node": true,

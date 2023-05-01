@@ -21,7 +21,7 @@ namespace SyncBlink
                               public MessageHandler<Messages::AnalyzerUpdate>
     {
     public:
-        BlinkScriptModule(LED& led, MessageBus& messageBus);
+        BlinkScriptModule(LED& led, MessageBus& messageBus, std::string nodeName, std::string nodeType);
         ~BlinkScriptModule();
 
         void loop();
@@ -38,11 +38,16 @@ namespace SyncBlink
 
         LED& _led;
         MessageBus& _messageBus;
+        std::string _nodeName;
+        std::string _nodeType;
 
         Script _currentScript;
         BlinkScript* _blinkScript;
         bool _activeScriptChanged = false;
         bool _lightMode = false;
+
+        bool _inFailSafe = false;
+        bool _failSafeChecked = false;
 
         uint32_t _meshHandleId = 0;
         uint32_t _scriptHandleId = 0;

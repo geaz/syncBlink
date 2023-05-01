@@ -21,6 +21,7 @@ namespace SyncBlink
         void addArrayValueCode(uint32_t arraySize, uint16_t line);
         void addStrValueCode(const std::string& string, uint16_t line);
         void addFunValueCode(Program&& program, const std::vector<Token>& funParameters, uint16_t line);
+        uint32_t addValue(Value value, std::shared_ptr<Object> object = nullptr);
 
         const std::vector<uint16_t>& getCode() const;
         const std::vector<uint16_t>& getLines() const;
@@ -31,9 +32,7 @@ namespace SyncBlink
         uint32_t getConstantSize() const;
         uint32_t getObjectSize() const;
 
-    private:      
-        uint32_t addValue(Value value, std::shared_ptr<Object> object = nullptr);
-
+    private:
         std::vector<uint16_t> _code;
         std::vector<uint16_t> _lines;
         std::vector<Value> _constants;

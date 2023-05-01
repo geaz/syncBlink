@@ -15,7 +15,7 @@ namespace SyncBlink
     class BlinkScript
     {
     public:
-        BlinkScript(LED& led, const std::string& script, uint16_t maxFreq);
+        BlinkScript(LED& led, const std::string& script, uint16_t maxFreq, std::string nodeName, std::string nodeType);
 
         void init();
         void run(const uint8_t delta);
@@ -30,6 +30,7 @@ namespace SyncBlink
     private:
         bool checkEvalError(const std::string& step, bool hasError, std::tuple<int, std::string> error);
         void saveAddToScope(const std::string& identifier, Value value);
+        void saveAddToScope(const std::string& identifier, std::string stringValue);
 
         LED& _led;
         VM _vm;

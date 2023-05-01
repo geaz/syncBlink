@@ -39,7 +39,6 @@ namespace SyncBlink
 
         std::shared_ptr<RunScriptView> _runScriptView;
         std::shared_ptr<IconTextView> _invalidScriptView;
-        std::shared_ptr<IconTextView> _failSafeView;
     };
 }
 

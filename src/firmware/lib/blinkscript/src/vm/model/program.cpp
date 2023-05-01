@@ -64,14 +64,30 @@ namespace SyncBlink
         addCode(addValue(Value(ptr.get()), ptr), line);
     }
 
+    uint32_t Program::addValue(Value value, std::shared_ptr<Object> object)
+    {
+        int32_t constantIndex = searchConstant(value);
+        if (constantIndex == -1)
+        {
+            _constants.push_back(value);
+            constantIndex = _constants.size() - 1;
+
+            if (object != nullptr)
+                _objects.push_back(object);
+        }
+        return constantIndex;
+    }
+
     const std::vector<uint16_t>& Program::getCode() const
     {
         return _code;
     }
+
     const std::vector<uint16_t>& Program::getLines() const
     {
         return _lines;
     }
+    
     const Value& Program::getConstant(uint16_t index) const
     {
         return _constants[index];
@@ -118,19 +134,5 @@ namespace SyncBlink
     uint32_t Program::getConstantSize() const
     {
         return _constants.size();
-    }
-
-    uint32_t Program::addValue(Value value, std::shared_ptr<Object> object)
-    {
-        int32_t constantIndex = searchConstant(value);
-        if (constantIndex == -1)
-        {
-            _constants.push_back(value);
-            constantIndex = _constants.size() - 1;
-
-            if (object != nullptr)
-                _objects.push_back(object);
-        }
-        return constantIndex;
     }
 }

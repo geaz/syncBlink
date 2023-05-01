@@ -8,7 +8,7 @@
 
 namespace SyncBlink
 {
-    BlinkScript::BlinkScript(LED& led, const std::string& script, uint16_t maxFreq) : _led(led)
+    BlinkScript::BlinkScript(LED& led, const std::string& script, uint16_t maxFreq, std::string nodeName, std::string nodeType) : _led(led)
     {
         auto parser = Parser(script);
         auto programAst = parser.parse();
@@ -59,6 +59,8 @@ namespace SyncBlink
         saveAddToScope("lFreq", Value(0.0f));
         saveAddToScope("vol", Value(0.0f));
         saveAddToScope("freq", Value(0.0f));
+        saveAddToScope("name", nodeName);
+        saveAddToScope("type", nodeType);
     }
 
     void BlinkScript::init()
@@ -158,5 +160,13 @@ namespace SyncBlink
             _faulted = true;
             _error = std::make_tuple<int, std::string>(-1, "Variable '" + identifier + "' already defined!");
         }
+    }
+
+    void BlinkScript::saveAddToScope(const std::string& identifier, std::string stringValue)
+    {
+        auto ptr = std::make_shared<StringObj>(StringObj(stringValue));
+        auto value = Value(ptr.get());
+        _program.addValue(value, ptr);
+        saveAddToScope(identifier, value);
     }
 }

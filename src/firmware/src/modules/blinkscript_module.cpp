@@ -5,8 +5,8 @@
 
 namespace SyncBlink
 {
-    BlinkScriptModule::BlinkScriptModule(LED& led, MessageBus& messageBus)
-        : _led(led), _messageBus(messageBus), _meshLedCount(_led.getLedCount())
+    BlinkScriptModule::BlinkScriptModule(LED& led, MessageBus& messageBus, std::string nodeName, std::string nodeType)
+        : _led(led), _messageBus(messageBus), _nodeName(nodeName), _nodeType(nodeType), _meshLedCount(_led.getLedCount())
     {
         _meshHandleId = _messageBus.addMsgHandler<Messages::MeshUpdate>(this);
         _scriptHandleId = _messageBus.addMsgHandler<Messages::ScriptChange>(this);
@@ -22,10 +22,11 @@ namespace SyncBlink
 
     void BlinkScriptModule::loop()
     {
-        if ((_activeScriptChanged || _blinkScript == nullptr) && _currentScript.Exists)
+        if(_inFailSafe) return;
+        if ((_activeScriptChanged || _blinkScript == nullptr) && _currentScript.Exists && checkBlinkScript())
         {
             if (_blinkScript != nullptr) delete _blinkScript;
-            _blinkScript = new BlinkScript(_led, _currentScript.Content, MaxFrequency);
+            _blinkScript = new BlinkScript(_led, _currentScript.Content, MaxFrequency, _nodeName, _nodeType);
             _blinkScript->updateLedInfo(_previousNodeCount, _previousLedCount, _meshLedCount);
             _blinkScript->init();
 
@@ -35,7 +36,7 @@ namespace SyncBlink
 
     void BlinkScriptModule::onMsg(const Messages::AnalyzerUpdate& msg)
     {
-        if (_blinkScript == nullptr) return;
+        if (_blinkScript == nullptr || _inFailSafe || !checkBlinkScript()) return;
 
         uint32_t delta = millis() - _lastLedUpdate;
         _lastLedUpdate = millis();
@@ -46,6 +47,7 @@ namespace SyncBlink
 
     void BlinkScriptModule::onMsg(const Messages::ScriptChange& msg)
     {
+        _inFailSafe = false;
         _activeScriptChanged = true;
         _currentScript = msg.script;
     }
@@ -63,7 +65,12 @@ namespace SyncBlink
     bool BlinkScriptModule::checkBlinkScript()
     {
         bool valid = true;
-        if (_blinkScript->isFaulted())
+
+        auto rstPtr = ESP.getResetInfoPtr();
+        _inFailSafe = rstPtr->reason >= 1 && rstPtr->reason <= 4 && !_failSafeChecked;
+        _failSafeChecked = true;
+
+        if (_inFailSafe || (_blinkScript != nullptr && _blinkScript->isFaulted()))
         {
             _messageBus.trigger<Messages::ScriptError>({_currentScript, "TODO"});
             valid = false;

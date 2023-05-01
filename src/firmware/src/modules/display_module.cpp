@@ -14,7 +14,6 @@ namespace SyncBlink
 
         _runScriptView = std::make_shared<RunScriptView>();
         _invalidScriptView = std::make_shared<IconTextView>("Invalid script!", u8g2_font_open_iconic_check_2x_t, 66);
-        _failSafeView = std::make_shared<IconTextView>("Fail Safe!", u8g2_font_open_iconic_thing_2x_t, 78);
     }
 
     DisplayModule::~DisplayModule()
