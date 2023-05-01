@@ -61,6 +61,7 @@ namespace SyncBlink
         saveAddToScope("freq", Value(0.0f));
         saveAddToScope("name", nodeName);
         saveAddToScope("type", nodeType);
+        saveAddFreqBin();
     }
 
     void BlinkScript::init()
@@ -89,7 +90,7 @@ namespace SyncBlink
         _vm.getFrame().addSet("mLedC", Value((float)meshLedCount));
     }
 
-    void BlinkScript::updateAnalyzerResult(const uint8_t volume, const uint16_t dominantFrequency)
+    void BlinkScript::updateAnalyzerResult(const uint8_t volume, const uint16_t dominantFrequency, const std::array<uint8_t, 32>& freqBin)
     {
         if (isFaulted())
             return;
@@ -118,6 +119,13 @@ namespace SyncBlink
 
             _lastVolume = std::get<0>(result);
             _lastFrequency = std::get<1>(result);
+            
+            bool resetBin = (float)std::get<0>(result) == 0;
+            for(int i = 0; i < 32; i++)
+            {
+                if(resetBin) _freqBin->getValues()[i] = Value((float)0);
+                else _freqBin->getValues()[i] = Value((float)freqBin[i]);
+            }
         }
     }
 
@@ -164,9 +172,20 @@ namespace SyncBlink
 
     void BlinkScript::saveAddToScope(const std::string& identifier, std::string stringValue)
     {
-        auto ptr = std::make_shared<StringObj>(StringObj(stringValue));
+        auto ptr = std::make_shared<StringObj>(stringValue);
         auto value = Value(ptr.get());
         _program.addValue(value, ptr);
         saveAddToScope(identifier, value);
+    }
+
+    void BlinkScript::saveAddFreqBin()
+    {
+        std::vector<Value> freqBin;
+        for(int i = 0; i < 32; i++)
+        {
+            freqBin.push_back(Value((float)0));
+        }
+        _freqBin = std::make_shared<ArrayObj>(freqBin);
+        saveAddToScope("freqBin", Value(_freqBin.get()));
     }
 }

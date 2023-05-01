@@ -41,7 +41,7 @@ namespace SyncBlink
         uint32_t delta = millis() - _lastLedUpdate;
         _lastLedUpdate = millis();
 
-        _blinkScript->updateAnalyzerResult(msg.volume, msg.frequency);
+        _blinkScript->updateAnalyzerResult(msg.volume, msg.frequency, msg.freqBins);
         _blinkScript->run(delta);
     }
 

@@ -16,12 +16,20 @@ namespace SyncBlink
         {
             vm.addNativeFun("println", std::make_shared<NativeFunObj>(
                                            [](Frame frame) {
-                                               auto strObj = frame.get("arg0").object;
-                                               if (strObj->getType() == ObjectType::STRING)
+                                               if(frame.get("arg0").getType() == ValueType::NUMBER)
                                                {
-                                                   Serial.print("Script: ");
-                                                   Serial.println(static_cast<StringObj*>(strObj)->getString().c_str());
+                                                   Serial.print("[SCRIPT] ");
+                                                   Serial.println(frame.get("arg0").number);
                                                }
+                                               else if(frame.get("arg0").getType() == ValueType::OBJECT)
+                                               {
+                                                   auto strObj = frame.get("arg0").object;
+                                                   if (strObj->getType() == ObjectType::STRING)
+                                                   {
+                                                       Serial.print("[SCRIPT] ");
+                                                       Serial.println(static_cast<StringObj*>(strObj)->getString().c_str());
+                                                   } 
+                                               }                                               
                                                return Value();
                                            },
                                            1));
