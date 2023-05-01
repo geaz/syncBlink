@@ -16,8 +16,8 @@ namespace SyncBlink
         std::vector<uint8_t> toPackage() const
         {
             auto packageBody = getPackageBody();
-            size_t bodySize = packageBody.size();
-            size_t packageSize = bodySize + PacketHeaderSize;
+            uint32_t bodySize = packageBody.size();
+            uint32_t packageSize = bodySize + PacketHeaderSize;
 
             std::vector<uint8_t> package;
             package.resize(packageSize);
@@ -45,15 +45,15 @@ namespace SyncBlink
         uint64_t recipientId = 0;
 
     protected:
-        void addBytes(std::vector<uint8_t>& byteVec, const void* dataPtr, size_t dataSize) const
+        void addBytes(std::vector<uint8_t>& byteVec, const void* dataPtr, int32_t dataSize) const
         {
-            size_t curSize = byteVec.size();
+            uint32_t curSize = byteVec.size();
             byteVec.resize(curSize + dataSize);
 
             memcpy(&byteVec[curSize], dataPtr, dataSize);
         }
 
-        size_t loadBytes(void* srcPtr, void* targetPtr, size_t targetSize)
+        uint32_t loadBytes(void* srcPtr, void* targetPtr, int32_t targetSize)
         {
             memcpy(targetPtr, srcPtr, targetSize);
             return targetSize;
@@ -62,12 +62,12 @@ namespace SyncBlink
         void addStringBytes(std::vector<uint8_t>& byteVec, std::string string) const
         {
             const char* stringCStr = string.c_str();
-            size_t stringSize = string.length();
+            uint32_t stringSize = string.length();
             addBytes(byteVec, (void*)&stringSize, sizeof(stringSize));
             addBytes(byteVec, (void*)stringCStr, stringSize);
         }
 
-        size_t loadStringBytes(uint8_t* srcPtr, std::string& targetStr)
+        uint32_t loadStringBytes(uint8_t* srcPtr, std::string& targetStr)
         {
             uint32_t stringSize;
             loadBytes(srcPtr, &stringSize, sizeof(stringSize));

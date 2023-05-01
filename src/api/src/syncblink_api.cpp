@@ -52,6 +52,7 @@ namespace SyncBlink
 
         void SyncBlinkApi::onMsg(const Messages::AnalyzerChange& msg)
         {
+            printf("%d", msg.analyzerId);
             _activeAnalzyerId = msg.analyzerId;
         }
     }

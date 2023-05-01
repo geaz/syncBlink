@@ -54,7 +54,7 @@ namespace SyncBlink
 
             void loadPackage(MessagePackage package) override
             {
-                size_t offset = 0;
+                uint32_t offset = 0;
                 offset += loadBytes(&package.body[offset], (void*)&nodeId, sizeof(nodeId));
                 offset += loadBytes(&package.body[offset], (void*)&isConnected, sizeof(isConnected));
                 offset += loadBytes(&package.body[offset], (void*)&nodeInfo.isStation, sizeof(nodeInfo.isStation));

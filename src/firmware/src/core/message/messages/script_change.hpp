@@ -32,7 +32,7 @@ namespace SyncBlink
 
             void loadPackage(MessagePackage package) override
             {
-                size_t offset = 0;
+                uint32_t offset = 0;
                 offset += loadStringBytes(&package.body[offset], script.Name);
                 offset += loadStringBytes(&package.body[offset], script.Content);
                 loadBytes(&package.body[offset], (void*)&script.Exists, sizeof(script.Exists));
