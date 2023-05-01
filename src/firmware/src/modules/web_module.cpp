@@ -153,11 +153,11 @@ namespace SyncBlink
 
         doc[F("analyzer")] = _analyzerModule.getActiveAnalyzer();
         doc[F("lightMode")] = _blinkScriptModule.getLightMode();
-        doc[F("ssid")] = ssid.c_str();
+        doc[F("ssid")] = ssid;
         doc[F("connected")] = WiFi.status() == WL_CONNECTED;
 
         std::string activeScript = _scriptModule.getActiveScript().Name;
-        doc[F("script")] = activeScript.c_str();
+        doc[F("script")] = activeScript;
 
         serializeJson(doc, JSON);
         _server.send(200, F("application/json"), JSON);
@@ -180,7 +180,7 @@ namespace SyncBlink
         String JSON;
 
         StaticJsonDocument<256> doc;
-        doc[F("ssid")] = ssid.c_str();
+        doc[F("ssid")] = ssid;
         doc[F("connected")] = WiFi.status() == WL_CONNECTED;
 
         serializeJson(doc, JSON);
@@ -224,7 +224,7 @@ namespace SyncBlink
 
         std::vector<std::string> scriptList = _scriptModule.getList();
         for (std::string scriptName : scriptList)
-            files.add(scriptName.c_str());
+            files.add(scriptName);
 
         serializeJson(doc, JSON);
         _server.send(200, F("application/json"), JSON);
@@ -238,8 +238,8 @@ namespace SyncBlink
         std::string scriptName = _server.arg(F("name")).c_str();
         Script script = _scriptModule.get(scriptName);
 
-        doc[F("name")] = script.Name.c_str();
-        doc[F("content")] = script.Content.c_str();
+        doc[F("name")] = script.Name;
+        doc[F("content")] = script.Content;
         doc[F("exists")] = script.Exists;
 
         serializeJson(doc, JSON);

@@ -3,6 +3,7 @@
 
 #include <memory>
 #include <U8g2lib.h>
+#include <string>
 #include "view.hpp"
 
 namespace SyncBlink

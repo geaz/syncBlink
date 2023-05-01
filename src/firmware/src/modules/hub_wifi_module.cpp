@@ -47,18 +47,18 @@ namespace SyncBlink
             addNode(msg.nodeId, msg.nodeInfo);
             if (msg.nodeInfo.isAnalyzer && !msg.nodeInfo.isNode)
             {
-                Serial.printf("[HUB] New Analyzer connected: %s\n", msg.nodeInfo.nodeLabel.c_str());
+                Serial.printf_P(PSTR("[HUB] New Analyzer connected: %s\n"), msg.nodeInfo.nodeLabel.c_str());
             }
             else
             {
-                Serial.printf("[HUB] New Client: %12llx - LEDs %i - Parent %12llx - Firmware Version: %i.%i\n", msg.nodeId,
+                Serial.printf_P(PSTR("[HUB] New Client: %12llx - LEDs %i - Parent %12llx - Firmware Version: %i.%i\n"), msg.nodeId,
                               msg.nodeInfo.ledCount, msg.nodeInfo.parentId, msg.nodeInfo.majorVersion, msg.nodeInfo.minorVersion);
             }
         }
         else
         {
             removeNode(msg.nodeId);
-            Serial.printf("[HUB] Node disconnected: %12llx\n", msg.nodeId);
+            Serial.printf_P(PSTR("[HUB] Node disconnected: %12llx\n"), msg.nodeId);
         }
 
         countLeds();
@@ -88,7 +88,7 @@ namespace SyncBlink
         if (msg.commandType == Messages::NodeCommandType::Rename || msg.commandType == Messages::NodeCommandType::WifiChange)
         {
             removeNode(msg.recipientId);
-            Serial.printf("[HUB] Removing Node due to disconnecting command: %12llx\n", msg.recipientId);
+            Serial.printf_P(PSTR("[HUB] Removing Node due to disconnecting command: %12llx\n"), msg.recipientId);
         }
         _tcpServer.broadcast(msg.toPackage());
     }

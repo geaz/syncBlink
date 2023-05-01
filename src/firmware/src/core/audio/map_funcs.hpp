@@ -2,6 +2,7 @@
 #define SHAREDFUNCS_H
 
 #include <array>
+#include <cinttypes>
 
 namespace SyncBlink
 {

@@ -108,7 +108,7 @@ namespace SyncBlink
     {
         if (scriptName.length() > 0)
         {
-            Serial.printf("[ScriptManager] Saving active script (%s) ...\n", scriptName.c_str());
+            Serial.printf_P(PSTR("[ScriptManager] Saving active script (%s) ...\n"), scriptName.c_str());
             _config.Values[F("active_script")] = scriptName.c_str();
             _config.save();
 

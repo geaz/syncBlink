@@ -1,5 +1,4 @@
 #include "blinkscript_module.hpp"
-
 #include "core/audio/analyzer_constants.hpp"
 #include "core/message/messages/script_error.hpp"
 
@@ -25,8 +24,7 @@ namespace SyncBlink
         if(_inFailSafe) return;
         if ((_activeScriptChanged || _blinkScript == nullptr) && _currentScript.Exists && checkBlinkScript())
         {
-            if (_blinkScript != nullptr) delete _blinkScript;
-            _blinkScript = new BlinkScript(_led, _currentScript.Content, MaxFrequency, _nodeName, _nodeType);
+            _blinkScript = std::make_shared<BlinkScript>(_led, _currentScript.Content, MaxFrequency, _nodeName, _nodeType);
             _blinkScript->updateLedInfo(_previousNodeCount, _previousLedCount, _meshLedCount);
             _blinkScript->init();
 

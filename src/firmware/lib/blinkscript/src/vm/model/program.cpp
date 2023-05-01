@@ -96,7 +96,7 @@ namespace SyncBlink
     int32_t Program::searchConstant(Value searchConst) const
     {
         int32_t foundIndex = -1;
-        for (int i = 0; i < _constants.size(); i++)
+        for (size_t i = 0; i < _constants.size(); i++)
         {
             auto constant = _constants[i];
             if (searchConst.getType() == ValueType::BOOL && constant.getType() == ValueType::BOOL &&

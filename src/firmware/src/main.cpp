@@ -90,7 +90,7 @@ void loop()
 #ifdef LOG_HEAP
     if (millis() - lastHeapLog > 1000)
     {
-        Serial.println(ESP.getFreeHeap(), DEC);
+        Serial.printf_P(PSTR("DRAM free: %6d bytes\r\n"), ESP.getFreeHeap());
         lastHeapLog = millis();
     }
 #endif

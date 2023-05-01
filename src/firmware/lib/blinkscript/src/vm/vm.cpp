@@ -10,7 +10,7 @@ namespace SyncBlink
 {
     void VM::run(const Program& program)
     {
-        for (int i = 0; i < program.getCode().size(); i++)
+        for (size_t i = 0; i < program.getCode().size(); i++)
         {
             auto& code = program.getCode()[i];
             switch (code)
@@ -108,7 +108,7 @@ namespace SyncBlink
         return std::get<0>(_vmError) != -99;
     }
 
-    void VM::handleSet(const Program& program, int& i, bool define)
+    void VM::handleSet(const Program& program, size_t& i, bool define)
     {
         auto strObj = getStringObjectValue(program, ++i);
         if (strObj != nullptr)
@@ -130,7 +130,7 @@ namespace SyncBlink
         }
     }
 
-    void VM::handleLoad(const Program& program, int& i)
+    void VM::handleLoad(const Program& program, size_t& i)
     {
         auto strObj = getStringObjectValue(program, ++i);
         if (strObj != nullptr)
@@ -143,7 +143,7 @@ namespace SyncBlink
         }
     }
 
-    void VM::handleJump(const Program& program, int& i)
+    void VM::handleJump(const Program& program, size_t& i)
     {
         i += 2; // Next Instruction is VALUE, after this the actual jump value
         auto jmpValue = program.getConstant(program.getCode()[i]);
@@ -153,7 +153,7 @@ namespace SyncBlink
             i = jmpValue.number - 1; // decrease by one because of for loop increment
     }
 
-    void VM::handleJumpNot(const Program& program, int& i)
+    void VM::handleJumpNot(const Program& program, size_t& i)
     {
         auto value = popValue();
         if (value.getType() != ValueType::BOOL)
@@ -171,7 +171,7 @@ namespace SyncBlink
             i += 2; // Jump over jump value
     }
 
-    void VM::handleCall(const Program& program, int& i)
+    void VM::handleCall(const Program& program, size_t& i)
     {
         auto variable = getStringObjectValue(program, ++i);
         if (variable != nullptr)
@@ -180,7 +180,7 @@ namespace SyncBlink
         }
     }
 
-    void VM::handlePrefix(const Program& program, int i)
+    void VM::handlePrefix(const Program& program, size_t i)
     {
         auto& code = program.getCode()[i];
         auto value = popValue();
@@ -198,7 +198,7 @@ namespace SyncBlink
             _vmError = std::make_tuple(program.getLines()[i], "VM: Invalid prefix operator!");
     }
 
-    void VM::handleInfix(const Program& program, int i)
+    void VM::handleInfix(const Program& program, size_t i)
     {
         auto& code = program.getCode()[i];
         auto rightValue = popValue();
@@ -345,7 +345,7 @@ namespace SyncBlink
             _vmError = std::make_tuple(program.getLines()[i], "VM: Invalid infix parameter combination!");
     }
 
-    void VM::handleIndex(const Program& program, int i, bool set)
+    void VM::handleIndex(const Program& program, size_t i, bool set)
     {
         auto indexValue = popValue();
         if (indexValue.getType() != ValueType::NUMBER)
@@ -385,7 +385,7 @@ namespace SyncBlink
         if (funObj != nullptr)
         {
             _callFrame = std::make_shared<Frame>(_frame);
-            for (int i = 0; i < funObj->getParameters().size(); i++)
+            for (size_t i = 0; i < funObj->getParameters().size(); i++)
             {
                 if (paramFromStack)
                     _callFrame->addSet(funObj->getParameters()[i], popValue());

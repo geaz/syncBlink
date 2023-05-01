@@ -3,6 +3,7 @@
 
 #include "core/audio/map_funcs.hpp"
 
+#include <stdio.h>
 #include <display.hpp>
 #include <view.hpp>
 

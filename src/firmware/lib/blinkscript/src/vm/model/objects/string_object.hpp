@@ -18,8 +18,8 @@ namespace SyncBlink
         const std::string& getString() const;
 
     private:
-        uint32_t _hash;
         std::string _string;
+        uint32_t _hash;
     };
 }
 

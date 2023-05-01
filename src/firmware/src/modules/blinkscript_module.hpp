@@ -42,7 +42,7 @@ namespace SyncBlink
         std::string _nodeType;
 
         Script _currentScript;
-        BlinkScript* _blinkScript;
+        std::shared_ptr<BlinkScript> _blinkScript;
         bool _activeScriptChanged = false;
         bool _lightMode = false;
 

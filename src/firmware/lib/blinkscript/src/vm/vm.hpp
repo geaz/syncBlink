@@ -29,14 +29,14 @@ namespace SyncBlink
         const bool hasError() const;
 
     private:
-        void handleSet(const Program& program, int& i, bool define);
-        void handleLoad(const Program& program, int& i);
-        void handleJump(const Program& program, int& i);
-        void handleJumpNot(const Program& program, int& i);
-        void handleCall(const Program& program, int& i);
-        void handlePrefix(const Program& program, int i);
-        void handleInfix(const Program& program, int i);
-        void handleIndex(const Program& program, int i, bool set = false);
+        void handleSet(const Program& program, size_t& i, bool define);
+        void handleLoad(const Program& program, size_t& i);
+        void handleJump(const Program& program, size_t& i);
+        void handleJumpNot(const Program& program, size_t& i);
+        void handleCall(const Program& program, size_t& i);
+        void handlePrefix(const Program& program, size_t i);
+        void handleInfix(const Program& program, size_t i);
+        void handleIndex(const Program& program, size_t i, bool set = false);
 
         void executeFun(uint32_t hash, int line, std::vector<Value> parameters, bool paramFromStack);
         StringObj* getStringObjectValue(const Program& program, int i);
