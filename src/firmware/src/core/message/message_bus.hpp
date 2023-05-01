@@ -8,6 +8,7 @@
 #include "messages/mesh_update.hpp"
 #include "messages/node_command.hpp"
 #include "messages/script_change.hpp"
+#include "messages/script_error.hpp"
 
 #include <functional>
 #include <memory>
@@ -18,7 +19,7 @@
 
 namespace SyncBlink
 {
-    template <class T, typename std::enable_if<std::is_base_of<Message, T>::value>::type* = nullptr> class MessageHandler
+    template <class T> class MessageHandler
     {
     public:
         virtual void onMsg(const T&) = 0;
@@ -46,29 +47,54 @@ namespace SyncBlink
         void* _handler;
     };
 
+    /* 
+    This class was completly template based by using typeIds. Type IDs require RTTI.
+    But removing the build flag "no-rtti" from the build, results in 6KB RAM usage!!!
+    Thats why I am using this verbose MessageBus declaration. Open for better ideas! :)
+    */
     class MessageBus
     {
     public:
-        template <typename T, typename std::enable_if<std::is_base_of<Message, T>::value>::type* = nullptr> void trigger(const T message)
+        void trigger(const Messages::AnalyzerChange message)
         {
-            const auto typeIndex = std::type_index(typeid(T));
-
-            const auto range = _registrations.equal_range(typeIndex);
-            for (auto it = range.first; it != range.second; it++)
-            {
-                auto fun = (MessageHandler<T>*)it->second.handler();
-                fun->onMsg(message);
-            }
+            trigger(MessageType::AnalyzerChange, message);
         }
 
-        template <typename T, typename std::enable_if<std::is_base_of<Message, T>::value>::type* = nullptr>
-        uint32_t addMsgHandler(MessageHandler<T>* handler)
+        void trigger(const Messages::AnalyzerUpdate message)
+        {
+            trigger(MessageType::AnalyzerUpdate, message);
+        }
+
+        void trigger(const Messages::MeshConnection message)
+        {
+            trigger(MessageType::MeshConnection, message);
+        }
+
+        void trigger(const Messages::MeshUpdate message)
+        {
+            trigger(MessageType::MeshUpdate, message);
+        }
+
+        void trigger(const Messages::NodeCommand message)
+        {
+            trigger(MessageType::NodeCommand, message);
+        }
+
+        void trigger(const Messages::ScriptChange message)
+        {
+            trigger(MessageType::ScriptChange, message);
+        }
+
+        void trigger(const Messages::ScriptError message)
+        {
+            trigger(MessageType::ScriptError, message);
+        }
+
+        template <typename T> uint32_t addMsgHandler(MessageType type, MessageHandler<T>* handler)
         {
             uint32_t id = _nextId++;
-            const auto typeIndex = std::type_index(typeid(T));
-
             MsgRegistration msgRegistration(id, handler);
-            _registrations.emplace(typeIndex, msgRegistration);
+            _registrations.emplace(type, msgRegistration);
 
             return msgRegistration.id();
         }
@@ -129,8 +155,20 @@ namespace SyncBlink
         }
 
     private:
+        template <typename T> void trigger(MessageType type, const T message)
+        {
+            const auto range = _registrations.equal_range(type);
+
+            for (auto it = range.first; it != range.second; it++)
+            {
+                auto fun = (MessageHandler<T>*)it->second.handler();
+                fun->onMsg(message);
+            }
+        }
+
+    private:
         uint32_t _nextId = 0;
-        std::unordered_multimap<std::type_index, MsgRegistration> _registrations;
+        std::unordered_multimap<int, MsgRegistration> _registrations;
     };
 }
 

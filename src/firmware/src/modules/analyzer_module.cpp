@@ -6,7 +6,7 @@ namespace SyncBlink
 {
     AnalyzerModule::AnalyzerModule(MessageBus& messageBus) : _messageBus(messageBus)
     {
-        _analyzerChangeHandleId = _messageBus.addMsgHandler<Messages::AnalyzerChange>(this);
+        _analyzerChangeHandleId = _messageBus.addMsgHandler<Messages::AnalyzerChange>(MessageType::AnalyzerChange, this);
     }
 
     AnalyzerModule::~AnalyzerModule()

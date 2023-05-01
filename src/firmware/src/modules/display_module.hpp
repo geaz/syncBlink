@@ -1,19 +1,19 @@
 #ifndef DISPLAYMODULE_H
 #define DISPLAYMODULE_H
 
-#include "core/views/icon_text_view.cpp"
-#include "core/views/run_script_view.cpp"
 #include "core/message/message_bus.hpp"
+#include "core/message/messages/analyzer_update.hpp"
 #include "core/message/messages/script_change.hpp"
 #include "core/message/messages/script_error.hpp"
-#include "core/message/messages/analyzer_update.hpp"
+#include "core/views/icon_text_view.cpp"
+#include "core/views/run_script_view.cpp"
 #include "module.hpp"
 
 #include <display.hpp>
 
 namespace SyncBlink
 {
-    class DisplayModule : public Module, 
+    class DisplayModule : public Module,
                           public MessageHandler<Messages::ScriptChange>,
                           public MessageHandler<Messages::ScriptError>,
                           public MessageHandler<Messages::AnalyzerUpdate>

@@ -39,8 +39,8 @@ namespace SyncBlink
         }
 
         virtual std::vector<uint8_t> getPackageBody() const = 0;
-        virtual void loadPackage(MessagePackage package)  = 0;
-        virtual MessageType getMessageType() const  = 0;
+        virtual void loadPackage(MessagePackage package) = 0;
+        virtual MessageType getMessageType() const = 0;
 
         uint64_t recipientId = 0;
 

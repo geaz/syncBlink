@@ -5,13 +5,14 @@
 namespace SyncBlink
 {
     HubWifiModule::HubWifiModule(Config& config, MessageBus& messageBus)
-        : _config(config), _messageBus(messageBus), _mesh(config.Values[F("wifi_ssid")], config.Values[F("wifi_pw")]), _tcpServer(messageBus)
+        : _config(config), _messageBus(messageBus), _mesh(config.Values[F("wifi_ssid")], config.Values[F("wifi_pw")]),
+          _tcpServer(messageBus)
     {
-        _meshHandleId = _messageBus.addMsgHandler<Messages::MeshConnection>(this);
-        _analyzerHandleId = _messageBus.addMsgHandler<Messages::AnalyzerUpdate>(this);
-        _analyzerChangeHandleId = _messageBus.addMsgHandler<Messages::AnalyzerChange>(this);
-        _nodeCommandHandleId = _messageBus.addMsgHandler<Messages::NodeCommand>(this);
-        _scriptHandleId = _messageBus.addMsgHandler<Messages::ScriptChange>(this);
+        _meshHandleId = _messageBus.addMsgHandler<Messages::MeshConnection>(MessageType::MeshConnection, this);
+        _analyzerHandleId = _messageBus.addMsgHandler<Messages::AnalyzerUpdate>(MessageType::AnalyzerUpdate, this);
+        _analyzerChangeHandleId = _messageBus.addMsgHandler<Messages::AnalyzerChange>(MessageType::AnalyzerChange, this);
+        _nodeCommandHandleId = _messageBus.addMsgHandler<Messages::NodeCommand>(MessageType::NodeCommand, this);
+        _scriptHandleId = _messageBus.addMsgHandler<Messages::ScriptChange>(MessageType::ScriptChange, this);
     }
 
     HubWifiModule::~HubWifiModule()
@@ -31,7 +32,7 @@ namespace SyncBlink
         _udpDiscover.start(true);
 
         // Set the hub as the analyzer at start
-        _messageBus.trigger<Messages::AnalyzerChange>({SyncBlink::getId()});
+        _messageBus.trigger(Messages::AnalyzerChange{SyncBlink::getId()});
     }
 
     void HubWifiModule::loop()
@@ -52,7 +53,7 @@ namespace SyncBlink
             else
             {
                 Serial.printf_P(PSTR("[HUB] New Client: %12llx - LEDs %i - Parent %12llx - Firmware Version: %i.%i\n"), msg.nodeId,
-                              msg.nodeInfo.ledCount, msg.nodeInfo.parentId, msg.nodeInfo.majorVersion, msg.nodeInfo.minorVersion);
+                                msg.nodeInfo.ledCount, msg.nodeInfo.parentId, msg.nodeInfo.majorVersion, msg.nodeInfo.minorVersion);
             }
         }
         else

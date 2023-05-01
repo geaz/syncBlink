@@ -49,7 +49,7 @@ namespace SyncBlink
         std::istringstream iss(analyzerIdArg.c_str());
         iss >> analyzerId;
 
-        _messageBus.trigger<Messages::AnalyzerChange>({analyzerId});
+        _messageBus.trigger(Messages::AnalyzerChange{analyzerId});
         _server.send(200, "text/plain");
     }
 

@@ -114,7 +114,9 @@
 			"codecvt": "cpp",
 			"complex": "cpp",
 			"csignal": "cpp",
-			"semaphore": "cpp"
+			"semaphore": "cpp",
+			"unordered_set": "cpp",
+			"memory_resource": "cpp"
 		}
 	}
 }

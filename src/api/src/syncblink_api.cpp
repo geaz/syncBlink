@@ -10,8 +10,8 @@ namespace SyncBlink
         SyncBlinkApi::SyncBlinkApi(std::string url, uint64_t analyzerId, std::string analyzerName) 
             : _tcpClient(url, _messageBus), _freqAnalyzer(analyzerId, _messageBus), _analyzerId(analyzerId), _analyzerName(analyzerName)
         { 
-            _analyzerHandleId = _messageBus.addMsgHandler<Messages::AnalyzerUpdate>(this);
-            _analyzerChangeHandleId = _messageBus.addMsgHandler<Messages::AnalyzerChange>(this);
+            _analyzerHandleId = _messageBus.addMsgHandler<Messages::AnalyzerUpdate>(MessageType::AnalyzerUpdate, this);
+            _analyzerChangeHandleId = _messageBus.addMsgHandler<Messages::AnalyzerChange>(MessageType::AnalyzerChange, this);
         }
 
         SyncBlinkApi::~SyncBlinkApi()
@@ -52,7 +52,6 @@ namespace SyncBlink
 
         void SyncBlinkApi::onMsg(const Messages::AnalyzerChange& msg)
         {
-            printf("%d", msg.analyzerId);
             _activeAnalzyerId = msg.analyzerId;
         }
     }

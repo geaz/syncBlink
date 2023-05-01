@@ -10,7 +10,7 @@ namespace SyncBlink
 
     void ScriptModule::setup()
     {
-        _messageBus.trigger<Messages::ScriptChange>(getActiveScript());
+        _messageBus.trigger(Messages::ScriptChange{getActiveScript()});
     }
 
     Script ScriptModule::get(const std::string& scriptName)
@@ -65,7 +65,7 @@ namespace SyncBlink
         Script activeScript = getActiveScript();
         if (activeScript.Name == scriptName)
         {
-            _messageBus.trigger<Messages::ScriptChange>({activeScript});
+            _messageBus.trigger(Messages::ScriptChange{activeScript});
         }
     }
 
@@ -77,7 +77,7 @@ namespace SyncBlink
         if (activeScript.Name == scriptName)
         {
             activeScript = getActiveScript();
-            _messageBus.trigger<Messages::ScriptChange>({activeScript});
+            _messageBus.trigger(Messages::ScriptChange{activeScript});
         }
     }
 
@@ -112,7 +112,7 @@ namespace SyncBlink
             _config.Values[F("active_script")] = scriptName.c_str();
             _config.save();
 
-            _messageBus.trigger<Messages::ScriptChange>(getActiveScript());
+            _messageBus.trigger(Messages::ScriptChange{getActiveScript()});
         }
     }
 }

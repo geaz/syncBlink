@@ -1,4 +1,5 @@
 #include "blinkscript_module.hpp"
+
 #include "core/audio/analyzer_constants.hpp"
 #include "core/message/messages/script_error.hpp"
 
@@ -7,9 +8,9 @@ namespace SyncBlink
     BlinkScriptModule::BlinkScriptModule(LED& led, MessageBus& messageBus, std::string nodeName, std::string nodeType)
         : _led(led), _messageBus(messageBus), _nodeName(nodeName), _nodeType(nodeType), _meshLedCount(_led.getLedCount())
     {
-        _meshHandleId = _messageBus.addMsgHandler<Messages::MeshUpdate>(this);
-        _scriptHandleId = _messageBus.addMsgHandler<Messages::ScriptChange>(this);
-        _analyzerHandleId = _messageBus.addMsgHandler<Messages::AnalyzerUpdate>(this);
+        _meshHandleId = _messageBus.addMsgHandler<Messages::MeshUpdate>(MessageType::MeshUpdate, this);
+        _scriptHandleId = _messageBus.addMsgHandler<Messages::ScriptChange>(MessageType::ScriptChange, this);
+        _analyzerHandleId = _messageBus.addMsgHandler<Messages::AnalyzerUpdate>(MessageType::AnalyzerUpdate, this);
     }
 
     BlinkScriptModule::~BlinkScriptModule()
@@ -21,7 +22,7 @@ namespace SyncBlink
 
     void BlinkScriptModule::loop()
     {
-        if(_inFailSafe) return;
+        if (_inFailSafe) return;
         if ((_activeScriptChanged || _blinkScript == nullptr) && _currentScript.Exists && checkBlinkScript())
         {
             _blinkScript = std::make_shared<BlinkScript>(_led, _currentScript.Content, MaxFrequency, _nodeName, _nodeType);
@@ -70,7 +71,7 @@ namespace SyncBlink
 
         if (_inFailSafe || (_blinkScript != nullptr && _blinkScript->isFaulted()))
         {
-            _messageBus.trigger<Messages::ScriptError>({_currentScript, "TODO"});
+            _messageBus.trigger(Messages::ScriptError{_currentScript, "TODO"});
             valid = false;
         }
         return valid;

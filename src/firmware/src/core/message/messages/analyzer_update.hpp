@@ -17,7 +17,7 @@ namespace SyncBlink
             AnalyzerUpdate()
             {
             }
-            
+
             AnalyzerUpdate(uint64_t _analyzerId, float _decibel, uint8_t _volume, uint16_t _frequency)
                 : analyzerId{_analyzerId}, decibel{_decibel}, volume{_volume}, frequency{_frequency}
             {

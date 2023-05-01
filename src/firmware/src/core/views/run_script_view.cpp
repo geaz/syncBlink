@@ -3,8 +3,8 @@
 
 #include "core/audio/map_funcs.hpp"
 
-#include <stdio.h>
 #include <display.hpp>
+#include <stdio.h>
 #include <view.hpp>
 
 namespace SyncBlink

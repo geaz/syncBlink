@@ -9,11 +9,11 @@ namespace SyncBlink
         : _config(config), _led(led), _messageBus(messageBus), _mesh(_config.Values[F("wifi_ssid")], _config.Values[F("wifi_pw")]),
           _tcpServer(_messageBus)
     {
-        _meshHandleId = _messageBus.addMsgHandler<Messages::MeshConnection>(this);
-        _meshUpdateHandleId = _messageBus.addMsgHandler<Messages::MeshUpdate>(this);
-        _analyzerHandleId = _messageBus.addMsgHandler<Messages::AnalyzerUpdate>(this);
-        _scriptHandleId = _messageBus.addMsgHandler<Messages::ScriptChange>(this);
-        _nodeCommandHandleId = _messageBus.addMsgHandler<Messages::NodeCommand>(this);
+        _meshHandleId = _messageBus.addMsgHandler<Messages::MeshConnection>(MessageType::MeshConnection, this);
+        _meshUpdateHandleId = _messageBus.addMsgHandler<Messages::MeshUpdate>(MessageType::MeshUpdate, this);
+        _analyzerHandleId = _messageBus.addMsgHandler<Messages::AnalyzerUpdate>(MessageType::AnalyzerUpdate, this);
+        _scriptHandleId = _messageBus.addMsgHandler<Messages::ScriptChange>(MessageType::ScriptChange, this);
+        _nodeCommandHandleId = _messageBus.addMsgHandler<Messages::NodeCommand>(MessageType::NodeCommand, this);
     }
 
     NodeWifiModule::~NodeWifiModule()

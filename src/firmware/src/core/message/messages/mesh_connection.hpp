@@ -29,7 +29,7 @@ namespace SyncBlink
             MeshConnection()
             {
             }
-            
+
             MeshConnection(uint64_t nodeId, bool isConnected) : nodeId{nodeId}, isConnected{isConnected}
             {
             }

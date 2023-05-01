@@ -16,7 +16,7 @@ namespace SyncBlink
             AnalyzerChange()
             {
             }
-            
+
             AnalyzerChange(uint64_t analyzerId) : analyzerId{analyzerId}
             {
             }

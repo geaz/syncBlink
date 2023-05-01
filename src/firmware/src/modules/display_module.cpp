@@ -8,9 +8,9 @@ namespace SyncBlink
 {
     DisplayModule::DisplayModule(MessageBus& messageBus) : _messageBus(messageBus)
     {
-        _scriptChangeHandleId = _messageBus.addMsgHandler<Messages::ScriptChange>(this);
-        _scriptErrorHandleId = _messageBus.addMsgHandler<Messages::ScriptError>(this);
-        _analyzerUpdateHandleId = _messageBus.addMsgHandler<Messages::AnalyzerUpdate>(this);
+        _scriptChangeHandleId = _messageBus.addMsgHandler<Messages::ScriptChange>(MessageType::ScriptChange, this);
+        _scriptErrorHandleId = _messageBus.addMsgHandler<Messages::ScriptError>(MessageType::ScriptError, this);
+        _analyzerUpdateHandleId = _messageBus.addMsgHandler<Messages::AnalyzerUpdate>(MessageType::AnalyzerUpdate, this);
 
         _runScriptView = std::make_shared<RunScriptView>();
         _invalidScriptView = std::make_shared<IconTextView>("Invalid script!", u8g2_font_open_iconic_check_2x_t, 66);
