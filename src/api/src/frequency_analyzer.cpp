@@ -88,8 +88,8 @@ namespace SyncBlink
             auto milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(elapsed).count();
 
             // We want to avoid flodding the mesh and network
-            // Just do updates every 40ms
-            if(milliseconds >= 40)
+            // Just do updates every 50ms
+            if(milliseconds >= 50)
             {
                 kiss_fft_cpx cx_in[FFTDataSize], cx_out[FFTDataSize];       
                 kiss_fft_cfg cfg = kiss_fft_alloc(FFTDataSize, false, nullptr, nullptr);
