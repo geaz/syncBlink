@@ -3,7 +3,7 @@
 namespace SyncBlink
 {
     FunctionExpression::FunctionExpression(const std::vector<Token>& parameters,
-                                           std::unique_ptr<const AstNode> functionBody, int line)
+                                           std::unique_ptr<const AstNode> functionBody, uint16_t line)
         : _parameters(parameters), _functionBody(std::move(functionBody)), _line(line)
     {
     }
@@ -12,7 +12,7 @@ namespace SyncBlink
     {
         visitor.visitFunctionExpression(*this);
     }
-    int FunctionExpression::getLine() const
+    uint16_t FunctionExpression::getLine() const
     {
         return _line;
     }

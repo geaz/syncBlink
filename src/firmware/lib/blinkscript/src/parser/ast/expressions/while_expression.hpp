@@ -8,15 +8,15 @@ namespace SyncBlink
     class WhileExpression : public AstNode
     {
     public:
-        WhileExpression(std::unique_ptr<const AstNode> condition, std::unique_ptr<const AstNode> loopBody, int line);
+        WhileExpression(std::unique_ptr<const AstNode> condition, std::unique_ptr<const AstNode> loopBody, uint16_t line);
 
         void accept(AstVisitor& visitor) const;
         const AstNode& getCondition() const;
         const AstNode& getLoopBody() const;
-        int getLine() const;
+        uint16_t getLine() const;
 
     private:        
-        int _line;
+        uint16_t _line;
         std::unique_ptr<const AstNode> _condition;
         std::unique_ptr<const AstNode> _loopBody;
     };

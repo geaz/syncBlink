@@ -120,8 +120,6 @@ namespace SyncBlink
     void WebModule::getMeshInfo()
     {
         String JSON;
-        DynamicJsonDocument doc(4096);
-
         std::string ssid = _config.Values[F("wifi_ssid")];
 
         auto stationInfo = _wifiModule.getStationInfo();
@@ -147,20 +145,25 @@ namespace SyncBlink
             nodeJson[F("label")] = &node.nodeLabel[0];
             nodeJson[F("connectedToMeshWifi")] = node.connectedToMeshWifi;
 
-            doc[F("nodes")][i++] = nodeJson;
+            _doc[F("nodes")][i++] = nodeJson;
             ++iter;
         }
 
-        doc[F("analyzer")] = _analyzerModule.getActiveAnalyzer();
-        doc[F("lightMode")] = _blinkScriptModule.getLightMode();
-        doc[F("ssid")] = ssid;
-        doc[F("connected")] = WiFi.status() == WL_CONNECTED;
+        _doc[F("analyzer")] = _analyzerModule.getActiveAnalyzer();
+        _doc[F("lightMode")] = _blinkScriptModule.getLightMode();
+        _doc[F("ssid")] = ssid;
+        _doc[F("connected")] = WiFi.status() == WL_CONNECTED;
 
         std::string activeScript = _scriptModule.getActiveScript().Name;
-        doc[F("script")] = activeScript;
+        _doc[F("script")] = activeScript;
 
-        serializeJson(doc, JSON);
+        serializeJson(_doc, JSON);
+
+        Serial.println(_doc.capacity());
+        Serial.println(JSON);
+
         _server.send(200, F("application/json"), JSON);
+        _doc.clear();
     }
 
     void WebModule::setWifi()
@@ -198,14 +201,14 @@ namespace SyncBlink
     void WebModule::saveScript()
     {
         std::string body = _server.arg(F("plain")).c_str();
-        DynamicJsonDocument script(5000);
-        deserializeJson(script, body);
+        deserializeJson(_doc, body);
 
-        std::string scriptName = script[F("name")];
-        std::string scriptContent = script[F("content")];
+        std::string scriptName = _doc[F("name")];
+        std::string scriptContent = _doc[F("content")];
 
         _scriptModule.save(scriptName.c_str(), scriptContent.c_str());
         _server.send(200, F("application/json"), F("{ \"saved\": true }"));
+        _doc.clear();
     }
 
     void WebModule::deleteScript()
@@ -219,31 +222,32 @@ namespace SyncBlink
     void WebModule::getScriptList()
     {
         String JSON;
-        DynamicJsonDocument doc(4096);
-        JsonArray files = doc.createNestedArray(F("scripts"));
+        JsonArray files = _doc.createNestedArray(F("scripts"));
 
         std::vector<std::string> scriptList = _scriptModule.getList();
         for (std::string scriptName : scriptList)
             files.add(scriptName);
 
-        serializeJson(doc, JSON);
+        serializeJson(_doc, JSON);
+        Serial.println(_doc.capacity());
+        Serial.println(JSON);
         _server.send(200, F("application/json"), JSON);
+        _doc.clear();
     }
 
     void WebModule::getScriptContent()
     {
         String JSON;
-        DynamicJsonDocument doc(5000);
-
         std::string scriptName = _server.arg(F("name")).c_str();
         Script script = _scriptModule.get(scriptName);
 
-        doc[F("name")] = script.Name;
-        doc[F("content")] = script.Content;
-        doc[F("exists")] = script.Exists;
+        _doc[F("name")] = script.Name;
+        _doc[F("content")] = script.Content;
+        _doc[F("exists")] = script.Exists;
 
-        serializeJson(doc, JSON);
+        serializeJson(_doc, JSON);
         _server.send(200, F("application/json"), JSON);
+        _doc.clear();
     }
 
     void WebModule::setActiveScript()

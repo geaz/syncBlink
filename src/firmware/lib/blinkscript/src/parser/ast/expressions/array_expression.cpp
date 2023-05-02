@@ -2,7 +2,7 @@
 
 namespace SyncBlink
 {
-    ArrayExpression::ArrayExpression(std::vector<std::unique_ptr<const AstNode>>&& arrayContent, int line)
+    ArrayExpression::ArrayExpression(std::vector<std::unique_ptr<const AstNode>>&& arrayContent, uint16_t line)
         : _arrayContent(std::move(arrayContent)), _line(line)
     {
     }
@@ -12,7 +12,7 @@ namespace SyncBlink
         visitor.visitArrayExpression(*this);
     }
 
-    int ArrayExpression::getLine() const
+    uint16_t ArrayExpression::getLine() const
     {
         return _line;
     }

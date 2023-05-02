@@ -54,6 +54,7 @@ namespace SyncBlink
         HubWifiModule& _wifiModule;
         Config& _config;
 
+        DynamicJsonDocument _doc = DynamicJsonDocument(5120);
         uint64_t _activeAnalzyerId;
     };
 }

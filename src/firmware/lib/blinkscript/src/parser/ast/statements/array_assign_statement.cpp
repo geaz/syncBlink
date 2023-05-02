@@ -3,7 +3,7 @@
 namespace SyncBlink
 {
     ArrayAssignStatement::ArrayAssignStatement(std::unique_ptr<const AstNode> indexExpression,
-                                               std::unique_ptr<const AstNode> expression, uint32_t line)
+                                               std::unique_ptr<const AstNode> expression, uint16_t line)
         : _indexExpression(std::move(indexExpression)), _expression(std::move(expression)), _line(line)
     {
     }
@@ -13,7 +13,7 @@ namespace SyncBlink
         visitor.visitArrayAssignStatement(*this);
     }
 
-    uint32_t ArrayAssignStatement::getLine() const
+    uint16_t ArrayAssignStatement::getLine() const
     {
         return _line;
     }

@@ -25,7 +25,8 @@ namespace SyncBlink
         if (_inFailSafe) return;
         if ((_activeScriptChanged || _blinkScript == nullptr) && _currentScript.Exists && checkBlinkScript())
         {
-            _blinkScript = std::make_shared<BlinkScript>(_led, _currentScript.Content, MaxFrequency, _nodeName, _nodeType);
+            if (_blinkScript != nullptr) delete _blinkScript;
+            _blinkScript = new BlinkScript(_led, _currentScript.Content, MaxFrequency, _nodeName, _nodeType);
             _blinkScript->updateLedInfo(_previousNodeCount, _previousLedCount, _meshLedCount);
             _blinkScript->init();
 

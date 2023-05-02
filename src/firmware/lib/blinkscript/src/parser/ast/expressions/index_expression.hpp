@@ -9,18 +9,18 @@ namespace SyncBlink
     class IndexExpression : public AstNode
     {
     public:
-        IndexExpression(std::unique_ptr<const AstNode> left, std::unique_ptr<const AstNode> right, int line);
+        IndexExpression(std::unique_ptr<const AstNode> left, std::unique_ptr<const AstNode> right, uint16_t line);
 
         void accept(AstVisitor& visitor) const;
 
-        int getLine() const;
+        uint16_t getLine() const;
         const AstNode& getLeft() const;
         const AstNode& getRight() const;
 
     private:
         std::unique_ptr<const AstNode> _left;
         std::unique_ptr<const AstNode> _right;
-        int _line;
+        uint16_t _line;
     };
 }
 

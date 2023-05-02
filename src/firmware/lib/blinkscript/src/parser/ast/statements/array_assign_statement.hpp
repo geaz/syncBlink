@@ -11,16 +11,16 @@ namespace SyncBlink
     class ArrayAssignStatement : public AstNode
     {
     public:
-        ArrayAssignStatement(std::unique_ptr<const AstNode> indexExpression, std::unique_ptr<const AstNode> expression, uint32_t line);
+        ArrayAssignStatement(std::unique_ptr<const AstNode> indexExpression, std::unique_ptr<const AstNode> expression, uint16_t line);
         void accept(AstVisitor& visitor) const;
 
-        uint32_t getLine() const;
+        uint16_t getLine() const;
         const AstNode& getIndex() const;
         const AstNode* getIndexPtr() const;
         const AstNode& getExpression() const;
 
     private:
-        uint32_t _line;
+        uint16_t _line;
         std::unique_ptr<const AstNode> _indexExpression;
         std::unique_ptr<const AstNode> _expression;
     };

@@ -4,7 +4,7 @@ namespace SyncBlink
 {
     ConditionExpression::ConditionExpression(std::unique_ptr<const AstNode> condition,
                                              std::unique_ptr<const AstNode> ifStatements,
-                                             std::unique_ptr<const AstNode> elseStatements, int line)
+                                             std::unique_ptr<const AstNode> elseStatements, uint16_t line)
         : _condition(std::move(condition)), _ifStatements(std::move(ifStatements)),
           _elseStatements(std::move(elseStatements)), _line(line)
     {
@@ -26,7 +26,7 @@ namespace SyncBlink
     {
         return _elseStatements;
     }
-    int ConditionExpression::getLine() const
+    uint16_t ConditionExpression::getLine() const
     {
         return _line;
     }
