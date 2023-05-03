@@ -25,6 +25,7 @@ namespace SyncBlink
 
         void start();
         void loop();
+        void broadcast(File file);
         void broadcast(std::vector<uint8_t> message);
 
         uint32_t getClientsCount();

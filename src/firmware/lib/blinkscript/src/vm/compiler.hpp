@@ -26,13 +26,16 @@
 #include <tuple>
 #include <string>
 #include <vector>
+#include <memory>
 
 namespace SyncBlink
 {
     class Compiler : public AstVisitor
     {
     public:
-        Program compile(const ProgramAst& programAst);
+        Compiler(std::shared_ptr<ScriptSource> source, const ProgramAst& programAst);
+
+        Program compile();
         
         bool hasError() const;
         std::tuple<int, std::string> getError() const;
@@ -59,7 +62,9 @@ namespace SyncBlink
         void checkValueCount();
 
         bool _skipFraming = false;
-        Program _program = Program();
+        std::shared_ptr<ScriptSource> _source;
+        const ProgramAst& _programAst;
+        Program _program;
         Program* _targetProgram = &_program;
         std::tuple<int, std::string> _error = std::make_tuple(-99, "");
     };

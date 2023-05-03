@@ -5,8 +5,8 @@
 
 namespace SyncBlink
 {
-    BlinkScriptModule::BlinkScriptModule(LED& led, MessageBus& messageBus, std::string nodeName, std::string nodeType)
-        : _led(led), _messageBus(messageBus), _nodeName(nodeName), _nodeType(nodeType), _meshLedCount(_led.getLedCount())
+    BlinkScriptModule::BlinkScriptModule(LED& led, MessageBus& messageBus, ScriptModule& scriptModule, std::string nodeName, std::string nodeType)
+        : _led(led), _messageBus(messageBus), _scriptModule(scriptModule), _nodeName(nodeName), _nodeType(nodeType), _meshLedCount(_led.getLedCount())
     {
         _meshHandleId = _messageBus.addMsgHandler<Messages::MeshUpdate>(MessageType::MeshUpdate, this);
         _scriptHandleId = _messageBus.addMsgHandler<Messages::ScriptChange>(MessageType::ScriptChange, this);
@@ -26,7 +26,7 @@ namespace SyncBlink
         if ((_activeScriptChanged || _blinkScript == nullptr) && _currentScript.Exists && checkBlinkScript())
         {
             if (_blinkScript != nullptr) delete _blinkScript;
-            _blinkScript = new BlinkScript(_led, _currentScript.Content, MaxFrequency, _nodeName, _nodeType);
+            _blinkScript = new BlinkScript(_led, _currentScript.Path, MaxFrequency, _nodeName, _nodeType);
             _blinkScript->updateLedInfo(_previousNodeCount, _previousLedCount, _meshLedCount);
             _blinkScript->init();
 
@@ -49,14 +49,11 @@ namespace SyncBlink
     {
         _inFailSafe = false;
         _activeScriptChanged = true;
-        _currentScript = msg.script;
+        _currentScript = _scriptModule.get(msg.scriptName);
     }
 
     void BlinkScriptModule::onMsg(const Messages::MeshUpdate& msg)
     {
-        _activeScriptChanged = true;
-        _currentScript = msg.script;
-
         _previousNodeCount = msg.routeNodeCount;
         _previousLedCount = msg.routeLedCount;
         _meshLedCount = msg.meshLedCount;
@@ -72,7 +69,7 @@ namespace SyncBlink
 
         if (_inFailSafe || (_blinkScript != nullptr && _blinkScript->isFaulted()))
         {
-            _messageBus.trigger(Messages::ScriptError{_currentScript, "TODO"});
+            _messageBus.trigger(Messages::ScriptError{_currentScript.Name, "TODO"});
             valid = false;
         }
         return valid;

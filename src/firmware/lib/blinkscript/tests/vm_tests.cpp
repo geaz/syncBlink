@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "scanner/scanner.hpp"
+#include "scanner/string_script_source.hpp"
 #include "scanner/model/token.hpp"
 #include "parser/parser.hpp"
 #include "parser/ast/ast_node.hpp"
@@ -16,7 +17,8 @@
 
 SyncBlink::Program compile(const std::string& script)
 {
-    auto parser = SyncBlink::Parser(script);
+    auto source = std::make_shared<SyncBlink::StringScriptSource>(script);
+    auto parser = SyncBlink::Parser(source);
     auto programAst = parser.parse();
 
     if(parser.hasError())
@@ -25,8 +27,8 @@ SyncBlink::Program compile(const std::string& script)
     }
     REQUIRE(!parser.hasError());
 
-    auto compiler = SyncBlink::Compiler();
-    return compiler.compile(programAst);
+    auto compiler = SyncBlink::Compiler(source, programAst);
+    return compiler.compile();
 }
 
 TEST_CASE("VM runs successfully", "[VM]")

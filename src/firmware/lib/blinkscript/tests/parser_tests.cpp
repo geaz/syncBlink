@@ -1,4 +1,5 @@
 #include "scanner/scanner.hpp"
+#include "scanner/string_script_source.hpp"
 #include "scanner/model/token.hpp"
 #include "parser/parser.hpp"
 #include "parser/ast/ast_node.hpp"
@@ -10,7 +11,8 @@
 
 TEST_CASE("Parser reports error on unsupported syntax", "[parse]")
 {
-    SyncBlink::Parser parser("let k k = \"WTF?\"");
+    auto source = std::make_shared<SyncBlink::StringScriptSource>(std::string("let k k = \"WTF?\""));
+    auto parser = SyncBlink::Parser(source);
     parser.parse();
 
     REQUIRE(parser.hasError());
@@ -38,10 +40,11 @@ TEST_CASE("Parser parses expression statements succesfully", "[parse]")
                          "testFunc(x, y)\n";
 
     
-    SyncBlink::Parser parser(script);
+    auto source = std::make_shared<SyncBlink::StringScriptSource>(script);
+    auto parser = SyncBlink::Parser(source);
     auto programAst = parser.parse();
 
-    SyncBlink::ScriptPrinter printer;
+    SyncBlink::ScriptPrinter printer(source);
     REQUIRE(!parser.hasError());
     REQUIRE(printer.print(*programAst.getNodes()[0]) == "((4 + 3) + 1)");
     REQUIRE(printer.print(*programAst.getNodes()[1]) == "((4 * 2) + 1)");
@@ -71,13 +74,14 @@ TEST_CASE("Parser parses let statements succesfully", "[parse]")
                          "let t = 1 * 2 + 3 < 10";
 
     
-    SyncBlink::Parser parser(script);
+    auto source = std::make_shared<SyncBlink::StringScriptSource>(script);
+    auto parser = SyncBlink::Parser(source);
     auto programAst = parser.parse();
 
     REQUIRE(!parser.hasError());
     REQUIRE(programAst.getNodes().size() > 0);
 
-    SyncBlink::ScriptPrinter printer;
+    SyncBlink::ScriptPrinter printer(source);
     REQUIRE(printer.print(*programAst.getNodes()[0]) == "let k = \"YEAH\"");
     REQUIRE(printer.print(*programAst.getNodes()[1]) == "let i = 5");
     REQUIRE(printer.print(*programAst.getNodes()[2]) == "let j = 5.1");
@@ -107,7 +111,8 @@ TEST_CASE("Parser parses complete script succesfully", "[parse]")
                             "let scriptName = \"simpleScript\"";
 
     
-    SyncBlink::Parser parser(script);
+    auto source = std::make_shared<SyncBlink::StringScriptSource>(script);
+    auto parser = SyncBlink::Parser(source);
     auto programAst = parser.parse();
 
     REQUIRE(!parser.hasError());
@@ -118,13 +123,14 @@ TEST_CASE("Parser parses array declaration succesfully", "[parse]")
 {
     std::string script = "let testArray = [1, \"lorem\", fun() { 1 + 2 }]";
     
-    SyncBlink::Parser parser(script);
+    auto source = std::make_shared<SyncBlink::StringScriptSource>(script);
+    auto parser = SyncBlink::Parser(source);
     auto programAst = parser.parse();
 
     REQUIRE(!parser.hasError());
     REQUIRE(programAst.getNodes().size() > 0);
 
-    SyncBlink::ScriptPrinter printer;
+    SyncBlink::ScriptPrinter printer(source);
     REQUIRE(printer.print(*programAst.getNodes()[0]) == "let testArray = [1, \"lorem\", fun(){\n"
                                                               "\t(1 + 2)\n"
                                                               "}]");
@@ -136,13 +142,14 @@ TEST_CASE("Parser parses indexing succesfully", "[parse]")
                          "testArray[0] = 2\n"
                          "testArray[0]";
     
-    SyncBlink::Parser parser(script);
+    auto source = std::make_shared<SyncBlink::StringScriptSource>(script);
+    auto parser = SyncBlink::Parser(source);
     auto programAst = parser.parse();
 
     REQUIRE(!parser.hasError());
     REQUIRE(programAst.getNodes().size() > 0);
 
-    SyncBlink::ScriptPrinter printer;
+    SyncBlink::ScriptPrinter printer(source);
     REQUIRE(printer.print(*programAst.getNodes()[1]) == "testArray[0] = 2");
 }
 
@@ -155,13 +162,14 @@ TEST_CASE("Parser parses while loops successfully", "[scanTokens]")
                          "i";
 
     
-    SyncBlink::Parser parser(script);
+    auto source = std::make_shared<SyncBlink::StringScriptSource>(script);
+    auto parser = SyncBlink::Parser(source);
     auto programAst = parser.parse();
 
     REQUIRE(!parser.hasError());
     REQUIRE(programAst.getNodes().size() > 0);
 
-    SyncBlink::ScriptPrinter printer;
+    SyncBlink::ScriptPrinter printer(source);
     REQUIRE(printer.print(*programAst.getNodes()[1]) == "while(i < 10){\n"
                                                               "\ti = (i + 1)\n"
                                                               "}");
@@ -173,13 +181,14 @@ TEST_CASE("Parser parses for loops successfully", "[scanTokens]")
                          "}";
     
     
-    SyncBlink::Parser parser(script);
+    auto source = std::make_shared<SyncBlink::StringScriptSource>(script);
+    auto parser = SyncBlink::Parser(source);
     auto programAst = parser.parse();
 
     REQUIRE(!parser.hasError());
     REQUIRE(programAst.getNodes().size() > 0);
 
-    SyncBlink::ScriptPrinter printer;
+    SyncBlink::ScriptPrinter printer(source);
     REQUIRE(printer.print(*programAst.getNodes()[0]) == "for(let i = 0; (i < 10); i = (i + 1)){\n"
                                                               "}");
 }

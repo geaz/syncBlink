@@ -24,7 +24,7 @@ namespace SyncBlink
                           public MessageHandler<Messages::ScriptChange>
     {
     public:
-        HubWifiModule(Config& config, MessageBus& messageBus);
+        HubWifiModule(Config& config, MessageBus& messageBus, ScriptModule& scriptModule);
         ~HubWifiModule();
 
         void setup() override;
@@ -37,21 +37,21 @@ namespace SyncBlink
         void onMsg(const Messages::NodeCommand& msg);
 
         std::tuple<uint64_t, NodeInfo> getStationInfo() const;
-        std::map<uint64_t, NodeInfo> getConnectedNodes() const;
+        const std::map<uint64_t, NodeInfo>& getConnectedNodes() const;
 
     private:
+        void sendScriptUpdate(uint64_t nodeId = 0);
         void addNode(uint64_t nodeId, NodeInfo nodeInfo);
         void removeNode(uint64_t nodeId);
         void countLeds();
 
         Config& _config;
         MessageBus& _messageBus;
+        ScriptModule& _scriptModule;
 
         SyncBlinkMesh _mesh;
         TcpServer _tcpServer;
         UdpDiscover _udpDiscover;
-
-        Script _activeScript;
 
         uint32_t _meshHandleId = 0;
         uint32_t _analyzerHandleId = 0;

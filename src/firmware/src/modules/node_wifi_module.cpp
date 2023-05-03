@@ -5,8 +5,8 @@
 
 namespace SyncBlink
 {
-    NodeWifiModule::NodeWifiModule(Config& config, LED& led, MessageBus& messageBus)
-        : _config(config), _led(led), _messageBus(messageBus), _mesh(_config.Values[F("wifi_ssid")], _config.Values[F("wifi_pw")]),
+    NodeWifiModule::NodeWifiModule(Config& config, LED& led, MessageBus& messageBus, ScriptModule& scriptModule)
+        : _config(config), _led(led), _messageBus(messageBus), _scriptModule(scriptModule), _mesh(_config.Values[F("wifi_ssid")], _config.Values[F("wifi_pw")]),
           _tcpServer(_messageBus)
     {
         _meshHandleId = _messageBus.addMsgHandler<Messages::MeshConnection>(MessageType::MeshConnection, this);
@@ -74,7 +74,6 @@ namespace SyncBlink
     void NodeWifiModule::onMsg(const Messages::MeshUpdate& msg)
     {
         Messages::MeshUpdate updatedMsg;
-        updatedMsg.script = msg.script;
         updatedMsg.meshLedCount = msg.meshLedCount;
         updatedMsg.meshNodeCount = msg.meshLedCount;
         updatedMsg.routeLedCount = msg.routeLedCount + _config.Values[F("led_count")].as<uint32_t>();
@@ -95,7 +94,7 @@ namespace SyncBlink
 
     void NodeWifiModule::onMsg(const Messages::NodeCommand& msg)
     {
-        if (msg.recipientId != SyncBlink::getId())
+        if (msg.recipientId != SyncBlink::getId() && msg.recipientId != 0)
         {
             _tcpServer.broadcast(msg.toPackage());
             return;
@@ -126,6 +125,10 @@ namespace SyncBlink
             _config.save();
             ESP.restart();
             break;
-        }
+        case Messages::NodeCommandType::ScriptUpdate:
+            Script script = _scriptModule.get(msg.commandInfo.stringInfo1);
+            _tcpClient->writeBinaryUntilMessage(script.getFile(true));
+            break;
+        }        
     }
 }

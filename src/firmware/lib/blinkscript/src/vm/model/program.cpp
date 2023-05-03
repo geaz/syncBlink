@@ -9,6 +9,8 @@
 
 namespace SyncBlink
 {
+    Program::Program(std::shared_ptr<ScriptSource> source) : _source(source) { }
+
     void Program::addCode(uint16_t code, uint16_t line)
     {
         _code.push_back(code);
@@ -59,7 +61,7 @@ namespace SyncBlink
         auto ptr = std::make_shared<FunObj>(FunObj(std::move(program)));
         for (const Token& token : funParameters)
         {
-            ptr->addParameter(token.getLexem());
+            ptr->addParameter(token.getLexem(_source));
         }
         addCode(addValue(Value(ptr.get()), ptr), line);
     }
@@ -73,7 +75,7 @@ namespace SyncBlink
             constantIndex = _constants.size() - 1;
 
             if (object != nullptr)
-                _objects.push_back(object);
+                _objects.push_back(std::move(object));
         }
         return constantIndex;
     }

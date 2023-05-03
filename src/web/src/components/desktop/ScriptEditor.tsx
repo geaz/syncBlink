@@ -34,13 +34,13 @@ function ScriptEditor() {
 
     let saveScript = async () => {
         setScriptSaving(true);
-        let scriptInfo = {
-            name: script,
-            content: scriptContent
-        };
+
+        let formData  = new FormData();
+        formData.append(script!, new Blob([scriptContent]), script!);
+
         let response = await fetch(`/api/scripts/save`, {
             method: "POST",
-            body: JSON.stringify(scriptInfo)
+            body: formData
         });
         if(response.ok) {
             setOriginalScriptContent(scriptContent);
@@ -94,9 +94,9 @@ function ScriptEditor() {
         (async () => {
             let response = await fetch("/api/scripts/get?name=" + script);
             if(response.ok) {
-                let script = (await response.json());
-                setScriptContent(script.content);
-                setOriginalScriptContent(script.content);
+                let script = (await response.text());
+                setScriptContent(script);
+                setOriginalScriptContent(script);
             }
             else { throw new Error("Error during script get request!"); }
             setShowLoader(false);

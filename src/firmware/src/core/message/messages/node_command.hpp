@@ -14,7 +14,9 @@ namespace SyncBlink
         {
             Ping,
             Rename,
-            WifiChange
+            WifiChange,
+            ScriptUpdate,
+            ScriptUpdated
         };
 
         struct CommandInfo
@@ -54,6 +56,7 @@ namespace SyncBlink
                 return MessageType::NodeCommand;
             }
 
+            uint64_t recipientId = 0;
             CommandInfo commandInfo;
             NodeCommandType commandType;
         };

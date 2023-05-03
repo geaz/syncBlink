@@ -1,9 +1,12 @@
 #include <catch2/catch.hpp>
+#include <vld.h>
 #include <iostream>
 #include <iomanip>
 #include <vector>
+#include <memory>
 
 #include "scanner/scanner.hpp"
+#include "scanner/string_script_source.hpp"
 #include "scanner/model/token.hpp"
 #include "parser/parser.hpp"
 #include "parser/ast/ast_node.hpp"
@@ -26,11 +29,12 @@ SyncBlink::ProgramAst parsec(SyncBlink::Parser& parser)
 
 TEST_CASE("Compiler runs successfully", "[compiler]")
 {
-    auto parser = SyncBlink::Parser("12.012\n\"test\"");
+    auto source = std::make_shared<SyncBlink::StringScriptSource>(std::string("12.012\n\"test\""));
+    auto parser = SyncBlink::Parser(source);
     auto programAst = parsec(parser);
 
-    auto compiler = SyncBlink::Compiler();
-    auto program = compiler.compile(programAst);
+    auto compiler = SyncBlink::Compiler(source, programAst);
+    auto program = compiler.compile();
     
     REQUIRE(!compiler.hasError());
 }
@@ -42,11 +46,12 @@ TEST_CASE("Compiler compiles let statements successfully", "[compiler]")
                          "let k = 10\n"
                          "k";
                                   
-    auto parser = SyncBlink::Parser(script);
+    auto source = std::make_shared<SyncBlink::StringScriptSource>(script);
+    auto parser = SyncBlink::Parser(source);
     auto programAst = parsec(parser);
 
-    auto compiler = SyncBlink::Compiler();
-    auto program = compiler.compile(programAst);
+    auto compiler = SyncBlink::Compiler(source, programAst);
+    auto program = compiler.compile();
 
     SyncBlink::Disassembler dis;
     auto disassembledCode = dis.print(program);
@@ -83,11 +88,12 @@ TEST_CASE("Compiler compiles assign statements successfully", "[compiler]")
                          "k = \"ipsum\"\n"
                          "k";
     
-    auto parser = SyncBlink::Parser(script);
+    auto source = std::make_shared<SyncBlink::StringScriptSource>(script);
+    auto parser = SyncBlink::Parser(source);
     auto programAst = parsec(parser);
 
-    auto compiler = SyncBlink::Compiler();
-    auto program = compiler.compile(programAst);
+    auto compiler = SyncBlink::Compiler(source, programAst);
+    auto program = compiler.compile();
 
     SyncBlink::Disassembler dis;
     auto disassembledCode = dis.print(program);
@@ -117,11 +123,12 @@ TEST_CASE("Compiler compiles bang prefix expression successfully", "[compiler]")
                          "k = !k\n"
                          "k";
     
-    auto parser = SyncBlink::Parser(script);
+    auto source = std::make_shared<SyncBlink::StringScriptSource>(script);
+    auto parser = SyncBlink::Parser(source);
     auto programAst = parsec(parser);
 
-    auto compiler = SyncBlink::Compiler();
-    auto program = compiler.compile(programAst);
+    auto compiler = SyncBlink::Compiler(source, programAst);
+    auto program = compiler.compile();
 
     SyncBlink::Disassembler dis;
     auto disassembledCode = dis.print(program);
@@ -150,11 +157,12 @@ TEST_CASE("Compiler compiles minus prefix expression successfully", "[compiler]"
     std::string script = "let k = -2\n"
                          "k";
     
-    auto parser = SyncBlink::Parser(script);
+    auto source = std::make_shared<SyncBlink::StringScriptSource>(script);
+    auto parser = SyncBlink::Parser(source);
     auto programAst = parsec(parser);
 
-    auto compiler = SyncBlink::Compiler();
-    auto program = compiler.compile(programAst);
+    auto compiler = SyncBlink::Compiler(source, programAst);
+    auto program = compiler.compile();
 
     SyncBlink::Disassembler dis;
     auto disassembledCode = dis.print(program);
@@ -179,11 +187,12 @@ TEST_CASE("Compiler compiles calculations successfully", "[compiler]")
     std::string script = "let k = 2 - 2 + 3 * 2 / 2\n"
                          "k";
     
-    auto parser = SyncBlink::Parser(script);
+    auto source = std::make_shared<SyncBlink::StringScriptSource>(script);
+    auto parser = SyncBlink::Parser(source);
     auto programAst = parsec(parser);
 
-    auto compiler = SyncBlink::Compiler();
-    auto program = compiler.compile(programAst);
+    auto compiler = SyncBlink::Compiler(source, programAst);
+    auto program = compiler.compile();
 
     SyncBlink::Disassembler dis;
     auto disassembledCode = dis.print(program);
@@ -220,11 +229,12 @@ TEST_CASE("Compiler compiles number comparison successfully", "[compiler]")
     std::string script = "let k = 2 <= 3\n"
                          "k";
     
-    auto parser = SyncBlink::Parser(script);
+    auto source = std::make_shared<SyncBlink::StringScriptSource>(script);
+    auto parser = SyncBlink::Parser(source);
     auto programAst = parsec(parser);
 
-    auto compiler = SyncBlink::Compiler();
-    auto program = compiler.compile(programAst);
+    auto compiler = SyncBlink::Compiler(source, programAst);
+    auto program = compiler.compile();
 
     SyncBlink::Disassembler dis;
     auto disassembledCode = dis.print(program);
@@ -252,11 +262,12 @@ TEST_CASE("Compiler compiles bool operations successfully", "[compiler]")
     std::string script = "let k = true && false || true\n"
                          "k";
     
-    auto parser = SyncBlink::Parser(script);
+    auto source = std::make_shared<SyncBlink::StringScriptSource>(script);
+    auto parser = SyncBlink::Parser(source);
     auto programAst = parsec(parser);
 
-    auto compiler = SyncBlink::Compiler();
-    auto program = compiler.compile(programAst);
+    auto compiler = SyncBlink::Compiler(source, programAst);
+    auto program = compiler.compile();
 
     SyncBlink::Disassembler dis;
     auto disassembledCode = dis.print(program);
@@ -287,11 +298,12 @@ TEST_CASE("Compiler compiles string concat successfully", "[compiler]")
     std::string script = "let k = \"lorem\" + \" ipsum\"\n"
                          "k";
     
-    auto parser = SyncBlink::Parser(script);
+    auto source = std::make_shared<SyncBlink::StringScriptSource>(script);
+    auto parser = SyncBlink::Parser(source);
     auto programAst = parsec(parser);
 
-    auto compiler = SyncBlink::Compiler();
-    auto program = compiler.compile(programAst);
+    auto compiler = SyncBlink::Compiler(source, programAst);
+    auto program = compiler.compile();
 
     SyncBlink::Disassembler dis;
     auto disassembledCode = dis.print(program);
@@ -319,11 +331,12 @@ TEST_CASE("Compiler compiles grouped calculation successfully", "[compiler]")
     std::string script = "let k = 20 - (2 + 3 * 2) / 1\n"
                          "k";
     
-    auto parser = SyncBlink::Parser(script);
+    auto source = std::make_shared<SyncBlink::StringScriptSource>(script);
+    auto parser = SyncBlink::Parser(source);
     auto programAst = parsec(parser);
 
-    auto compiler = SyncBlink::Compiler();
-    auto program = compiler.compile(programAst);
+    auto compiler = SyncBlink::Compiler(source, programAst);
+    auto program = compiler.compile();
 
     SyncBlink::Disassembler dis;
     auto disassembledCode = dis.print(program);
@@ -362,11 +375,12 @@ TEST_CASE("Compiler compiles function variables successfully", "[compiler]")
     std::string script = "let k = fun(x, y){ x + y }\n"
                          "k";
     
-    auto parser = SyncBlink::Parser(script);
+    auto source = std::make_shared<SyncBlink::StringScriptSource>(script);
+    auto parser = SyncBlink::Parser(source);
     auto programAst = parsec(parser);
 
-    auto compiler = SyncBlink::Compiler();
-    auto program = compiler.compile(programAst);
+    auto compiler = SyncBlink::Compiler(source, programAst);
+    auto program = compiler.compile();
 
     SyncBlink::Disassembler dis;
     auto disassembledCode = dis.print(program);
@@ -409,11 +423,12 @@ TEST_CASE("Compiler compiles function call successfully", "[compiler]")
                          "let k = fun(x, y){ x + y + z }\n"
                          "k(1, 2)";
     
-    auto parser = SyncBlink::Parser(script);
+    auto source = std::make_shared<SyncBlink::StringScriptSource>(script);
+    auto parser = SyncBlink::Parser(source);
     auto programAst = parsec(parser);
 
-    auto compiler = SyncBlink::Compiler();
-    auto program = compiler.compile(programAst);
+    auto compiler = SyncBlink::Compiler(source, programAst);
+    auto program = compiler.compile();
 
     SyncBlink::Disassembler dis;
     auto disassembledCode = dis.print(program);
@@ -449,11 +464,12 @@ TEST_CASE("Compiler compiles function call successfully (2)", "[compiler]")
     std::string script = "let k = fun(x, y){ x / y }\n"
                          "k(100, 2)";
     
-    auto parser = SyncBlink::Parser(script);
+    auto source = std::make_shared<SyncBlink::StringScriptSource>(script);
+    auto parser = SyncBlink::Parser(source);
     auto programAst = parsec(parser);
 
-    auto compiler = SyncBlink::Compiler();
-    auto program = compiler.compile(programAst);
+    auto compiler = SyncBlink::Compiler(source, programAst);
+    auto program = compiler.compile();
 
     SyncBlink::Disassembler dis;
     auto disassembledCode = dis.print(program);
@@ -484,11 +500,12 @@ TEST_CASE("Compiler compiles condition expression successfully", "[compiler]")
                          "if(k == 0) { k = 2 }\n"
                          "k";
     
-    auto parser = SyncBlink::Parser(script);
+    auto source = std::make_shared<SyncBlink::StringScriptSource>(script);
+    auto parser = SyncBlink::Parser(source);
     auto programAst = parsec(parser);
 
-    auto compiler = SyncBlink::Compiler();
-    auto program = compiler.compile(programAst);
+    auto compiler = SyncBlink::Compiler(source, programAst);
+    auto program = compiler.compile();
 
     SyncBlink::Disassembler dis;
     auto disassembledCode = dis.print(program);
@@ -535,11 +552,12 @@ TEST_CASE("Compiler compiles script successfully", "[compiler]")
                          "let init = fun(){}\n"
                          "let scriptName = \"simpleScript\"";
     
-    auto parser = SyncBlink::Parser(script);
+    auto source = std::make_shared<SyncBlink::StringScriptSource>(script);
+    auto parser = SyncBlink::Parser(source);
     auto programAst = parsec(parser);
 
-    auto compiler = SyncBlink::Compiler();
-    auto program = compiler.compile(programAst);
+    auto compiler = SyncBlink::Compiler(source, programAst);
+    auto program = compiler.compile();
 
     SyncBlink::Disassembler dis;
     auto disassembledCode = dis.print(program);
@@ -573,11 +591,12 @@ TEST_CASE("Compiler compiles array and indexing expressions successfully", "[com
     std::string script = "let testArray = [1, \"lorem\", fun() { 1 + 2 }]\n"
                          "testArray[0]";
     
-    auto parser = SyncBlink::Parser(script);
+    auto source = std::make_shared<SyncBlink::StringScriptSource>(script);
+    auto parser = SyncBlink::Parser(source);
     auto programAst = parsec(parser);
 
-    auto compiler = SyncBlink::Compiler();
-    auto program = compiler.compile(programAst);
+    auto compiler = SyncBlink::Compiler(source, programAst);
+    auto program = compiler.compile();
 
     SyncBlink::Disassembler dis;
     auto disassembledCode = dis.print(program);
@@ -613,11 +632,12 @@ TEST_CASE("Compiler compiles while loops successfully", "[compiler]")
                          "}\n"
                          "counter";
     
-    auto parser = SyncBlink::Parser(script);
+    auto source = std::make_shared<SyncBlink::StringScriptSource>(script);
+    auto parser = SyncBlink::Parser(source);
     auto programAst = parsec(parser);
 
-    auto compiler = SyncBlink::Compiler();
-    auto program = compiler.compile(programAst);
+    auto compiler = SyncBlink::Compiler(source, programAst);
+    auto program = compiler.compile();
 
     SyncBlink::Disassembler dis;
     auto disassembledCode = dis.print(program);
@@ -680,11 +700,12 @@ TEST_CASE("Compiler compiles for loops successfully", "[compiler]")
                          "}\n"
                          "count";
     
-    auto parser = SyncBlink::Parser(script);
+    auto source = std::make_shared<SyncBlink::StringScriptSource>(script);
+    auto parser = SyncBlink::Parser(source);
     auto programAst = parsec(parser);
 
-    auto compiler = SyncBlink::Compiler();
-    auto program = compiler.compile(programAst);
+    auto compiler = SyncBlink::Compiler(source, programAst);
+    auto program = compiler.compile();
 
     SyncBlink::Disassembler dis;
     auto disassembledCode = dis.print(program);

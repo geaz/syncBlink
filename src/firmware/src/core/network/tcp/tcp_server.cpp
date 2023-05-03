@@ -23,6 +23,15 @@ namespace SyncBlink
         handleIncomingClientMessages();
     }
 
+    void TcpServer::broadcast(File file)
+    {
+        for (auto client : _clients)
+        {
+            file.seek(0);
+            client->writeFile(file);
+        }
+    }
+
     void TcpServer::broadcast(std::vector<uint8_t> message)
     {
         for (auto client : _clients)

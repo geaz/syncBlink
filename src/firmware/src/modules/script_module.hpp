@@ -23,7 +23,6 @@ namespace SyncBlink
         std::vector<std::string> getList();
 
         void add(const std::string& scriptName);
-        void save(const std::string& scriptName, const std::string& content);
         void remove(const std::string& scriptName);
 
         Script getActiveScript();

@@ -2,6 +2,8 @@
 
 namespace SyncBlink
 {
+    ScriptPrinter::ScriptPrinter(std::shared_ptr<ScriptSource> source) : _source(source) { }
+
     std::string ScriptPrinter::print(const AstNode& node)
     {
         node.accept(*this);
@@ -10,7 +12,7 @@ namespace SyncBlink
 
     void ScriptPrinter::visitLetStatement(const LetStatement& letStatement)
     {
-        _lastVisit = "let " + letStatement.getIdentifier().getLexem() + " = " + print(letStatement.getExpression());
+        _lastVisit = "let " + letStatement.getIdentifier().getLexem(_source) + " = " + print(letStatement.getExpression());
     }
 
     void ScriptPrinter::visitBlockStatement(const BlockStatement& blockStatement)
@@ -25,7 +27,7 @@ namespace SyncBlink
 
     void ScriptPrinter::visitAssignStatement(const AssignStatement& assignStatement)
     {
-        _lastVisit = assignStatement.getIdentifier().getLexem() + " = " + print(assignStatement.getExpression());
+        _lastVisit = assignStatement.getIdentifier().getLexem(_source) + " = " + print(assignStatement.getExpression());
     }
 
     void ScriptPrinter::visitArrayAssignStatement(const ArrayAssignStatement& arrayAssignStatement)
@@ -40,13 +42,13 @@ namespace SyncBlink
 
     void ScriptPrinter::visitInfixExpression(const InfixExpression& infixExpr)
     {
-        _lastVisit = "(" + print(infixExpr.getLeft()) + " " + infixExpr.getOperatorToken().getLexem() + " " +
+        _lastVisit = "(" + print(infixExpr.getLeft()) + " " + infixExpr.getOperatorToken().getLexem(_source) + " " +
                      print(infixExpr.getRight()) + ")";
     }
 
     void ScriptPrinter::visitPrefixExpression(const PrefixExpression& prefixExpr)
     {
-        _lastVisit = "(" + prefixExpr.getOperatorToken().getLexem() + print(prefixExpr.getExpression()) + ")";
+        _lastVisit = "(" + prefixExpr.getOperatorToken().getLexem(_source) + print(prefixExpr.getExpression()) + ")";
     }
 
     void ScriptPrinter::visitGroupExpression(const GroupExpression& groupExpr)
@@ -71,7 +73,7 @@ namespace SyncBlink
         auto parameters = functionExpr.getParameters();
         for (int i = 0; i < parameters.size(); i++)
         {
-            funPrint += parameters[i].getLexem();
+            funPrint += parameters[i].getLexem(_source);
             if (i < parameters.size() - 1)
                 funPrint += ", ";
         }
@@ -80,7 +82,7 @@ namespace SyncBlink
 
     void ScriptPrinter::visitCallExpression(const CallExpression& callExpr)
     {
-        std::string callPrint = callExpr.getIdentifier().getLexem() + "(";
+        std::string callPrint = callExpr.getIdentifier().getLexem(_source) + "(";
         auto& parameters = callExpr.getParameters();
         for (int i = 0; i < parameters.size(); i++)
         {
@@ -126,7 +128,7 @@ namespace SyncBlink
         Token valueToken = literalExpr.getValueToken();
         if (valueToken.getTokenType() == TokenType::IDENTIFIER || valueToken.getTokenType() == TokenType::STRING ||
             valueToken.getTokenType() == TokenType::NUMBER)
-            value = valueToken.getLexem();
+            value = valueToken.getLexem(_source);
         else if (valueToken.getTokenType() == TokenType::FALSE)
             value = "False";
         else if (valueToken.getTokenType() == TokenType::TRUE)

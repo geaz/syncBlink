@@ -2,16 +2,18 @@
 #define SCANNER_H
 
 #include "model/token.hpp"
+#include "script_source.hpp"
 
 #include <string>
 #include <vector>
+#include <memory>
 
 namespace SyncBlink
 {
     class Scanner
     {
     public:
-        explicit Scanner(const std::string& source);
+        explicit Scanner(std::shared_ptr<ScriptSource> source);
 
         bool peekAdvance(TokenType match);
         Token advance();
@@ -33,7 +35,7 @@ namespace SyncBlink
         bool isDigit(const char c) const;
         bool isAlpha(const char c) const;
 
-        std::string _source;
+        std::shared_ptr<ScriptSource> _source;
         Token _currentToken;
         uint32_t _currentPos = 0;
         uint32_t _startPos = 0;

@@ -8,6 +8,7 @@
 #include "core/network/tcp/tcp_client.hpp"
 #include "core/network/tcp/tcp_server.hpp"
 #include "module.hpp"
+#include "script_module.hpp"
 
 #include <led.hpp>
 
@@ -23,7 +24,7 @@ namespace SyncBlink
                            public MessageHandler<Messages::ScriptChange>
     {
     public:
-        NodeWifiModule(Config& config, LED& led, MessageBus& messageBus);
+        NodeWifiModule(Config& config, LED& led, MessageBus& messageBus, ScriptModule& scriptModule);
         ~NodeWifiModule();
 
         void setup() override;
@@ -39,6 +40,8 @@ namespace SyncBlink
         Config& _config;
         LED& _led;
         MessageBus& _messageBus;
+        ScriptModule& _scriptModule;
+
         SyncBlinkMesh _mesh;
         TcpServer _tcpServer;
         std::shared_ptr<TcpClient> _tcpClient;

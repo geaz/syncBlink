@@ -3,7 +3,6 @@
 
 #include "core/message/message.hpp"
 #include "core/message/message_types.hpp"
-#include "core/script.hpp"
 
 namespace SyncBlink
 {
@@ -16,16 +15,14 @@ namespace SyncBlink
             {
             }
 
-            ScriptError(Script script, std::string error) : script{script}, error{error}
+            ScriptError(std::string scriptName, std::string error) : scriptName{scriptName}, error{error}
             {
             }
 
             std::vector<uint8_t> getPackageBody() const override
             {
                 std::vector<uint8_t> package;
-                addStringBytes(package, script.Name);
-                addStringBytes(package, script.Content);
-                addBytes(package, (void*)&script.Exists, sizeof(script.Exists));
+                addStringBytes(package, scriptName);
                 addStringBytes(package, error);
 
                 return package;
@@ -34,9 +31,7 @@ namespace SyncBlink
             void loadPackage(MessagePackage package) override
             {
                 uint32_t offset = 0;
-                offset += loadStringBytes(&package.body[offset], script.Name);
-                offset += loadStringBytes(&package.body[offset], script.Content);
-                offset += loadBytes(&package.body[offset], (void*)&script.Exists, sizeof(script.Exists));
+                offset += loadStringBytes(&package.body[offset], scriptName);
                 loadStringBytes(&package.body[offset], error);
             }
 
@@ -45,7 +40,7 @@ namespace SyncBlink
                 return MessageType::ScriptError;
             }
 
-            Script script;
+            std::string scriptName;
             std::string error;
         };
     }

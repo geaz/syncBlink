@@ -13,10 +13,10 @@ namespace SyncBlink
     public:
         static bool messageAvailable(Stream& stream, MessagePackage& message)
         {
+            uint8_t magicBuf[2];
             bool receivedMessage = false;
             while (stream.available())
             {
-                uint8_t magicBuf[2];
                 uint8_t byte = stream.read();
                 if (byte == PacketMagicBytes[0])
                 {

@@ -6,12 +6,13 @@
 
 namespace SyncBlink
 {
-    Program Compiler::compile(const ProgramAst& programAst)
-    {
-        _program = Program();
-        _error = std::tuple<int, std::string>(-99, "");
+    Compiler::Compiler(std::shared_ptr<ScriptSource> source, const ProgramAst& programAst) : _source(source), _programAst(programAst), _program(source)
+    { }
 
-        for (auto& node : programAst.getNodes())
+    Program Compiler::compile()
+    {
+        _error = std::tuple<int, std::string>(-99, "");
+        for (auto& node : _programAst.getNodes())
         {
             node->accept(*this);
             checkValueCount();
@@ -58,7 +59,7 @@ namespace SyncBlink
     {
         letStatement.getExpression().accept(*this);
         _targetProgram->addCode(OpCode::DEFINE, letStatement.getIdentifier().getLine());
-        _targetProgram->addStrValueCode(letStatement.getIdentifier().getLexem(),
+        _targetProgram->addStrValueCode(letStatement.getIdentifier().getLexem(_source),
                                         letStatement.getIdentifier().getLine());
     }
 
@@ -66,7 +67,7 @@ namespace SyncBlink
     {
         assignStatement.getExpression().accept(*this);
         _targetProgram->addCode(OpCode::SET, assignStatement.getIdentifier().getLine());
-        _targetProgram->addStrValueCode(assignStatement.getIdentifier().getLexem(),
+        _targetProgram->addStrValueCode(assignStatement.getIdentifier().getLexem(_source),
                                         assignStatement.getIdentifier().getLine());
     }
 
@@ -151,12 +152,12 @@ namespace SyncBlink
         // get code size of if and else branch to create JUMP code
         auto currentProgram = _targetProgram;
 
-        Program ifProgram = Program();
+        Program ifProgram = Program(_source);
         _targetProgram = &ifProgram;
         conditionExpr.getIfBranch().accept(*this);
 
         bool elsePresent = conditionExpr.getElseBranch() != nullptr;
-        Program elseProgram = Program();
+        Program elseProgram = Program(_source);
         if (elsePresent)
         {           
             _targetProgram = &elseProgram;
@@ -185,7 +186,7 @@ namespace SyncBlink
     void Compiler::visitFunctionExpression(const FunctionExpression& functionExpr)
     {
         auto currentProgram = _targetProgram;
-        Program funProgram = Program();
+        Program funProgram = Program(_source);
         _targetProgram = &funProgram;
 
         functionExpr.getFunctionBody().accept(*this);
@@ -203,7 +204,7 @@ namespace SyncBlink
             callExpr.getParameters()[i]->accept(*this);
         }
         _targetProgram->addCode(OpCode::CALL, callExpr.getIdentifier().getLine());
-        _targetProgram->addStrValueCode(callExpr.getIdentifier().getLexem(), callExpr.getIdentifier().getLine());
+        _targetProgram->addStrValueCode(callExpr.getIdentifier().getLexem(_source), callExpr.getIdentifier().getLine());
     }
 
     void Compiler::visitArrayExpression(const ArrayExpression& arrayExpr)
@@ -239,7 +240,7 @@ namespace SyncBlink
 
         // get code size of loop body to create JUMP code
         auto currentProgram = _targetProgram;
-        Program whileProgram = Program();
+        Program whileProgram = Program(_source);
         _targetProgram = &whileProgram;
         whileExpr.getLoopBody().accept(*this);
 
@@ -269,7 +270,7 @@ namespace SyncBlink
 
         // get code size of for loop body and incrementstatement to create JUMP code
         auto currentProgram = _targetProgram;
-        Program forProgram = Program();
+        Program forProgram = Program(_source);
         _targetProgram = &forProgram;
         forExpr.getLoopBody().accept(*this);
         forExpr.getIncrementorStatement().accept(*this);
@@ -296,7 +297,7 @@ namespace SyncBlink
         if (valueToken.getTokenType() == TokenType::IDENTIFIER)
         {
             _targetProgram->addCode(OpCode::LOAD, valueToken.getLine());
-            _targetProgram->addStrValueCode(valueToken.getLexem(), valueToken.getLine());
+            _targetProgram->addStrValueCode(valueToken.getLexem(_source), valueToken.getLine());
         }
         else if (valueToken.getTokenType() == TokenType::FALSE)
         {
@@ -311,12 +312,12 @@ namespace SyncBlink
         else if (valueToken.getTokenType() == TokenType::NUMBER)
         {
             _targetProgram->addCode(OpCode::VALUE, valueToken.getLine());
-            _targetProgram->addValueCode(valueToken.getNumber(), valueToken.getLine());
+            _targetProgram->addValueCode(valueToken.getNumber(_source), valueToken.getLine());
         }
         else if (valueToken.getTokenType() == TokenType::STRING)
         {
             _targetProgram->addCode(OpCode::VALUE, valueToken.getLine());
-            _targetProgram->addStrValueCode(valueToken.getString(), valueToken.getLine());
+            _targetProgram->addStrValueCode(valueToken.getString(_source), valueToken.getLine());
         }
     }
 

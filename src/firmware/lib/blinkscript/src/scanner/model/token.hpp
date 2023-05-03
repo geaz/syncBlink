@@ -2,10 +2,12 @@
 #define TOKEN_H
 
 #include "token_type.hpp"
+#include "../script_source.hpp"
 
 #include <map>
 #include <string>
 #include <vector>
+#include <memory>
 
 namespace SyncBlink
 {
@@ -13,21 +15,21 @@ namespace SyncBlink
     {
     public:
         Token();
-        Token(const TokenType type, const char* start, const uint16_t length, const uint16_t line);
+        Token(TokenType type, size_t start, size_t length, uint32_t line);
 
         int getLine() const;
         int getPrecedence() const;
         TokenType getTokenType() const;
 
-        float getNumber() const;
-        std::string getString() const;
-        std::string getLexem() const;
+        float getNumber(std::shared_ptr<ScriptSource> source) const;
+        std::string getString(std::shared_ptr<ScriptSource> source) const;
+        std::string getLexem(std::shared_ptr<ScriptSource> source) const;
 
     private:
         TokenType _type = TokenType::EMPTY;
-        const char* _start;
-        uint16_t _length;
-        uint16_t _line;
+        size_t _start = 0;
+        size_t _length = 0;
+        uint32_t _line = 0;
     };
 }
 

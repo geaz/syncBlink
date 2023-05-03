@@ -21,7 +21,7 @@
 
 namespace SyncBlink
 {
-    Parser::Parser(const std::string& source) : _scanner(source)
+    Parser::Parser(std::shared_ptr<ScriptSource> source) : _scanner(source)
     {
         _nud[TokenType::STRING] = &Parser::parseLiteralExpression;
         _nud[TokenType::NUMBER] = &Parser::parseLiteralExpression;
@@ -62,13 +62,14 @@ namespace SyncBlink
             if (statement != nullptr)
                 programAst.addNode(std::move(statement));
         }
-        return programAst;
+        return std::move(programAst);
     }
 
     bool Parser::hasError() const
     {
         return std::get<0>(_parserError) != -99;
     }
+    
     std::tuple<int, std::string> Parser::getError() const
     {
         return _parserError;

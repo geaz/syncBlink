@@ -7,6 +7,7 @@
 #include "core/message/messages/script_change.hpp"
 #include "core/network/get_id.hpp"
 #include "core/script.hpp"
+#include "modules/script_module.hpp"
 #include "module.hpp"
 
 #include <blink_script.hpp>
@@ -21,7 +22,7 @@ namespace SyncBlink
                               public MessageHandler<Messages::AnalyzerUpdate>
     {
     public:
-        BlinkScriptModule(LED& led, MessageBus& messageBus, std::string nodeName, std::string nodeType);
+        BlinkScriptModule(LED& led, MessageBus& messageBus, ScriptModule& scriptModule, std::string nodeName, std::string nodeType);
         ~BlinkScriptModule();
 
         void loop();
@@ -38,6 +39,7 @@ namespace SyncBlink
 
         LED& _led;
         MessageBus& _messageBus;
+        ScriptModule& _scriptModule;
         std::string _nodeName;
         std::string _nodeType;
 

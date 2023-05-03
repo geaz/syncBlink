@@ -39,13 +39,13 @@ namespace SyncBlink
     void DisplayModule::onMsg(const Messages::ScriptChange& msg)
     {
         _display.setView(_runScriptView);
-        _display.setLeftStatus(msg.script.Name);
+        _display.setLeftStatus(msg.scriptName);
     }
 
     void DisplayModule::onMsg(const Messages::ScriptError& msg)
     {
         _display.setView(_invalidScriptView);
-        _display.setLeftStatus(msg.script.Name);
+        _display.setLeftStatus(msg.scriptName);
     }
 
     void DisplayModule::onMsg(const Messages::AnalyzerUpdate& msg)

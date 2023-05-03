@@ -14,6 +14,7 @@
 #include <ESP8266WebServer.h>
 #include <string>
 #include <vector>
+#include <sstream>
 
 namespace SyncBlink
 {
@@ -46,6 +47,14 @@ namespace SyncBlink
 
         void setActiveScript();
 
+        template<typename T>
+        std::string toString(const T& value)
+        {
+            std::ostringstream oss;
+            oss << value;
+            return oss.str();
+        }
+
         ESP8266WebServer _server;
         MessageBus& _messageBus;
         ScriptModule& _scriptModule;
@@ -54,7 +63,7 @@ namespace SyncBlink
         HubWifiModule& _wifiModule;
         Config& _config;
 
-        DynamicJsonDocument _doc = DynamicJsonDocument(5120);
+        Script _script;
         uint64_t _activeAnalzyerId;
     };
 }

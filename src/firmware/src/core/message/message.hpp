@@ -42,8 +42,6 @@ namespace SyncBlink
         virtual void loadPackage(MessagePackage package) = 0;
         virtual MessageType getMessageType() const = 0;
 
-        uint64_t recipientId = 0;
-
     protected:
         void addBytes(std::vector<uint8_t>& byteVec, const void* dataPtr, int32_t dataSize) const
         {

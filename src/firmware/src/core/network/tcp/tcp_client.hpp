@@ -26,7 +26,9 @@ namespace SyncBlink
 
         void loop();
 
+        void writeFile(File file);
         void writeMessage(std::vector<uint8_t> message);
+        MessagePackage writeBinaryUntilMessage(Stream& writeTo);
 
         bool isConnected();
         bool isDiscontinued();

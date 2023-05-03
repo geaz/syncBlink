@@ -29,6 +29,8 @@ namespace SyncBlink
     class ScriptPrinter : public AstVisitor
     {
     public:
+        ScriptPrinter(std::shared_ptr<ScriptSource> source);
+
         std::string print(const AstNode& node);
 
         void visitLetStatement(const LetStatement& letStatement) override;
@@ -51,6 +53,7 @@ namespace SyncBlink
 
     private:
         std::string _lastVisit;
+        std::shared_ptr<ScriptSource> _source;
     };
 }
 

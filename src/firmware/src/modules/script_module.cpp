@@ -10,7 +10,7 @@ namespace SyncBlink
 
     void ScriptModule::setup()
     {
-        _messageBus.trigger(Messages::ScriptChange{getActiveScript()});
+        _messageBus.trigger(Messages::ScriptChange{getActiveScript().Name});
     }
 
     Script ScriptModule::get(const std::string& scriptName)
@@ -22,12 +22,8 @@ namespace SyncBlink
         std::string path = "/scripts/" + scriptName;
         if (LittleFS.exists(path.c_str()))
         {
-            File file = LittleFS.open(path.c_str(), "r");
-            while (file.available())
-            {
-                script.Content = file.readString().c_str();
-            }
-            file.close();
+            script.Path = path;
+            script.Exists = true;
         }
         else
         {
@@ -56,19 +52,6 @@ namespace SyncBlink
         file.close();
     }
 
-    void ScriptModule::save(const std::string& scriptName, const std::string& content)
-    {
-        File file = LittleFS.open(("/scripts/" + scriptName).c_str(), "w");
-        file.print(content.c_str());
-        file.close();
-
-        Script activeScript = getActiveScript();
-        if (activeScript.Name == scriptName)
-        {
-            _messageBus.trigger(Messages::ScriptChange{activeScript});
-        }
-    }
-
     void ScriptModule::remove(const std::string& scriptName)
     {
         Script activeScript = getActiveScript();
@@ -77,7 +60,7 @@ namespace SyncBlink
         if (activeScript.Name == scriptName)
         {
             activeScript = getActiveScript();
-            _messageBus.trigger(Messages::ScriptChange{activeScript});
+            _messageBus.trigger(Messages::ScriptChange{activeScript.Name});
         }
     }
 
@@ -112,7 +95,7 @@ namespace SyncBlink
             _config.Values[F("active_script")] = scriptName.c_str();
             _config.save();
 
-            _messageBus.trigger(Messages::ScriptChange{getActiveScript()});
+            _messageBus.trigger(Messages::ScriptChange{getActiveScript().Name});
         }
     }
 }

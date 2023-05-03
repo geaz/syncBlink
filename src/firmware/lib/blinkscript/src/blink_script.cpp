@@ -1,16 +1,17 @@
 #include "blink_script.hpp"
 
 #include "parser/parser.hpp"
-#include "scanner/scanner.hpp"
 #include "vm/compiler.hpp"
 #include "vm/model/objects/native_function_object.hpp"
 #include "vm/model/value.hpp"
+#include "printer/disassembler.hpp"
 
 namespace SyncBlink
 {
-    BlinkScript::BlinkScript(LED& led, const std::string& script, uint16_t maxFreq, std::string nodeName, std::string nodeType) : _led(led)
+    BlinkScript::BlinkScript(LED& led, std::string filePath, uint16_t maxFreq, std::string nodeName, std::string nodeType) : _led(led)
     {
-        auto parser = Parser(script);
+        _source = std::make_shared<EspFileScriptSource>(filePath);
+        auto parser = Parser(_source);
         auto programAst = parser.parse();
 
         if (parser.hasError())
@@ -21,8 +22,8 @@ namespace SyncBlink
             return;
         }
 
-        auto compiler = Compiler();
-        _program = compiler.compile(programAst);
+        auto compiler = Compiler(_source, programAst);
+        _program = std::make_shared<Program>(compiler.compile());
 
         if (compiler.hasError())
         {
@@ -32,7 +33,7 @@ namespace SyncBlink
             return;
         }
 
-        _vm.run(_program);
+        _vm.run((const Program&)*_program.get());
         if (checkEvalError("preInit", _vm.hasError(), _vm.getError()))
             return;
 
@@ -172,9 +173,9 @@ namespace SyncBlink
 
     void BlinkScript::saveAddToScope(const std::string& identifier, std::string stringValue)
     {
-        auto ptr = std::make_shared<StringObj>(stringValue);
+        auto ptr = std::unique_ptr<StringObj>(new StringObj(stringValue));
         auto value = Value(ptr.get());
-        _program.addValue(value, ptr);
+        _program->addValue(value, std::move(ptr));
         saveAddToScope(identifier, value);
     }
 
@@ -185,7 +186,7 @@ namespace SyncBlink
         {
             freqBin.push_back(Value((float)0));
         }
-        _freqBin = std::make_shared<ArrayObj>(freqBin);
+        _freqBin = std::unique_ptr<ArrayObj>(new ArrayObj(freqBin));
         saveAddToScope("freqBin", Value(_freqBin.get()));
     }
 }

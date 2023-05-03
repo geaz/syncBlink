@@ -16,8 +16,8 @@ namespace SyncBlink
         bool connectedToMeshWifi;
         uint64_t parentId;
         uint16_t ledCount;
-        uint8_t majorVersion;
-        uint8_t minorVersion;
+        uint16_t majorVersion;
+        uint16_t minorVersion;
         std::string nodeLabel;
     };
 

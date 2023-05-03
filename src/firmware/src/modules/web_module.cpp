@@ -14,23 +14,23 @@ namespace SyncBlink
         : _server(80), _messageBus(messageBus), _scriptModule(scriptModule), _blinkScriptModule(blinkScriptModule),
           _analyzerModule(analyzerModule), _wifiModule(wifiModule), _config(config)
     {
-        _server.on(F("/api/mesh/ping"), [this]() { pingNode(); });
-        _server.on(F("/api/mesh/rename"), [this]() { renameNode(); });
-        _server.on(F("/api/mesh/setNodeWifi"), [this]() { setNodeWifi(); });
-        _server.on(F("/api/mesh/info"), [this]() { getMeshInfo(); });
-        _server.on(F("/api/mesh/setAnalyzer"), [this]() { setAnalyzer(); });
-        _server.on(F("/api/mesh/setLightMode"), [this]() { setLightMode(); });
+        _server.on(F("/api/mesh/ping"), HTTP_GET, [this]() { pingNode(); });
+        _server.on(F("/api/mesh/rename"), HTTP_GET, [this]() { renameNode(); });
+        _server.on(F("/api/mesh/setNodeWifi"), HTTP_GET, [this]() { setNodeWifi(); });
+        _server.on(F("/api/mesh/info"), HTTP_GET, [this]() { getMeshInfo(); });
+        _server.on(F("/api/mesh/setAnalyzer"), HTTP_GET, [this]() { setAnalyzer(); });
+        _server.on(F("/api/mesh/setLightMode"), HTTP_GET, [this]() { setLightMode(); });
 
         _server.on(F("/api/wifi/set"), [this]() { setWifi(); });
         _server.on(F("/api/wifi/get"), [this]() { getWifi(); });
 
-        _server.on(F("/api/scripts/list"), [this]() { getScriptList(); });
-        _server.on(F("/api/scripts/get"), [this]() { getScriptContent(); });
+        _server.on(F("/api/scripts/list"), HTTP_GET, [this]() { getScriptList(); });
+        _server.on(F("/api/scripts/get"), HTTP_GET, [this]() { getScriptContent(); });
 
-        _server.on(F("/api/scripts/add"), [this]() { addScript(); });
-        _server.on(F("/api/scripts/save"), [this]() { saveScript(); });
-        _server.on(F("/api/scripts/delete"), [this]() { deleteScript(); });
-        _server.on(F("/api/scripts/set"), [this]() { setActiveScript(); });
+        _server.on(F("/api/scripts/add"), HTTP_GET, [this]() { addScript(); });
+        _server.on(F("/api/scripts/save"), HTTP_POST, [this]() { _server.send(200, F("text/plain"), ""); }, [this]() { saveScript(); });
+        _server.on(F("/api/scripts/delete"), HTTP_GET, [this]() { deleteScript(); });
+        _server.on(F("/api/scripts/set"), HTTP_GET, [this]() { setActiveScript(); });
 
         _server.serveStatic("/", LittleFS, "/public/");
         _server.begin();
@@ -119,51 +119,46 @@ namespace SyncBlink
 
     void WebModule::getMeshInfo()
     {
-        String JSON;
         std::string ssid = _config.Values[F("wifi_ssid")];
-
+        auto activeScriptName = _scriptModule.getActiveScript().Name;
         auto stationInfo = _wifiModule.getStationInfo();
         auto connectedNodes = _wifiModule.getConnectedNodes();
         connectedNodes[std::get<0>(stationInfo)] = std::get<1>(stationInfo);
 
-        auto i = 0;
+        if (!_server.chunkedResponseModeStart(200, "application/json")) {
+            _server.send(505, F("text/html"), F("HTTP1.1 required"));
+            return;
+        }
+        _server.sendContent("{\"nodes\":[");        
+        
         auto iter = connectedNodes.begin();
         auto endIter = connectedNodes.end();
-
         for (; iter != endIter;)
         {
             auto node = iter->second;
-            StaticJsonDocument<512> nodeJson;
-            nodeJson[F("isStation")] = node.isStation;
-            nodeJson[F("isAnalyzer")] = node.isAnalyzer;
-            nodeJson[F("isNode")] = node.isNode;
-            nodeJson[F("nodeId")] = iter->first;
-            nodeJson[F("parentId")] = node.parentId;
-            nodeJson[F("ledCount")] = node.ledCount;
-            nodeJson[F("majorVersion")] = node.majorVersion;
-            nodeJson[F("minorVersion")] = node.minorVersion;
-            nodeJson[F("label")] = &node.nodeLabel[0];
-            nodeJson[F("connectedToMeshWifi")] = node.connectedToMeshWifi;
+            _server.sendContent(("{\"isStation\":" + std::string(node.isStation ? "true" : "false") + ",").c_str());
+            _server.sendContent(("\"isAnalyzer\":" + std::string(node.isAnalyzer ? "true" : "false") + ",").c_str());
+            _server.sendContent(("\"isNode\":" + std::string(node.isNode ? "true" : "false") + ",").c_str());
+            _server.sendContent(("\"nodeId\":" + toString(iter->first) + ",").c_str());
+            _server.sendContent(("\"parentId\":" + toString(node.parentId) + ",").c_str());
+            _server.sendContent(("\"ledCount\":" + toString(node.ledCount) + ",").c_str());
+            _server.sendContent(("\"majorVersion\":" + toString(node.majorVersion) + ",").c_str());
+            _server.sendContent(("\"minorVersion\":" + toString(node.minorVersion) + ",").c_str());
+            _server.sendContent(("\"label\":\"" + node.nodeLabel + "\",").c_str());
 
-            _doc[F("nodes")][i++] = nodeJson;
             ++iter;
+            if(iter == endIter) 
+                _server.sendContent(("\"connectedToMeshWifi\":" + std::string(node.connectedToMeshWifi ? "true" : "false") + "}],").c_str());
+            else
+                _server.sendContent(("\"connectedToMeshWifi\":" + std::string(node.connectedToMeshWifi ? "true" : "false") + "},").c_str());
         }
-
-        _doc[F("analyzer")] = _analyzerModule.getActiveAnalyzer();
-        _doc[F("lightMode")] = _blinkScriptModule.getLightMode();
-        _doc[F("ssid")] = ssid;
-        _doc[F("connected")] = WiFi.status() == WL_CONNECTED;
-
-        std::string activeScript = _scriptModule.getActiveScript().Name;
-        _doc[F("script")] = activeScript;
-
-        serializeJson(_doc, JSON);
-
-        Serial.println(_doc.capacity());
-        Serial.println(JSON);
-
-        _server.send(200, F("application/json"), JSON);
-        _doc.clear();
+        
+        _server.sendContent(("\"analyzer\":" + toString(_analyzerModule.getActiveAnalyzer()) + ",").c_str());  
+        _server.sendContent(("\"lightMode\":" + std::string(_blinkScriptModule.getLightMode() ? "true" : "false") + ",").c_str());
+        _server.sendContent(("\"ssid\":\"" + ssid + "\",").c_str());  
+        _server.sendContent(("\"connected\":" + std::string(WiFi.status() == WL_CONNECTED ? "true" : "false") + ",").c_str());
+        _server.sendContent(("\"script\":\"" + activeScriptName + "\"}").c_str());
+        _server.chunkedResponseFinalize();
     }
 
     void WebModule::setWifi()
@@ -180,14 +175,14 @@ namespace SyncBlink
     void WebModule::getWifi()
     {
         std::string ssid = _config.Values[F("wifi_ssid")];
-        String JSON;
 
-        StaticJsonDocument<256> doc;
-        doc[F("ssid")] = ssid;
-        doc[F("connected")] = WiFi.status() == WL_CONNECTED;
-
-        serializeJson(doc, JSON);
-        _server.send(200, F("application/json"), JSON);
+        if (!_server.chunkedResponseModeStart(200, "application/json")) {
+            _server.send(505, F("text/html"), F("HTTP1.1 required"));
+            return;
+        }
+        _server.sendContent(("{\"ssid\":\"" + ssid + "\",").c_str());        
+        _server.sendContent(("\"connected\":" + std::string(WiFi.status() == WL_CONNECTED ? "true" : "false") + "}").c_str());
+        _server.chunkedResponseFinalize();
     }
 
     void WebModule::addScript()
@@ -200,15 +195,30 @@ namespace SyncBlink
 
     void WebModule::saveScript()
     {
-        std::string body = _server.arg(F("plain")).c_str();
-        deserializeJson(_doc, body);
-
-        std::string scriptName = _doc[F("name")];
-        std::string scriptContent = _doc[F("content")];
-
-        _scriptModule.save(scriptName.c_str(), scriptContent.c_str());
-        _server.send(200, F("application/json"), F("{ \"saved\": true }"));
-        _doc.clear();
+        HTTPUpload& upload = _server.upload();
+        if (upload.status == UPLOAD_FILE_START) 
+        {
+            _script = _scriptModule.get(upload.filename.c_str());
+            if(!_script.Exists)
+            {
+                _server.send(500, F("text/plain"), F("Upload Failed! Script does not exist!"));
+                return;
+            }
+        }
+        else if (upload.status == UPLOAD_FILE_WRITE && _script.Exists) 
+        {
+            size_t bytesWritten = _script.getFile(true).write(upload.buf, upload.currentSize);
+            if (bytesWritten != upload.currentSize)
+            {
+                _server.send(500, F("text/plain"), F("Write failed!"));
+                return;
+            }
+        } 
+        else if (upload.status == UPLOAD_FILE_END)
+        {
+            _messageBus.trigger(Messages::ScriptChange{_script.Name});
+        }
+        else _server.send(500, F("text/plain"), F("Upload failed!"));
     }
 
     void WebModule::deleteScript()
@@ -221,33 +231,30 @@ namespace SyncBlink
 
     void WebModule::getScriptList()
     {
-        String JSON;
-        JsonArray files = _doc.createNestedArray(F("scripts"));
+        if (!_server.chunkedResponseModeStart(200, "application/json")) {
+            _server.send(505, F("text/html"), F("HTTP1.1 required"));
+            return;
+        }
 
-        std::vector<std::string> scriptList = _scriptModule.getList();
+        _server.sendContent("{\"scripts\":["); 
+
+        uint16_t i = 1;
+        std::vector<std::string> scriptList = _scriptModule.getList();   
         for (std::string scriptName : scriptList)
-            files.add(scriptName);
-
-        serializeJson(_doc, JSON);
-        Serial.println(_doc.capacity());
-        Serial.println(JSON);
-        _server.send(200, F("application/json"), JSON);
-        _doc.clear();
+        {
+            if(i++ == scriptList.size())
+                _server.sendContent(("\"" + scriptName + "\"]}").c_str());
+            else
+                _server.sendContent(("\"" + scriptName + "\",").c_str());
+        }
+        _server.chunkedResponseFinalize();
     }
 
     void WebModule::getScriptContent()
     {
-        String JSON;
         std::string scriptName = _server.arg(F("name")).c_str();
         Script script = _scriptModule.get(scriptName);
-
-        _doc[F("name")] = script.Name;
-        _doc[F("content")] = script.Content;
-        _doc[F("exists")] = script.Exists;
-
-        serializeJson(_doc, JSON);
-        _server.send(200, F("application/json"), JSON);
-        _doc.clear();
+        _server.streamFile(script.getFile(), "text/html");
     }
 
     void WebModule::setActiveScript()

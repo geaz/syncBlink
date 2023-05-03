@@ -20,7 +20,7 @@ namespace SyncBlink
     class Parser
     {
     public:
-        explicit Parser(const std::string& source);
+        explicit Parser(std::shared_ptr<ScriptSource> source);
         ProgramAst parse();
 
         bool hasError() const;

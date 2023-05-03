@@ -4,6 +4,7 @@
 #include "value.hpp"
 #include "objects/object.hpp"
 #include "scanner/model/token.hpp"
+#include "scanner/script_source.hpp"
 
 #include <memory>
 #include <vector>
@@ -13,6 +14,8 @@ namespace SyncBlink
     class Program
     {
     public:
+        Program(std::shared_ptr<ScriptSource> source);
+
         void addCode(uint16_t code, uint16_t line);
         void removeCode(uint16_t count);
 
@@ -33,6 +36,7 @@ namespace SyncBlink
         uint32_t getObjectSize() const;
 
     private:
+        std::shared_ptr<ScriptSource> _source;
         std::vector<uint16_t> _code;
         std::vector<uint16_t> _lines;
         std::vector<Value> _constants;

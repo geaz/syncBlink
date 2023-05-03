@@ -1,12 +1,14 @@
 #include <catch2/catch.hpp>
 #include "scanner/scanner.hpp"
 #include "scanner/model/token.hpp"
+#include "scanner/string_script_source.hpp"
 #include <iostream>
 
 TEST_CASE("Scanner reports error on unrecognized lexems", "[scanTokens]")
 {
     std::string script = "##&%";
-    SyncBlink::Scanner scanner(script);
+    auto source = std::make_shared<SyncBlink::StringScriptSource>(script);
+    SyncBlink::Scanner scanner(source);
 
     while(scanner.advance().getTokenType() != SyncBlink::TokenType::ENDOFFILE)
     {
@@ -17,7 +19,8 @@ TEST_CASE("Scanner reports error on unrecognized lexems", "[scanTokens]")
 TEST_CASE("Scanner is able to scan first non-sense script", "[scanTokens]")
 {
     std::string script = "// this is a comment\n(( )){} // grouping stuff\n!*+-/=<> <= == // operators\n|| &&";
-    SyncBlink::Scanner scanner(script);
+    auto source = std::make_shared<SyncBlink::StringScriptSource>(script);
+    SyncBlink::Scanner scanner(source);
 
     while(scanner.advance().getTokenType() != SyncBlink::TokenType::ENDOFFILE)
     {
@@ -28,41 +31,45 @@ TEST_CASE("Scanner is able to scan first non-sense script", "[scanTokens]")
 TEST_CASE("Scanner is able to scan string", "[scanTokens]")
 {
     std::string script = "\"TestString\"";
-    SyncBlink::Scanner scanner(script);    
+    auto source = std::make_shared<SyncBlink::StringScriptSource>(script);
+    SyncBlink::Scanner scanner(source);
     SyncBlink::Token token;
 
-    REQUIRE(scanner.advance().getString() == "TestString");
+    REQUIRE(scanner.advance().getString(source) == "TestString");
 }
 
 TEST_CASE("Scanner is able to scan numbers", "[scanTokens]")
 {
     std::string script = "13\n456\n4.78";
-    SyncBlink::Scanner scanner(script);
+    auto source = std::make_shared<SyncBlink::StringScriptSource>(script);
+    SyncBlink::Scanner scanner(source);
     SyncBlink::Token token;
 
-    REQUIRE(scanner.advance().getNumber() == 13.0f);
+    REQUIRE(scanner.advance().getNumber(source) == 13.0f);
     scanner.advance(); // Skip EOL
-    REQUIRE(scanner.advance().getNumber() == 456.0f);
+    REQUIRE(scanner.advance().getNumber(source) == 456.0f);
     scanner.advance(); // Skip EOL
-    REQUIRE(scanner.advance().getNumber() == 4.78f);
+    REQUIRE(scanner.advance().getNumber(source) == 4.78f);
 }
 
 TEST_CASE("Scanner is able to scan identifiers", "[scanTokens]")
 {
     std::string script = "let letTest = 2\n"
                          "let funTest = fun(){ }";
-    SyncBlink::Scanner scanner(script);
+    auto source = std::make_shared<SyncBlink::StringScriptSource>(script);
+    SyncBlink::Scanner scanner(source);
     SyncBlink::Token token;
 
     REQUIRE(scanner.advance().getTokenType() == SyncBlink::TokenType::LET);
     REQUIRE(scanner.advance().getTokenType() == SyncBlink::TokenType::IDENTIFIER);
-    REQUIRE(scanner.getCurrent().getLexem() == "letTest");
+    REQUIRE(scanner.getCurrent().getLexem(source) == "letTest");
 }
 
 TEST_CASE("Scanner is able to scan keywords", "[scanTokens]")
 {
     std::string script = "true\nfalse\nif\nelse\nlet";
-    SyncBlink::Scanner scanner(script);
+    auto source = std::make_shared<SyncBlink::StringScriptSource>(script);
+    SyncBlink::Scanner scanner(source);
     SyncBlink::Token token;
     
     REQUIRE(scanner.advance().getTokenType() == SyncBlink::TokenType::TRUE);
@@ -82,7 +89,8 @@ TEST_CASE("Scanner is able to scan arrays", "[scanTokens]")
                          "testArray[0] = 1\n"
                          "testArray[1] = \"lorem\"\n"
                          "testArray[2] = fun() {}";
-    SyncBlink::Scanner scanner(script);
+    auto source = std::make_shared<SyncBlink::StringScriptSource>(script);
+    SyncBlink::Scanner scanner(source);
     SyncBlink::Token token;
     
     while(scanner.advance().getTokenType() != SyncBlink::TokenType::ENDOFFILE)
@@ -112,7 +120,8 @@ TEST_CASE("Scanner is able to scan script", "[scanTokens]")
                             "\n"
                             "let init = fun(){}\n"
                             "let scriptName = \"simpleScript\"";
-    SyncBlink::Scanner scanner(script);
+    auto source = std::make_shared<SyncBlink::StringScriptSource>(script);
+    SyncBlink::Scanner scanner(source);
     
     while(scanner.advance().getTokenType() != SyncBlink::TokenType::ENDOFFILE)
     {
@@ -127,7 +136,8 @@ TEST_CASE("Scanner is able to scan while loops", "[scanTokens]")
                          "i = i + 1\n"
                          "}\n"
                          "i";
-    SyncBlink::Scanner scanner(script);
+    auto source = std::make_shared<SyncBlink::StringScriptSource>(script);
+    SyncBlink::Scanner scanner(source);
     
     while(scanner.advance().getTokenType() != SyncBlink::TokenType::ENDOFFILE)
     {
@@ -140,7 +150,8 @@ TEST_CASE("Scanner is able to scan for loops", "[scanTokens]")
     std::string script = "for(let i = 0; i < 10; i = i + 1){\n"
                          "}";
     
-    SyncBlink::Scanner scanner(script);
+    auto source = std::make_shared<SyncBlink::StringScriptSource>(script);
+    SyncBlink::Scanner scanner(source);
     
     while(scanner.advance().getTokenType() != SyncBlink::TokenType::ENDOFFILE)
     {

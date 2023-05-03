@@ -4,8 +4,8 @@
 
 namespace SyncBlink
 {
-    HubWifiModule::HubWifiModule(Config& config, MessageBus& messageBus)
-        : _config(config), _messageBus(messageBus), _mesh(config.Values[F("wifi_ssid")], config.Values[F("wifi_pw")]),
+    HubWifiModule::HubWifiModule(Config& config, MessageBus& messageBus, ScriptModule& scriptModule)
+        : _config(config), _messageBus(messageBus), _scriptModule(scriptModule), _mesh(config.Values[F("wifi_ssid")], config.Values[F("wifi_pw")]),
           _tcpServer(messageBus)
     {
         _meshHandleId = _messageBus.addMsgHandler<Messages::MeshConnection>(MessageType::MeshConnection, this);
@@ -64,8 +64,11 @@ namespace SyncBlink
 
         countLeds();
 
-        Messages::MeshUpdate updateMsg = {_activeScript, _config.Values[F("led_count")], 1, _totalLeds, _totalNodes};
+        Messages::MeshUpdate updateMsg = { _config.Values[F("led_count")], 1, _totalLeds, _totalNodes };
         _tcpServer.broadcast(updateMsg.toPackage());
+
+       // sendScriptUpdate(msg.nodeId);
+        _messageBus.trigger(Messages::ScriptChange{_scriptModule.getActiveScript().Name});
     }
 
     void HubWifiModule::onMsg(const Messages::AnalyzerUpdate& msg)
@@ -80,7 +83,7 @@ namespace SyncBlink
 
     void HubWifiModule::onMsg(const Messages::ScriptChange& msg)
     {
-        _activeScript = msg.script;
+       // sendScriptUpdate();
         _tcpServer.broadcast(msg.toPackage());
     }
 
@@ -91,6 +94,19 @@ namespace SyncBlink
             removeNode(msg.recipientId);
             Serial.printf_P(PSTR("[HUB] Removing Node due to disconnecting command: %12llx\n"), msg.recipientId);
         }
+        _tcpServer.broadcast(msg.toPackage());
+    }
+
+    void HubWifiModule::sendScriptUpdate(uint64_t nodeId)
+    {
+        Messages::NodeCommand msg;
+        msg.recipientId = nodeId;
+        msg.commandType = Messages::NodeCommandType::ScriptUpdate;
+
+        _tcpServer.broadcast(msg.toPackage());
+        _tcpServer.broadcast(_scriptModule.getActiveScript().getFile());
+
+        msg.commandType = Messages::NodeCommandType::ScriptUpdated;
         _tcpServer.broadcast(msg.toPackage());
     }
 
@@ -133,7 +149,7 @@ namespace SyncBlink
         return std::make_tuple(SyncBlink::getId(), stationInfo);
     }
 
-    std::map<uint64_t, NodeInfo> HubWifiModule::getConnectedNodes() const
+    const std::map<uint64_t, NodeInfo>& HubWifiModule::getConnectedNodes() const
     {
         return _connectedNodes;
     }
