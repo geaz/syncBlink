@@ -12,7 +12,6 @@
 #include <Wire.h>
 #include <led.hpp>
 #include <vector>
-#include <umm_malloc/umm_heap_select.h>
 
 SyncBlink::LED led;
 SyncBlink::Config config;
@@ -93,12 +92,7 @@ void loop()
 #ifdef LOG_HEAP
     if (millis() - lastHeapLog > 1000)
     {
-        HeapSelectIram ephemeral;
-        Serial.printf("IRAM free (BlinkScript): %6d bytes\r\n", ESP.getFreeHeap());
-        {
-            HeapSelectDram ephemeral;
-            Serial.printf("DRAM free: %6d bytes\r\n\r\n", ESP.getFreeHeap());
-        }
+        Serial.printf_P(PSTR("DRAM free: %6d bytes\r\n"), ESP.getFreeHeap());
         lastHeapLog = millis();
     }
 #endif

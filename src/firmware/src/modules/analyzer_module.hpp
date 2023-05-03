@@ -9,6 +9,10 @@
 
 namespace SyncBlink
 {
+    // The TCP stack of the ESP8266 is not able to process unlimited packages
+    // before reaching an ERR_MEM from lwip. Thats why we delay the analyzer updates a bit.
+    static const int8_t UpdateTimeout = 25;
+
     class AnalyzerModule : public Module, public MessageHandler<Messages::AnalyzerChange>
     {
     public:
@@ -25,7 +29,7 @@ namespace SyncBlink
         MessageBus& _messageBus;
         FrequencyAnalyzer _frequencyAnalyzer;
 
-        bool _doUpdate = true;
+        long _lastUpdate = -1;
         uint64_t _activeAnalzyerId;
         uint32_t _analyzerChangeHandleId = 0;
         uint64_t _ownId = SyncBlink::getId();

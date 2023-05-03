@@ -1,7 +1,5 @@
 #include "blink_script.hpp"
 
-#include <umm_malloc/umm_heap_select.h>
-
 #include "parser/parser.hpp"
 #include "scanner/scanner.hpp"
 #include "vm/compiler.hpp"
@@ -12,8 +10,6 @@ namespace SyncBlink
 {
     BlinkScript::BlinkScript(LED& led, const std::string& script, uint16_t maxFreq, std::string nodeName, std::string nodeType) : _led(led)
     {
-        HeapSelectIram ephemeral;
-
         auto parser = Parser(script);
         auto programAst = parser.parse();
 
@@ -70,8 +66,6 @@ namespace SyncBlink
 
     void BlinkScript::init()
     {
-        HeapSelectIram ephemeral;
-
         if (isFaulted())
             return;
         _vm.executeFun("init", {});
@@ -80,8 +74,6 @@ namespace SyncBlink
 
     void BlinkScript::run(const uint8_t delta)
     {
-        HeapSelectIram ephemeral;
-
         if (isFaulted())
             return;
         _vm.executeFun("update", {Value((float)delta)});
@@ -91,8 +83,6 @@ namespace SyncBlink
     void BlinkScript::updateLedInfo(const uint16_t previousNodeCount, const uint32_t previousLedCount,
                                     const uint32_t meshLedCount)
     {
-        HeapSelectIram ephemeral;
-
         if (isFaulted())
             return;
         _vm.getFrame().addSet("pNodeC", Value((float)previousNodeCount));
@@ -102,8 +92,6 @@ namespace SyncBlink
 
     void BlinkScript::updateAnalyzerResult(const uint8_t volume, const uint16_t dominantFrequency, const std::array<uint8_t, 32>& freqBin)
     {
-        HeapSelectIram ephemeral;
-        
         if (isFaulted())
             return;
 

@@ -158,6 +158,10 @@ namespace SyncBlink
         _doc[F("script")] = activeScript;
 
         serializeJson(_doc, JSON);
+
+        Serial.println(_doc.capacity());
+        Serial.println(JSON);
+
         _server.send(200, F("application/json"), JSON);
         _doc.clear();
     }
@@ -224,7 +228,9 @@ namespace SyncBlink
         for (std::string scriptName : scriptList)
             files.add(scriptName);
 
-        serializeJson(_doc, JSON);        
+        serializeJson(_doc, JSON);
+        Serial.println(_doc.capacity());
+        Serial.println(JSON);
         _server.send(200, F("application/json"), JSON);
         _doc.clear();
     }

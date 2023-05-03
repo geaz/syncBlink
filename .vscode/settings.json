@@ -1,4 +1,4 @@
 {
     "cmake.configureOnOpen": false,
-    "cmake.sourceDirectory": "${workspaceFolder}/src/firmware/lib/blinkscript"
+    "cmake.sourceDirectory": "${workspaceFolder}/firmware/lib/blinkscript"
 }
