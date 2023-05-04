@@ -1,13 +1,13 @@
 #ifndef VM_H
 #define VM_H
 
-#include "model/value.hpp"
-#include "model/frame.hpp"
-#include "model/program.hpp"
-#include "model/objects/array_object.hpp"
-#include "model/objects/string_object.hpp"
-#include "model/objects/function_object.hpp"
-#include "model/objects/native_function_object.hpp"
+#include "program/model/value.hpp"
+#include "frame.hpp"
+#include "program/program.hpp"
+#include "program/model/objects/array_object.hpp"
+#include "program/model/objects/string_object.hpp"
+#include "program/model/objects/function_object.hpp"
+#include "program/model/objects/native_function_object.hpp"
 
 #include <map>
 #include <vector>

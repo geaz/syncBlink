@@ -2,7 +2,7 @@
 #define CALLEXPRESSION_H
 
 #include "parser/ast/ast_node.hpp"
-#include "scanner/model/token.hpp"
+#include "parser/model/token.hpp"
 
 #include <vector>
 

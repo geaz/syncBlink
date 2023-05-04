@@ -1,10 +1,9 @@
 #include "blink_script.hpp"
 
 #include "parser/parser.hpp"
-#include "vm/compiler.hpp"
-#include "vm/model/objects/native_function_object.hpp"
-#include "vm/model/value.hpp"
-#include "printer/disassembler.hpp"
+#include "compiler/compiler.hpp"
+#include "program/model/objects/native_function_object.hpp"
+#include "program/model/value.hpp"
 
 namespace SyncBlink
 {

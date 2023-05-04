@@ -11,10 +11,12 @@ namespace SyncBlink
     {
         visitor.visitPrefixExpression(*this);
     }
+
     const Token& PrefixExpression::getOperatorToken() const
     {
         return _operatorToken;
     }
+    
     const AstNode& PrefixExpression::getExpression() const
     {
         return *_expression;

@@ -15,10 +15,10 @@ namespace SyncBlink
         const AstNode& getLoopBody() const;
         uint16_t getLine() const;
 
-    private:        
-        uint16_t _line;
+    private:
         std::unique_ptr<const AstNode> _condition;
         std::unique_ptr<const AstNode> _loopBody;
+        uint16_t _line;
     };
 }
 

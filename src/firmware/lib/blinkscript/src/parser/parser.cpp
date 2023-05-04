@@ -21,7 +21,7 @@
 
 namespace SyncBlink
 {
-    Parser::Parser(std::shared_ptr<ScriptSource> source) : _scanner(source)
+    Parser::Parser(std::shared_ptr<ScriptSource> source) : _source(source), _scanner(source)
     {
         _nud[TokenType::STRING] = &Parser::parseLiteralExpression;
         _nud[TokenType::NUMBER] = &Parser::parseLiteralExpression;
@@ -55,7 +55,7 @@ namespace SyncBlink
 
     ProgramAst Parser::parse()
     {
-        ProgramAst programAst;
+        ProgramAst programAst(_source);
         while (_scanner.advance().getTokenType() != TokenType::ENDOFFILE)
         {
             std::unique_ptr<const AstNode> statement = parseStatement();

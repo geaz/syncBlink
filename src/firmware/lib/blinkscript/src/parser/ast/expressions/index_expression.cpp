@@ -12,14 +12,17 @@ namespace SyncBlink
     {
         visitor.visitIndexExpression(*this);
     }
+    
     uint16_t IndexExpression::getLine() const
     {
         return _line;
     }
+
     const AstNode& IndexExpression::getLeft() const
     {
         return *_left;
     }
+
     const AstNode& IndexExpression::getRight() const
     {
         return *_right;

@@ -12,14 +12,17 @@ namespace SyncBlink
     {
         visitor.visitInfixExpression(*this);
     }
+    
     const Token& InfixExpression::getOperatorToken() const
     {
         return _operatorToken;
     }
+
     const AstNode& InfixExpression::getLeft() const
     {
         return *_left;
     }
+
     const AstNode& InfixExpression::getRight() const
     {
         return *_right;

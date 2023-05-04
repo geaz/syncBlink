@@ -1,7 +1,7 @@
 #include <catch2/catch.hpp>
-#include "vm/model/value.hpp"
-#include "vm/model/symbol_table.hpp"
-#include "vm/model/string_hash.hpp"
+#include "program/model/value.hpp"
+#include "program/model/string_hash.hpp"
+#include "vm/symbol_table.hpp"
 #include <iostream>
 
 TEST_CASE("Should insert key successfully", "[SymbolTable]")

@@ -1,7 +1,7 @@
 #ifndef DISASSEMBLER_H
 #define DISASSEMBLER_H
 
-#include "vm/model/program.hpp"
+#include "program/program.hpp"
 
 namespace SyncBlink
 {

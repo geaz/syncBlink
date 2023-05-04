@@ -3,8 +3,8 @@
 
 #include "ast/ast_node.hpp"
 #include "ast/program_ast.hpp"
-#include "scanner/model/token.hpp"
-#include "scanner/model/token_type.hpp"
+#include "model/token.hpp"
+#include "model/token_type.hpp"
 #include "scanner/scanner.hpp"
 
 #include <functional>
@@ -52,6 +52,7 @@ namespace SyncBlink
         std::vector<std::unique_ptr<const AstNode>> parseExpressionList(TokenType endToken);
         bool assertToken(Token token, std::vector<TokenType> expected);
 
+        std::shared_ptr<ScriptSource> _source;
         Scanner _scanner;
         std::tuple<int, std::string> _parserError = std::make_tuple(-99, "");
 

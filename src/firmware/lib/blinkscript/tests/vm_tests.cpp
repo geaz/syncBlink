@@ -3,16 +3,16 @@
 #include <iomanip>
 #include <vector>
 
-#include "scanner/scanner.hpp"
-#include "scanner/string_script_source.hpp"
-#include "scanner/model/token.hpp"
+#include "parser/scanner/scanner.hpp"
+#include "source/string_script_source.hpp"
+#include "parser/model/token.hpp"
 #include "parser/parser.hpp"
 #include "parser/ast/ast_node.hpp"
 #include "parser/ast/program_ast.hpp"
 #include "printer/disassembler.hpp"
-#include "vm/model/objects/object.hpp"
-#include "vm/model/objects/native_function_object.hpp"
-#include "vm/compiler.hpp"
+#include "program/model/objects/object.hpp"
+#include "program/model/objects/native_function_object.hpp"
+#include "compiler/compiler.hpp"
 #include "vm/vm.hpp"
 
 SyncBlink::Program compile(const std::string& script)

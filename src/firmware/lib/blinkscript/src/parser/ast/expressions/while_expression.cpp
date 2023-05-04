@@ -12,14 +12,17 @@ namespace SyncBlink
     {
         visitor.visitWhileExpression(*this);
     }
+
     const AstNode& WhileExpression::getCondition() const
     {
         return *_condition;
     }
+
     const AstNode& WhileExpression::getLoopBody() const
     {
         return *_loopBody;
     }
+    
     uint16_t WhileExpression::getLine() const
     {
         return _line;

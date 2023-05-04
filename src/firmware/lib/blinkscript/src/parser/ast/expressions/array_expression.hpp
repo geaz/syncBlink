@@ -2,7 +2,7 @@
 #define ARRAYEXPRESSION_H
 
 #include "parser/ast/ast_node.hpp"
-#include "scanner/model/token.hpp"
+#include "parser/model/token.hpp"
 
 #include <vector>
 
@@ -18,8 +18,8 @@ namespace SyncBlink
         const std::vector<std::unique_ptr<const AstNode>>& getArrayContent() const;
 
     private:
-        uint16_t _line;
         std::vector<std::unique_ptr<const AstNode>> _arrayContent;
+        uint16_t _line;
     };
 }
 

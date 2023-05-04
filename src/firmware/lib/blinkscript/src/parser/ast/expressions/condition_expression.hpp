@@ -18,10 +18,10 @@ namespace SyncBlink
         uint16_t getLine() const;
 
     private:
-        uint16_t _line;
         std::unique_ptr<const AstNode> _condition;
         std::unique_ptr<const AstNode> _ifStatements;
         std::unique_ptr<const AstNode> _elseStatements;
+        uint16_t _line;
     };
 }
 

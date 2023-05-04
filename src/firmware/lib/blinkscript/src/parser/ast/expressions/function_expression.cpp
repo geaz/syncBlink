@@ -12,14 +12,17 @@ namespace SyncBlink
     {
         visitor.visitFunctionExpression(*this);
     }
+    
     uint16_t FunctionExpression::getLine() const
     {
         return _line;
     }
+
     const AstNode& FunctionExpression::getFunctionBody() const
     {
         return *_functionBody;
     }
+
     const std::vector<Token>& FunctionExpression::getParameters() const
     {
         return _parameters;

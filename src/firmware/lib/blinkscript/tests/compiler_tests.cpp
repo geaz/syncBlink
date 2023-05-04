@@ -1,19 +1,18 @@
 #include <catch2/catch.hpp>
-#include <vld.h>
 #include <iostream>
 #include <iomanip>
 #include <vector>
 #include <memory>
 
-#include "scanner/scanner.hpp"
-#include "scanner/string_script_source.hpp"
-#include "scanner/model/token.hpp"
+#include "source/string_script_source.hpp"
+#include "parser/scanner/scanner.hpp"
+#include "parser/model/token.hpp"
 #include "parser/parser.hpp"
 #include "parser/ast/ast_node.hpp"
 #include "parser/ast/program_ast.hpp"
 #include "printer/disassembler.hpp"
-#include "vm/compiler.hpp"
-#include "vm/model/objects/function_object.hpp"
+#include "compiler/compiler.hpp"
+#include "program/model/objects/function_object.hpp"
 
 SyncBlink::ProgramAst parsec(SyncBlink::Parser& parser)
 {

@@ -3,7 +3,7 @@
 
 #include "vm/vm.hpp"
 #include "script_built_ins.hpp"
-#include "scanner/espfile_script_source.hpp"
+#include "source/espfile_script_source.hpp"
 
 #include <deque>
 #include <memory>

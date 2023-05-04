@@ -2,7 +2,7 @@
 #define PREFIXEXPRESSION_H
 
 #include "parser/ast/ast_node.hpp"
-#include "scanner/model/token.hpp"
+#include "parser/model/token.hpp"
 
 namespace SyncBlink
 {

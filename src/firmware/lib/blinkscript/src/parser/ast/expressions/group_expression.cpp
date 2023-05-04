@@ -10,6 +10,7 @@ namespace SyncBlink
     {
         visitor.visitGroupExpression(*this);
     }
+    
     const AstNode& GroupExpression::getExpression() const
     {
         return *_expression;

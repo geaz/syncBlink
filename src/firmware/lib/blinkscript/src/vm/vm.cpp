@@ -1,7 +1,7 @@
 #include "vm.hpp"
 
-#include "model/string_hash.hpp"
-#include "op_codes.hpp"
+#include "program/model/string_hash.hpp"
+#include "program/model/op_codes.hpp"
 
 #include <sstream>
 #include <stdio.h>

@@ -1,9 +1,9 @@
 #include "disassembler.hpp"
 
-#include "vm/model/objects/array_object.hpp"
-#include "vm/model/objects/object.hpp"
-#include "vm/model/objects/string_object.hpp"
-#include "vm/op_codes.hpp"
+#include "program/model/objects/array_object.hpp"
+#include "program/model/objects/object.hpp"
+#include "program/model/objects/string_object.hpp"
+#include "program/model/op_codes.hpp"
 
 #include <iomanip>
 #include <sstream>

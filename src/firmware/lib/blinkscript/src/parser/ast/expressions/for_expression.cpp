@@ -15,22 +15,27 @@ namespace SyncBlink
     {
         visitor.visitForExpression(*this);
     }
+
     const AstNode& ForExpression::getAssignStatement() const
     {
         return *_assignStatement;
     }
+
     const AstNode& ForExpression::getConditionExpression() const
     {
         return *_conditionExpression;
     }
+
     const AstNode& ForExpression::getIncrementorStatement() const
     {
         return *_incrementorStatement;
     }
+
     const AstNode& ForExpression::getLoopBody() const
     {
         return *_loopBody;
     }
+    
     uint16_t ForExpression::getLine() const
     {
         return _line;

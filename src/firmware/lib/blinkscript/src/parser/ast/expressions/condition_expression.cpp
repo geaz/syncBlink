@@ -14,18 +14,22 @@ namespace SyncBlink
     {
         visitor.visitConditionExpression(*this);
     }
+    
     const AstNode& ConditionExpression::getCondition() const
     {
         return *_condition;
     }
+
     const AstNode& ConditionExpression::getIfBranch() const
     {
         return *_ifStatements;
     }
+
     const std::unique_ptr<const AstNode>& ConditionExpression::getElseBranch() const
     {
         return _elseStatements;
     }
+
     uint16_t ConditionExpression::getLine() const
     {
         return _line;

@@ -1,7 +1,7 @@
 #include <catch2/catch.hpp>
-#include "scanner/scanner.hpp"
-#include "scanner/model/token.hpp"
-#include "scanner/string_script_source.hpp"
+#include "parser/scanner/scanner.hpp"
+#include "parser/model/token.hpp"
+#include "source/string_script_source.hpp"
 #include <iostream>
 
 TEST_CASE("Scanner reports error on unrecognized lexems", "[scanTokens]")

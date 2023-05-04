@@ -1,8 +1,8 @@
 #include "script_built_ins.hpp"
 
 #include "blink_script.hpp"
-#include "vm/model/objects/native_function_object.hpp"
-#include "vm/model/value.hpp"
+#include "program/model/objects/native_function_object.hpp"
+#include "program/model/value.hpp"
 
 #include <color.hpp>
 #include <Arduino.h>
