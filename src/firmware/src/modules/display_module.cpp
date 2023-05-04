@@ -38,12 +38,14 @@ namespace SyncBlink
 
     void DisplayModule::onMsg(const Messages::ScriptChange& msg)
     {
+        Serial.println("Display - ScriptChange");
         _display.setView(_runScriptView);
         _display.setLeftStatus(msg.scriptName);
     }
 
     void DisplayModule::onMsg(const Messages::ScriptError& msg)
     {
+        Serial.println("Display - ScriptError");
         _display.setView(_invalidScriptView);
         _display.setLeftStatus(msg.scriptName);
     }

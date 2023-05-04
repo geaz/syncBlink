@@ -67,7 +67,7 @@ namespace SyncBlink
         Messages::MeshUpdate updateMsg = { _config.Values[F("led_count")], 1, _totalLeds, _totalNodes };
         _tcpServer.broadcast(updateMsg.toPackage());
 
-       // sendScriptUpdate(msg.nodeId);
+        sendScriptUpdate(msg.nodeId);
         _messageBus.trigger(Messages::ScriptChange{_scriptModule.getActiveScript().Name});
     }
 
@@ -83,8 +83,12 @@ namespace SyncBlink
 
     void HubWifiModule::onMsg(const Messages::ScriptChange& msg)
     {
-       // sendScriptUpdate();
-        _tcpServer.broadcast(msg.toPackage());
+        if((msg.contentChanged && _scriptModule.getActiveScript().Name == msg.scriptName)
+        || !msg.contentChanged)
+        {
+            sendScriptUpdate();
+            _tcpServer.broadcast(msg.toPackage());
+        }
     }
 
     void HubWifiModule::onMsg(const Messages::NodeCommand& msg)

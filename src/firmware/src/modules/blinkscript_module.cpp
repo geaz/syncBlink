@@ -22,8 +22,10 @@ namespace SyncBlink
 
     void BlinkScriptModule::loop()
     {
+        checkFailSafe();
         if (_inFailSafe) return;
-        if ((_activeScriptChanged || _blinkScript == nullptr) && _currentScript.Exists && checkBlinkScript())
+
+        if ((_activeScriptChanged || _blinkScript == nullptr) && _currentScript.Exists)
         {
             if (_blinkScript != nullptr) delete _blinkScript;
             _blinkScript = new BlinkScript(_led, _currentScript.Path, MaxFrequency, _nodeName, _nodeType);
@@ -36,7 +38,7 @@ namespace SyncBlink
 
     void BlinkScriptModule::onMsg(const Messages::AnalyzerUpdate& msg)
     {
-        if (_blinkScript == nullptr || _inFailSafe || !checkBlinkScript()) return;
+        if (_blinkScript == nullptr || _inFailSafe || checkBlinkScript()) return;
 
         uint32_t delta = millis() - _lastLedUpdate;
         _lastLedUpdate = millis();
@@ -47,9 +49,14 @@ namespace SyncBlink
 
     void BlinkScriptModule::onMsg(const Messages::ScriptChange& msg)
     {
-        _inFailSafe = false;
-        _activeScriptChanged = true;
-        _currentScript = _scriptModule.get(msg.scriptName);
+        if((msg.contentChanged && _scriptModule.getActiveScript().Name == msg.scriptName)
+        || !msg.contentChanged)
+        {
+            _inError = false;
+            _inFailSafe = false;
+            _activeScriptChanged = true;
+            _currentScript = _scriptModule.get(msg.scriptName);
+        }        
     }
 
     void BlinkScriptModule::onMsg(const Messages::MeshUpdate& msg)
@@ -59,20 +66,28 @@ namespace SyncBlink
         _meshLedCount = msg.meshLedCount;
     }
 
-    bool BlinkScriptModule::checkBlinkScript()
+    void BlinkScriptModule::checkFailSafe()
     {
-        bool valid = true;
+        if(_failSafeChecked) return;
 
         auto rstPtr = ESP.getResetInfoPtr();
         _inFailSafe = rstPtr->reason >= 1 && rstPtr->reason <= 4 && !_failSafeChecked;
         _failSafeChecked = true;
 
-        if (_inFailSafe || (_blinkScript != nullptr && _blinkScript->isFaulted()))
+        if (_inFailSafe)
         {
             _messageBus.trigger(Messages::ScriptError{_currentScript.Name, "TODO"});
-            valid = false;
         }
-        return valid;
+    }
+
+    bool BlinkScriptModule::checkBlinkScript()
+    {
+        if (!_inError && !_activeScriptChanged && _blinkScript != nullptr && _blinkScript->isFaulted())
+        {
+            _messageBus.trigger(Messages::ScriptError{_currentScript.Name, "TODO"});
+            _inError = true;
+        }
+        return _inError;
     }
 
     bool BlinkScriptModule::getLightMode() const

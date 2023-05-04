@@ -216,7 +216,8 @@ namespace SyncBlink
         } 
         else if (upload.status == UPLOAD_FILE_END)
         {
-            _messageBus.trigger(Messages::ScriptChange{_script.Name});
+            _script.closeFile();
+            _messageBus.trigger(Messages::ScriptChange{_script.Name, true});
         }
         else _server.send(500, F("text/plain"), F("Upload failed!"));
     }

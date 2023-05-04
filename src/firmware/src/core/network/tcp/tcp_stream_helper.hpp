@@ -41,6 +41,7 @@ namespace SyncBlink
                         break;
                     }
                 }
+                delay(1);
             }
             return receivedMessage;
         }

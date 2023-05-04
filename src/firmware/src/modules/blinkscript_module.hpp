@@ -35,6 +35,7 @@ namespace SyncBlink
         uint64_t getActiveAnalyzer() const;
 
     private:
+        void checkFailSafe();
         bool checkBlinkScript();
 
         LED& _led;
@@ -48,6 +49,7 @@ namespace SyncBlink
         bool _activeScriptChanged = false;
         bool _lightMode = false;
 
+        bool _inError = false;
         bool _inFailSafe = false;
         bool _failSafeChecked = false;
 
