@@ -59,11 +59,11 @@ namespace SyncBlink
         void visitLiteralExpression(const LiteralExpression& literalExpr) override;
 
     private:
-        void addValueCode(float number, uint16_t line);
-        void addValueCode(bool boolean, uint16_t line);
-        void addValueCode(uint32_t arraySize, uint16_t line);
-        void addValueCode(const std::string& string, uint16_t line);
-        void addValueCode(Program&& program, const std::vector<Token>& funParameters, uint16_t line);
+        void addNumberValueCode(float number, uint16_t line);
+        void addBoolValueCode(bool boolean, uint16_t line);
+        void addArrayValueCode(uint32_t arraySize, uint16_t line);
+        void addStrValueCode(const std::string& string, uint16_t line);
+        void addFunValueCode(Program&& program, const std::vector<Token>& funParameters, uint16_t line);
 
         void checkValueCount();
 

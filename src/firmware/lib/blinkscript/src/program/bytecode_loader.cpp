@@ -130,15 +130,21 @@ namespace SyncBlink
 
     uint16_t ByteCodeLoader::loadTwoBytes(size_t& idx)
     {
-        return    _byteCode->getByte(idx++)
+        // Prevent -Wunsequenced warnings
+        size_t firstByte = idx++;
+        return    _byteCode->getByte(firstByte)
                 | _byteCode->getByte(idx++) << 8;
     }
 
     uint32_t ByteCodeLoader::loadFourBytes(size_t& idx)
     {
-        return    _byteCode->getByte(idx++)
-                | _byteCode->getByte(idx++) << 8                            
-                | _byteCode->getByte(idx++) << 16
+        // Prevent -Wunsequenced warnings
+        size_t firstByte = idx++;
+        size_t secondByte = idx++;
+        size_t thirdByte = idx++;
+        return    _byteCode->getByte(firstByte)
+                | _byteCode->getByte(secondByte) << 8                            
+                | _byteCode->getByte(thirdByte) << 16
                 | _byteCode->getByte(idx++) << 24;
     }
 }

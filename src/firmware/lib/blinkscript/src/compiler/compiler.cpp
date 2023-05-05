@@ -62,14 +62,14 @@ namespace SyncBlink
     {
         letStatement.getExpression().accept(*this);
         _targetProgram->addCode(OpCode::DEFINE, letStatement.getIdentifier().getLine());
-        addValueCode(letStatement.getIdentifier().getLexem(_source), letStatement.getIdentifier().getLine());
+        addStrValueCode(letStatement.getIdentifier().getLexem(_source), letStatement.getIdentifier().getLine());
     }
 
     void Compiler::visitAssignStatement(const AssignStatement& assignStatement)
     {
         assignStatement.getExpression().accept(*this);
         _targetProgram->addCode(OpCode::SET, assignStatement.getIdentifier().getLine());
-        addValueCode(assignStatement.getIdentifier().getLexem(_source), assignStatement.getIdentifier().getLine());
+        addStrValueCode(assignStatement.getIdentifier().getLexem(_source), assignStatement.getIdentifier().getLine());
     }
 
     void Compiler::visitArrayAssignStatement(const ArrayAssignStatement& arrayAssignStatement)
@@ -168,7 +168,7 @@ namespace SyncBlink
         _targetProgram = currentProgram;        
         _targetProgram->addCode(OpCode::JMP_NOT, conditionExpr.getLine());
         _targetProgram->addCode(OpCode::VALUE, conditionExpr.getLine());
-        addValueCode(_targetProgram->getCode().size() + ifProgram.getCode().size() + 1.0f + (elsePresent ? 3.0f : 0 /*JMP of If branch, if else present*/),
+        addNumberValueCode(_targetProgram->getCode().size() + ifProgram.getCode().size() + 1.0f + (elsePresent ? 3.0f : 0 /*JMP of If branch, if else present*/),
                                      conditionExpr.getLine());
 
         conditionExpr.getIfBranch().accept(*this);
@@ -177,7 +177,7 @@ namespace SyncBlink
             // JMP beyond else branch, if the if-branch was executed
             _targetProgram->addCode(OpCode::JMP, conditionExpr.getLine());
             _targetProgram->addCode(OpCode::VALUE, conditionExpr.getLine());
-            addValueCode(_targetProgram->getCode().size() + elseProgram.getCode().size() + 1.0f, conditionExpr.getLine());
+            addNumberValueCode(_targetProgram->getCode().size() + elseProgram.getCode().size() + 1.0f, conditionExpr.getLine());
 
             conditionExpr.getElseBranch()->accept(*this);
         }
@@ -193,7 +193,7 @@ namespace SyncBlink
 
         _targetProgram = currentProgram;
         _targetProgram->addCode(OpCode::VALUE, functionExpr.getLine());
-        addValueCode(std::move(funProgram), functionExpr.getParameters(), functionExpr.getLine());
+        addFunValueCode(std::move(funProgram), functionExpr.getParameters(), functionExpr.getLine());
     }
 
     void Compiler::visitCallExpression(const CallExpression& callExpr)
@@ -204,7 +204,7 @@ namespace SyncBlink
             callExpr.getParameters()[i]->accept(*this);
         }
         _targetProgram->addCode(OpCode::CALL, callExpr.getIdentifier().getLine());
-        addValueCode(callExpr.getIdentifier().getLexem(_source), callExpr.getIdentifier().getLine());
+        addStrValueCode(callExpr.getIdentifier().getLexem(_source), callExpr.getIdentifier().getLine());
     }
 
     void Compiler::visitArrayExpression(const ArrayExpression& arrayExpr)
@@ -221,7 +221,7 @@ namespace SyncBlink
         // and can be added to the array object through the addArrayValueCode method
         _targetProgram->removeCode(arrayExpr.getArrayContent().size() * 2);
         _targetProgram->addCode(OpCode::VALUE, arrayExpr.getLine());
-        addValueCode(arrayExpr.getArrayContent().size(), arrayExpr.getLine());
+        addArrayValueCode(arrayExpr.getArrayContent().size(), arrayExpr.getLine());
     }
 
     void Compiler::visitIndexExpression(const IndexExpression& indexExpr)
@@ -248,12 +248,12 @@ namespace SyncBlink
         _targetProgram->addCode(OpCode::JMP_NOT, whileExpr.getLine());
         _targetProgram->addCode(OpCode::VALUE, whileExpr.getLine());
         // add JMP, VAL and actual object index to program size (+4.0f)
-        addValueCode(_targetProgram->getCode().size() + whileProgram.getCode().size() + 4.0f, whileExpr.getLine());
+        addNumberValueCode(_targetProgram->getCode().size() + whileProgram.getCode().size() + 4.0f, whileExpr.getLine());
         whileExpr.getLoopBody().accept(*this);
 
         _targetProgram->addCode(OpCode::JMP, whileExpr.getLine());
         _targetProgram->addCode(OpCode::VALUE, whileExpr.getLine());
-        addValueCode(whileStart, whileExpr.getLine());
+        addNumberValueCode(whileStart, whileExpr.getLine());
         _targetProgram->addCode(OpCode::UNFRAME, whileExpr.getLine());
         _skipFraming = false;
     }
@@ -278,13 +278,13 @@ namespace SyncBlink
         _targetProgram->addCode(OpCode::JMP_NOT, forExpr.getLine());
         _targetProgram->addCode(OpCode::VALUE, forExpr.getLine());
         // add JMP, VAL and actual object index to program size (+4.0f)
-        addValueCode(_targetProgram->getCode().size() + forProgram.getCode().size() + 4.0f, forExpr.getLine());
+        addNumberValueCode(_targetProgram->getCode().size() + forProgram.getCode().size() + 4.0f, forExpr.getLine());
         forExpr.getLoopBody().accept(*this);
         forExpr.getIncrementorStatement().accept(*this);
 
         _targetProgram->addCode(OpCode::JMP, forExpr.getLine());
         _targetProgram->addCode(OpCode::VALUE, forExpr.getLine());
-        addValueCode(forStart, forExpr.getLine());
+        addNumberValueCode(forStart, forExpr.getLine());
         _targetProgram->addCode(OpCode::UNFRAME, forExpr.getLine());
         _skipFraming = false;
     }
@@ -295,41 +295,41 @@ namespace SyncBlink
         if (valueToken.getTokenType() == TokenType::IDENTIFIER)
         {
             _targetProgram->addCode(OpCode::LOAD, valueToken.getLine());
-            addValueCode(valueToken.getLexem(_source), valueToken.getLine());
+            addStrValueCode(valueToken.getLexem(_source), valueToken.getLine());
         }
         else if (valueToken.getTokenType() == TokenType::FALSE)
         {
             _targetProgram->addCode(OpCode::VALUE, valueToken.getLine());
-            addValueCode(false, valueToken.getLine());
+            addBoolValueCode(false, valueToken.getLine());
         }
         else if (valueToken.getTokenType() == TokenType::TRUE)
         {
             _targetProgram->addCode(OpCode::VALUE, valueToken.getLine());
-            addValueCode(true, valueToken.getLine());
+            addBoolValueCode(true, valueToken.getLine());
         }
         else if (valueToken.getTokenType() == TokenType::NUMBER)
         {
             _targetProgram->addCode(OpCode::VALUE, valueToken.getLine());
-            addValueCode(valueToken.getNumber(_source), valueToken.getLine());
+            addNumberValueCode(valueToken.getNumber(_source), valueToken.getLine());
         }
         else if (valueToken.getTokenType() == TokenType::STRING)
         {
             _targetProgram->addCode(OpCode::VALUE, valueToken.getLine());
-            addValueCode(valueToken.getString(_source), valueToken.getLine());
+            addStrValueCode(valueToken.getString(_source), valueToken.getLine());
         }
     }
 
-    void Compiler::addValueCode(float number, uint16_t line)
+    void Compiler::addNumberValueCode(float number, uint16_t line)
     {
         _targetProgram->addCode(_targetProgram->addValue(Value(number)), line);
     }
 
-    void Compiler::addValueCode(bool boolean, uint16_t line)
+    void Compiler::addBoolValueCode(bool boolean, uint16_t line)
     {
         _targetProgram->addCode(_targetProgram->addValue(Value(boolean)), line);
     }
 
-    void Compiler::addValueCode(uint32_t arraySize, uint16_t line)
+    void Compiler::addArrayValueCode(uint32_t arraySize, uint16_t line)
     {
         std::vector<Value> arrayContent;
         for (uint32_t i = 1; i <= arraySize; i++)
@@ -343,13 +343,13 @@ namespace SyncBlink
         _targetProgram->addCode(_targetProgram->addValue(Value(ptr.get()), ptr), line);
     }
 
-    void Compiler::addValueCode(const std::string& string, uint16_t line)
+    void Compiler::addStrValueCode(const std::string& string, uint16_t line)
     {
         auto ptr = std::make_shared<StringObj>(StringObj(string));
         _targetProgram->addCode(_targetProgram->addValue(Value(ptr.get()), ptr), line);
     }
 
-    void Compiler::addValueCode(Program&& program, const std::vector<Token>& funParameters, uint16_t line)
+    void Compiler::addFunValueCode(Program&& program, const std::vector<Token>& funParameters, uint16_t line)
     {
         auto ptr = std::make_shared<FunObj>(FunObj(std::move(program)));
         for (const Token& token : funParameters)
