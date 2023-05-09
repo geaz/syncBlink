@@ -68,7 +68,12 @@ namespace SyncBlink
         Messages::MeshUpdate updateMsg = { _config.Values[F("led_count")], 1, _totalLeds, _totalNodes };
         _tcpServer.broadcast(updateMsg.toPackage());
 
-        if (msg.isConnected) sendScriptUpdate(msg.nodeId);
+        if (msg.isConnected)
+        {
+            sendScriptUpdate(msg.nodeId);
+            Messages::ScriptChange scriptChange = { _scriptModule.getActiveScript().Name };
+            _tcpServer.broadcast(scriptChange.toPackage());
+        }
     }
 
     void HubWifiModule::onMsg(const Messages::AnalyzerUpdate& msg)
@@ -84,7 +89,7 @@ namespace SyncBlink
     void HubWifiModule::onMsg(const Messages::ScriptChange& msg)
     {
         sendScriptUpdate();
-        // Nodes do an implicit ScriptChange (triggering own ScriptChange)
+        _tcpServer.broadcast(msg.toPackage());
     }
 
     void HubWifiModule::onMsg(const Messages::NodeCommand& msg)
@@ -105,7 +110,6 @@ namespace SyncBlink
 
     void HubWifiModule::sendScriptUpdate(uint64_t nodeId)
     {
-        Serial.println("seinding");
         Messages::NodeCommand msg;
         msg.recipientId = nodeId;
         msg.commandInfo.stringInfo1 = _scriptModule.getActiveScript().Name;

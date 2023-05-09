@@ -118,8 +118,6 @@ namespace SyncBlink
             Script script = _scriptModule.get(msg.commandInfo.stringInfo1);
             _tcpClient->writeBinaryUntilMessage(script.getBytecodeFile(true)); // TODO PROPER FORWARD IN MESH
             script.closeFile();
-            
-            //_messageBus.trigger(Messages::ScriptChange{script.Name});
             break;
         }        
     }
