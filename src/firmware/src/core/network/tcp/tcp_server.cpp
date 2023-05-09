@@ -84,8 +84,8 @@ namespace SyncBlink
 
                 if (streamId != 0)
                 {
-                    Serial.printf("[TCP SERVER] Client lost connection: %12llx (AP Connected: %i, Write Timeout: %i)\n",
-                                  streamId, connectedToAp, client->isWriteTimeout());
+                    Serial.printf("[TCP SERVER] Client lost connection: %12llx (AP Connected: %i, Write Timeout: %i)\n", streamId,
+                                  connectedToAp, client->isWriteTimeout());
                     _messageBus.trigger(Messages::MeshConnection{streamId, false});
                 }
             }

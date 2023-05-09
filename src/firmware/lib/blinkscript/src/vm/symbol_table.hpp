@@ -7,7 +7,7 @@
 
 namespace SyncBlink
 {
-    static const float TableLoad = 0.75;  
+    static const float TableLoad = 0.75;
 
     struct TableEntry
     {

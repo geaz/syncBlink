@@ -5,11 +5,11 @@
 #include "symbol_table.hpp"
 
 #include <map>
-#include <string>
 #include <memory>
+#include <string>
 
 namespace SyncBlink
-{    
+{
     class Frame
     {
     public:
@@ -25,9 +25,9 @@ namespace SyncBlink
 
         std::shared_ptr<Frame> getParentFrame() const;
 
-    private:  
+    private:
         SymbolTable _variables;
-        std::shared_ptr<Frame> _parentFrame = nullptr;     
+        std::shared_ptr<Frame> _parentFrame = nullptr;
     };
 }
 

@@ -1,7 +1,7 @@
 #include "program.hpp"
 
-#include "model/op_codes.hpp"
 #include "model/objects/string_object.hpp"
+#include "model/op_codes.hpp"
 
 #include <algorithm>
 
@@ -48,7 +48,7 @@ namespace SyncBlink
     {
         return _lines;
     }
-    
+
     const Value& Program::getConstant(uint16_t index) const
     {
         return _constants[index];
@@ -78,8 +78,7 @@ namespace SyncBlink
                 break;
             }
             else if (searchConst.getType() == ValueType::OBJECT && constant.getType() == ValueType::OBJECT &&
-                     searchConst.object->getType() == ObjectType::STRING &&
-                     constant.object->getType() == ObjectType::STRING)
+                     searchConst.object->getType() == ObjectType::STRING && constant.object->getType() == ObjectType::STRING)
             {
                 auto searchStr = searchConst.getObject<StringObj>()->getString();
                 auto constStr = constant.getObject<StringObj>()->getString();
@@ -97,7 +96,7 @@ namespace SyncBlink
     {
         return _objects.size();
     }
-    
+
     uint32_t Program::getConstantSize() const
     {
         return _constants.size();

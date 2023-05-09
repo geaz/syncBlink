@@ -1,13 +1,13 @@
 #ifndef NATIVEFUNOBJ_H
 #define NATIVEFUNOBJ_H
 
-#include "vm/frame.hpp"
 #include "object.hpp"
+#include "vm/frame.hpp"
 
+#include <functional>
 #include <memory>
 #include <string>
 #include <vector>
-#include <functional>
 
 namespace SyncBlink
 {

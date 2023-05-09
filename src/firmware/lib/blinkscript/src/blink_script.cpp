@@ -1,8 +1,8 @@
 #include "blink_script.hpp"
 
-#include "program/model/value.hpp"
 #include "program/bytecode_loader.hpp"
 #include "program/model/objects/native_function_object.hpp"
+#include "program/model/value.hpp"
 
 namespace SyncBlink
 {
@@ -12,9 +12,8 @@ namespace SyncBlink
         auto byteCodeLoader = ByteCodeLoader(_source);
         _program = std::make_shared<Program>(byteCodeLoader.getProgram());
         _vm.run((const Program&)*_program.get());
-        
-        if (checkEvalError("preInit", _vm.hasError(), _vm.getError()))
-            return;
+
+        if (checkEvalError("preInit", _vm.hasError(), _vm.getError())) return;
 
         // Add global funcs
         BuiltIns::println(_vm);
@@ -46,25 +45,21 @@ namespace SyncBlink
 
     void BlinkScript::init()
     {
-        if (isFaulted())
-            return;
+        if (isFaulted()) return;
         _vm.executeFun("init", {});
         checkEvalError("init", _vm.hasError(), _vm.getError());
     }
 
     void BlinkScript::run(const uint8_t delta)
     {
-        if (isFaulted())
-            return;
+        if (isFaulted()) return;
         _vm.executeFun("update", {Value((float)delta)});
         checkEvalError("update", _vm.hasError(), _vm.getError());
     }
 
-    void BlinkScript::updateLedInfo(const uint16_t previousNodeCount, const uint32_t previousLedCount,
-                                    const uint32_t meshLedCount)
+    void BlinkScript::updateLedInfo(const uint16_t previousNodeCount, const uint32_t previousLedCount, const uint32_t meshLedCount)
     {
-        if (isFaulted())
-            return;
+        if (isFaulted()) return;
         _vm.getFrame().addSet("pNodeC", Value((float)previousNodeCount));
         _vm.getFrame().addSet("pLedC", Value((float)previousLedCount));
         _vm.getFrame().addSet("mLedC", Value((float)meshLedCount));
@@ -72,8 +67,7 @@ namespace SyncBlink
 
     void BlinkScript::updateAnalyzerResult(const uint8_t volume, const uint16_t dominantFrequency, const std::array<uint8_t, 32>& freqBin)
     {
-        if (isFaulted())
-            return;
+        if (isFaulted()) return;
 
         bool updateResult = true;
         std::tuple<uint8_t, uint16_t> result = std::make_tuple(volume, dominantFrequency);
@@ -99,12 +93,13 @@ namespace SyncBlink
 
             _lastVolume = std::get<0>(result);
             _lastFrequency = std::get<1>(result);
-            
+
             bool resetBin = (float)std::get<0>(result) == 0;
-            for(int i = 0; i < 32; i++)
+            for (int i = 0; i < 32; i++)
             {
-                if(resetBin) _freqBin->getValues()[i] = Value((float)0);
-                else _freqBin->getValues()[i] = Value((float)freqBin[i]);
+                if (resetBin) _freqBin->getValues()[i] = Value((float)0);
+                else
+                    _freqBin->getValues()[i] = Value((float)freqBin[i]);
             }
         }
     }
@@ -121,8 +116,7 @@ namespace SyncBlink
 
     void BlinkScript::setDelay(uint32_t delay)
     {
-        if (_delay == 0)
-            _delay = delay;
+        if (_delay == 0) _delay = delay;
     }
 
     bool BlinkScript::checkEvalError(const std::string& step, bool hasError, std::tuple<int, std::string> error)
@@ -141,8 +135,7 @@ namespace SyncBlink
 
     void BlinkScript::saveAddToScope(const std::string& identifier, Value value)
     {
-        if (isFaulted())
-            return;
+        if (isFaulted()) return;
         if (!_vm.getFrame().addSet(identifier, value))
         {
             _faulted = true;
@@ -161,7 +154,7 @@ namespace SyncBlink
     void BlinkScript::saveAddFreqBin()
     {
         std::vector<Value> freqBin;
-        for(int i = 0; i < 32; i++)
+        for (int i = 0; i < 32; i++)
         {
             freqBin.push_back(Value((float)0));
         }

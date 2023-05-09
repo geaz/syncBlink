@@ -1,10 +1,11 @@
 #ifndef DISPLAY_H
 #define DISPLAY_H
 
-#include <memory>
-#include <U8g2lib.h>
-#include <string>
 #include "view.hpp"
+
+#include <U8g2lib.h>
+#include <memory>
+#include <string>
 
 namespace SyncBlink
 {
@@ -12,22 +13,22 @@ namespace SyncBlink
 
     class Display
     {
-        public:
-            Display();
+    public:
+        Display();
 
-            void init();
-            void loop();
+        void init();
+        void loop();
 
-            void setView(const std::shared_ptr<View> view);
-            void setLeftStatus(const std::string& text);
-            void setRightStatus(const std::string& text);
+        void setView(const std::shared_ptr<View> view);
+        void setLeftStatus(const std::string& text);
+        void setRightStatus(const std::string& text);
 
-        private:
-            DisplayCtrl _ctrl;
-            std::shared_ptr<View> _currentView;
+    private:
+        DisplayCtrl _ctrl;
+        std::shared_ptr<View> _currentView;
 
-            std::string _leftStatusText = "";
-            std::string _rightStatusText = "";
+        std::string _leftStatusText = "";
+        std::string _rightStatusText = "";
     };
 }
 

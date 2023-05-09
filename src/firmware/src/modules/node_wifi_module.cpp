@@ -6,8 +6,8 @@
 namespace SyncBlink
 {
     NodeWifiModule::NodeWifiModule(Config& config, LED& led, MessageBus& messageBus, ScriptModule& scriptModule)
-        : _config(config), _led(led), _messageBus(messageBus), _scriptModule(scriptModule), _mesh(_config.Values[F("wifi_ssid")], _config.Values[F("wifi_pw")]),
-          _tcpServer(_messageBus)
+        : _config(config), _led(led), _messageBus(messageBus), _scriptModule(scriptModule),
+          _mesh(_config.Values[F("wifi_ssid")], _config.Values[F("wifi_pw")]), _tcpServer(_messageBus)
     {
         _meshHandleId = _messageBus.addMsgHandler<Messages::MeshConnection>(MessageType::MeshConnection, this);
         _meshUpdateHandleId = _messageBus.addMsgHandler<Messages::MeshUpdate>(MessageType::MeshUpdate, this);
@@ -119,6 +119,6 @@ namespace SyncBlink
             _tcpClient->writeBinaryUntilMessage(script.getBytecodeFile(true)); // TODO PROPER FORWARD IN MESH
             script.closeFile();
             break;
-        }        
+        }
     }
 }

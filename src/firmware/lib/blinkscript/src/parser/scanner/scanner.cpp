@@ -39,8 +39,7 @@ namespace SyncBlink
     Token Scanner::scanToken(bool advance, bool advanceMatch, TokenType match, uint32_t skip)
     {
         Token token;
-        if (_currentPos >= _source->length())
-            return Token(TokenType::ENDOFFILE, 0, 0, _line);
+        if (_currentPos >= _source->length()) return Token(TokenType::ENDOFFILE, 0, 0, _line);
 
         skipNonTokens();
         uint32_t originalStart = _currentPos;
@@ -151,8 +150,7 @@ namespace SyncBlink
             token = consumeString();
             break;
         default:
-            if (isDigit(currentChar))
-                token = consumeNumber();
+            if (isDigit(currentChar)) token = consumeNumber();
             else if (isAlpha(currentChar))
                 token = consumeIdentifier();
             break;
@@ -179,8 +177,7 @@ namespace SyncBlink
             switch (_source->getChar(_currentPos))
             {
             case '/':
-                if (_source->getChar(_currentPos + 1) == '/')
-                    consumeComment();
+                if (_source->getChar(_currentPos + 1) == '/') consumeComment();
                 else
                     skipped = false;
                 break;
@@ -240,8 +237,7 @@ namespace SyncBlink
         std::string lexem = _source->substr(_startPos, _currentPos - _startPos);
 
         auto iterator = TokenKeywords.find(lexem);
-        if (iterator != TokenKeywords.end())
-            type = iterator->second;
+        if (iterator != TokenKeywords.end()) type = iterator->second;
 
         return Token(type, _startPos, _currentPos - _startPos, _line);
     }

@@ -4,8 +4,8 @@
 #include "program/model/objects/native_function_object.hpp"
 #include "program/model/value.hpp"
 
-#include <color.hpp>
 #include <Arduino.h>
+#include <color.hpp>
 #include <math.h>
 
 namespace SyncBlink
@@ -16,20 +16,20 @@ namespace SyncBlink
         {
             vm.addNativeFun("println", std::make_shared<NativeFunObj>(
                                            [](Frame frame) {
-                                               if(frame.get("arg0").getType() == ValueType::NUMBER)
+                                               if (frame.get("arg0").getType() == ValueType::NUMBER)
                                                {
                                                    Serial.print("[SCRIPT] ");
                                                    Serial.println(frame.get("arg0").number);
                                                }
-                                               else if(frame.get("arg0").getType() == ValueType::OBJECT)
+                                               else if (frame.get("arg0").getType() == ValueType::OBJECT)
                                                {
                                                    auto strObj = frame.get("arg0").object;
                                                    if (strObj->getType() == ObjectType::STRING)
                                                    {
                                                        Serial.print("[SCRIPT] ");
                                                        Serial.println(static_cast<StringObj*>(strObj)->getString().c_str());
-                                                   } 
-                                               }                                               
+                                                   }
+                                               }
                                                return Value();
                                            },
                                            1));
@@ -38,41 +38,42 @@ namespace SyncBlink
         void setLinearGroups(BlinkScript& blinkScript, VM& vm)
         {
             vm.addNativeFun("setLinearGroupsOf", std::make_shared<NativeFunObj>(
+                                                     [&blinkScript](Frame frame) {
+                                                         uint32_t countPerGroup = (uint32_t)frame.get("arg0").number;
+                                                         for (uint32_t i = 0; i < blinkScript.getLed().getLedCount() / countPerGroup; i++)
+                                                         {
+                                                             std::vector<uint16_t> ledIndices;
+                                                             for (uint16_t j = 0; j < countPerGroup; j++)
+                                                             {
+                                                                 ledIndices.push_back(i + (j * countPerGroup));
+                                                             }
+                                                             blinkScript.getLed().setGroup(i, ledIndices);
+                                                         }
+                                                         return Value();
+                                                     },
+                                                     1));
+        }
+
+        void setGroups(BlinkScript& blinkScript, VM& vm)
+        {
+            vm.addNativeFun("setGroupsOf", std::make_shared<NativeFunObj>(
                                                [&blinkScript](Frame frame) {
                                                    uint32_t countPerGroup = (uint32_t)frame.get("arg0").number;
-                                                   for (uint32_t i = 0; i < blinkScript.getLed().getLedCount() / countPerGroup; i++)
+                                                   uint32_t groupCount = blinkScript.getLed().getLedCount() / countPerGroup;
+                                                   for (uint32_t i = 0; i < groupCount; i++)
                                                    {
                                                        std::vector<uint16_t> ledIndices;
                                                        for (uint16_t j = 0; j < countPerGroup; j++)
                                                        {
-                                                           ledIndices.push_back(i + (j * countPerGroup));
+                                                           if (j % 2 == 0) ledIndices.push_back((i + j * groupCount));
+                                                           else
+                                                               ledIndices.push_back((j + 1) * groupCount - (i + 1));
                                                        }
                                                        blinkScript.getLed().setGroup(i, ledIndices);
                                                    }
                                                    return Value();
                                                },
                                                1));
-        }
-
-        void setGroups(BlinkScript& blinkScript, VM& vm)
-        {
-            vm.addNativeFun("setGroupsOf", 
-                std::make_shared<NativeFunObj>([&blinkScript](Frame frame) {
-                        uint32_t countPerGroup = (uint32_t)frame.get("arg0").number;
-                        uint32_t groupCount = blinkScript.getLed().getLedCount()/countPerGroup;
-                        for(uint32_t i = 0; i < groupCount; i++)
-                        {
-                            std::vector<uint16_t> ledIndices;
-                            for(uint16_t j = 0; j < countPerGroup; j++)
-                            {
-                                if(j%2 == 0) ledIndices.push_back((i + j*groupCount));
-				                else ledIndices.push_back((j+1)*groupCount - (i+1));
-                            }
-                            blinkScript.getLed().setGroup(i, ledIndices);
-                        }
-                        return Value();
-                    },
-                    1));
         }
 
         void clearGroups(BlinkScript& blinkScript, VM& vm)
@@ -108,22 +109,21 @@ namespace SyncBlink
 
         void setLeds(BlinkScript& blinkScript, VM& vm)
         {
-            vm.addNativeFun(
-                "setLeds",
-                std::make_shared<NativeFunObj>(
-                    [&blinkScript](Frame frame) {
-                        auto arrayVal = frame.get("arg0");
-                        if (arrayVal.getType() == ValueType::OBJECT && arrayVal.object->getType() == ObjectType::ARRAY)
-                        {
-                            auto arrayObj = static_cast<ArrayObj*>(arrayVal.object);
-                            for (uint32_t i = 0; i < arrayObj->getValues().size(); i++)
-                            {
-                                blinkScript.getLed().setLed(i, Color::fromHex(arrayObj->getValues()[i].number));
-                            }
-                        }
-                        return Value();
-                    },
-                    1));
+            vm.addNativeFun("setLeds",
+                            std::make_shared<NativeFunObj>(
+                                [&blinkScript](Frame frame) {
+                                    auto arrayVal = frame.get("arg0");
+                                    if (arrayVal.getType() == ValueType::OBJECT && arrayVal.object->getType() == ObjectType::ARRAY)
+                                    {
+                                        auto arrayObj = static_cast<ArrayObj*>(arrayVal.object);
+                                        for (uint32_t i = 0; i < arrayObj->getValues().size(); i++)
+                                        {
+                                            blinkScript.getLed().setLed(i, Color::fromHex(arrayObj->getValues()[i].number));
+                                        }
+                                    }
+                                    return Value();
+                                },
+                                1));
         }
 
         void setAllLeds(BlinkScript& blinkScript, VM& vm)

@@ -28,8 +28,10 @@ namespace SyncBlink
         _server.on(F("/api/scripts/get"), HTTP_GET, [this]() { getScriptContent(); });
 
         _server.on(F("/api/scripts/add"), HTTP_GET, [this]() { addScript(); });
-        _server.on(F("/api/scripts/save"), HTTP_POST, [this]() { _server.send(200, F("text/plain"), ""); }, [this]() { saveScript(false); });
-        _server.on(F("/api/scripts/savebc"), HTTP_POST, [this]() { _server.send(200, F("text/plain"), ""); }, [this]() { saveScript(true); });
+        _server.on(
+            F("/api/scripts/save"), HTTP_POST, [this]() { _server.send(200, F("text/plain"), ""); }, [this]() { saveScript(false); });
+        _server.on(
+            F("/api/scripts/savebc"), HTTP_POST, [this]() { _server.send(200, F("text/plain"), ""); }, [this]() { saveScript(true); });
         _server.on(F("/api/scripts/delete"), HTTP_GET, [this]() { deleteScript(); });
         _server.on(F("/api/scripts/set"), HTTP_GET, [this]() { setActiveScript(); });
 
@@ -126,12 +128,13 @@ namespace SyncBlink
         auto connectedNodes = _wifiModule.getConnectedNodes();
         connectedNodes[std::get<0>(stationInfo)] = std::get<1>(stationInfo);
 
-        if (!_server.chunkedResponseModeStart(200, "application/json")) {
+        if (!_server.chunkedResponseModeStart(200, "application/json"))
+        {
             _server.send(505, F("text/html"), F("HTTP1.1 required"));
             return;
         }
-        _server.sendContent("{\"nodes\":[");        
-        
+        _server.sendContent("{\"nodes\":[");
+
         auto iter = connectedNodes.begin();
         auto endIter = connectedNodes.end();
         for (; iter != endIter;)
@@ -148,15 +151,16 @@ namespace SyncBlink
             _server.sendContent(("\"label\":\"" + node.nodeLabel + "\",").c_str());
 
             ++iter;
-            if(iter == endIter) 
-                _server.sendContent(("\"connectedToMeshWifi\":" + std::string(node.connectedToMeshWifi ? "true" : "false") + "}],").c_str());
+            if (iter == endIter)
+                _server.sendContent(
+                    ("\"connectedToMeshWifi\":" + std::string(node.connectedToMeshWifi ? "true" : "false") + "}],").c_str());
             else
                 _server.sendContent(("\"connectedToMeshWifi\":" + std::string(node.connectedToMeshWifi ? "true" : "false") + "},").c_str());
         }
-        
-        _server.sendContent(("\"analyzer\":" + toString(_analyzerModule.getActiveAnalyzer()) + ",").c_str());  
+
+        _server.sendContent(("\"analyzer\":" + toString(_analyzerModule.getActiveAnalyzer()) + ",").c_str());
         _server.sendContent(("\"lightMode\":" + std::string(_blinkScriptModule.getLightMode() ? "true" : "false") + ",").c_str());
-        _server.sendContent(("\"ssid\":\"" + ssid + "\",").c_str());  
+        _server.sendContent(("\"ssid\":\"" + ssid + "\",").c_str());
         _server.sendContent(("\"connected\":" + std::string(WiFi.status() == WL_CONNECTED ? "true" : "false") + ",").c_str());
         _server.sendContent(("\"script\":\"" + activeScriptName + "\"}").c_str());
         _server.chunkedResponseFinalize();
@@ -177,11 +181,12 @@ namespace SyncBlink
     {
         std::string ssid = _config.Values[F("wifi_ssid")];
 
-        if (!_server.chunkedResponseModeStart(200, "application/json")) {
+        if (!_server.chunkedResponseModeStart(200, "application/json"))
+        {
             _server.send(505, F("text/html"), F("HTTP1.1 required"));
             return;
         }
-        _server.sendContent(("{\"ssid\":\"" + ssid + "\",").c_str());        
+        _server.sendContent(("{\"ssid\":\"" + ssid + "\",").c_str());
         _server.sendContent(("\"connected\":" + std::string(WiFi.status() == WL_CONNECTED ? "true" : "false") + "}").c_str());
         _server.chunkedResponseFinalize();
     }
@@ -197,33 +202,36 @@ namespace SyncBlink
     void WebModule::saveScript(bool isBytecode)
     {
         HTTPUpload& upload = _server.upload();
-        if (upload.status == UPLOAD_FILE_START) 
+        if (upload.status == UPLOAD_FILE_START)
         {
             _script = _scriptModule.get(upload.filename.c_str());
-            if(!_script.Exists)
+            if (!_script.Exists)
             {
                 _server.send(500, F("text/plain"), F("Upload Failed! Script does not exist!"));
                 return;
             }
         }
-        else if (upload.status == UPLOAD_FILE_WRITE && _script.Exists) 
+        else if (upload.status == UPLOAD_FILE_WRITE && _script.Exists)
         {
             size_t bytesWritten = 0;
-            if(isBytecode) bytesWritten = _script.getBytecodeFile(true).write(upload.buf, upload.currentSize);
-            else bytesWritten = _script.getScriptFile(true).write(upload.buf, upload.currentSize);
+            if (isBytecode) bytesWritten = _script.getBytecodeFile(true).write(upload.buf, upload.currentSize);
+            else
+                bytesWritten = _script.getScriptFile(true).write(upload.buf, upload.currentSize);
 
             if (bytesWritten != upload.currentSize)
             {
                 _server.send(500, F("text/plain"), F("Write failed!"));
                 return;
             }
-        } 
+        }
         else if (upload.status == UPLOAD_FILE_END)
         {
             _script.closeFile();
-            if(isBytecode && _scriptModule.getActiveScript().Name == _script.Name) _messageBus.trigger(Messages::ScriptChange{_script.Name});
+            if (isBytecode && _scriptModule.getActiveScript().Name == _script.Name)
+                _messageBus.trigger(Messages::ScriptChange{_script.Name});
         }
-        else _server.send(500, F("text/plain"), F("Upload failed!"));
+        else
+            _server.send(500, F("text/plain"), F("Upload failed!"));
     }
 
     void WebModule::deleteScript()
@@ -236,13 +244,14 @@ namespace SyncBlink
 
     void WebModule::getScriptList()
     {
-        if (!_server.chunkedResponseModeStart(200, "application/json")) {
+        if (!_server.chunkedResponseModeStart(200, "application/json"))
+        {
             _server.send(505, F("text/html"), F("HTTP1.1 required"));
             return;
         }
 
         std::vector<Script> scriptList = _scriptModule.getList();
-        _server.sendContent("{\"scripts\":["); 
+        _server.sendContent("{\"scripts\":[");
 
         auto iter = scriptList.begin();
         auto endIter = scriptList.end();
@@ -252,7 +261,7 @@ namespace SyncBlink
             _server.sendContent(("{\"name\":\"" + std::string(script->Name) + "\",").c_str());
 
             ++iter;
-            if(iter == endIter) 
+            if (iter == endIter)
                 _server.sendContent(("\"isCompiled\":" + std::string(script->IsCompiled ? "true" : "false") + "}]}").c_str());
             else
                 _server.sendContent(("\"isCompiled\":" + std::string(script->IsCompiled ? "true" : "false") + "},").c_str());

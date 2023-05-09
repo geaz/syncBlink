@@ -1,17 +1,17 @@
 #ifndef VM_H
 #define VM_H
 
-#include "program/model/value.hpp"
 #include "frame.hpp"
-#include "program/program.hpp"
 #include "program/model/objects/array_object.hpp"
-#include "program/model/objects/string_object.hpp"
 #include "program/model/objects/function_object.hpp"
 #include "program/model/objects/native_function_object.hpp"
+#include "program/model/objects/string_object.hpp"
+#include "program/model/value.hpp"
+#include "program/program.hpp"
 
 #include <map>
-#include <vector>
 #include <memory>
+#include <vector>
 
 namespace SyncBlink
 {
@@ -41,11 +41,11 @@ namespace SyncBlink
         void executeFun(uint32_t hash, int line, std::vector<Value> parameters, bool paramFromStack);
         StringObj* getStringObjectValue(const Program& program, int i);
         Value popValue();
-        
+
         std::vector<Value> _stack;
         std::vector<std::shared_ptr<Object>> _nativeFuns;
         std::vector<std::shared_ptr<Object>> _runTimeObjects;
-        std::shared_ptr<Frame> _frame = std::make_shared<Frame>(); 
+        std::shared_ptr<Frame> _frame = std::make_shared<Frame>();
         std::shared_ptr<Frame> _callFrame = nullptr;
         std::tuple<int, std::string> _vmError = std::make_tuple(-99, "");
     };

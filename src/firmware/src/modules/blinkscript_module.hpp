@@ -7,8 +7,8 @@
 #include "core/message/messages/script_change.hpp"
 #include "core/network/get_id.hpp"
 #include "core/script.hpp"
-#include "modules/script_module.hpp"
 #include "module.hpp"
+#include "modules/script_module.hpp"
 
 #include <blink_script.hpp>
 #include <memory>

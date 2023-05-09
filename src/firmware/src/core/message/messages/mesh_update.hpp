@@ -18,8 +18,7 @@ namespace SyncBlink
             }
 
             MeshUpdate(uint32_t _routeLedCount, uint32_t _routeNodeCount, uint32_t _meshLedCount, uint32_t _meshNodeCount)
-                : routeLedCount{_routeLedCount}, routeNodeCount{_routeNodeCount}, meshLedCount{_meshLedCount},
-                  meshNodeCount{_meshNodeCount}
+                : routeLedCount{_routeLedCount}, routeNodeCount{_routeNodeCount}, meshLedCount{_meshLedCount}, meshNodeCount{_meshNodeCount}
             {
             }
 

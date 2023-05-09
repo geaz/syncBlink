@@ -1,7 +1,8 @@
-#include <catch2/catch.hpp>
-#include "parser/scanner/scanner.hpp"
 #include "parser/model/token.hpp"
+#include "parser/scanner/scanner.hpp"
 #include "source/string_script_source.hpp"
+
+#include <catch2/catch.hpp>
 #include <iostream>
 
 TEST_CASE("Scanner reports error on unrecognized lexems", "[scanTokens]")
@@ -10,7 +11,7 @@ TEST_CASE("Scanner reports error on unrecognized lexems", "[scanTokens]")
     auto source = std::make_shared<SyncBlink::StringScriptSource>(script);
     SyncBlink::Scanner scanner(source);
 
-    while(scanner.advance().getTokenType() != SyncBlink::TokenType::ENDOFFILE)
+    while (scanner.advance().getTokenType() != SyncBlink::TokenType::ENDOFFILE)
     {
         REQUIRE(scanner.getCurrent().getTokenType() == SyncBlink::TokenType::EMPTY);
     }
@@ -22,7 +23,7 @@ TEST_CASE("Scanner is able to scan first non-sense script", "[scanTokens]")
     auto source = std::make_shared<SyncBlink::StringScriptSource>(script);
     SyncBlink::Scanner scanner(source);
 
-    while(scanner.advance().getTokenType() != SyncBlink::TokenType::ENDOFFILE)
+    while (scanner.advance().getTokenType() != SyncBlink::TokenType::ENDOFFILE)
     {
         REQUIRE(scanner.getCurrent().getTokenType() != SyncBlink::TokenType::EMPTY);
     }
@@ -71,7 +72,7 @@ TEST_CASE("Scanner is able to scan keywords", "[scanTokens]")
     auto source = std::make_shared<SyncBlink::StringScriptSource>(script);
     SyncBlink::Scanner scanner(source);
     SyncBlink::Token token;
-    
+
     REQUIRE(scanner.advance().getTokenType() == SyncBlink::TokenType::TRUE);
     scanner.advance(); // Skip EOL
     REQUIRE(scanner.advance().getTokenType() == SyncBlink::TokenType::FALSE);
@@ -92,8 +93,8 @@ TEST_CASE("Scanner is able to scan arrays", "[scanTokens]")
     auto source = std::make_shared<SyncBlink::StringScriptSource>(script);
     SyncBlink::Scanner scanner(source);
     SyncBlink::Token token;
-    
-    while(scanner.advance().getTokenType() != SyncBlink::TokenType::ENDOFFILE)
+
+    while (scanner.advance().getTokenType() != SyncBlink::TokenType::ENDOFFILE)
     {
         REQUIRE(scanner.getCurrent().getTokenType() != SyncBlink::TokenType::EMPTY);
     }
@@ -101,29 +102,29 @@ TEST_CASE("Scanner is able to scan arrays", "[scanTokens]")
 
 TEST_CASE("Scanner is able to scan script", "[scanTokens]")
 {
-    std::string script =    "let h=0\n"
-                            "let s=0\n"
-                            "let v=0\n"
-                            "\n"
-                            "let update = fun(delta) {\n"
-                                "\tif(vol == 0 || freq == 0 || vol < lVol) {\n"
-                                    "\t\tif(v > 0.05) { v = v - 0.05 }\n"
-                                    "\t\telse { v = 0 }\n"
-                                "\t} else {\n"
-                                    "\t\th = map(freq, 0, maxF, 180, 0)\n"
-                                    "\t\ts = 1\n"
-                                    "\t\tv = map(vol, 0, 100, 0, 1)\n"
-                                "\t}\n"
-                                "\tlet color = xhsv(h, s, v)\n"
-                                "\tsetAllLeds(color)\n"
-                            "}\n"
-                            "\n"
-                            "let init = fun(){}\n"
-                            "let scriptName = \"simpleScript\"";
+    std::string script = "let h=0\n"
+                         "let s=0\n"
+                         "let v=0\n"
+                         "\n"
+                         "let update = fun(delta) {\n"
+                         "\tif(vol == 0 || freq == 0 || vol < lVol) {\n"
+                         "\t\tif(v > 0.05) { v = v - 0.05 }\n"
+                         "\t\telse { v = 0 }\n"
+                         "\t} else {\n"
+                         "\t\th = map(freq, 0, maxF, 180, 0)\n"
+                         "\t\ts = 1\n"
+                         "\t\tv = map(vol, 0, 100, 0, 1)\n"
+                         "\t}\n"
+                         "\tlet color = xhsv(h, s, v)\n"
+                         "\tsetAllLeds(color)\n"
+                         "}\n"
+                         "\n"
+                         "let init = fun(){}\n"
+                         "let scriptName = \"simpleScript\"";
     auto source = std::make_shared<SyncBlink::StringScriptSource>(script);
     SyncBlink::Scanner scanner(source);
-    
-    while(scanner.advance().getTokenType() != SyncBlink::TokenType::ENDOFFILE)
+
+    while (scanner.advance().getTokenType() != SyncBlink::TokenType::ENDOFFILE)
     {
         REQUIRE(scanner.getCurrent().getTokenType() != SyncBlink::TokenType::EMPTY);
     }
@@ -138,8 +139,8 @@ TEST_CASE("Scanner is able to scan while loops", "[scanTokens]")
                          "i";
     auto source = std::make_shared<SyncBlink::StringScriptSource>(script);
     SyncBlink::Scanner scanner(source);
-    
-    while(scanner.advance().getTokenType() != SyncBlink::TokenType::ENDOFFILE)
+
+    while (scanner.advance().getTokenType() != SyncBlink::TokenType::ENDOFFILE)
     {
         REQUIRE(scanner.getCurrent().getTokenType() != SyncBlink::TokenType::EMPTY);
     }
@@ -149,11 +150,11 @@ TEST_CASE("Scanner is able to scan for loops", "[scanTokens]")
 {
     std::string script = "for(let i = 0; i < 10; i = i + 1){\n"
                          "}";
-    
+
     auto source = std::make_shared<SyncBlink::StringScriptSource>(script);
     SyncBlink::Scanner scanner(source);
-    
-    while(scanner.advance().getTokenType() != SyncBlink::TokenType::ENDOFFILE)
+
+    while (scanner.advance().getTokenType() != SyncBlink::TokenType::ENDOFFILE)
     {
         REQUIRE(scanner.getCurrent().getTokenType() != SyncBlink::TokenType::EMPTY);
     }

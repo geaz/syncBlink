@@ -1,7 +1,7 @@
 #include "vm.hpp"
 
-#include "program/model/string_hash.hpp"
 #include "program/model/op_codes.hpp"
+#include "program/model/string_hash.hpp"
 
 #include <sstream>
 #include <stdio.h>
@@ -73,8 +73,7 @@ namespace SyncBlink
                 handleInfix(program, i);
                 break;
             }
-            if (hasError())
-                return;
+            if (hasError()) return;
         }
     }
 
@@ -115,15 +114,13 @@ namespace SyncBlink
         {
             if (define)
             {
-                if (_frame->add(strObj->getHash(), _stack.back()))
-                    _stack.pop_back();
+                if (_frame->add(strObj->getHash(), _stack.back())) _stack.pop_back();
                 else
                     _vmError = std::make_tuple(program.getLines()[i - 1], "VM: Variable already defined!");
             }
             else
             {
-                if (_frame->set(strObj->getHash(), _stack.back()))
-                    _stack.pop_back();
+                if (_frame->set(strObj->getHash(), _stack.back())) _stack.pop_back();
                 else
                     _vmError = std::make_tuple(program.getLines()[i - 1], "VM: Variable not defined!");
             }
@@ -136,8 +133,7 @@ namespace SyncBlink
         if (strObj != nullptr)
         {
             Value value = _frame->get(strObj->getHash());
-            if (value.getType() == ValueType::NIL)
-                _vmError = std::make_tuple(program.getLines()[i - 1], "VM: Variable not defined!");
+            if (value.getType() == ValueType::NIL) _vmError = std::make_tuple(program.getLines()[i - 1], "VM: Variable not defined!");
             else
                 _stack.push_back(value);
         }
@@ -147,8 +143,7 @@ namespace SyncBlink
     {
         i += 2; // Next Instruction is VALUE, after this the actual jump value
         auto jmpValue = program.getConstant(program.getCode()[i]);
-        if (jmpValue.getType() != ValueType::NUMBER)
-            _vmError = std::make_tuple(program.getLines()[i - 1], "VM: JMP value not a number!");
+        if (jmpValue.getType() != ValueType::NUMBER) _vmError = std::make_tuple(program.getLines()[i - 1], "VM: JMP value not a number!");
         else
             i = jmpValue.number - 1; // decrease by one because of for loop increment
     }
@@ -156,8 +151,7 @@ namespace SyncBlink
     void VM::handleJumpNot(const Program& program, size_t& i)
     {
         auto value = popValue();
-        if (value.getType() != ValueType::BOOL)
-            _vmError = std::make_tuple(program.getLines()[i - 1], "VM: Condition value not a boolean!");
+        if (value.getType() != ValueType::BOOL) _vmError = std::make_tuple(program.getLines()[i - 1], "VM: Condition value not a boolean!");
         else if (!value.boolean)
         {
             i += 2; // Next Instruction is VALUE, after this the actual jump value
@@ -336,8 +330,7 @@ namespace SyncBlink
             }
             default:
                 _vmError =
-                    std::make_tuple(program.getLines()[i],
-                                    "VM: Invalid infix parameter! Its only possible to 'add' numbers and strings!");
+                    std::make_tuple(program.getLines()[i], "VM: Invalid infix parameter! Its only possible to 'add' numbers and strings!");
                 break;
             }
         }
@@ -348,8 +341,7 @@ namespace SyncBlink
     void VM::handleIndex(const Program& program, size_t i, bool set)
     {
         auto indexValue = popValue();
-        if (indexValue.getType() != ValueType::NUMBER)
-            _vmError = std::make_tuple(program.getLines()[i - 1], "VM: Index must be a number!");
+        if (indexValue.getType() != ValueType::NUMBER) _vmError = std::make_tuple(program.getLines()[i - 1], "VM: Index must be a number!");
         else
         {
             auto arrayValue = popValue();
@@ -358,11 +350,9 @@ namespace SyncBlink
             else
             {
                 auto arrayObj = static_cast<ArrayObj*>(arrayValue.object);
-                if (indexValue.number + 1 > arrayObj->getValues().size())
-                    arrayObj->getValues().resize(indexValue.number + 1);
+                if (indexValue.number + 1 > arrayObj->getValues().size()) arrayObj->getValues().resize(indexValue.number + 1);
 
-                if (set)
-                    arrayObj->getValues()[indexValue.number] = popValue();
+                if (set) arrayObj->getValues()[indexValue.number] = popValue();
                 else
                     _stack.push_back(arrayObj->getValues()[indexValue.number]);
             }
@@ -387,8 +377,7 @@ namespace SyncBlink
             _callFrame = std::make_shared<Frame>(_frame);
             for (size_t i = 0; i < funObj->getParameters().size(); i++)
             {
-                if (paramFromStack)
-                    _callFrame->addSet(funObj->getParameters()[i], popValue());
+                if (paramFromStack) _callFrame->addSet(funObj->getParameters()[i], popValue());
                 else
                     _callFrame->addSet(funObj->getParameters()[i], parameters[i]);
             }
@@ -402,14 +391,12 @@ namespace SyncBlink
                 char argName[10];
                 sprintf(argName, "arg%d", i);
 
-                if (paramFromStack)
-                    nativeCallFrame.addSet(std::string(argName), popValue());
+                if (paramFromStack) nativeCallFrame.addSet(std::string(argName), popValue());
                 else
                     nativeCallFrame.addSet(std::string(argName), parameters[i]);
             }
             auto value = nativeFunObj->getFun()(nativeCallFrame);
-            if (value.getType() != ValueType::NIL)
-                _stack.push_back(value);
+            if (value.getType() != ValueType::NIL) _stack.push_back(value);
         }
     }
 

@@ -16,7 +16,7 @@ namespace SyncBlink
     {
         return _operatorToken;
     }
-    
+
     const AstNode& PrefixExpression::getExpression() const
     {
         return *_expression;

@@ -7,7 +7,7 @@ namespace SyncBlink
         _ledCount = ledCount;
         _leds.resize(_ledCount);
         _groups.resize(_ledCount);
-        
+
         for (uint16_t index = 0; index < _leds.size(); index++)
             _leds[index] = CRGB::Black;
 
@@ -36,8 +36,7 @@ namespace SyncBlink
             {
                 for (uint16_t i : _groups[index])
                 {
-                    if (i >= 0 && i <= _ledCount - 1)
-                        _leds[i] = color;
+                    if (i >= 0 && i <= _ledCount - 1) _leds[i] = color;
                 }
             }
             else
@@ -50,8 +49,7 @@ namespace SyncBlink
         CRGB color = CRGB::Black;
         if (index >= 0 && index <= _ledCount - 1)
         {
-            if (_groupsSet && _groups[index].size() > 0)
-                color = _leds[_groups[index].front()];
+            if (_groupsSet && _groups[index].size() > 0) color = _leds[_groups[index].front()];
             else
                 color = _leds[index];
         }
@@ -87,7 +85,7 @@ namespace SyncBlink
 
     void LED::blinkNow(const Color color, uint8_t times)
     {
-        for(uint8_t i = 0; i < times; i++)
+        for (uint8_t i = 0; i < times; i++)
         {
             setAllLeds(color);
             loop();
@@ -95,6 +93,6 @@ namespace SyncBlink
             setAllLeds(Colors::Black);
             loop();
             delay(250);
-        }        
+        }
     }
 }

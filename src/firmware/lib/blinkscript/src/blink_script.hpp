@@ -1,16 +1,16 @@
 #ifndef BLINKSCRIPT_H
 #define BLINKSCRIPT_H
 
-#include "vm/vm.hpp"
 #include "script_built_ins.hpp"
 #include "source/espfile_bytecode_source.hpp"
+#include "vm/vm.hpp"
 
 #include <deque>
+#include <led.hpp>
 #include <memory>
 #include <tuple>
 #include <vector>
-#include <led.hpp>
- 
+
 namespace SyncBlink
 {
     class BlinkScript
@@ -20,8 +20,7 @@ namespace SyncBlink
 
         void init();
         void run(const uint8_t delta);
-        void updateLedInfo(const uint16_t previousNodeCount, const uint32_t previousLedCount,
-                           const uint32_t meshLedCount);
+        void updateLedInfo(const uint16_t previousNodeCount, const uint32_t previousLedCount, const uint32_t meshLedCount);
         void updateAnalyzerResult(const uint8_t volume, const uint16_t dominantFrequency, const std::array<uint8_t, 32>& freqBin);
 
         bool isFaulted();

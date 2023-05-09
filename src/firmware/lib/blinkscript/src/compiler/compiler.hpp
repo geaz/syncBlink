@@ -1,11 +1,8 @@
 #ifndef COMPILER_H
 #define COMPILER_H
 
-#include "program/program.hpp"
-#include "program/model/value.hpp"
 #include "parser/ast/ast_node.hpp"
 #include "parser/ast/ast_visitor.hpp"
-#include "parser/ast/program_ast.hpp"
 #include "parser/ast/expressions/array_expression.hpp"
 #include "parser/ast/expressions/call_expression.hpp"
 #include "parser/ast/expressions/condition_expression.hpp"
@@ -17,16 +14,19 @@
 #include "parser/ast/expressions/literal_expression.hpp"
 #include "parser/ast/expressions/prefix_expression.hpp"
 #include "parser/ast/expressions/while_expression.hpp"
-#include "parser/ast/statements/assign_statement.hpp"
+#include "parser/ast/program_ast.hpp"
 #include "parser/ast/statements/array_assign_statement.hpp"
+#include "parser/ast/statements/assign_statement.hpp"
 #include "parser/ast/statements/block_statement.hpp"
 #include "parser/ast/statements/expression_statement.hpp"
 #include "parser/ast/statements/let_statement.hpp"
+#include "program/model/value.hpp"
+#include "program/program.hpp"
 
-#include <tuple>
-#include <string>
-#include <vector>
 #include <memory>
+#include <string>
+#include <tuple>
+#include <vector>
 
 namespace SyncBlink
 {
@@ -36,7 +36,7 @@ namespace SyncBlink
         Compiler(std::shared_ptr<ScriptSource> source, const ProgramAst& programAst);
 
         Program compile();
-        
+
         bool hasError() const;
         std::tuple<int, std::string> getError() const;
 

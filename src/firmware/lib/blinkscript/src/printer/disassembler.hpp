@@ -13,7 +13,7 @@ namespace SyncBlink
     private:
         std::string printObjectCount(const Program& program) const;
         std::string printConstants(const Program& program) const;
-        std::string printConstant(Value constant) const;        
+        std::string printConstant(Value constant) const;
         std::string printCode(const Program& program) const;
     };
 }

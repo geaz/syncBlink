@@ -1,8 +1,8 @@
 #ifndef PROGRAM_H
 #define PROGRAM_H
 
-#include "model/value.hpp"
 #include "model/objects/object.hpp"
+#include "model/value.hpp"
 #include "parser/model/token.hpp"
 #include "source/script_source.hpp"
 
@@ -21,7 +21,7 @@ namespace SyncBlink
 
         const std::vector<uint16_t>& getCode() const;
         const std::vector<uint16_t>& getLines() const;
-        const Value& getConstant(uint16_t index) const;        
+        const Value& getConstant(uint16_t index) const;
         const Object* getObject(uint16_t index) const;
 
         uint32_t getConstantSize() const;

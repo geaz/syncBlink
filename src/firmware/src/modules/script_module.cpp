@@ -65,10 +65,10 @@ namespace SyncBlink
             Serial.println(F("[ScriptManager] Currently active script not found! Falling back ..."));
 
             std::vector<Script> scriptList = getList();
-            for(size_t i = 0; i < scriptList.size(); i++) 
+            for (size_t i = 0; i < scriptList.size(); i++)
             {
                 Script script = scriptList[i];
-                if(script.IsCompiled) 
+                if (script.IsCompiled)
                 {
                     setActiveScript(script.Name);
                     break;

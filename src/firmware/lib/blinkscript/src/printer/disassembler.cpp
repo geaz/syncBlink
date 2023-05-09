@@ -73,8 +73,7 @@ namespace SyncBlink
                 for (uint16_t i = 0; i < items.size(); i++)
                 {
                     ss << printConstant(items[i]);
-                    if (i < items.size() - 1)
-                        ss << ", ";
+                    if (i < items.size() - 1) ss << ", ";
                 }
                 ss << "]";
                 break;
@@ -116,7 +115,7 @@ namespace SyncBlink
             case OpCode::SET_INDEX:
                 ss << "SET_INDEX\n";
                 ss << "\t" << std::setw(3) << ++i << ": ." << program.getCode()[i] << "\n";
-                break;            
+                break;
             case OpCode::CALL:
                 ss << "CALL\n";
                 ss << "\t" << std::setw(3) << ++i << ": ." << program.getCode()[i] << "\n";

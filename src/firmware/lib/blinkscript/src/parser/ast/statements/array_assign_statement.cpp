@@ -2,8 +2,8 @@
 
 namespace SyncBlink
 {
-    ArrayAssignStatement::ArrayAssignStatement(std::unique_ptr<const AstNode> indexExpression,
-                                               std::unique_ptr<const AstNode> expression, uint16_t line)
+    ArrayAssignStatement::ArrayAssignStatement(std::unique_ptr<const AstNode> indexExpression, std::unique_ptr<const AstNode> expression,
+                                               uint16_t line)
         : _indexExpression(std::move(indexExpression)), _expression(std::move(expression)), _line(line)
     {
     }

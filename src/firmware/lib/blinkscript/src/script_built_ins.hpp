@@ -2,6 +2,7 @@
 #define SCRIPTBUILTINS_H
 
 #include "vm/vm.hpp"
+
 #include <led.hpp>
 
 namespace SyncBlink

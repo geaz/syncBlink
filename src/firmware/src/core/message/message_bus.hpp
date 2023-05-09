@@ -47,7 +47,7 @@ namespace SyncBlink
         void* _handler;
     };
 
-    /* 
+    /*
     This class was completly template based by using typeIds. Type IDs require RTTI.
     But removing the build flag "no-rtti" from the build, results in 6KB RAM usage!!!
     Thats why I am using this verbose MessageBus declaration. Open for better ideas! :)

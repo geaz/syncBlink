@@ -5,7 +5,7 @@ namespace SyncBlink
     ArrayObj::ArrayObj(const std::vector<Value>& arrayValues) : _arrayValues(arrayValues)
     {
     }
-    
+
     ObjectType ArrayObj::getType() const
     {
         return ObjectType::ARRAY;
@@ -15,7 +15,7 @@ namespace SyncBlink
     {
         return _arrayValues;
     }
-    
+
     const std::vector<Value>& ArrayObj::getValuesConst() const
     {
         return _arrayValues;

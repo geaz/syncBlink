@@ -1,8 +1,8 @@
 #ifndef BYTECODESOURCE_H
 #define BYTECODESOURCE_H
 
-#include <string>
 #include <fstream>
+#include <string>
 
 namespace SyncBlink
 {

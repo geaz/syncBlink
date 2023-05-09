@@ -43,7 +43,7 @@ namespace SyncBlink
             return other.Red == Red && other.Green == Green && other.Blue == Blue;
         }
     };
- 
+
     namespace Colors
     {
         static const Color Black = {0, 0, 0};
@@ -53,7 +53,7 @@ namespace SyncBlink
         static const Color Yellow = {255, 255, 0};
         static const Color White = {255, 255, 255};
         static const Color Cyan = {0, 255, 255};
-    }    
+    }
 }
 
 #endif // COLOR_H

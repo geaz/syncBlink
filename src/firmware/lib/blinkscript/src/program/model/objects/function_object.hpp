@@ -1,8 +1,8 @@
 #ifndef FUNOBJ_H
 #define FUNOBJ_H
 
-#include "program/program.hpp"
 #include "object.hpp"
+#include "program/program.hpp"
 
 #include <memory>
 #include <string>

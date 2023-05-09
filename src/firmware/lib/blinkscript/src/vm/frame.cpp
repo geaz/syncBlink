@@ -36,8 +36,7 @@ namespace SyncBlink
     Value Frame::get(uint32_t hash)
     {
         Value foundValue;
-        if (_variables.get(hash, &foundValue))
-            return foundValue;
+        if (_variables.get(hash, &foundValue)) return foundValue;
         else if (_parentFrame != nullptr)
             return _parentFrame->get(hash);
         else
@@ -48,8 +47,7 @@ namespace SyncBlink
     {
         uint32_t hash = stringHash(identifier);
         bool result = set(hash, value);
-        if (!result)
-            result = add(hash, value);
+        if (!result) result = add(hash, value);
         return result;
     }
 

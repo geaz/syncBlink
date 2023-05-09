@@ -1,23 +1,23 @@
-#include <catch2/catch.hpp>
-#include <iostream>
-#include <iomanip>
-#include <vector>
-#include <memory>
-
-#include "source/string_script_source.hpp"
-#include "parser/scanner/scanner.hpp"
-#include "parser/model/token.hpp"
-#include "parser/parser.hpp"
+#include "compiler/compiler.hpp"
 #include "parser/ast/ast_node.hpp"
 #include "parser/ast/program_ast.hpp"
+#include "parser/model/token.hpp"
+#include "parser/parser.hpp"
+#include "parser/scanner/scanner.hpp"
 #include "printer/disassembler.hpp"
-#include "compiler/compiler.hpp"
 #include "program/model/objects/function_object.hpp"
+#include "source/string_script_source.hpp"
+
+#include <catch2/catch.hpp>
+#include <iomanip>
+#include <iostream>
+#include <memory>
+#include <vector>
 
 SyncBlink::ProgramAst parsec(SyncBlink::Parser& parser)
 {
     auto programAst = parser.parse();
-    if(parser.hasError())
+    if (parser.hasError())
     {
         std::cout << "Line: " << std::get<0>(parser.getError()) << " - " << std::get<1>(parser.getError()) << '\n';
     }
@@ -34,7 +34,7 @@ TEST_CASE("Compiler runs successfully", "[compiler]")
 
     auto compiler = SyncBlink::Compiler(source, programAst);
     auto program = compiler.compile();
-    
+
     REQUIRE(!compiler.hasError());
 }
 
@@ -44,7 +44,7 @@ TEST_CASE("Compiler compiles let statements successfully", "[compiler]")
                          "let y = \"STRING\"\n"
                          "let k = 10\n"
                          "k";
-                                  
+
     auto source = std::make_shared<SyncBlink::StringScriptSource>(script);
     auto parser = SyncBlink::Parser(source);
     auto programAst = parsec(parser);
@@ -86,7 +86,7 @@ TEST_CASE("Compiler compiles assign statements successfully", "[compiler]")
     std::string script = "let k = \"lorem\"\n"
                          "k = \"ipsum\"\n"
                          "k";
-    
+
     auto source = std::make_shared<SyncBlink::StringScriptSource>(script);
     auto parser = SyncBlink::Parser(source);
     auto programAst = parsec(parser);
@@ -121,7 +121,7 @@ TEST_CASE("Compiler compiles bang prefix expression successfully", "[compiler]")
     std::string script = "let k = false\n"
                          "k = !k\n"
                          "k";
-    
+
     auto source = std::make_shared<SyncBlink::StringScriptSource>(script);
     auto parser = SyncBlink::Parser(source);
     auto programAst = parsec(parser);
@@ -155,7 +155,7 @@ TEST_CASE("Compiler compiles minus prefix expression successfully", "[compiler]"
 {
     std::string script = "let k = -2\n"
                          "k";
-    
+
     auto source = std::make_shared<SyncBlink::StringScriptSource>(script);
     auto parser = SyncBlink::Parser(source);
     auto programAst = parsec(parser);
@@ -185,7 +185,7 @@ TEST_CASE("Compiler compiles calculations successfully", "[compiler]")
 {
     std::string script = "let k = 2 - 2 + 3 * 2 / 2\n"
                          "k";
-    
+
     auto source = std::make_shared<SyncBlink::StringScriptSource>(script);
     auto parser = SyncBlink::Parser(source);
     auto programAst = parsec(parser);
@@ -227,7 +227,7 @@ TEST_CASE("Compiler compiles number comparison successfully", "[compiler]")
 {
     std::string script = "let k = 2 <= 3\n"
                          "k";
-    
+
     auto source = std::make_shared<SyncBlink::StringScriptSource>(script);
     auto parser = SyncBlink::Parser(source);
     auto programAst = parsec(parser);
@@ -260,7 +260,7 @@ TEST_CASE("Compiler compiles bool operations successfully", "[compiler]")
 {
     std::string script = "let k = true && false || true\n"
                          "k";
-    
+
     auto source = std::make_shared<SyncBlink::StringScriptSource>(script);
     auto parser = SyncBlink::Parser(source);
     auto programAst = parsec(parser);
@@ -296,7 +296,7 @@ TEST_CASE("Compiler compiles string concat successfully", "[compiler]")
 {
     std::string script = "let k = \"lorem\" + \" ipsum\"\n"
                          "k";
-    
+
     auto source = std::make_shared<SyncBlink::StringScriptSource>(script);
     auto parser = SyncBlink::Parser(source);
     auto programAst = parsec(parser);
@@ -329,7 +329,7 @@ TEST_CASE("Compiler compiles grouped calculation successfully", "[compiler]")
 {
     std::string script = "let k = 20 - (2 + 3 * 2) / 1\n"
                          "k";
-    
+
     auto source = std::make_shared<SyncBlink::StringScriptSource>(script);
     auto parser = SyncBlink::Parser(source);
     auto programAst = parsec(parser);
@@ -373,7 +373,7 @@ TEST_CASE("Compiler compiles function variables successfully", "[compiler]")
 {
     std::string script = "let k = fun(x, y){ x + y }\n"
                          "k";
-    
+
     auto source = std::make_shared<SyncBlink::StringScriptSource>(script);
     auto parser = SyncBlink::Parser(source);
     auto programAst = parsec(parser);
@@ -401,7 +401,7 @@ TEST_CASE("Compiler compiles function variables successfully", "[compiler]")
 
     auto funObj = static_cast<SyncBlink::FunObj*>(program.getConstant(0).object);
     disassembledCode = dis.print(funObj->getProgram());
-    REQUIRE(funObj->getParameters().size() == 2);    
+    REQUIRE(funObj->getParameters().size() == 2);
     REQUIRE(disassembledCode == ".object.count 2\n\n"
                                 ".constants:\n"
                                 "\t@  0: \"x\"\n"
@@ -421,7 +421,7 @@ TEST_CASE("Compiler compiles function call successfully", "[compiler]")
     std::string script = "let z = 4\n"
                          "let k = fun(x, y){ x + y + z }\n"
                          "k(1, 2)";
-    
+
     auto source = std::make_shared<SyncBlink::StringScriptSource>(script);
     auto parser = SyncBlink::Parser(source);
     auto programAst = parsec(parser);
@@ -462,7 +462,7 @@ TEST_CASE("Compiler compiles function call successfully (2)", "[compiler]")
 {
     std::string script = "let k = fun(x, y){ x / y }\n"
                          "k(100, 2)";
-    
+
     auto source = std::make_shared<SyncBlink::StringScriptSource>(script);
     auto parser = SyncBlink::Parser(source);
     auto programAst = parsec(parser);
@@ -498,7 +498,7 @@ TEST_CASE("Compiler compiles condition expression successfully", "[compiler]")
     std::string script = "let k = 0\n"
                          "if(k == 0) { k = 2 }\n"
                          "k";
-    
+
     auto source = std::make_shared<SyncBlink::StringScriptSource>(script);
     auto parser = SyncBlink::Parser(source);
     auto programAst = parsec(parser);
@@ -543,14 +543,14 @@ TEST_CASE("Compiler compiles script successfully", "[compiler]")
 {
     std::string script = "let update = fun(delta) {\n"
                          "if(vol == 0 || freq == 0 || vol < lVol) {\n"
-                         "\n"   
+                         "\n"
                          "}\n"
-                         "setAllLeds(12255470)\n"	
+                         "setAllLeds(12255470)\n"
                          "}\n"
                          "\n"
                          "let init = fun(){}\n"
                          "let scriptName = \"simpleScript\"";
-    
+
     auto source = std::make_shared<SyncBlink::StringScriptSource>(script);
     auto parser = SyncBlink::Parser(source);
     auto programAst = parsec(parser);
@@ -589,7 +589,7 @@ TEST_CASE("Compiler compiles array and indexing expressions successfully", "[com
 {
     std::string script = "let testArray = [1, \"lorem\", fun() { 1 + 2 }]\n"
                          "testArray[0]";
-    
+
     auto source = std::make_shared<SyncBlink::StringScriptSource>(script);
     auto parser = SyncBlink::Parser(source);
     auto programAst = parsec(parser);
@@ -630,7 +630,7 @@ TEST_CASE("Compiler compiles while loops successfully", "[compiler]")
                          "i = i + 1\n"
                          "}\n"
                          "counter";
-    
+
     auto source = std::make_shared<SyncBlink::StringScriptSource>(script);
     auto parser = SyncBlink::Parser(source);
     auto programAst = parsec(parser);
@@ -698,7 +698,7 @@ TEST_CASE("Compiler compiles for loops successfully", "[compiler]")
                          "\tcount = count + 1\n"
                          "}\n"
                          "count";
-    
+
     auto source = std::make_shared<SyncBlink::StringScriptSource>(script);
     auto parser = SyncBlink::Parser(source);
     auto programAst = parsec(parser);
@@ -761,44 +761,44 @@ TEST_CASE("Compiler compiles for loops successfully", "[compiler]")
 
 TEST_CASE("Compiler compiles Snake script successfully", "[bytecodeprinter]")
 {
-    std::string script =    "let h=0\n"
-                            "let s=0\n"
-                            "let v=0\n"
-                            "let colors = []\n"
-                            "\n"
-                            "let update = fun(delta) {\n"
-                                "if(vol == 0 || freq == 0 || (vol < lVol * 1.05 && v > 0.25)){\n"
-                                    "if(v > 0.025){ v = v - 0.025 }\n"
-                                    "else{ v = 0 }\n"
-                                "} else {\n"
-                                    "// To make the effects more colorful\n"
-                                    "if(freq > maxF/2) {\n"
-                                        "freq = maxF/2\n"
-                                    "}\n"
-                                    "h = map(freq, 100, maxF/2, 240, 0)\n"
-                                    "s = 1\n"
-                                    "v = map(vol, 0, 100, 0, 1)\n"
-                                "}\n"
-                                "\n"
-                                "for(let i = nLedC - 1; i > 0; i = i - 1) {\n"
-                                    "colors[i] = colors[i-1]\n"
-                                "}\n"
-                                "colors[0] = xhsv(h, s, v)\n"
-                                "setLeds(colors)\n"
-                            "}\n"
-                            "\n"
-                            "let init = fun(){\n"
-                                "for(let i = nLedC - 1; i > 0; i = i - 1) {\n"
-                                    "colors[i] = xrgb(0,0,0)\n"
-                                "}\n"
-                                "if(nLedC == 16) {\n"
-                                    "setGroupsOf(4)\n"
-                                "}\n"
-                                "if(nLedC == 256) {\n"
-                                    "setLinearGroupsOf(16)\n"
-                                "}\n"
-                            "}";
-    
+    std::string script = "let h=0\n"
+                         "let s=0\n"
+                         "let v=0\n"
+                         "let colors = []\n"
+                         "\n"
+                         "let update = fun(delta) {\n"
+                         "if(vol == 0 || freq == 0 || (vol < lVol * 1.05 && v > 0.25)){\n"
+                         "if(v > 0.025){ v = v - 0.025 }\n"
+                         "else{ v = 0 }\n"
+                         "} else {\n"
+                         "// To make the effects more colorful\n"
+                         "if(freq > maxF/2) {\n"
+                         "freq = maxF/2\n"
+                         "}\n"
+                         "h = map(freq, 100, maxF/2, 240, 0)\n"
+                         "s = 1\n"
+                         "v = map(vol, 0, 100, 0, 1)\n"
+                         "}\n"
+                         "\n"
+                         "for(let i = nLedC - 1; i > 0; i = i - 1) {\n"
+                         "colors[i] = colors[i-1]\n"
+                         "}\n"
+                         "colors[0] = xhsv(h, s, v)\n"
+                         "setLeds(colors)\n"
+                         "}\n"
+                         "\n"
+                         "let init = fun(){\n"
+                         "for(let i = nLedC - 1; i > 0; i = i - 1) {\n"
+                         "colors[i] = xrgb(0,0,0)\n"
+                         "}\n"
+                         "if(nLedC == 16) {\n"
+                         "setGroupsOf(4)\n"
+                         "}\n"
+                         "if(nLedC == 256) {\n"
+                         "setLinearGroupsOf(16)\n"
+                         "}\n"
+                         "}";
+
     auto source = std::make_shared<SyncBlink::StringScriptSource>(script);
     auto parser = SyncBlink::Parser(source);
     auto programAst = parsec(parser);

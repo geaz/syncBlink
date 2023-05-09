@@ -1,13 +1,13 @@
 #ifndef TOKEN_H
 #define TOKEN_H
 
-#include "token_type.hpp"
 #include "source/script_source.hpp"
+#include "token_type.hpp"
 
 #include <map>
+#include <memory>
 #include <string>
 #include <vector>
-#include <memory>
 
 namespace SyncBlink
 {

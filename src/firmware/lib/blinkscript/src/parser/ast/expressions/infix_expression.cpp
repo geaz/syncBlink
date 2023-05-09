@@ -2,8 +2,7 @@
 
 namespace SyncBlink
 {
-    InfixExpression::InfixExpression(const Token& operatorToken, std::unique_ptr<const AstNode> left,
-                                     std::unique_ptr<const AstNode> right)
+    InfixExpression::InfixExpression(const Token& operatorToken, std::unique_ptr<const AstNode> left, std::unique_ptr<const AstNode> right)
         : _operatorToken(operatorToken), _left(std::move(left)), _right(std::move(right))
     {
     }
@@ -12,7 +11,7 @@ namespace SyncBlink
     {
         visitor.visitInfixExpression(*this);
     }
-    
+
     const Token& InfixExpression::getOperatorToken() const
     {
         return _operatorToken;

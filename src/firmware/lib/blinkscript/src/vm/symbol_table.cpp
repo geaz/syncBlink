@@ -9,13 +9,11 @@ namespace SyncBlink
 
     bool SymbolTable::set(uint32_t hash, Value value)
     {
-        if (_count + 1 > _capacity * SyncBlink::TableLoad)
-            adjustCapacity();
+        if (_count + 1 > _capacity * SyncBlink::TableLoad) adjustCapacity();
 
         TableEntry* entry = find(_entries, _capacity, hash);
         bool isNewKey = entry->value.getType() == ValueType::NIL;
-        if (isNewKey)
-            _count++;
+        if (isNewKey) _count++;
 
         entry->hash = hash;
         entry->value = value;
@@ -25,12 +23,10 @@ namespace SyncBlink
 
     bool SymbolTable::get(uint32_t hash, Value* value)
     {
-        if (_count == 0)
-            return false;
+        if (_count == 0) return false;
 
         TableEntry* entry = find(_entries, _capacity, hash);
-        if (entry->value.getType() == ValueType::NIL)
-            return false;
+        if (entry->value.getType() == ValueType::NIL) return false;
 
         *value = entry->value;
         return true;
@@ -42,8 +38,7 @@ namespace SyncBlink
         for (;;)
         {
             TableEntry* entry = &entries[index];
-            if (entry->value.getType() == ValueType::NIL)
-                return entry;
+            if (entry->value.getType() == ValueType::NIL) return entry;
             else if (entry->hash == hash)
                 return entry;
             index = (index + 1) & (capacity - 1);
@@ -61,8 +56,7 @@ namespace SyncBlink
         for (uint32_t i = 0; i < _capacity; i++)
         {
             TableEntry* entry = &_entries[i];
-            if (entry->value.getType() == ValueType::NIL)
-                continue;
+            if (entry->value.getType() == ValueType::NIL) continue;
 
             TableEntry* dest = find(newEntries, newCapacity, entry->hash);
             dest->hash = entry->hash;

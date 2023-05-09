@@ -7,7 +7,13 @@
 
 namespace SyncBlink
 {
-    enum class ValueType { NIL, BOOL, NUMBER, OBJECT };
+    enum class ValueType
+    {
+        NIL,
+        BOOL,
+        NUMBER,
+        OBJECT
+    };
 
     class Value
     {
@@ -19,8 +25,7 @@ namespace SyncBlink
 
         ValueType getType() const;
 
-        template<class T>
-        T* getObject()
+        template <class T> T* getObject()
         {
             return static_cast<T*>(this->object);
         }

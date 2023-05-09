@@ -59,8 +59,7 @@ namespace SyncBlink
         while (_scanner.advance().getTokenType() != TokenType::ENDOFFILE)
         {
             std::unique_ptr<const AstNode> statement = parseStatement();
-            if (statement != nullptr)
-                programAst.addNode(std::move(statement));
+            if (statement != nullptr) programAst.addNode(std::move(statement));
         }
         return std::move(programAst);
     }
@@ -69,7 +68,7 @@ namespace SyncBlink
     {
         return std::get<0>(_parserError) != -99;
     }
-    
+
     std::tuple<int, std::string> Parser::getError() const
     {
         return _parserError;
@@ -87,10 +86,8 @@ namespace SyncBlink
             statement = parseLetStatement();
             break;
         default:
-            if (_scanner.peek().getTokenType() == TokenType::EQUAL)
-                statement = parseAssignStatement();
-            else if (_scanner.peek().getTokenType() == TokenType::LEFT_BRACKET &&
-                     _scanner.peek(3).getTokenType() == TokenType::EQUAL)
+            if (_scanner.peek().getTokenType() == TokenType::EQUAL) statement = parseAssignStatement();
+            else if (_scanner.peek().getTokenType() == TokenType::LEFT_BRACKET && _scanner.peek(3).getTokenType() == TokenType::EQUAL)
                 statement = parseArrayAssignStatement();
             else
                 statement = parseExpressionStatement();
@@ -101,16 +98,14 @@ namespace SyncBlink
 
     std::unique_ptr<const AstNode> Parser::parseLetStatement()
     {
-        if (assertToken(_scanner.getCurrent(), {TokenType::LET}) &&
-            assertToken(_scanner.advance(), {TokenType::IDENTIFIER}))
+        if (assertToken(_scanner.getCurrent(), {TokenType::LET}) && assertToken(_scanner.advance(), {TokenType::IDENTIFIER}))
         {
             Token identifier(_scanner.getCurrent());
             if (assertToken(_scanner.advance(), {TokenType::EQUAL}))
             {
                 _scanner.advance();
                 std::unique_ptr<const AstNode> expression = parseExpression(0);
-                if (expression != nullptr)
-                    return std::unique_ptr<LetStatement>(new LetStatement(identifier, std::move(expression)));
+                if (expression != nullptr) return std::unique_ptr<LetStatement>(new LetStatement(identifier, std::move(expression)));
             }
         }
         return nullptr;
@@ -127,8 +122,7 @@ namespace SyncBlink
             {
                 _scanner.advance();
                 std::unique_ptr<const AstNode> statement = parseStatement();
-                if (statement != nullptr)
-                    statements.push_back(std::move(statement));
+                if (statement != nullptr) statements.push_back(std::move(statement));
             }
             if (assertToken(_scanner.advance(), {TokenType::RIGHT_BRACE}))
             {
@@ -142,13 +136,11 @@ namespace SyncBlink
     std::unique_ptr<const AstNode> Parser::parseAssignStatement()
     {
         Token identifier(_scanner.getCurrent());
-        if (assertToken(_scanner.getCurrent(), {TokenType::IDENTIFIER}) &&
-            assertToken(_scanner.advance(), {TokenType::EQUAL}))
+        if (assertToken(_scanner.getCurrent(), {TokenType::IDENTIFIER}) && assertToken(_scanner.advance(), {TokenType::EQUAL}))
         {
             _scanner.advance();
             std::unique_ptr<const AstNode> expression = parseExpression(0);
-            if (expression != nullptr)
-                return std::unique_ptr<AssignStatement>(new AssignStatement(identifier, std::move(expression)));
+            if (expression != nullptr) return std::unique_ptr<AssignStatement>(new AssignStatement(identifier, std::move(expression)));
         }
         return nullptr;
     }
@@ -157,14 +149,13 @@ namespace SyncBlink
     {
         auto indexExpression = parseExpression(5);
         auto currentToken = _scanner.getCurrent();
-        if (assertToken(_scanner.getCurrent(), {TokenType::RIGHT_BRACKET}) &&
-            assertToken(_scanner.advance(), {TokenType::EQUAL}))
+        if (assertToken(_scanner.getCurrent(), {TokenType::RIGHT_BRACKET}) && assertToken(_scanner.advance(), {TokenType::EQUAL}))
         {
             _scanner.advance();
             auto expression = parseExpression(0);
             if (expression != nullptr)
-                return std::unique_ptr<ArrayAssignStatement>(new ArrayAssignStatement(
-                    std::move(indexExpression), std::move(expression), currentToken.getLine()));
+                return std::unique_ptr<ArrayAssignStatement>(
+                    new ArrayAssignStatement(std::move(indexExpression), std::move(expression), currentToken.getLine()));
         }
         return nullptr;
     }
@@ -172,8 +163,7 @@ namespace SyncBlink
     std::unique_ptr<const AstNode> Parser::parseExpressionStatement()
     {
         std::unique_ptr<const AstNode> expression = parseExpression(0);
-        if (expression != nullptr)
-            return std::unique_ptr<ExpressionStatement>(new ExpressionStatement(std::move(expression)));
+        if (expression != nullptr) return std::unique_ptr<ExpressionStatement>(new ExpressionStatement(std::move(expression)));
         return nullptr;
     }
 
@@ -189,8 +179,8 @@ namespace SyncBlink
         else
         {
             expression = (this->*(iter->second))();
-            while (_scanner.peek().getTokenType() != TokenType::ENDOFFILE &&
-                   _scanner.peek().getTokenType() != TokenType::EOL && precedence < _scanner.peek().getPrecedence())
+            while (_scanner.peek().getTokenType() != TokenType::ENDOFFILE && _scanner.peek().getTokenType() != TokenType::EOL &&
+                   precedence < _scanner.peek().getPrecedence())
             {
                 Token lastToken = _scanner.getCurrent();
                 currentToken = _scanner.advance();
@@ -211,8 +201,8 @@ namespace SyncBlink
 
     std::unique_ptr<const AstNode> Parser::parseLiteralExpression()
     {
-        if (assertToken(_scanner.getCurrent(), {TokenType::STRING, TokenType::NUMBER, TokenType::TRUE, TokenType::FALSE,
-                                                TokenType::IDENTIFIER}))
+        if (assertToken(_scanner.getCurrent(),
+                        {TokenType::STRING, TokenType::NUMBER, TokenType::TRUE, TokenType::FALSE, TokenType::IDENTIFIER}))
         {
             return std::unique_ptr<LiteralExpression>(new LiteralExpression(_scanner.getCurrent()));
         }
@@ -253,8 +243,7 @@ namespace SyncBlink
     std::unique_ptr<const AstNode> Parser::parseConditionExpression()
     {
         auto ifToken = _scanner.getCurrent();
-        if (assertToken(_scanner.getCurrent(), {TokenType::IF}) &&
-            assertToken(_scanner.advance(), {TokenType::LEFT_PAREN}))
+        if (assertToken(_scanner.getCurrent(), {TokenType::IF}) && assertToken(_scanner.advance(), {TokenType::LEFT_PAREN}))
         {
             std::unique_ptr<const AstNode> condition = parseGroupExpression();
             std::unique_ptr<const AstNode> ifStatements = parseBlockStatement();
@@ -267,8 +256,8 @@ namespace SyncBlink
 
             if (condition != nullptr && ifStatements != nullptr)
             {
-                return std::unique_ptr<ConditionExpression>(new ConditionExpression(
-                    std::move(condition), std::move(ifStatements), std::move(elseStatements), ifToken.getLine()));
+                return std::unique_ptr<ConditionExpression>(
+                    new ConditionExpression(std::move(condition), std::move(ifStatements), std::move(elseStatements), ifToken.getLine()));
             }
         }
         return nullptr;
@@ -277,8 +266,7 @@ namespace SyncBlink
     std::unique_ptr<const AstNode> Parser::parseFunctionExpression()
     {
         auto funToken = _scanner.getCurrent();
-        if (assertToken(_scanner.getCurrent(), {TokenType::FUN}) &&
-            assertToken(_scanner.advance(), {TokenType::LEFT_PAREN}))
+        if (assertToken(_scanner.getCurrent(), {TokenType::FUN}) && assertToken(_scanner.advance(), {TokenType::LEFT_PAREN}))
         {
             auto parameters = parseFunctionParameters();
             if (assertToken(_scanner.advance(), {TokenType::RIGHT_PAREN}))
@@ -295,8 +283,7 @@ namespace SyncBlink
     std::unique_ptr<const AstNode> Parser::parseWhileExpression()
     {
         auto whileToken = _scanner.getCurrent();
-        if (assertToken(_scanner.getCurrent(), {TokenType::WHILE}) &&
-            assertToken(_scanner.advance(), {TokenType::LEFT_PAREN}))
+        if (assertToken(_scanner.getCurrent(), {TokenType::WHILE}) && assertToken(_scanner.advance(), {TokenType::LEFT_PAREN}))
         {
             auto condition = parseGroupExpression();
             if (assertToken(_scanner.peek(), {TokenType::LEFT_BRACE}))
@@ -313,8 +300,7 @@ namespace SyncBlink
     std::unique_ptr<const AstNode> Parser::parseForExpression()
     {
         auto forToken = _scanner.getCurrent();
-        if (assertToken(_scanner.getCurrent(), {TokenType::FOR}) &&
-            assertToken(_scanner.advance(), {TokenType::LEFT_PAREN}))
+        if (assertToken(_scanner.getCurrent(), {TokenType::FOR}) && assertToken(_scanner.advance(), {TokenType::LEFT_PAREN}))
         {
             _scanner.advance(); // consume LEFT_PAREN
             auto assignStatement = parseStatement();
@@ -328,16 +314,15 @@ namespace SyncBlink
 
             if (assignStatement == nullptr || conditionExpression == nullptr || incrementorStatement == nullptr)
             {
-                _parserError =
-                    std::tuple<int, std::string>(_scanner.getCurrent().getLine(), "Missing loop parameter!");
+                _parserError = std::tuple<int, std::string>(_scanner.getCurrent().getLine(), "Missing loop parameter!");
             }
             else if (assertToken(_scanner.peek(), {TokenType::LEFT_BRACE}))
             {
                 std::unique_ptr<const AstNode> blockStatement = parseBlockStatement();
                 if (blockStatement != nullptr)
-                    return std::unique_ptr<ForExpression>(new ForExpression(
-                        std::move(assignStatement), std::move(conditionExpression), std::move(incrementorStatement),
-                        std::move(blockStatement), forToken.getLine()));
+                    return std::unique_ptr<ForExpression>(new ForExpression(std::move(assignStatement), std::move(conditionExpression),
+                                                                            std::move(incrementorStatement), std::move(blockStatement),
+                                                                            forToken.getLine()));
             }
         }
         return nullptr;
@@ -351,8 +336,7 @@ namespace SyncBlink
             auto arrayContent = parseExpressionList(TokenType::RIGHT_BRACKET);
             if (assertToken(_scanner.advance(), {TokenType::RIGHT_BRACKET}))
             {
-                return std::unique_ptr<ArrayExpression>(
-                    new ArrayExpression(std::move(arrayContent), arrayStartToken.getLine()));
+                return std::unique_ptr<ArrayExpression>(new ArrayExpression(std::move(arrayContent), arrayStartToken.getLine()));
             }
         }
         return nullptr;
@@ -373,10 +357,9 @@ namespace SyncBlink
 
     std::unique_ptr<const AstNode> Parser::parseInfixExpression(std::unique_ptr<const AstNode> left, Token lastToken)
     {
-        if (assertToken(_scanner.getCurrent(),
-                        {TokenType::PLUS, TokenType::MINUS, TokenType::STAR, TokenType::SLASH, TokenType::OR,
-                         TokenType::AND, TokenType::EQUAL_EQUAL, TokenType::BANG_EQUAL, TokenType::GREATER_EQUAL,
-                         TokenType::GREATER, TokenType::LESS_EQUAL, TokenType::LESS}))
+        if (assertToken(_scanner.getCurrent(), {TokenType::PLUS, TokenType::MINUS, TokenType::STAR, TokenType::SLASH, TokenType::OR,
+                                                TokenType::AND, TokenType::EQUAL_EQUAL, TokenType::BANG_EQUAL, TokenType::GREATER_EQUAL,
+                                                TokenType::GREATER, TokenType::LESS_EQUAL, TokenType::LESS}))
         {
             Token oper = _scanner.getCurrent();
             int precedence = _scanner.getCurrent().getPrecedence();
@@ -400,8 +383,7 @@ namespace SyncBlink
             std::unique_ptr<const AstNode> index = parseExpression(0);
             if (assertToken(_scanner.advance(), {TokenType::RIGHT_BRACKET}))
             {
-                return std::unique_ptr<IndexExpression>(
-                    new IndexExpression(std::move(left), std::move(index), startToken.getLine()));
+                return std::unique_ptr<IndexExpression>(new IndexExpression(std::move(left), std::move(index), startToken.getLine()));
             }
         }
         return nullptr;
@@ -416,8 +398,8 @@ namespace SyncBlink
             if (assertToken(_scanner.advance(), {TokenType::IDENTIFIER}))
             {
                 parameters.push_back(_scanner.getCurrent());
-                parameterParseSuccess = _scanner.peek().getTokenType() == TokenType::RIGHT_PAREN ||
-                                        assertToken(_scanner.advance(), {TokenType::COMMA});
+                parameterParseSuccess =
+                    _scanner.peek().getTokenType() == TokenType::RIGHT_PAREN || assertToken(_scanner.advance(), {TokenType::COMMA});
             }
         }
         return parameters;
@@ -436,8 +418,7 @@ namespace SyncBlink
             if (expressionParseSuccess)
             {
                 expressions.push_back(std::move(expression));
-                expressionParseSuccess =
-                    _scanner.peek().getTokenType() == endToken || assertToken(_scanner.advance(), {TokenType::COMMA});
+                expressionParseSuccess = _scanner.peek().getTokenType() == endToken || assertToken(_scanner.advance(), {TokenType::COMMA});
             }
         }
         return expressions;
@@ -446,8 +427,7 @@ namespace SyncBlink
     bool Parser::assertToken(Token token, std::vector<TokenType> expected)
     {
         bool result = std::find(expected.begin(), expected.end(), token.getTokenType()) != expected.end();
-        if (!result)
-            _parserError = std::tuple<int, std::string>(token.getLine(), "Unexpected Token!");
+        if (!result) _parserError = std::tuple<int, std::string>(token.getLine(), "Unexpected Token!");
         return result;
     }
 }

@@ -12,9 +12,9 @@
 #include "script_module.hpp"
 
 #include <ESP8266WebServer.h>
+#include <sstream>
 #include <string>
 #include <vector>
-#include <sstream>
 
 namespace SyncBlink
 {
@@ -47,8 +47,7 @@ namespace SyncBlink
 
         void setActiveScript();
 
-        template<typename T>
-        std::string toString(const T& value)
+        template <typename T> std::string toString(const T& value)
         {
             std::ostringstream oss;
             oss << value;

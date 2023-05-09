@@ -1,16 +1,17 @@
 #include "compiler.hpp"
 
-#include "program/model/op_codes.hpp"
 #include "program/model/objects/array_object.hpp"
 #include "program/model/objects/function_object.hpp"
 #include "program/model/objects/string_object.hpp"
+#include "program/model/op_codes.hpp"
 
 #include <algorithm>
 
 namespace SyncBlink
 {
     Compiler::Compiler(std::shared_ptr<ScriptSource> source, const ProgramAst& programAst) : _source(source), _programAst(programAst)
-    { }
+    {
+    }
 
     Program Compiler::compile()
     {
@@ -20,8 +21,7 @@ namespace SyncBlink
             node->accept(*this);
             checkValueCount();
 
-            if (hasError())
-                break;
+            if (hasError()) break;
         }
         return std::move(_program);
     }
@@ -48,14 +48,12 @@ namespace SyncBlink
 
     void Compiler::visitBlockStatement(const BlockStatement& blockStatement)
     {
-        if (!_skipFraming)
-            _targetProgram->addCode(OpCode::FRAME, -1);
+        if (!_skipFraming) _targetProgram->addCode(OpCode::FRAME, -1);
         for (auto& node : blockStatement.getStatements())
         {
             node->accept(*this);
         }
-        if (!_skipFraming)
-            _targetProgram->addCode(OpCode::UNFRAME, -1);
+        if (!_skipFraming) _targetProgram->addCode(OpCode::UNFRAME, -1);
     }
 
     void Compiler::visitLetStatement(const LetStatement& letStatement)
@@ -153,23 +151,24 @@ namespace SyncBlink
         // get code size of if and else branch to create JUMP code
         auto currentProgram = _targetProgram;
 
-        Program ifProgram ;
+        Program ifProgram;
         _targetProgram = &ifProgram;
         conditionExpr.getIfBranch().accept(*this);
 
         bool elsePresent = conditionExpr.getElseBranch() != nullptr;
         Program elseProgram;
         if (elsePresent)
-        {           
+        {
             _targetProgram = &elseProgram;
-            conditionExpr.getElseBranch()->accept(*this); 
+            conditionExpr.getElseBranch()->accept(*this);
         }
 
-        _targetProgram = currentProgram;        
+        _targetProgram = currentProgram;
         _targetProgram->addCode(OpCode::JMP_NOT, conditionExpr.getLine());
         _targetProgram->addCode(OpCode::VALUE, conditionExpr.getLine());
-        addNumberValueCode(_targetProgram->getCode().size() + ifProgram.getCode().size() + 1.0f + (elsePresent ? 3.0f : 0 /*JMP of If branch, if else present*/),
-                                     conditionExpr.getLine());
+        addNumberValueCode(_targetProgram->getCode().size() + ifProgram.getCode().size() + 1.0f +
+                               (elsePresent ? 3.0f : 0 /*JMP of If branch, if else present*/),
+                           conditionExpr.getLine());
 
         conditionExpr.getIfBranch().accept(*this);
         if (elsePresent)
@@ -361,8 +360,7 @@ namespace SyncBlink
 
     void Compiler::checkValueCount()
     {
-        if (_targetProgram->getConstantSize() > UINT16_MAX)
-            _error = std::make_tuple(-1, "Script has to many constants!");
+        if (_targetProgram->getConstantSize() > UINT16_MAX) _error = std::make_tuple(-1, "Script has to many constants!");
         else if (_targetProgram->getObjectSize() > UINT16_MAX)
             _error = std::make_tuple(-1, "Script has to many objects!");
     }

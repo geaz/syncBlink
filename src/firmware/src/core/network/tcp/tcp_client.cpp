@@ -87,7 +87,7 @@ namespace SyncBlink
         uint8_t magicBuf[2];
         MessagePackage message;
         while (_client.available())
-        {                
+        {
             uint8_t byte = _client.read();
             if (byte == PacketMagicBytes[0])
             {
@@ -115,7 +115,8 @@ namespace SyncBlink
                     writeTo.write(magicBuf[1]);
                 }
             }
-            else writeTo.write(byte);
+            else
+                writeTo.write(byte);
         }
     }
 

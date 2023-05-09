@@ -1,10 +1,10 @@
 #ifndef ARRAYASSIGNSTATEMENT_H
 #define ARRAYASSIGNSTATEMENT_H
 
-#include "parser/model/token.hpp"
 #include "parser/ast/ast_node.hpp"
 #include "parser/ast/ast_visitor.hpp"
 #include "parser/ast/expressions/index_expression.hpp"
+#include "parser/model/token.hpp"
 
 namespace SyncBlink
 {

@@ -2,8 +2,7 @@
 
 namespace SyncBlink
 {
-    ExpressionStatement::ExpressionStatement(std::unique_ptr<const AstNode> expression)
-        : _expression(std::move(expression))
+    ExpressionStatement::ExpressionStatement(std::unique_ptr<const AstNode> expression) : _expression(std::move(expression))
     {
     }
     void ExpressionStatement::accept(AstVisitor& visitor) const

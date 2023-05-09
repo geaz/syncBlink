@@ -7,7 +7,7 @@ namespace SyncBlink
 {
     class ScriptSource
     {
-    public:        
+    public:
         virtual size_t length() = 0;
         virtual std::string substr(const size_t start, const size_t length) = 0;
         virtual char getChar(const size_t pos) = 0;

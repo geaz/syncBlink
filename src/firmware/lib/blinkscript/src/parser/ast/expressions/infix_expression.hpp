@@ -9,8 +9,7 @@ namespace SyncBlink
     class InfixExpression : public AstNode
     {
     public:
-        InfixExpression(const Token& operatorToken, std::unique_ptr<const AstNode> left,
-                        std::unique_ptr<const AstNode> right);
+        InfixExpression(const Token& operatorToken, std::unique_ptr<const AstNode> left, std::unique_ptr<const AstNode> right);
 
         void accept(AstVisitor& visitor) const;
 

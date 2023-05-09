@@ -4,9 +4,9 @@
 #include "parser/model/token.hpp"
 #include "source/script_source.hpp"
 
+#include <memory>
 #include <string>
 #include <vector>
-#include <memory>
 
 namespace SyncBlink
 {

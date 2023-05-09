@@ -10,10 +10,8 @@ namespace SyncBlink
     class ForExpression : public AstNode
     {
     public:
-        ForExpression(std::unique_ptr<const AstNode> assignStatement,
-                      std::unique_ptr<const AstNode> conditionExpression,
-                      std::unique_ptr<const AstNode> incrementorStatement,
-                      std::unique_ptr<const AstNode> loopBody, uint16_t line);
+        ForExpression(std::unique_ptr<const AstNode> assignStatement, std::unique_ptr<const AstNode> conditionExpression,
+                      std::unique_ptr<const AstNode> incrementorStatement, std::unique_ptr<const AstNode> loopBody, uint16_t line);
 
         void accept(AstVisitor& visitor) const;
         const AstNode& getAssignStatement() const;

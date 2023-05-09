@@ -4,9 +4,9 @@
 
 #include "bytecode_source.hpp"
 
-#include <string>
-#include <fstream>
 #include <filesystem>
+#include <fstream>
+#include <string>
 
 namespace SyncBlink
 {
@@ -24,7 +24,7 @@ namespace SyncBlink
         }
 
         uint8_t getByte(const size_t pos) override
-        { 
+        {
             _file.seekg(pos);
 
             uint8_t byte[1];

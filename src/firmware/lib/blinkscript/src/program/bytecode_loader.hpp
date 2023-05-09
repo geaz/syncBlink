@@ -2,8 +2,8 @@
 #define BYTECODE_LODER_H
 
 #include "program/program.hpp"
-#include "source/script_source.hpp"
 #include "source/bytecode_source.hpp"
+#include "source/script_source.hpp"
 
 #include <memory>
 #include <vector>

@@ -5,8 +5,10 @@
 
 namespace SyncBlink
 {
-    BlinkScriptModule::BlinkScriptModule(LED& led, MessageBus& messageBus, ScriptModule& scriptModule, std::string nodeName, std::string nodeType)
-        : _led(led), _messageBus(messageBus), _scriptModule(scriptModule), _nodeName(nodeName), _nodeType(nodeType), _meshLedCount(_led.getLedCount())
+    BlinkScriptModule::BlinkScriptModule(LED& led, MessageBus& messageBus, ScriptModule& scriptModule, std::string nodeName,
+                                         std::string nodeType)
+        : _led(led), _messageBus(messageBus), _scriptModule(scriptModule), _nodeName(nodeName), _nodeType(nodeType),
+          _meshLedCount(_led.getLedCount())
     {
         _meshHandleId = _messageBus.addMsgHandler<Messages::MeshUpdate>(MessageType::MeshUpdate, this);
         _scriptHandleId = _messageBus.addMsgHandler<Messages::ScriptChange>(MessageType::ScriptChange, this);
@@ -64,7 +66,7 @@ namespace SyncBlink
 
     void BlinkScriptModule::checkFailSafe()
     {
-        if(_failSafeChecked) return;
+        if (_failSafeChecked) return;
 
         auto rstPtr = ESP.getResetInfoPtr();
         _inFailSafe = rstPtr->reason >= 1 && rstPtr->reason <= 4 && !_failSafeChecked;

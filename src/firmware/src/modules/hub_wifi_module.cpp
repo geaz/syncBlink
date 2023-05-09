@@ -5,8 +5,8 @@
 namespace SyncBlink
 {
     HubWifiModule::HubWifiModule(Config& config, MessageBus& messageBus, ScriptModule& scriptModule)
-        : _config(config), _messageBus(messageBus), _scriptModule(scriptModule), _mesh(config.Values[F("wifi_ssid")], config.Values[F("wifi_pw")]),
-          _tcpServer(messageBus)
+        : _config(config), _messageBus(messageBus), _scriptModule(scriptModule),
+          _mesh(config.Values[F("wifi_ssid")], config.Values[F("wifi_pw")]), _tcpServer(messageBus)
     {
         _meshHandleId = _messageBus.addMsgHandler<Messages::MeshConnection>(MessageType::MeshConnection, this);
         _analyzerHandleId = _messageBus.addMsgHandler<Messages::AnalyzerUpdate>(MessageType::AnalyzerUpdate, this);
@@ -65,13 +65,13 @@ namespace SyncBlink
         }
 
         countLeds();
-        Messages::MeshUpdate updateMsg = { _config.Values[F("led_count")], 1, _totalLeds, _totalNodes };
+        Messages::MeshUpdate updateMsg = {_config.Values[F("led_count")], 1, _totalLeds, _totalNodes};
         _tcpServer.broadcast(updateMsg.toPackage());
 
         if (msg.isConnected)
         {
             sendScriptUpdate(msg.nodeId);
-            Messages::ScriptChange scriptChange = { _scriptModule.getActiveScript().Name };
+            Messages::ScriptChange scriptChange = {_scriptModule.getActiveScript().Name};
             _tcpServer.broadcast(scriptChange.toPackage());
         }
     }
@@ -99,7 +99,7 @@ namespace SyncBlink
             removeNode(msg.recipientId);
             Serial.printf_P(PSTR("[HUB] Removing Node due to disconnecting command: %12llx\n"), msg.recipientId);
         }
-        else if(msg.commandType == Messages::NodeCommandType::Rename)
+        else if (msg.commandType == Messages::NodeCommandType::Rename)
         {
             // To avoid the need to reconnect the node to update the node label in memory through the mesh connection message,
             // the label just gets updated in memory directly.

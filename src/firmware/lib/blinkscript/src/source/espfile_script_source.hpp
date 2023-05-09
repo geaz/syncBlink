@@ -4,8 +4,8 @@
 
 #include "script_source.hpp"
 
-#include <string>
 #include <LittleFS.h>
+#include <string>
 
 namespace SyncBlink
 {
@@ -22,10 +22,13 @@ namespace SyncBlink
             _file.close();
         }
 
-        size_t length() { return _file.size(); };
-        
+        size_t length()
+        {
+            return _file.size();
+        };
+
         std::string substr(const size_t start, const size_t length)
-        { 
+        {
             _file.seek(start);
             char buffer[length];
             _file.readBytes(buffer, length);
@@ -34,9 +37,9 @@ namespace SyncBlink
         };
 
         char getChar(const size_t pos) override
-        { 
+        {
             _file.seek(pos);
-            return _file.read(); 
+            return _file.read();
         };
 
     private:

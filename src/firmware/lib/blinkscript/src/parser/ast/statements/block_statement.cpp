@@ -2,8 +2,7 @@
 
 namespace SyncBlink
 {
-    BlockStatement::BlockStatement(std::vector<std::unique_ptr<const AstNode>>&& statements)
-        : _statements(std::move(statements))
+    BlockStatement::BlockStatement(std::vector<std::unique_ptr<const AstNode>>&& statements) : _statements(std::move(statements))
     {
     }
 

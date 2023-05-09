@@ -2,7 +2,9 @@
 
 namespace SyncBlink
 {
-    ScriptPrinter::ScriptPrinter(std::shared_ptr<ScriptSource> source) : _source(source) { }
+    ScriptPrinter::ScriptPrinter(std::shared_ptr<ScriptSource> source) : _source(source)
+    {
+    }
 
     std::string ScriptPrinter::print(const AstNode& node)
     {
@@ -74,8 +76,7 @@ namespace SyncBlink
         for (int i = 0; i < parameters.size(); i++)
         {
             funPrint += parameters[i].getLexem(_source);
-            if (i < parameters.size() - 1)
-                funPrint += ", ";
+            if (i < parameters.size() - 1) funPrint += ", ";
         }
         _lastVisit = funPrint + ")" + print(functionExpr.getFunctionBody());
     }
@@ -87,8 +88,7 @@ namespace SyncBlink
         for (int i = 0; i < parameters.size(); i++)
         {
             callPrint += print(*parameters[i]);
-            if (i < parameters.size() - 1)
-                callPrint += ", ";
+            if (i < parameters.size() - 1) callPrint += ", ";
         }
         _lastVisit = callPrint + ")";
     }
@@ -100,8 +100,8 @@ namespace SyncBlink
 
     void ScriptPrinter::visitForExpression(const ForExpression& forExpr)
     {
-        _lastVisit = "for(" + print(forExpr.getAssignStatement()) + "; " + print(forExpr.getConditionExpression()) +
-                     "; " + print(forExpr.getIncrementorStatement()) + ")" + print(forExpr.getLoopBody());
+        _lastVisit = "for(" + print(forExpr.getAssignStatement()) + "; " + print(forExpr.getConditionExpression()) + "; " +
+                     print(forExpr.getIncrementorStatement()) + ")" + print(forExpr.getLoopBody());
     }
 
     void ScriptPrinter::visitArrayExpression(const ArrayExpression& arrayExpr)
@@ -111,8 +111,7 @@ namespace SyncBlink
         for (int i = 0; i < content.size(); i++)
         {
             arrayPrint += print(*content[i]);
-            if (i < content.size() - 1)
-                arrayPrint += ", ";
+            if (i < content.size() - 1) arrayPrint += ", ";
         }
         _lastVisit = arrayPrint + "]";
     }

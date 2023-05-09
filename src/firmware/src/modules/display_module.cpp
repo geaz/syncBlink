@@ -37,7 +37,7 @@ namespace SyncBlink
     }
 
     void DisplayModule::onMsg(const Messages::ScriptChange& msg)
-    {        
+    {
         _display.setView(_runScriptView);
         _display.setLeftStatus(msg.scriptName);
     }

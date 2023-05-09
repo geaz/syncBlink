@@ -4,8 +4,8 @@
 
 #include "bytecode_source.hpp"
 
-#include <string>
 #include <LittleFS.h>
+#include <string>
 
 namespace SyncBlink
 {

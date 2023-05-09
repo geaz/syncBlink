@@ -1,4 +1,5 @@
 #include "string_object.hpp"
+
 #include "program/model/string_hash.hpp"
 
 namespace SyncBlink
