@@ -55,7 +55,7 @@ function createLayout(nodes: Array<Node>, edges: Array<Edge>): Array<Node> {
     dagreGraph.setDefaultEdgeLabel(() => ({}));
     dagreGraph.setGraph({ rankdir: 'TB' });
 
-    nodes.forEach((el: any) => dagreGraph.setNode(el.id, { width: el.width, height: el.height }));
+    nodes.forEach((el: any) => dagreGraph.setNode(el.id, { width: el.width - 25, height: el.height }));
     edges.forEach((el: any) => dagreGraph.setEdge(el.source, el.target));   
     dagre.layout(dagreGraph);
 
@@ -65,8 +65,8 @@ function createLayout(nodes: Array<Node>, edges: Array<Edge>): Array<Node> {
         el.sourcePosition = Position.Bottom;
 
         el.position = {
-            x: nodeWithPosition.x - nodeWithPosition.width / 2,
-            y: nodeWithPosition.y - nodeWithPosition.height / 2,
+            x: nodeWithPosition.x - el.width / 2,
+            y: nodeWithPosition.y - el.height / 2,
         };
 
         return el;

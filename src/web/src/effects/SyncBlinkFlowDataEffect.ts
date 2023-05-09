@@ -52,7 +52,7 @@ function createMeshNodeData(
     let flowNodes: Array<Node> = [];
     for(let i = 0; i < meshNodeData.length; i++) {
         let meshNode = meshNodeData[i];
-        let flowNode = {id: i.toString(16), position: { x: 0, y: 0 } } as Node;
+        let flowNode = {id: meshNode.nodeId.toString(16), position: { x: 0, y: 0 } } as Node;
 
         if(meshNode.isStation) {
             let props = {} as SyncBlinkStationProps;
@@ -148,19 +148,14 @@ function createMeshNodeData(
                 target: wifiNode.id
             });
         }
-        else if(flowNode.type === "syncBlinkStation") {
-            for(let j = 0; j < flowNodes.length; j++) {
-                let otherNode = flowNodes[j];
-                if(otherNode.data.parentId === flowNode.data.id && otherNode.data.connectedToMeshWifi) {
-                    edges.push({ 
-                        id: flowNode.id + '-' + otherNode.id,
-                        type: 'step',
-                        animated: true,
-                        source: flowNode.id, 
-                        target: otherNode.id
-                    });
-                }
-            }
+        else if(flowNode.type === "syncBlinkNode" && flowNode.data.connectedToMeshWifi) {
+            edges.push({ 
+                id: flowNode.data.parentId + '-' + flowNode.id,
+                type: 'step',
+                animated: true,
+                source: flowNode.data.parentId.toString(16),
+                target: flowNode.id
+            });
         }
     }
     return [flowNodes, edges];

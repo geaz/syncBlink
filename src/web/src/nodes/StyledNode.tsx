@@ -1,33 +1,27 @@
 import styled from "styled-components";
 
 const StyledNode = styled.div`
-    display:relative;
+    display: flex;
     cursor: default;
 
     .node-frame {
         text-align: center;
         padding: 10px 20px 15px 20px;
+        margin: 0 3px;
         border-radius: 5px;
         background: white;
         box-shadow: rgba(0, 0, 0, 0.1) 0px 1px 2px 0px;
     }
 
     .node-buttons {
-        position:absolute;
-        right:-26px;
-        bottom:0px;
-
         display: flex;
         flex-direction: column;
+        justify-content: flex-end;
 
         button { padding: 5px; }
     }
 
     .node-buttons-left {
-        position:absolute;
-        left:-26px;
-        top:0px;
-
         display: flex;
         flex-direction: column;
 
