@@ -1,182 +1,167 @@
-import { Dispatch, SetStateAction } from 'react';
-import { Elements } from 'react-flow-renderer';
-
 import { SyncBlinkNodeProps } from '../nodes/SyncBlinkNode';
 import { SyncBlinkStationProps } from '../nodes/SyncBlinkStation';
 import { SyncBlinkAnalyzerProps } from '../nodes/SyncBlinkAnalyzer';
 import { SyncBlinkRouterNodeProps } from '../nodes/SyncBlinkRouterNode';
+import { Edge, Node } from 'react-flow-renderer';
 
-export enum ModalType {
-    Renamer,
-    Flasher,
-    ScriptChanger
+/**
+ * This effect handels the loading of the mesh information. It calls the station
+ * to get a json document including all information about the current mesh topography
+ * and builds an array of objects (including all properties and functions to execute on the nodes) 
+ * to represent this mesh.
+ * 
+ * @returns The effect returns a function to reload the mesh information on demand.
+ * Parameter for the returned function is a function to execute, if the reload button on the
+ * station node gets pressed.
+ */
+export default function useSyncBlinkFlowData() {
+    return (refreshMeshFunc: () => void) => { return loadMeshInfo(refreshMeshFunc); };
 }
 
-export interface ModalInfo {
-    type: ModalType;
-    nodeId: number;
-    text: string;
-}
-
-export default function useSyncBlinkFlowData(setModal: Dispatch<SetStateAction<ModalInfo | undefined>>) {
-    return (reloadData: () => void) => { return loadMeshInfo(reloadData, setModal); };
-}
-
-async function loadMeshInfo(reloadData: () => void, setModal: Dispatch<SetStateAction<ModalInfo | undefined>>) : Promise<Elements> 
+async function loadMeshInfo(refreshMeshFunc: () => void) : Promise<[Array<Node>, Array<Edge>]> 
 {    
-    let meshInfo: Elements = [];
+    let nodes: Array<Node> = [];
+    let edges: Array<Edge> = [];
     let meshResponse = await fetch("/api/mesh/info");
     if(meshResponse.ok) {
         let meshJson = await meshResponse.json();   
         let scriptName = meshJson.script;
-        meshInfo = createMeshNodeData(
+        [nodes, edges] = createMeshNodeData(
             meshJson.nodes,
             meshJson.analyzer,
             meshJson.lightMode,
             scriptName,
             meshJson.connected,
             meshJson.ssid,
-            setModal,
-            reloadData,
-            async (analyzerId: number) => { await fetch('/api/mesh/setAnalyzer?analyzerId=' + analyzerId); reloadData(); });
+            refreshMeshFunc);
     }
-    return meshInfo;
+    return [nodes, edges];
 }
 
 function createMeshNodeData(
-    nodeData: any, 
+    meshNodeData: any, 
     activeAnalyzer: number,
     lightMode: boolean,
     runningScript: string,
     connectedToWifi: boolean,
     ssid: string,
-    setModal: Dispatch<SetStateAction<ModalInfo | undefined>>,
-    onRefresh: () => void,
-    onSetAnalyzer: (analyzerId: number) => void) 
+    refreshMeshFunc: () => void) : [Array<Node>, Array<Edge>]
 {
     let wifiNode: any = undefined;
     let stationNode: any = undefined;
-    for(let i = 0; i < nodeData.length; i++) {
-        let node = nodeData[i];
-        node.id = i;
-        node.position = { x: 0, y: 0 };
-        if(node.isStation) {
+    let flowNodes: Array<Node> = [];
+    for(let i = 0; i < meshNodeData.length; i++) {
+        let meshNode = meshNodeData[i];
+        let flowNode = {id: i.toString(16), position: { x: 0, y: 0 } } as Node;
+
+        if(meshNode.isStation) {
             let props = {} as SyncBlinkStationProps;
-            props.id = node.nodeId;
+            props.id = meshNode.nodeId;
             props.isActive = props.id === activeAnalyzer;
             props.isLightMode = lightMode;
-            props.ledCount = node.ledCount;
-            props.majorVersion = node.majorVersion;
-            props.minorVersion = node.minorVersion;
+            props.ledCount = meshNode.ledCount;
+            props.majorVersion = meshNode.majorVersion;
+            props.minorVersion = meshNode.minorVersion;
             props.runningScript = runningScript;
-            props.onSetAnalyzer = onSetAnalyzer;
-            props.onRefresh = onRefresh;
-            props.onChangeScript = () => setModal({ type: ModalType.ScriptChanger, text: runningScript } as ModalInfo);
-            props.onLightMode = async () => { await fetch('/api/mesh/setLightMode?lightMode=' + (lightMode ? "false" : "true")); onRefresh(); }
+            props.refreshMeshFunc = refreshMeshFunc;
 
-            node.data = props;
-            node.type = 'syncBlinkStation';
-            stationNode = node;
+            flowNode.data = props;
+            flowNode.type = 'syncBlinkStation';
+            stationNode = flowNode;
         }
-        else if(node.isAnalyzer && !node.isNode) {
+        else if(meshNode.isAnalyzer && !meshNode.isNode) {
             let props = {} as SyncBlinkAnalyzerProps;
-            props.id = node.nodeId;
-            props.label = node.label;
-            props.majorVersion = node.majorVersion;
-            props.minorVersion = node.minorVersion;
+            props.id = meshNode.nodeId;
+            props.label = meshNode.label;
+            props.majorVersion = meshNode.majorVersion;
+            props.minorVersion = meshNode.minorVersion;
             props.isActive = props.id === activeAnalyzer;
-            props.onSetAnalyzer = onSetAnalyzer;
+            props.refreshMeshFunc = refreshMeshFunc;
 
-            node.data = props;
-            node.type = 'syncBlinkAnalyzer';
+            flowNode.data = props;
+            flowNode.type = 'syncBlinkAnalyzer';
         }
         else {
             let props = {} as SyncBlinkNodeProps;
-            props.id = node.nodeId;
-            props.label = node.label ? node.label : "(No Label)";
-            props.majorVersion = node.majorVersion;
-            props.minorVersion = node.minorVersion;
-            props.ledCount = node.ledCount;
+            props.id = meshNode.nodeId;
+            props.parentId = meshNode.parentId;
+            props.label = meshNode.label ? meshNode.label : "(No Label)";
+            props.majorVersion = meshNode.majorVersion;
+            props.minorVersion = meshNode.minorVersion;
+            props.ledCount = meshNode.ledCount;
             props.wifiAvailable = connectedToWifi;
-            props.connectedToMeshWiFi = node.connectedToMeshWifi;
-            props.onRename = (n, l) => setModal({ type: ModalType.Renamer, nodeId: n, text: l });
-            props.onPing = (nodeId: number) => fetch('/api/mesh/ping?nodeId=' + nodeId);
-            props.onSetWifi = (nodeId: number, meshWifi: boolean) => fetch('/api/mesh/setNodeWifi?nodeId=' + nodeId + '&meshWifi=' + (meshWifi ? "true" : "false"));
+            props.connectedToMeshWifi = meshNode.connectedToMeshWifi;
+            props.refreshMeshFunc = refreshMeshFunc;
 
-            if(node.isAnalyzer)
+            if(meshNode.isAnalyzer)
             {
                 props.isAnalyzer = true;
-                props.isActive = props.id === activeAnalyzer;                
-                props.onSetAnalyzer = onSetAnalyzer;
+                props.isActive = props.id === activeAnalyzer;
             }
 
-            node.data = props;
-            node.type = 'syncBlinkNode';
-        }
+            flowNode.data = props;
+            flowNode.type = 'syncBlinkNode';
+        }        
+        flowNodes.push(flowNode);
     }
 
     if(connectedToWifi) {
-        let props = {} as SyncBlinkRouterNodeProps;
-        props.wifiName = ssid;
+        let wifiProps = {} as SyncBlinkRouterNodeProps;
+        wifiProps.wifiName = ssid;
 
-        wifiNode = {} as any;
-        wifiNode.id = Date.now();
-        wifiNode.isAnalyzer = false;
-        wifiNode.isStation = false;
-        wifiNode.isNode = false;
-        wifiNode.isWifiNode = true;
-        wifiNode.position = { x: 0, y: 0 };
-        wifiNode.data = props;
-        wifiNode.type = 'syncBlinkRouterNode';
+        let flowNode = {id: Date.now().toString(16), position: { x: 0, y: 0 }} as Node;
+        flowNode.data = wifiProps;
+        flowNode.type = 'syncBlinkRouterNode';
 
-        nodeData.push(wifiNode);
+        wifiNode = flowNode;
+        flowNodes.push(flowNode);
     }
 
-    let edges = [];
-    for(let i = 0; i < nodeData.length; i++) {
-        let node = nodeData[i];
-        if(node.isAnalyzer && !node.isStation && !node.isNode){
+    let edges: Array<Edge> = [];
+    for(let i = 0; i < flowNodes.length; i++) {
+        let flowNode = flowNodes[i];
+        if(flowNode.type === "syncBlinkAnalyzer"){
             edges.push({ 
-                id: node.id + '-' + stationNode.id,
+                id: flowNode.id + '-' + stationNode.id,
                 type: 'step',
-                arrowHeadType: 'arrowclosed',
-                source: `${node.id}`, 
-                target: node.connectedToMeshWifi ? `${stationNode.id}` : `${wifiNode.id}`,
-                animated: activeAnalyzer === node.nodeId
+                markerEnd: 'arrowclosed',
+                source: flowNode.id, 
+                target: wifiNode.id,
+                animated: activeAnalyzer === flowNode.data.id
             });
         }
-        else if(node.isWifiNode) {
+        else if(flowNode.type === "syncBlinkRouterNode") {
             edges.push({ 
-                id: node.id + '-' + stationNode.id,
+                id: flowNode.id + '-' + stationNode.id,
                 type: 'step',
-                source: `${node.id}`, 
-                target: `${stationNode.id}`,
+                source: flowNode.id, 
+                target: stationNode.id,
                 animated: true
             });
         }
-        else if(node.isNode && !node.connectedToMeshWifi) {
+        else if(flowNode.type === "syncBlinkNode" && !flowNode.data.connectedToMeshWifi) {
             edges.push({ 
-                id: node.id + '-' + wifiNode.id,
+                id: flowNode.id + '-' + wifiNode.id,
                 type: 'step',
                 animated: true,
-                source: `${node.id}`, 
-                target: `${wifiNode.id}`
+                source: flowNode.id, 
+                target: wifiNode.id
             });
         }
-        else if(node.isStation) {
-            for(let j = 0; j < nodeData.length; j++) {
-                let otherNode = nodeData[j];
-                if(otherNode.parentId === node.nodeId && otherNode.connectedToMeshWifi) {
+        else if(flowNode.type === "syncBlinkStation") {
+            for(let j = 0; j < flowNodes.length; j++) {
+                let otherNode = flowNodes[j];
+                if(otherNode.data.parentId === flowNode.data.id && otherNode.data.connectedToMeshWifi) {
                     edges.push({ 
-                        id: node.id + '-' + otherNode.id,
+                        id: flowNode.id + '-' + otherNode.id,
                         type: 'step',
                         animated: true,
-                        source: `${node.id}`, 
-                        target: `${otherNode.id}`
+                        source: flowNode.id, 
+                        target: otherNode.id
                     });
                 }
             }
         }
     }
-    return nodeData.concat(edges);
+    return [flowNodes, edges];
 }

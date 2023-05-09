@@ -8,39 +8,26 @@ namespace SyncBlink
     {
     }
 
-    void ScriptModule::setup()
-    {
-        _messageBus.trigger(Messages::ScriptChange{getActiveScript().Name});
-    }
-
     Script ScriptModule::get(const std::string& scriptName)
     {
         Script script;
         script.Name = scriptName;
-        script.Exists = true;
-
-        std::string path = "/scripts/" + scriptName;
-        if (LittleFS.exists(path.c_str()))
-        {
-            script.Path = path;
-            script.Exists = true;
-        }
-        else
-        {
-            script.Exists = false;
-        }
+        script.ScriptPath = "/scripts/" + scriptName;
+        script.BytecodePath = "/bytecodes/" + scriptName;
+        script.Exists = LittleFS.exists(script.ScriptPath.c_str());
+        script.IsCompiled = LittleFS.exists(script.BytecodePath.c_str());
 
         return script;
     }
 
-    std::vector<std::string> ScriptModule::getList()
+    std::vector<Script> ScriptModule::getList()
     {
-        std::vector<std::string> scriptList;
+        std::vector<Script> scriptList;
 
         Dir dir = LittleFS.openDir(F("scripts"));
         while (dir.next())
         {
-            scriptList.push_back(dir.fileName().c_str());
+            scriptList.push_back(get(dir.fileName().c_str()));
         }
 
         return scriptList;
@@ -73,15 +60,19 @@ namespace SyncBlink
             script = get(activeScriptName);
         }
 
-        if (!script.Exists)
+        if (!script.IsCompiled)
         {
             Serial.println(F("[ScriptManager] Currently active script not found! Falling back ..."));
 
-            std::vector<std::string> scriptList = getList();
-            if (scriptList.size() > 0)
+            std::vector<Script> scriptList = getList();
+            for(size_t i = 0; i < scriptList.size(); i++) 
             {
-                setActiveScript(getList().front());
-                script = getActiveScript();
+                Script script = scriptList[i];
+                if(script.IsCompiled) 
+                {
+                    setActiveScript(script.Name);
+                    break;
+                }
             }
         }
         return script;

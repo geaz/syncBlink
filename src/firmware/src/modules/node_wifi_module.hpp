@@ -20,8 +20,7 @@ namespace SyncBlink
                            public MessageHandler<Messages::MeshUpdate>,
                            public MessageHandler<Messages::MeshConnection>,
                            public MessageHandler<Messages::AnalyzerUpdate>,
-                           public MessageHandler<Messages::NodeCommand>,
-                           public MessageHandler<Messages::ScriptChange>
+                           public MessageHandler<Messages::NodeCommand>
     {
     public:
         NodeWifiModule(Config& config, LED& led, MessageBus& messageBus, ScriptModule& scriptModule);
@@ -34,7 +33,6 @@ namespace SyncBlink
         void onMsg(const Messages::MeshUpdate& msg);
         void onMsg(const Messages::MeshConnection& msg);
         void onMsg(const Messages::AnalyzerUpdate& msg);
-        void onMsg(const Messages::ScriptChange& msg);
 
     private:
         Config& _config;
@@ -50,7 +48,6 @@ namespace SyncBlink
         uint32_t _nodeCommandHandleId = 0;
         uint32_t _meshUpdateHandleId = 0;
         uint32_t _analyzerHandleId = 0;
-        uint32_t _scriptHandleId = 0;
     };
 }
 

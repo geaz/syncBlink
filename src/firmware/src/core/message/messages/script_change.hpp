@@ -15,14 +15,13 @@ namespace SyncBlink
             {
             }
 
-            ScriptChange(std::string scriptName, bool contentChanged = false) : scriptName{scriptName}, contentChanged{contentChanged}
+            ScriptChange(std::string scriptName) : scriptName{scriptName}
             {
             }
 
             std::vector<uint8_t> getPackageBody() const override
             {
                 std::vector<uint8_t> package;
-                addBytes(package, (void*)&contentChanged, sizeof(contentChanged));
                 addStringBytes(package, scriptName);
 
                 return package;
@@ -31,7 +30,6 @@ namespace SyncBlink
             void loadPackage(MessagePackage package) override
             {
                 uint32_t offset = 0;
-                offset += loadBytes(&package.body[offset], (void*)&contentChanged, sizeof(contentChanged));
                 loadStringBytes(&package.body[offset], scriptName);
             }
 
@@ -41,7 +39,6 @@ namespace SyncBlink
             }
 
             std::string scriptName;
-            bool contentChanged;
         };
     }
 }

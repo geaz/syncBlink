@@ -12,7 +12,6 @@ namespace SyncBlink
         _meshHandleId = _messageBus.addMsgHandler<Messages::MeshConnection>(MessageType::MeshConnection, this);
         _meshUpdateHandleId = _messageBus.addMsgHandler<Messages::MeshUpdate>(MessageType::MeshUpdate, this);
         _analyzerHandleId = _messageBus.addMsgHandler<Messages::AnalyzerUpdate>(MessageType::AnalyzerUpdate, this);
-        _scriptHandleId = _messageBus.addMsgHandler<Messages::ScriptChange>(MessageType::ScriptChange, this);
         _nodeCommandHandleId = _messageBus.addMsgHandler<Messages::NodeCommand>(MessageType::NodeCommand, this);
     }
 
@@ -21,7 +20,6 @@ namespace SyncBlink
         _messageBus.removeMsgHandler(_meshHandleId);
         _messageBus.removeMsgHandler(_meshUpdateHandleId);
         _messageBus.removeMsgHandler(_analyzerHandleId);
-        _messageBus.removeMsgHandler(_scriptHandleId);
         _messageBus.removeMsgHandler(_nodeCommandHandleId);
     }
 
@@ -87,18 +85,10 @@ namespace SyncBlink
         _tcpServer.broadcast(msg.toPackage());
     }
 
-    void NodeWifiModule::onMsg(const Messages::ScriptChange& msg)
-    {
-        _tcpServer.broadcast(msg.toPackage());
-    }
-
     void NodeWifiModule::onMsg(const Messages::NodeCommand& msg)
     {
-        if (msg.recipientId != SyncBlink::getId() && msg.recipientId != 0)
-        {
-            _tcpServer.broadcast(msg.toPackage());
-            return;
-        }
+        if (msg.recipientId != SyncBlink::getId() || msg.recipientId == 0) _tcpServer.broadcast(msg.toPackage());
+        if (msg.recipientId != SyncBlink::getId() && msg.recipientId != 0) return;
 
         switch (msg.commandType)
         {
@@ -108,7 +98,6 @@ namespace SyncBlink
         case Messages::NodeCommandType::Rename:
             _config.Values[F("name")] = msg.commandInfo.stringInfo1;
             _config.save();
-            ESP.restart();
             break;
         case Messages::NodeCommandType::WifiChange:
             if (msg.commandInfo.flag)
@@ -127,7 +116,10 @@ namespace SyncBlink
             break;
         case Messages::NodeCommandType::ScriptUpdate:
             Script script = _scriptModule.get(msg.commandInfo.stringInfo1);
-            _tcpClient->writeBinaryUntilMessage(script.getFile(true));
+            _tcpClient->writeBinaryUntilMessage(script.getBytecodeFile(true)); // TODO PROPER FORWARD IN MESH
+            script.closeFile();
+            
+            //_messageBus.trigger(Messages::ScriptChange{script.Name});
             break;
         }        
     }

@@ -31,8 +31,10 @@ namespace SyncBlink
         _tcpServer.start();
         _udpDiscover.start(true);
 
-        // Set the hub as the analyzer at start
+        // Set the hub as the analyzer on start
         _messageBus.trigger(Messages::AnalyzerChange{SyncBlink::getId()});
+        // Publish active script on start
+        _messageBus.trigger(Messages::ScriptChange{_scriptModule.getActiveScript().Name});
     }
 
     void HubWifiModule::loop()
@@ -63,12 +65,10 @@ namespace SyncBlink
         }
 
         countLeds();
-
         Messages::MeshUpdate updateMsg = { _config.Values[F("led_count")], 1, _totalLeds, _totalNodes };
         _tcpServer.broadcast(updateMsg.toPackage());
 
-        sendScriptUpdate(msg.nodeId);
-        _messageBus.trigger(Messages::ScriptChange{_scriptModule.getActiveScript().Name});
+        if (msg.isConnected) sendScriptUpdate(msg.nodeId);
     }
 
     void HubWifiModule::onMsg(const Messages::AnalyzerUpdate& msg)
@@ -83,32 +83,36 @@ namespace SyncBlink
 
     void HubWifiModule::onMsg(const Messages::ScriptChange& msg)
     {
-        if((msg.contentChanged && _scriptModule.getActiveScript().Name == msg.scriptName)
-        || !msg.contentChanged)
-        {
-            sendScriptUpdate();
-            _tcpServer.broadcast(msg.toPackage());
-        }
+        sendScriptUpdate();
+        // Nodes do an implicit ScriptChange (triggering own ScriptChange)
     }
 
     void HubWifiModule::onMsg(const Messages::NodeCommand& msg)
     {
-        if (msg.commandType == Messages::NodeCommandType::Rename || msg.commandType == Messages::NodeCommandType::WifiChange)
+        if (msg.commandType == Messages::NodeCommandType::WifiChange)
         {
             removeNode(msg.recipientId);
             Serial.printf_P(PSTR("[HUB] Removing Node due to disconnecting command: %12llx\n"), msg.recipientId);
+        }
+        else if(msg.commandType == Messages::NodeCommandType::Rename)
+        {
+            // To avoid the need to reconnect the node to update the node label in memory through the mesh connection message,
+            // the label just gets updated in memory directly.
+            _connectedNodes[msg.recipientId].nodeLabel = msg.commandInfo.stringInfo1;
         }
         _tcpServer.broadcast(msg.toPackage());
     }
 
     void HubWifiModule::sendScriptUpdate(uint64_t nodeId)
     {
+        Serial.println("seinding");
         Messages::NodeCommand msg;
         msg.recipientId = nodeId;
+        msg.commandInfo.stringInfo1 = _scriptModule.getActiveScript().Name;
         msg.commandType = Messages::NodeCommandType::ScriptUpdate;
 
         _tcpServer.broadcast(msg.toPackage());
-        _tcpServer.broadcast(_scriptModule.getActiveScript().getFile());
+        _tcpServer.broadcast(_scriptModule.getActiveScript().getBytecodeFile());
 
         msg.commandType = Messages::NodeCommandType::ScriptUpdated;
         _tcpServer.broadcast(msg.toPackage());

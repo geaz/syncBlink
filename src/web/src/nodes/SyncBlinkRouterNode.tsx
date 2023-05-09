@@ -1,5 +1,4 @@
-import { Node as FlowNode, Handle, Position } from 'react-flow-renderer';
-
+import { Handle, NodeProps, Position } from 'react-flow-renderer';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faWifi } from '@fortawesome/free-solid-svg-icons';
 
@@ -9,7 +8,7 @@ export interface SyncBlinkRouterNodeProps {
     wifiName: string;
 }
 
-function SyncBlinkRouterNode(node: FlowNode<SyncBlinkRouterNodeProps>) {
+function SyncBlinkRouterNode(node: NodeProps<SyncBlinkRouterNodeProps>) {
     return <StyledNode>
         <Handle
             type="target"

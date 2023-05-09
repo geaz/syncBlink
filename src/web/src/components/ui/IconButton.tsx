@@ -14,37 +14,44 @@ interface ButtonProps  {
 
 function IconButton(props: ButtonProps) {
     return (
-        <StyledIconButton className={ props.active ? 'active' : '' } disabled={props.disabled} title={props.tooltip} onClick={props.onClick} >
-            { props.icon != null && <FontAwesomeIcon icon={props.icon} /> }
+        <StyledIconButton className={ props.active ? 'active icon-button' : 'icon-button' } disabled={props.disabled} title={props.tooltip} onClick={props.onClick} >
+            { props.icon != null && <FontAwesomeIcon className="fa-fw" icon={props.icon} /> }
         </StyledIconButton>
     );
 }
 
-const StyledIconButton = styled.button`
+const StyledIconButton = styled.button<{noHoverBackground?: boolean}>`
     margin: 0;
-    padding: 2px;
+    padding: 5px;
     border: none;
     background: none;
     color: ${ p => p.theme.textColorMoreFaded };
+    padding: 10px;
+    font-size: 1em;
 
     display: flex;
     align-items: center;
     justify-content: center;
+    box-sizing: border-box;
 
-    font-size: 1.2rem;
-
-    svg {
-        flex: 1;
+    :disabled {
+        color: ${ p => p.theme.textColorDisabled };
     }
 
     :active:enabled {
-        color: black!important;
-        transform: scale(0.85);
+        color: ${ p => p.theme.textColor };
+        transform: scale(0.95);
     }
 
     :hover:enabled {
         cursor: pointer;
         color: ${ p => p.theme.textColorFaded };
+        background: rgba(220, 220, 220, 1);
+        border-radius: 3px;
+
+        svg {
+            transform: scale(1.2);
+        }
     }
 `;
 

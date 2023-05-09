@@ -21,7 +21,7 @@ function Header(props: HeaderProps) {
 const StyledHeader = styled.div`
     display:flex;
     background: white;
-    box-shadow: 0px 0px 5px rgba(0,0,0,0.1);
+    box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
     padding: 15px 20px;
     z-index: 999;
 

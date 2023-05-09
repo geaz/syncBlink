@@ -25,10 +25,10 @@ namespace SyncBlink
         checkFailSafe();
         if (_inFailSafe) return;
 
-        if ((_activeScriptChanged || _blinkScript == nullptr) && _currentScript.Exists)
+        if ((_activeScriptChanged || _blinkScript == nullptr) && _currentScript.IsCompiled)
         {
             if (_blinkScript != nullptr) delete _blinkScript;
-            _blinkScript = new BlinkScript(_led, _currentScript.Path, MaxFrequency, _nodeName, _nodeType);
+            _blinkScript = new BlinkScript(_led, _currentScript.BytecodePath, MaxFrequency, _nodeName, _nodeType);
             _blinkScript->updateLedInfo(_previousNodeCount, _previousLedCount, _meshLedCount);
             _blinkScript->init();
 
@@ -49,14 +49,10 @@ namespace SyncBlink
 
     void BlinkScriptModule::onMsg(const Messages::ScriptChange& msg)
     {
-        if((msg.contentChanged && _scriptModule.getActiveScript().Name == msg.scriptName)
-        || !msg.contentChanged)
-        {
-            _inError = false;
-            _inFailSafe = false;
-            _activeScriptChanged = true;
-            _currentScript = _scriptModule.get(msg.scriptName);
-        }        
+        _inError = false;
+        _inFailSafe = false;
+        _activeScriptChanged = true;
+        _currentScript = _scriptModule.get(msg.scriptName);
     }
 
     void BlinkScriptModule::onMsg(const Messages::MeshUpdate& msg)

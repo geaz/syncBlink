@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 
 interface EditorProps {
     content: string;
+    disabled?: boolean;
     onChange?: (content: string) => void;
 }
 
@@ -31,7 +32,6 @@ function Editor(props: EditorProps) {
 
     useEffect(() => {
         if(editor === undefined) return;
-
         editor.setSize("100%", "100%");
         editor.on("change", () => {
             if(props.onChange !== undefined && editor !== undefined)
@@ -41,7 +41,11 @@ function Editor(props: EditorProps) {
 
     useEffect(() => {
         editor?.setValue(props.content);
-    }, [editor, props.content])
+    }, [editor, props.content]);
+
+    useEffect(() => {
+        editor?.setOption("readOnly", props.disabled ? props.disabled : false);
+    }, [props.disabled]);
 
     return (
         <StyledEditor>

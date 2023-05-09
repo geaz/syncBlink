@@ -39,7 +39,7 @@ namespace SyncBlink
         void getWifi();
 
         void addScript();
-        void saveScript();
+        void saveScript(bool isBytecode);
         void deleteScript();
 
         void getScriptList();

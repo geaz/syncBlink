@@ -1,17 +1,15 @@
 import styled from "styled-components";
 import { useEffect, useState } from "react";
-import ReactFlow, { MiniMap, Controls, Background, BackgroundVariant } from 'react-flow-renderer';
+import ReactFlow, { MiniMap, Controls, Background, BackgroundVariant, useReactFlow } from 'react-flow-renderer';
 
 import SyncBlinkNode from '../../nodes/SyncBlinkNode';
 import SyncBlinkStation from '../../nodes/SyncBlinkStation';
 import SyncBlinkAnalyzer from '../../nodes/SyncBlinkAnalyzer';
 import SyncBlinkRouterNode from "../../nodes/SyncBlinkRouterNode";
 
-import Loader from '../ui/Loader';
-import Renamer from './modals/Renamer';
-import ScriptChanger from './modals/ScriptChanger';
 import useDagreLayout from '../../effects/DagreLayoutEffect';
-import useSyncBlinkFlowData, { ModalInfo, ModalType } from '../../effects/SyncBlinkFlowDataEffect';
+import useSyncBlinkFlowData from '../../effects/SyncBlinkFlowDataEffect';
+import { Id, toast } from "react-toastify";
 
 const nodeTypes = {
     syncBlinkStation: SyncBlinkStation,
@@ -21,73 +19,47 @@ const nodeTypes = {
 };
 
 function Mesh() {
-    const [showLoader, setShowLoader] = useState(false);
-    const [loaderMessage, setLoaderMessage] = useState('Loading Mesh Information...');
-
-    const [isInitialized, setInitialized] = useState(false);
-    const [flowInstance, setFlowInstance] = useState<any>(null);
-
-    const [modalInfo, setModal] = useState<ModalInfo>();
-    const loadMeshInfo = useSyncBlinkFlowData(setModal);
-    const [dagreIsLoading, isLoadingData, flowElements, reloadData] = useDagreLayout((s) => loadMeshInfo(s));
+    const { fitView } = useReactFlow();
+    const loadSyncBlinkFlowData = useSyncBlinkFlowData();
+    const [isLoading,, nodes, edges ] = useDagreLayout(loadSyncBlinkFlowData);
+    
+    const [toastId, setToastId] = useState<Id>();
 
     useEffect(() => {
-        if(flowInstance != null && !isInitialized) {
-            setTimeout(() => { flowInstance.fitView(); }, 250);
-            setInitialized(true);
+        if(isLoading) {
+            setToastId(toast.loading("ℹ️ Loading mesh info..."));
+        } else {
+            toast.dismiss(toastId);
+            fitView();
         }
-    }, [flowInstance, flowElements, isInitialized]);
+    }, [isLoading]);
     
-    return <StyledMesh 
-        isLoading={showLoader || dagreIsLoading}
-        isLoadingData={isLoadingData} 
-        isModalOpen={modalInfo !== undefined}
-        >
-        { (showLoader || dagreIsLoading) && <Loader message={loaderMessage} transparent={isInitialized} /> }
-        { modalInfo?.type === ModalType.Renamer && 
-            <Renamer nodeId={modalInfo.nodeId} 
-                currentLabel={modalInfo.text}
-                setShowLoader={setShowLoader}
-                setLoaderMessage={setLoaderMessage}
-                setModal={setModal}
-                afterSave={() => reloadData()} />
-        }
-        { modalInfo?.type === ModalType.ScriptChanger && 
-            <ScriptChanger currentScript={modalInfo.text}
-                setShowLoader={setShowLoader}
-                setLoaderMessage={setLoaderMessage}
-                setModal={setModal}
-                afterSave={() => reloadData()}/>
-        }
-        { flowElements.length > 0 &&
-                <ReactFlow 
-                    elements={flowElements}
-                    nodeTypes={nodeTypes}
-                    nodesDraggable={false}
-                    nodesConnectable={false}
-                    onLoad={(instance) => setFlowInstance(instance)}>
-                    <MiniMap />
-                    <Controls showInteractive={false} />
-                    <Background variant={BackgroundVariant.Dots} gap={15} />
-                </ReactFlow>
-        }
+    return <StyledMesh isLoading={isLoading}>
+        <ReactFlow 
+            nodes={nodes}
+            edges={edges}
+            nodeTypes={nodeTypes}
+            nodesDraggable={false}
+            nodesConnectable={false}>
+            <MiniMap />
+            <Controls showInteractive={false} />
+            <Background variant={BackgroundVariant.Dots} gap={15} />
+        </ReactFlow>
     </StyledMesh>;
 }
 
-const StyledMesh = styled.div<{isLoadingData: boolean, isLoading : boolean, isModalOpen: boolean}>`
+const StyledMesh = styled.div<{isLoading : boolean}>`
     width: 100%;
     height: 100%;
 
     .react-flow__renderer,
     .react-flow__minimap,
     .react-flow__controls {
-        ${ p => p.isLoadingData ? 'display:none;' : '' }
-
-        ${ p => (p.isLoading || p.isModalOpen) && 
+        ${ p => (p.isLoading) && 
             'opacity: 0;transition: 100ms linear;'
         }
 
-        ${ p => !p.isModalOpen && !p.isLoading && 
+        ${ p => !p.isLoading && 
             'opacity: 1;transition: 400ms linear;'
         }
     }

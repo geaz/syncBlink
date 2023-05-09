@@ -116,7 +116,8 @@
 			"csignal": "cpp",
 			"semaphore": "cpp",
 			"unordered_set": "cpp",
-			"memory_resource": "cpp"
+			"memory_resource": "cpp",
+			"filesystem": "cpp"
 		}
 	}
 }

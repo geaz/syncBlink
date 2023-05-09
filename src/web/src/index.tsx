@@ -13,11 +13,11 @@ import Typography from './components/ui/Typography';
 const Theme = {
     textColor: "#313131",
     textColorFaded: "#5e5e5e",
-    textColorMoreFaded: "#949494",
+    textColorMoreFaded: "#878787",
+    textColorDisabled: "#c6c6c6",
     primaryColor: "#F58026",
     secondaryColor: "#0075c4",
     backgroundColor: "#f7f7f7",
-    borderColor: "rgba(0, 0, 0, 0.1)",
     colorRed: "#ff4a4a",
     colorBlue: "#4c5fff",
     colorGreen: "#2ea169"

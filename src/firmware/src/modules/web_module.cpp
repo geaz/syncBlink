@@ -28,7 +28,8 @@ namespace SyncBlink
         _server.on(F("/api/scripts/get"), HTTP_GET, [this]() { getScriptContent(); });
 
         _server.on(F("/api/scripts/add"), HTTP_GET, [this]() { addScript(); });
-        _server.on(F("/api/scripts/save"), HTTP_POST, [this]() { _server.send(200, F("text/plain"), ""); }, [this]() { saveScript(); });
+        _server.on(F("/api/scripts/save"), HTTP_POST, [this]() { _server.send(200, F("text/plain"), ""); }, [this]() { saveScript(false); });
+        _server.on(F("/api/scripts/savebc"), HTTP_POST, [this]() { _server.send(200, F("text/plain"), ""); }, [this]() { saveScript(true); });
         _server.on(F("/api/scripts/delete"), HTTP_GET, [this]() { deleteScript(); });
         _server.on(F("/api/scripts/set"), HTTP_GET, [this]() { setActiveScript(); });
 
@@ -193,7 +194,7 @@ namespace SyncBlink
         _server.send(200, F("application/json"), "{ \"saved\": true }");
     }
 
-    void WebModule::saveScript()
+    void WebModule::saveScript(bool isBytecode)
     {
         HTTPUpload& upload = _server.upload();
         if (upload.status == UPLOAD_FILE_START) 
@@ -207,7 +208,10 @@ namespace SyncBlink
         }
         else if (upload.status == UPLOAD_FILE_WRITE && _script.Exists) 
         {
-            size_t bytesWritten = _script.getFile(true).write(upload.buf, upload.currentSize);
+            size_t bytesWritten = 0;
+            if(isBytecode) bytesWritten = _script.getBytecodeFile(true).write(upload.buf, upload.currentSize);
+            else bytesWritten = _script.getScriptFile(true).write(upload.buf, upload.currentSize);
+
             if (bytesWritten != upload.currentSize)
             {
                 _server.send(500, F("text/plain"), F("Write failed!"));
@@ -217,7 +221,7 @@ namespace SyncBlink
         else if (upload.status == UPLOAD_FILE_END)
         {
             _script.closeFile();
-            _messageBus.trigger(Messages::ScriptChange{_script.Name, true});
+            if(isBytecode && _scriptModule.getActiveScript().Name == _script.Name) _messageBus.trigger(Messages::ScriptChange{_script.Name});
         }
         else _server.send(500, F("text/plain"), F("Upload failed!"));
     }
@@ -237,16 +241,21 @@ namespace SyncBlink
             return;
         }
 
+        std::vector<Script> scriptList = _scriptModule.getList();
         _server.sendContent("{\"scripts\":["); 
 
-        uint16_t i = 1;
-        std::vector<std::string> scriptList = _scriptModule.getList();   
-        for (std::string scriptName : scriptList)
+        auto iter = scriptList.begin();
+        auto endIter = scriptList.end();
+        for (; iter != endIter;)
         {
-            if(i++ == scriptList.size())
-                _server.sendContent(("\"" + scriptName + "\"]}").c_str());
+            auto script = iter;
+            _server.sendContent(("{\"name\":\"" + std::string(script->Name) + "\",").c_str());
+
+            ++iter;
+            if(iter == endIter) 
+                _server.sendContent(("\"isCompiled\":" + std::string(script->IsCompiled ? "true" : "false") + "}]}").c_str());
             else
-                _server.sendContent(("\"" + scriptName + "\",").c_str());
+                _server.sendContent(("\"isCompiled\":" + std::string(script->IsCompiled ? "true" : "false") + "},").c_str());
         }
         _server.chunkedResponseFinalize();
     }
@@ -255,7 +264,7 @@ namespace SyncBlink
     {
         std::string scriptName = _server.arg(F("name")).c_str();
         Script script = _scriptModule.get(scriptName);
-        _server.streamFile(script.getFile(), "text/html");
+        _server.streamFile(script.getScriptFile(), "text/html");
     }
 
     void WebModule::setActiveScript()

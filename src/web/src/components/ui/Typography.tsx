@@ -4,6 +4,7 @@ interface TypographyProps{
     backgroundColor?: string;
     textColor?: string;
     textColorFaded?: string;
+    textColorDisabled?: string;
     primaryColor?: string;
 }
 
@@ -11,10 +12,11 @@ function Typography(props: TypographyProps) {
     return <GlobalStyle backgroundColor={props.backgroundColor} textColor={props.textColor}/>;
 }
 
-const GlobalStyle = createGlobalStyle<{backgroundColor?: string, textColor?: string, textColorFaded?: string, primaryColor?: string}>`
+const GlobalStyle = createGlobalStyle<{backgroundColor?: string, textColor?: string, textColorFaded?: string, textColorDisabled?: string, primaryColor?: string}>`
     html, body, #root {
         width: 100%;
         height: 100%;
+        font-size: 100%;
     }
 
     #root {
@@ -61,6 +63,22 @@ const GlobalStyle = createGlobalStyle<{backgroundColor?: string, textColor?: str
             color: ${ p => p.textColorFaded? p.textColorFaded : '#949494' };
             &:hover { color: ${ p => p.primaryColor? p.primaryColor : '#F58026' }; }
         }
+    }
+
+    input[type="text"] {
+        text-align: center;
+        outline: none!important;
+        border: 0;
+        box-sizing: border-box;
+        padding: 0;
+        background: rgba(240, 240, 240, 1);
+        border-radius: 3px;
+
+        color: ${ p => p.textColor? p.textColor : '#313131' };
+        line-height: 1.65;
+        font-size: 1em;
+        font-weight: 400;
+        font-family: Segoe UI, Roboto, Noto Sans, Ubuntu, Cantarell, Helvetica Neue,sans-serif;
     }
 `;
 
