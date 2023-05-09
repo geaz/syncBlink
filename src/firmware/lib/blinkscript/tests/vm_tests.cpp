@@ -13,6 +13,8 @@
 #include "program/model/objects/object.hpp"
 #include "program/model/objects/native_function_object.hpp"
 #include "compiler/compiler.hpp"
+#include "source/file_bytecode_source.hpp"
+#include "program/bytecode_loader.hpp"
 #include "vm/vm.hpp"
 
 SyncBlink::Program compile(const std::string& script)
@@ -568,4 +570,15 @@ TEST_CASE("VM executes array in loops successfully (for performance test)", "[VM
 
     REQUIRE(!vm.hasError());
     REQUIRE(vm.getTop().getType() == SyncBlink::ValueType::NIL);
+}
+
+TEST_CASE("VM executes loaded snake script", "[VM]")
+{
+    auto byteCodeSource = std::make_shared<SyncBlink::FileByteCodeSource>("../tests/bytecodes/Snake.b");
+    auto byteCodeLoader = SyncBlink::ByteCodeLoader(byteCodeSource);
+    auto program = byteCodeLoader.getProgram();
+
+    auto vm = SyncBlink::VM();
+    vm.run(program);
+    REQUIRE(!vm.hasError());
 }

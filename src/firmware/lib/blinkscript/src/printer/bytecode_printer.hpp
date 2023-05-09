@@ -16,9 +16,9 @@ namespace SyncBlink
         void addObjects(std::vector<uint8_t>& byteCode, const Program& program) const;
         void addConstants(std::vector<uint8_t>& byteCode, const Program& program) const;
 
-        void addValue(const Value& value, std::vector<uint8_t>& byteCode, const Program& program) const;
-        void writeTwoByteValue(uint16_t value, std::vector<uint8_t>& byteCode, const Program& program) const;
-        void writeFourByteValue(uint32_t value, std::vector<uint8_t>& byteCode, const Program& program) const;
+        void addValue(const Value& value, std::vector<uint8_t>& byteCode) const;
+        void writeTwoByteValue(uint16_t value, std::vector<uint8_t>& byteCode) const;
+        void writeFourByteValue(uint32_t value, std::vector<uint8_t>& byteCode) const;
         void writeString(const std::string& value, std::vector<uint8_t>& byteCode, const Program& program) const;
     };
 }

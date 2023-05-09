@@ -1,38 +1,18 @@
 #include "blink_script.hpp"
 
-#include "parser/parser.hpp"
-#include "compiler/compiler.hpp"
-#include "program/model/objects/native_function_object.hpp"
 #include "program/model/value.hpp"
+#include "program/bytecode_loader.hpp"
+#include "program/model/objects/native_function_object.hpp"
 
 namespace SyncBlink
 {
-    BlinkScript::BlinkScript(LED& led, std::string filePath, uint16_t maxFreq, std::string nodeName, std::string nodeType) : _led(led)
+    BlinkScript::BlinkScript(LED& led, std::string bytecodePath, uint16_t maxFreq, std::string nodeName, std::string nodeType) : _led(led)
     {
-        _source = std::make_shared<EspFileScriptSource>(filePath);
-        auto parser = Parser(_source);
-        auto programAst = parser.parse();
-
-        if (parser.hasError())
-        {
-            _faulted = true;
-            auto error = parser.getError();
-            Serial.println("Line: " + String(std::get<0>(error)) + ": " + std::get<1>(error).c_str());
-            return;
-        }
-
-        auto compiler = Compiler(_source, programAst);
-        _program = std::make_shared<Program>(compiler.compile());
-
-        if (compiler.hasError())
-        {
-            _faulted = true;
-            auto error = compiler.getError();
-            Serial.println("Line: " + String(std::get<0>(error)) + ": " + std::get<1>(error).c_str());
-            return;
-        }
-
+        _source = std::make_shared<EspFileBytecodeSource>(bytecodePath);
+        auto byteCodeLoader = ByteCodeLoader(_source);
+        _program = std::make_shared<Program>(byteCodeLoader.getProgram());
         _vm.run((const Program&)*_program.get());
+        
         if (checkEvalError("preInit", _vm.hasError(), _vm.getError()))
             return;
 

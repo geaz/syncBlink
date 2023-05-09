@@ -17,6 +17,8 @@
 #include "printer/bytecode_printer.hpp"
 #include "compiler/compiler.hpp"
 #include "program/model/objects/function_object.hpp"
+#include "source/file_bytecode_source.hpp"
+#include "program/bytecode_loader.hpp"
 
 namespace ByteCodePrinterTests
 {
@@ -464,4 +466,62 @@ TEST_CASE("Bytecode prints for loops successfully", "[bytecodeprinter]")
 
     REQUIRE(!compiler.hasError());
     REQUIRE(ByteCodePrinterTests::compareFiles("test17.b", "../tests/bytecodes/test17.b"));
+}
+
+TEST_CASE("Bytecode prints Snake script successfully", "[bytecodeprinter]")
+{
+    std::string script =    "let h=0\n"
+                            "let s=0\n"
+                            "let v=0\n"
+                            "let colors = []\n"
+                            "\n"
+                            "let update = fun(delta) {\n"
+                                "if(vol == 0 || freq == 0 || (vol < lVol * 1.05 && v > 0.25)){\n"
+                                    "if(v > 0.025){ v = v - 0.025 }\n"
+                                    "else{ v = 0 }\n"
+                                "} else {\n"
+                                    "// To make the effects more colorful\n"
+                                    "if(freq > maxF/2) {\n"
+                                        "freq = maxF/2\n"
+                                    "}\n"
+                                    "h = map(freq, 100, maxF/2, 240, 0)\n"
+                                    "s = 1\n"
+                                    "v = map(vol, 0, 100, 0, 1)\n"
+                                "}\n"
+                                "\n"
+                                "for(let i = nLedC - 1; i > 0; i = i - 1) {\n"
+                                    "colors[i] = colors[i-1]\n"
+                                "}\n"
+                                "colors[0] = xhsv(h, s, v)\n"
+                                "setLeds(colors)\n"
+                            "}\n"
+                            "\n"
+                            "let init = fun(){\n"
+                                "for(let i = nLedC - 1; i > 0; i = i - 1) {\n"
+                                    "colors[i] = xrgb(0,0,0)\n"
+                                "}\n"
+                                "if(nLedC == 16) {\n"
+                                    "setGroupsOf(4)\n"
+                                "}\n"
+                                "if(nLedC == 256) {\n"
+                                    "setLinearGroupsOf(16)\n"
+                                "}\n"
+                            "}";
+    
+    auto source = std::make_shared<SyncBlink::StringScriptSource>(script);
+    auto parser = SyncBlink::Parser(source);
+    auto programAst = ByteCodePrinterTests::parsec(parser);
+
+    auto compiler = SyncBlink::Compiler(source, programAst);
+    auto program = compiler.compile();
+
+    SyncBlink::ByteCodePrinter bcp;
+    auto byteCode = bcp.print(program);
+
+    std::ofstream byteCodeFile("Snake.b", std::ios::out | std::ios::binary);
+    byteCodeFile.write((char*) &byteCode[0], byteCode.size());
+    byteCodeFile.close();
+
+    REQUIRE(!compiler.hasError());
+    REQUIRE(ByteCodePrinterTests::compareFiles("Snake.b", "../tests/bytecodes/Snake.b"));
 }

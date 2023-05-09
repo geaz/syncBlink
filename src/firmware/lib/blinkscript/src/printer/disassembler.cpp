@@ -113,6 +113,10 @@ namespace SyncBlink
                 ss << "SET\n";
                 ss << "\t" << std::setw(3) << ++i << ": ." << program.getCode()[i] << "\n";
                 break;
+            case OpCode::SET_INDEX:
+                ss << "SET_INDEX\n";
+                ss << "\t" << std::setw(3) << ++i << ": ." << program.getCode()[i] << "\n";
+                break;            
             case OpCode::CALL:
                 ss << "CALL\n";
                 ss << "\t" << std::setw(3) << ++i << ": ." << program.getCode()[i] << "\n";

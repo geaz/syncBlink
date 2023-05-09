@@ -35,7 +35,6 @@ namespace SyncBlink
 
     private:
         std::ifstream _file;
-        size_t _fileSize;
     };
 }
 

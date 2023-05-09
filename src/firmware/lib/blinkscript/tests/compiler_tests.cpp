@@ -758,3 +758,93 @@ TEST_CASE("Compiler compiles for loops successfully", "[compiler]")
                                 "\t 35: LOAD\n"
                                 "\t 36: .1\n");
 }
+
+TEST_CASE("Compiler compiles Snake script successfully", "[bytecodeprinter]")
+{
+    std::string script =    "let h=0\n"
+                            "let s=0\n"
+                            "let v=0\n"
+                            "let colors = []\n"
+                            "\n"
+                            "let update = fun(delta) {\n"
+                                "if(vol == 0 || freq == 0 || (vol < lVol * 1.05 && v > 0.25)){\n"
+                                    "if(v > 0.025){ v = v - 0.025 }\n"
+                                    "else{ v = 0 }\n"
+                                "} else {\n"
+                                    "// To make the effects more colorful\n"
+                                    "if(freq > maxF/2) {\n"
+                                        "freq = maxF/2\n"
+                                    "}\n"
+                                    "h = map(freq, 100, maxF/2, 240, 0)\n"
+                                    "s = 1\n"
+                                    "v = map(vol, 0, 100, 0, 1)\n"
+                                "}\n"
+                                "\n"
+                                "for(let i = nLedC - 1; i > 0; i = i - 1) {\n"
+                                    "colors[i] = colors[i-1]\n"
+                                "}\n"
+                                "colors[0] = xhsv(h, s, v)\n"
+                                "setLeds(colors)\n"
+                            "}\n"
+                            "\n"
+                            "let init = fun(){\n"
+                                "for(let i = nLedC - 1; i > 0; i = i - 1) {\n"
+                                    "colors[i] = xrgb(0,0,0)\n"
+                                "}\n"
+                                "if(nLedC == 16) {\n"
+                                    "setGroupsOf(4)\n"
+                                "}\n"
+                                "if(nLedC == 256) {\n"
+                                    "setLinearGroupsOf(16)\n"
+                                "}\n"
+                            "}";
+    
+    auto source = std::make_shared<SyncBlink::StringScriptSource>(script);
+    auto parser = SyncBlink::Parser(source);
+    auto programAst = parsec(parser);
+
+    auto compiler = SyncBlink::Compiler(source, programAst);
+    auto program = compiler.compile();
+
+    SyncBlink::Disassembler dis;
+    auto disassembledCode = dis.print(program);
+
+    REQUIRE(!compiler.hasError());
+    REQUIRE(disassembledCode == ".object.count 9\n\n"
+                                ".constants:\n"
+                                "\t@  0: 0\n"
+                                "\t@  1: \"h\"\n"
+                                "\t@  2: \"s\"\n"
+                                "\t@  3: \"v\"\n"
+                                "\t@  4: []\n"
+                                "\t@  5: \"colors\"\n"
+                                "\t@  6: FUN\n"
+                                "\t@  7: \"update\"\n"
+                                "\t@  8: FUN\n"
+                                "\t@  9: \"init\"\n\n"
+                                ".code:\n"
+                                "\t  0: VALUE\n"
+                                "\t  1: .0\n"
+                                "\t  2: DEFINE\n"
+                                "\t  3: .1\n"
+                                "\t  4: VALUE\n"
+                                "\t  5: .0\n"
+                                "\t  6: DEFINE\n"
+                                "\t  7: .2\n"
+                                "\t  8: VALUE\n"
+                                "\t  9: .0\n"
+                                "\t 10: DEFINE\n"
+                                "\t 11: .3\n"
+                                "\t 12: VALUE\n"
+                                "\t 13: .4\n"
+                                "\t 14: DEFINE\n"
+                                "\t 15: .5\n"
+                                "\t 16: VALUE\n"
+                                "\t 17: .6\n"
+                                "\t 18: DEFINE\n"
+                                "\t 19: .7\n"
+                                "\t 20: VALUE\n"
+                                "\t 21: .8\n"
+                                "\t 22: DEFINE\n"
+                                "\t 23: .9\n");
+}

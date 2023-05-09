@@ -13,7 +13,7 @@ namespace SyncBlink
     class ByteCodeLoader
     {
     public:
-        ByteCodeLoader(std::shared_ptr<ByteCodeSource> byteCode, std::shared_ptr<ScriptSource> source);
+        ByteCodeLoader(std::shared_ptr<ByteCodeSource> byteCode);
 
         Program getProgram(size_t startIdx = 0);
 
@@ -27,7 +27,6 @@ namespace SyncBlink
         uint32_t loadFourBytes(size_t& idx);
 
         std::shared_ptr<ByteCodeSource> _byteCode;
-        std::shared_ptr<ScriptSource> _source;
         std::vector<std::shared_ptr<Object>> _objects;
     };
 }

@@ -19,7 +19,7 @@ if (DEFINED EMSCRIPTEN)
 
     add_executable(blinkScript ${SYNCBLINKWASM})
     set_target_properties(blinkScript PROPERTIES COMPILE_FLAGS "-Os")
-    set_target_properties(blinkScript PROPERTIES LINK_FLAGS    "-Os -s ENVIRONMENT=web -s SINGLE_FILE=1 -s MODULARIZE -s EXPORT_ES6=1 -s EXPORT_NAME=blinkScript --bind")
+    set_target_properties(blinkScript PROPERTIES LINK_FLAGS    "-Os -s ENVIRONMENT=web -s SINGLE_FILE=1 -s MODULARIZE -s EXPORT_ES6=1 -s EXPORT_NAME=blinkScript -s ALLOW_MEMORY_GROWTH --bind")
 else()
     include(${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists-Catch2.txt)
     include(CTest)

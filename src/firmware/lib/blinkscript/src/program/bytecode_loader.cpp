@@ -7,11 +7,11 @@
 #include "model/objects/array_object.hpp"
 
 #include <memory>
+#include <cstring>
 
 namespace SyncBlink
 {
-    ByteCodeLoader::ByteCodeLoader(std::shared_ptr<ByteCodeSource> byteCode, std::shared_ptr<ScriptSource> source)
-        : _byteCode(byteCode), _source(source) { }
+    ByteCodeLoader::ByteCodeLoader(std::shared_ptr<ByteCodeSource> byteCode) : _byteCode(byteCode) { }
 
     Program ByteCodeLoader::getProgram(size_t startIdx)
     {
@@ -60,7 +60,7 @@ namespace SyncBlink
                 }
                 case ObjectType::FUN:
                 {
-                    ByteCodeLoader funLoad(_byteCode, _source);
+                    ByteCodeLoader funLoad(_byteCode);
                     Program funProg = funLoad.getProgram(idx);
                     idx += size;
 
@@ -117,8 +117,14 @@ namespace SyncBlink
                 value = Value((bool)_byteCode->getByte(idx++));
                 break;
             case ValueType::NUMBER:
-                value = Value((float)loadFourBytes(idx));
+            {
+                float number;
+                uint32_t floatBytes = loadFourBytes(idx);
+                memcpy(&number, &floatBytes, sizeof(float));
+
+                value = Value(number);
                 break;
+            }
             case ValueType::OBJECT:
                 objIndex = loadTwoBytes(idx);
                 auto objPtr = _objects[objIndex];

@@ -1,3 +1,4 @@
+#ifdef EMSCRIPTEN
 #include <emscripten.h>
 #include <emscripten/bind.h>
 #include <cinttypes>
@@ -18,11 +19,11 @@ struct CompilationResult
 
 CompilationResult compileScript(std::string script){
     CompilationResult result;
-
+    
     auto source = std::make_shared<SyncBlink::StringScriptSource>(script);
     auto parser = SyncBlink::Parser(source);
     auto programAst = parser.parse();
-
+    
     if(parser.hasError())
     {
         auto error = parser.getError();
@@ -56,3 +57,5 @@ EMSCRIPTEN_BINDINGS(blinkscript) {
     function("compileScript", &compileScript);
     register_vector<uint8_t>("byteCodeVec");
 }
+
+#endif // EMSCRIPTEN
