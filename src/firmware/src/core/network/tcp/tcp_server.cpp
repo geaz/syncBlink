@@ -18,13 +18,13 @@ namespace SyncBlink
 
     void TcpServer::loop()
     {
-        clearClients();
         checkNewClients();
         handleIncomingClientMessages();
     }
 
     void TcpServer::broadcast(File file)
     {
+        clearClients(); // make sure all disconnected clients got removed
         for (auto client : _clients)
         {
             file.seek(0);
@@ -34,6 +34,7 @@ namespace SyncBlink
 
     void TcpServer::broadcast(std::vector<uint8_t> message)
     {
+        clearClients(); // make sure all disconnected clients got removed
         for (auto client : _clients)
         {
             client->writeMessage(message);
@@ -68,15 +69,6 @@ namespace SyncBlink
             // Analyzers are not connected to the AP. Thats why we check the client AND the AP connection
             if (client->isWriteTimeout() || (!connectedToAp && !client->isConnected()))
             {
-                if (client->getStreamId() != 0)
-                {
-                    Serial.printf("[TCP SERVER] Client lost connection: %12llx (AP Connected: %i, Write Timeout: %i)\n",
-                                  client->getStreamId(), connectedToAp, client->isWriteTimeout());
-                    _messageBus.trigger(Messages::MeshConnection{client->getStreamId(), false});
-                }
-                client->flush();
-                client->stop();
-
                 // We explicity abandon without reset (this will also purge the unsent message memory)
                 for (auto pcb = tcp_active_pcbs; pcb != nullptr; pcb = pcb->next)
                 {
@@ -87,7 +79,15 @@ namespace SyncBlink
                         break;
                     }
                 }
+                uint64_t streamId = client->getStreamId();
                 _clients.erase(iter);
+
+                if (streamId != 0)
+                {
+                    Serial.printf("[TCP SERVER] Client lost connection: %12llx (AP Connected: %i, Write Timeout: %i)\n",
+                                  streamId, connectedToAp, client->isWriteTimeout());
+                    _messageBus.trigger(Messages::MeshConnection{streamId, false});
+                }
             }
             else
                 iter++;
