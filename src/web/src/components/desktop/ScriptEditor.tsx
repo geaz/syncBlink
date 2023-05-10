@@ -99,7 +99,6 @@ function ScriptEditor() {
 
 const StyledScriptEditor = styled.div`
     height: 100%;
-    overflow: hidden;
 `;
 
 const StyledScriptCommandbar = styled.div`
