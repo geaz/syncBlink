@@ -15,6 +15,9 @@ namespace SyncBlink
 
         if (checkEvalError("preInit", _vm.hasError(), _vm.getError())) return;
 
+        // Clear LED groups, if set in previous running scripts
+        led.clearGroups();
+
         // Add global funcs
         BuiltIns::println(_vm);
         BuiltIns::setGroups(*this, _vm);
