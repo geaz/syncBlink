@@ -29,13 +29,8 @@ async function loadScriptList() : Promise<Array<Script>> {
     let scripts = [];
     let toastId =  toast.loading("ℹ️ Loading script list ...");
     let response = await fetch("/api/scripts/list");
-    if(response.ok) {
-        scripts = (await response.json()).scripts;
-        toast.info("Script list loaded successfully!", { autoClose: 5000 });
-    }
-    else {
-        toast.error("Error during script list request!", { autoClose: 5000 });
-    }
+    if(response.ok) scripts = (await response.json()).scripts;
+    else toast.error("Error during script list request!", { autoClose: 5000 });
     toast.dismiss(toastId);
     return scripts;
 };
@@ -55,7 +50,6 @@ async function compileScript(scriptContent: string): Promise<[boolean, Uint8Arra
         for (var i = 0; i < compilationResult.ByteCode.size(); i++) {
             scriptBytes.push(compilationResult.ByteCode.get(i));
         }
-        toast.info("Script compiled successfully!", { autoClose: 5000 });
     }
 
     let scriptByteArray = new Uint8Array(scriptBytes);
@@ -81,18 +75,19 @@ async function saveScript(scriptName:string, scriptContent: string, scriptByteco
 
     success = await postContent(scriptContent, `/api/scripts/save`);
     if(success) success = await postContent(scriptBytecode, `/api/scripts/savebc`);
-    if(success) toast.info("Script saved successfully!", { autoClose: 5000 });
-    else toast.error("Error during script save!", { autoClose: 5000 });
+    if(!success) toast.error("Error during script save!", { autoClose: 5000 });
     toast.dismiss(toastId);
 
     return success;
 };
 
 async function deleteScript(scriptName: string): Promise<void> {
+    let toastId =  toast.loading("ℹ️ Deleting script ...");
     let response = await fetch(`/api/scripts/delete?name=${scriptName}`, {
         method: "GET"
     });
-    if(!response.ok) throw "Error during script deletion!";
+    if(!response.ok) toast.error("Error during script deletion!", { autoClose: 5000 });
+    toast.dismiss(toastId);    
 };
 
 async function getScript(scriptName: string): Promise<[boolean, string]> {
@@ -101,33 +96,34 @@ async function getScript(scriptName: string): Promise<[boolean, string]> {
     let response = await fetch(`/api/scripts/get?name=${scriptName}`, {
         method: "GET"
     });
+    let content = "";
     if(!response.ok) {
         success = false;
         toast.error("Error during script get request!", { autoClose: 5000 });
     }
-    let content = await response.text();
+    else content = await response.text();
     toast.dismiss(toastId);
     
     return [success, content];
 };
 
 async function addScript(scriptName: string): Promise<void> {
+    let toastId =  toast.loading("ℹ️ Creating script ...");
     let response = await fetch(`/api/scripts/add?name=${scriptName}`, {
         method: "GET"
     });
-    if(!response.ok) throw "Error during script creation!";
+    if(!response.ok) toast.error("Error during script creation!", { autoClose: 5000 });
+    toast.dismiss(toastId);
 };
 
 async function changeScript(scriptName: string): Promise<boolean> {
     let success = true;
     let toastId =  toast.loading("ℹ️ Changing script ...");
     let response =  await fetch(`/api/scripts/set?name=${scriptName}`);
-    if(response.ok) {
-        toast.info("Script changed successfully!", { autoClose: 5000 });
-        toast.dismiss(toastId);
-    } else {
+    if(!response.ok) {
         success = false;
         toast.error("Error during script change!", { autoClose: 5000 });
     }
+    toast.dismiss(toastId);
     return success;
 };

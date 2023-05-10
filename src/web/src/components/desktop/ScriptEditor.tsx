@@ -44,7 +44,7 @@ function ScriptEditor() {
         }        
     };
 
-    let saveAndCompileScript = async () => {
+    let onSaveClick = async () => {
         setIsLoading(true);
         let [success, bytecode, base64Bytecode] = await compileScript(scriptContent);
         if(success) success = await saveScript(currentScript!.key, scriptContent, bytecode);
@@ -55,11 +55,31 @@ function ScriptEditor() {
         setIsLoading(false);
     };
 
-    let download = () => {
+    let onDownloadClick = () => {
         var a = document.createElement("a");
         a.href = "data:application/octet-stream;base64," + base64ByteCodeDL;
         a.download = currentScript?.key + ".b";
         a.click();
+    };
+
+    let onDeleteClick = async () => {
+        if(confirm(`Do you really want to delete '${currentScript!.key}'?`)){
+            setIsLoading(true);
+            await deleteScript(currentScript!.key);
+            setCurrentScript(undefined);
+            setScriptList(await loadScriptList());
+            setIsLoading(false);
+        }
+    };
+
+    let onAddClick = async () => {
+        let newScriptName = prompt(`Please enter a name for the new script.`);
+        if(newScriptName) {
+            setIsLoading(true);
+            await addScript(newScriptName);
+            setScriptList(await loadScriptList());
+            setIsLoading(false);
+        }        
     };
 
     return <StyledScriptEditor>
@@ -68,10 +88,10 @@ function ScriptEditor() {
             <Dropdown placeholder="---" id="script-dropdown" value={ currentScript } onChanged={ (option) => changeScript(option) }
                 options={ scriptList.map(s => { return { key: s.name, value: s.name }; }) } disabled={ isLoading } />
             <span id="spacer"></span>
-            <IconButton icon={faSave} tooltip="Save and compile script" onClick={ () => saveAndCompileScript() } disabled={ isLoading || !scriptChanged } />
-            <IconButton icon={faDownload} tooltip="Download Bytecode" onClick={ () => download() } disabled={ isLoading || !base64ByteCodeDL } />
-            <IconButton icon={faTrashAlt} tooltip="Delete script" onClick={ () => {} } disabled={ isLoading } />
-            <IconButton icon={faPlus} tooltip="Create script" onClick={ () => {} } disabled={ isLoading } />
+            <IconButton icon={faSave} tooltip="Save and compile script" onClick={ () => onSaveClick() } disabled={ isLoading || !scriptChanged } />
+            <IconButton icon={faDownload} tooltip="Download Bytecode" onClick={ () => onDownloadClick() } disabled={ isLoading || !base64ByteCodeDL } />
+            <IconButton icon={faTrashAlt} tooltip="Delete script" onClick={ () => onDeleteClick() } disabled={ isLoading } />
+            <IconButton icon={faPlus} tooltip="Create script" onClick={ () => onAddClick() } disabled={ isLoading } />
         </StyledScriptCommandbar>
         <Editor content={originalScriptContent} onChange={ (content) => setScriptContent(content) } disabled={ isLoading } />
     </StyledScriptEditor>;
