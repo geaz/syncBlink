@@ -5,11 +5,12 @@
 #include "blinkscript_module.hpp"
 #include "core/config/config.hpp"
 #include "core/message/message_bus.hpp"
-#include "core/message/messages/script_change.hpp"
+#include "core/message/messages/script_load.hpp"
 #include "core/script.hpp"
+#include "core/script_list.hpp"
+#include "core/mesh_info.hpp"
 #include "hub_wifi_module.hpp"
 #include "module.hpp"
-#include "script_module.hpp"
 
 #include <ESP8266WebServer.h>
 #include <sstream>
@@ -21,10 +22,9 @@ namespace SyncBlink
     class WebModule : public Module
     {
     public:
-        WebModule(MessageBus& messageBus, ScriptModule& scriptModule, BlinkScriptModule& blinkScriptModule, AnalyzerModule& analyzerModule,
-                  HubWifiModule& wifiModule, Config& config);
+        WebModule(MessageBus& messageBus, Config& config, ScriptList& scriptList, MeshInfo& meshInfo);
 
-        void loop();
+        void loop() override;
 
     private:
         void pingNode();
@@ -56,11 +56,9 @@ namespace SyncBlink
 
         ESP8266WebServer _server;
         MessageBus& _messageBus;
-        ScriptModule& _scriptModule;
-        BlinkScriptModule& _blinkScriptModule;
-        AnalyzerModule& _analyzerModule;
-        HubWifiModule& _wifiModule;
         Config& _config;
+        ScriptList& _scriptList;
+        MeshInfo& _meshInfo;
 
         Script _script;
         uint64_t _activeAnalzyerId;

@@ -5,14 +5,15 @@
 
 namespace SyncBlink
 {
-    NodeWifiModule::NodeWifiModule(Config& config, LED& led, MessageBus& messageBus, ScriptModule& scriptModule)
-        : _config(config), _led(led), _messageBus(messageBus), _scriptModule(scriptModule),
+    NodeWifiModule::NodeWifiModule(Config& config, LED& led, MessageBus& messageBus, ScriptList& scriptList, MeshInfo& meshInfo)
+        : _config(config), _led(led), _messageBus(messageBus), _scriptList(scriptList), _meshInfo(meshInfo),
           _mesh(_config.Values[F("wifi_ssid")], _config.Values[F("wifi_pw")]), _tcpServer(_messageBus)
     {
         _meshHandleId = _messageBus.addMsgHandler<Messages::MeshConnection>(MessageType::MeshConnection, this);
         _meshUpdateHandleId = _messageBus.addMsgHandler<Messages::MeshUpdate>(MessageType::MeshUpdate, this);
         _analyzerHandleId = _messageBus.addMsgHandler<Messages::AnalyzerUpdate>(MessageType::AnalyzerUpdate, this);
         _nodeCommandHandleId = _messageBus.addMsgHandler<Messages::NodeCommand>(MessageType::NodeCommand, this);
+        _rawHandleId = _messageBus.addMsgHandler<Messages::RawBytes>(MessageType::RawBytes, this);
     }
 
     NodeWifiModule::~NodeWifiModule()
@@ -21,6 +22,7 @@ namespace SyncBlink
         _messageBus.removeMsgHandler(_meshUpdateHandleId);
         _messageBus.removeMsgHandler(_analyzerHandleId);
         _messageBus.removeMsgHandler(_nodeCommandHandleId);
+        _messageBus.removeMsgHandler(_rawHandleId);
     }
 
     void NodeWifiModule::setup()
@@ -39,15 +41,8 @@ namespace SyncBlink
         Messages::MeshConnection msg;
         msg.nodeId = SyncBlink::getId();
         msg.isConnected = true;
-        msg.nodeInfo = {false,
-                        _config.Values[F("is_analyzer")],
-                        true,
-                        _mesh.isConnectedToMeshWifi(),
-                        0,
-                        _config.Values[F("led_count")],
-                        VERSIONMAJOR,
-                        VERSIONMINOR,
-                        _config.Values[F("name")]};
+        msg.nodeInfo = std::get<1>(_meshInfo.getLocalNodeInfo());
+        msg.nodeInfo.connectedToMeshWifi = _mesh.isConnectedToMeshWifi();
 
         _tcpClient->writeMessage(msg.toPackage());
     }
@@ -85,6 +80,15 @@ namespace SyncBlink
         _tcpServer.broadcast(msg.toPackage());
     }
 
+    void NodeWifiModule::onMsg(const Messages::RawBytes& msg)
+    {
+        if (msg.recipientId != SyncBlink::getId() || msg.recipientId == 0) _tcpServer.broadcast(msg.toPackage());
+        if (msg.recipientId != SyncBlink::getId() && msg.recipientId != 0) return;        
+        if(!_isReceivingScript) return;
+
+        _activeScriptReceive.getBytecodeFile(true).write(&msg.bytes[0], msg.byteCount);
+    }
+
     void NodeWifiModule::onMsg(const Messages::NodeCommand& msg)
     {
         if (msg.recipientId != SyncBlink::getId() || msg.recipientId == 0) _tcpServer.broadcast(msg.toPackage());
@@ -115,9 +119,14 @@ namespace SyncBlink
             ESP.restart();
             break;
         case Messages::NodeCommandType::ScriptUpdate:
-            Script script = _scriptModule.get(msg.commandInfo.stringInfo1);
-            _tcpClient->writeBinaryUntilMessage(script.getBytecodeFile(true)); // TODO PROPER FORWARD IN MESH
-            script.closeFile();
+            _isReceivingScript = true;
+            _activeScriptReceive = _scriptList.get(msg.commandInfo.stringInfo1);
+            break;
+        case Messages::NodeCommandType::ScriptUpdated:
+            _isReceivingScript = false;
+            _activeScriptReceive.closeFile();
+        case Messages::NodeCommandType::ScriptLoadCmd:
+            _messageBus.trigger(Messages::ScriptLoad{_activeScriptReceive.Name});
             break;
         }
     }

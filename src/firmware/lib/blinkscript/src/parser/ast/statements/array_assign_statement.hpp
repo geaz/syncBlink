@@ -20,9 +20,9 @@ namespace SyncBlink
         const AstNode& getExpression() const;
 
     private:
-        uint16_t _line;
         std::unique_ptr<const AstNode> _indexExpression;
         std::unique_ptr<const AstNode> _expression;
+        uint16_t _line;
     };
 }
 

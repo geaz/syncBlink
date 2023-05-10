@@ -5,6 +5,7 @@
 #include "core/message/message_bus.hpp"
 #include "core/message/messages/analyzer_change.hpp"
 #include "core/network/get_id.hpp"
+#include "core/mesh_info.hpp"
 #include "module.hpp"
 
 namespace SyncBlink
@@ -16,21 +17,19 @@ namespace SyncBlink
     class AnalyzerModule : public Module, public MessageHandler<Messages::AnalyzerChange>
     {
     public:
-        AnalyzerModule(MessageBus& messageBus);
+        AnalyzerModule(MessageBus& messageBus, MeshInfo& meshInfo);
         ~AnalyzerModule();
 
-        void loop();
+        void loop() override;
 
         void onMsg(const Messages::AnalyzerChange& msg);
 
-        uint64_t getActiveAnalyzer() const;
-
     private:
         MessageBus& _messageBus;
+        MeshInfo& _meshInfo;
         FrequencyAnalyzer _frequencyAnalyzer;
 
         long _lastUpdate = -1;
-        uint64_t _activeAnalzyerId;
         uint32_t _analyzerChangeHandleId = 0;
         uint64_t _ownId = SyncBlink::getId();
     };

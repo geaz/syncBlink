@@ -114,6 +114,8 @@ namespace SyncBlink
             byteCode.push_back((objIndex >> 8) & 0xFF);
             break;
         }
+        case ValueType::NIL:
+            break;
         }
     }
 

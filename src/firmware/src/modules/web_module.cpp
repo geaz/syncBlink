@@ -9,10 +9,8 @@
 
 namespace SyncBlink
 {
-    WebModule::WebModule(MessageBus& messageBus, ScriptModule& scriptModule, BlinkScriptModule& blinkScriptModule,
-                         AnalyzerModule& analyzerModule, HubWifiModule& wifiModule, Config& config)
-        : _server(80), _messageBus(messageBus), _scriptModule(scriptModule), _blinkScriptModule(blinkScriptModule),
-          _analyzerModule(analyzerModule), _wifiModule(wifiModule), _config(config)
+    WebModule::WebModule(MessageBus& messageBus, Config& config, ScriptList& scriptList, MeshInfo& meshInfo)
+        : _server(80), _messageBus(messageBus), _config(config), _scriptList(scriptList), _meshInfo(meshInfo)
     {
         _server.on(F("/api/mesh/ping"), HTTP_GET, [this]() { pingNode(); });
         _server.on(F("/api/mesh/rename"), HTTP_GET, [this]() { renameNode(); });
@@ -123,9 +121,9 @@ namespace SyncBlink
     void WebModule::getMeshInfo()
     {
         std::string ssid = _config.Values[F("wifi_ssid")];
-        auto activeScriptName = _scriptModule.getActiveScript().Name;
-        auto stationInfo = _wifiModule.getStationInfo();
-        auto connectedNodes = _wifiModule.getConnectedNodes();
+        auto activeScriptName = _meshInfo.getActiveScript().Name;
+        auto stationInfo = _meshInfo.getLocalNodeInfo();
+        auto connectedNodes = _meshInfo.getConnectedNodes();
         connectedNodes[std::get<0>(stationInfo)] = std::get<1>(stationInfo);
 
         if (!_server.chunkedResponseModeStart(200, "application/json"))
@@ -158,8 +156,8 @@ namespace SyncBlink
                 _server.sendContent(("\"connectedToMeshWifi\":" + std::string(node.connectedToMeshWifi ? "true" : "false") + "},").c_str());
         }
 
-        _server.sendContent(("\"analyzer\":" + toString(_analyzerModule.getActiveAnalyzer()) + ",").c_str());
-        _server.sendContent(("\"lightMode\":" + std::string(_blinkScriptModule.getLightMode() ? "true" : "false") + ",").c_str());
+        _server.sendContent(("\"analyzer\":" + toString(_meshInfo.getActiveAnalyzer()) + ",").c_str());
+        _server.sendContent(("\"lightMode\":" + std::string(_meshInfo.getLightMode() ? "true" : "false") + ",").c_str());
         _server.sendContent(("\"ssid\":\"" + ssid + "\",").c_str());
         _server.sendContent(("\"connected\":" + std::string(WiFi.status() == WL_CONNECTED ? "true" : "false") + ",").c_str());
         _server.sendContent(("\"script\":\"" + activeScriptName + "\"}").c_str());
@@ -195,7 +193,7 @@ namespace SyncBlink
     {
         std::string scriptName = _server.arg(F("name")).c_str();
 
-        _scriptModule.add(scriptName);
+        _scriptList.add(scriptName);
         _server.send(200, F("application/json"), "{ \"saved\": true }");
     }
 
@@ -204,7 +202,7 @@ namespace SyncBlink
         HTTPUpload& upload = _server.upload();
         if (upload.status == UPLOAD_FILE_START)
         {
-            _script = _scriptModule.get(upload.filename.c_str());
+            _script = _scriptList.get(upload.filename.c_str());
             if (!_script.Exists)
             {
                 _server.send(500, F("text/plain"), F("Upload Failed! Script does not exist!"));
@@ -227,8 +225,8 @@ namespace SyncBlink
         else if (upload.status == UPLOAD_FILE_END)
         {
             _script.closeFile();
-            if (isBytecode && _scriptModule.getActiveScript().Name == _script.Name)
-                _messageBus.trigger(Messages::ScriptChange{_script.Name});
+            if (isBytecode && _meshInfo.getActiveScript().Name == _script.Name)
+                _messageBus.trigger(Messages::ScriptLoad{_script.Name});
         }
         else
             _server.send(500, F("text/plain"), F("Upload failed!"));
@@ -237,8 +235,15 @@ namespace SyncBlink
     void WebModule::deleteScript()
     {
         std::string scriptName = _server.arg(F("name")).c_str();
+        Script activeScript = _meshInfo.getActiveScript();
 
-        _scriptModule.remove(scriptName);
+        _scriptList.remove(scriptName);
+        if (activeScript.Name == scriptName)
+        {
+            activeScript = _meshInfo.getActiveScript();
+            _messageBus.trigger(Messages::ScriptLoad{activeScript.Name});
+        }
+
         _server.send(200, F("application/json"), F("{ \"saved\": true }"));
     }
 
@@ -250,7 +255,7 @@ namespace SyncBlink
             return;
         }
 
-        std::vector<Script> scriptList = _scriptModule.getList();
+        std::vector<Script> scriptList = _scriptList.getList();
         _server.sendContent("{\"scripts\":[");
 
         auto iter = scriptList.begin();
@@ -272,7 +277,7 @@ namespace SyncBlink
     void WebModule::getScriptContent()
     {
         std::string scriptName = _server.arg(F("name")).c_str();
-        Script script = _scriptModule.get(scriptName);
+        Script script = _scriptList.get(scriptName);
         _server.streamFile(script.getScriptFile(), "text/html");
     }
 
@@ -280,9 +285,11 @@ namespace SyncBlink
     {
         std::string scriptName = _server.arg(F("name")).c_str();
 
-        if (_scriptModule.get(scriptName).Exists)
+        if (_scriptList.get(scriptName).Exists)
         {
-            _scriptModule.setActiveScript(scriptName);
+            _meshInfo.setActiveScript(scriptName);
+            _messageBus.trigger(Messages::ScriptLoad{scriptName});
+
             _server.send(200, F("application/json"), F("{ \"saved\": true }"));
         }
         else

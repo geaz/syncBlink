@@ -89,6 +89,8 @@ namespace SyncBlink
                 _objects.push_back(std::make_shared<ArrayObj>(values));
                 break;
             }
+            case ObjectType::NATIVEFUN:
+                break;
             }
         }
     }
@@ -123,9 +125,13 @@ namespace SyncBlink
             break;
         }
         case ValueType::OBJECT:
+        {
             objIndex = loadTwoBytes(idx);
             auto objPtr = _objects[objIndex];
             value = Value(objPtr.get());
+            break;
+        }
+        case ValueType::NIL:
             break;
         }
         return value;

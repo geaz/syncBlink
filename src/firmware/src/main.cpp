@@ -1,3 +1,5 @@
+#include "core/script_list.hpp"
+#include "core/mesh_info.hpp"
 #include "core/config/config.hpp"
 #include "core/message/message_bus.hpp"
 #include "modules/analyzer_module.hpp"
@@ -5,7 +7,7 @@
 #include "modules/display_module.hpp"
 #include "modules/hub_wifi_module.hpp"
 #include "modules/node_wifi_module.hpp"
-#include "modules/script_module.hpp"
+#include "modules/script_broadcast_module.hpp"
 #include "modules/web_module.hpp"
 
 #include <LittleFS.h>
@@ -15,6 +17,8 @@
 
 SyncBlink::LED led;
 SyncBlink::Config config;
+SyncBlink::ScriptList scriptList;
+SyncBlink::MeshInfo meshInfo(config, scriptList);
 SyncBlink::MessageBus messageBus;
 std::vector<std::shared_ptr<SyncBlink::Module>> modules;
 
@@ -37,27 +41,19 @@ void setup()
     {
         Serial.println(F("[MAIN] Starting Hub mode ..."));
 
-        auto scriptModule = std::make_shared<SyncBlink::ScriptModule>(messageBus, config);
-        auto wifiModule = std::make_shared<SyncBlink::HubWifiModule>(config, messageBus, *scriptModule.get());
-        auto blinkScriptModule = std::make_shared<SyncBlink::BlinkScriptModule>(led, messageBus, *scriptModule.get(),
-                                                                                config.Values[F("name")], config.Values[F("type")]);
-        auto analyzerModule = std::make_shared<SyncBlink::AnalyzerModule>(messageBus);
-        auto displayModule = std::make_shared<SyncBlink::DisplayModule>(messageBus);
-
-        modules.push_back(analyzerModule);
-        modules.push_back(displayModule);
-        modules.push_back(scriptModule);
-        modules.push_back(wifiModule);
-        modules.push_back(blinkScriptModule);
-        modules.push_back(std::make_shared<SyncBlink::WebModule>(messageBus, *scriptModule.get(), *blinkScriptModule.get(),
-                                                                 *analyzerModule.get(), *wifiModule.get(), config));
+        modules.push_back(std::make_shared<SyncBlink::AnalyzerModule>(messageBus, meshInfo));
+        modules.push_back(std::make_shared<SyncBlink::DisplayModule>(messageBus));
+        modules.push_back(std::make_shared<SyncBlink::ScriptBroadcastModule>(messageBus, meshInfo, scriptList));
+        modules.push_back(std::make_shared<SyncBlink::HubWifiModule>(config, messageBus, scriptList, meshInfo));
+        modules.push_back(std::make_shared<SyncBlink::BlinkScriptModule>(led, messageBus, scriptList, config.Values[F("name")], config.Values[F("type")]));
+        modules.push_back(std::make_shared<SyncBlink::WebModule>(messageBus, config, scriptList, meshInfo));
     }
     else
     {
         if (config.Values[F("is_analyzer")])
         {
             Serial.println(F("[MAIN] Adding Analyzer Module ..."));
-            modules.push_back(std::make_shared<SyncBlink::AnalyzerModule>(messageBus));
+            modules.push_back(std::make_shared<SyncBlink::AnalyzerModule>(messageBus, meshInfo));
         }
 
         if (config.Values[F("has_display")])
@@ -69,12 +65,8 @@ void setup()
         if (config.Values[F("is_node")])
         {
             Serial.println(F("[MAIN] Starting Node mode ..."));
-
-            auto scriptModule = std::make_shared<SyncBlink::ScriptModule>(messageBus, config);
-            modules.push_back(scriptModule);
-            modules.push_back(std::make_shared<SyncBlink::NodeWifiModule>(config, led, messageBus, *scriptModule.get()));
-            modules.push_back(std::make_shared<SyncBlink::BlinkScriptModule>(led, messageBus, *scriptModule.get(), config.Values[F("name")],
-                                                                             config.Values[F("type")]));
+            modules.push_back(std::make_shared<SyncBlink::NodeWifiModule>(config, led, messageBus, scriptList, meshInfo));
+            modules.push_back(std::make_shared<SyncBlink::BlinkScriptModule>(led, messageBus, scriptList, config.Values[F("name")], config.Values[F("type")]));
         }
     }
 

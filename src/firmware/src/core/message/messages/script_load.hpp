@@ -1,5 +1,5 @@
-#ifndef SCRIPTCHANGEMSG_H
-#define SCRIPTCHANGEMSG_H
+#ifndef SCRIPTLOADMSG_H
+#define SCRIPTLOADMSG_H
 
 #include "core/message/message.hpp"
 #include "core/message/message_types.hpp"
@@ -8,14 +8,14 @@ namespace SyncBlink
 {
     namespace Messages
     {
-        class ScriptChange : public Message
+        class ScriptLoad : public Message
         {
         public:
-            ScriptChange()
+            ScriptLoad()
             {
             }
 
-            ScriptChange(std::string scriptName) : scriptName{scriptName}
+            ScriptLoad(std::string scriptName) : scriptName{scriptName}
             {
             }
 
@@ -35,7 +35,7 @@ namespace SyncBlink
 
             MessageType getMessageType() const override
             {
-                return MessageType::ScriptChange;
+                return MessageType::ScriptLoad;
             }
 
             std::string scriptName;
@@ -43,4 +43,4 @@ namespace SyncBlink
     }
 }
 
-#endif // SCRIPTCHANGEMSG_H
+#endif // SCRIPTLOADMSG_H

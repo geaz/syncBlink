@@ -16,7 +16,8 @@ namespace SyncBlink
             Rename,
             WifiChange,
             ScriptUpdate,
-            ScriptUpdated
+            ScriptUpdated,
+            ScriptLoadCmd
         };
 
         struct CommandInfo

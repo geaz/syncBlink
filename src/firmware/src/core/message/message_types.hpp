@@ -10,9 +10,10 @@ namespace SyncBlink
         AnalyzerUpdate,
         MeshConnection,
         MeshUpdate,
-        ScriptChange,
+        ScriptLoad,
         ScriptError,
-        NodeCommand
+        NodeCommand,
+        RawBytes
     };
 }
 

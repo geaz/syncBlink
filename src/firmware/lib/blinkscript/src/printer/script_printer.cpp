@@ -73,7 +73,7 @@ namespace SyncBlink
     {
         std::string funPrint = "fun(";
         auto parameters = functionExpr.getParameters();
-        for (int i = 0; i < parameters.size(); i++)
+        for (size_t i = 0; i < parameters.size(); i++)
         {
             funPrint += parameters[i].getLexem(_source);
             if (i < parameters.size() - 1) funPrint += ", ";
@@ -85,7 +85,7 @@ namespace SyncBlink
     {
         std::string callPrint = callExpr.getIdentifier().getLexem(_source) + "(";
         auto& parameters = callExpr.getParameters();
-        for (int i = 0; i < parameters.size(); i++)
+        for (size_t i = 0; i < parameters.size(); i++)
         {
             callPrint += print(*parameters[i]);
             if (i < parameters.size() - 1) callPrint += ", ";
@@ -108,7 +108,7 @@ namespace SyncBlink
     {
         std::string arrayPrint = "[";
         auto& content = arrayExpr.getArrayContent();
-        for (int i = 0; i < content.size(); i++)
+        for (size_t i = 0; i < content.size(); i++)
         {
             arrayPrint += print(*content[i]);
             if (i < content.size() - 1) arrayPrint += ", ";

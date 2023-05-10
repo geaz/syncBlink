@@ -7,8 +7,9 @@
 #include "messages/mesh_connection.hpp"
 #include "messages/mesh_update.hpp"
 #include "messages/node_command.hpp"
-#include "messages/script_change.hpp"
+#include "messages/script_load.hpp"
 #include "messages/script_error.hpp"
+#include "messages/raw_bytes.hpp"
 
 #include <functional>
 #include <memory>
@@ -80,14 +81,19 @@ namespace SyncBlink
             trigger(MessageType::NodeCommand, message);
         }
 
-        void trigger(const Messages::ScriptChange message)
+        void trigger(const Messages::ScriptLoad message)
         {
-            trigger(MessageType::ScriptChange, message);
+            trigger(MessageType::ScriptLoad, message);
         }
 
         void trigger(const Messages::ScriptError message)
         {
             trigger(MessageType::ScriptError, message);
+        }
+
+        void trigger(const Messages::RawBytes message)
+        {
+            trigger(MessageType::RawBytes, message);
         }
 
         template <typename T> uint32_t addMsgHandler(MessageType type, MessageHandler<T>* handler)
@@ -145,8 +151,20 @@ namespace SyncBlink
                 bus.trigger(message);
                 break;
             }
-            case MessageType::ScriptChange: {
-                Messages::ScriptChange message;
+            case MessageType::ScriptLoad: {
+                Messages::ScriptLoad message;
+                message.loadPackage(package);
+                bus.trigger(message);
+                break;
+            }
+            case MessageType::ScriptError: {
+                Messages::ScriptError message;
+                message.loadPackage(package);
+                bus.trigger(message);
+                break;
+            }
+            case MessageType::RawBytes: {
+                Messages::RawBytes message;
                 message.loadPackage(package);
                 bus.trigger(message);
                 break;

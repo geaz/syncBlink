@@ -4,7 +4,6 @@
 #include "core/message/message_bus.hpp"
 #include "core/message/messages/analyzer_update.hpp"
 #include "core/message/messages/mesh_connection.hpp"
-#include "core/message/messages/script_change.hpp"
 #include "tcp_client.hpp"
 
 #include <ESP8266WiFi.h>
@@ -25,7 +24,6 @@ namespace SyncBlink
 
         void start();
         void loop();
-        void broadcast(File file);
         void broadcast(std::vector<uint8_t> message);
 
         uint32_t getClientsCount();

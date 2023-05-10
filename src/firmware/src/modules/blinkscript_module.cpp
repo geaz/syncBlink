@@ -5,13 +5,13 @@
 
 namespace SyncBlink
 {
-    BlinkScriptModule::BlinkScriptModule(LED& led, MessageBus& messageBus, ScriptModule& scriptModule, std::string nodeName,
+    BlinkScriptModule::BlinkScriptModule(LED& led, MessageBus& messageBus, ScriptList& scriptList, std::string nodeName,
                                          std::string nodeType)
-        : _led(led), _messageBus(messageBus), _scriptModule(scriptModule), _nodeName(nodeName), _nodeType(nodeType),
+        : _led(led), _messageBus(messageBus), _scriptList(scriptList), _nodeName(nodeName), _nodeType(nodeType),
           _meshLedCount(_led.getLedCount())
     {
         _meshHandleId = _messageBus.addMsgHandler<Messages::MeshUpdate>(MessageType::MeshUpdate, this);
-        _scriptHandleId = _messageBus.addMsgHandler<Messages::ScriptChange>(MessageType::ScriptChange, this);
+        _scriptHandleId = _messageBus.addMsgHandler<Messages::ScriptLoad>(MessageType::ScriptLoad, this);
         _analyzerHandleId = _messageBus.addMsgHandler<Messages::AnalyzerUpdate>(MessageType::AnalyzerUpdate, this);
     }
 
@@ -49,12 +49,12 @@ namespace SyncBlink
         _blinkScript->run(delta);
     }
 
-    void BlinkScriptModule::onMsg(const Messages::ScriptChange& msg)
+    void BlinkScriptModule::onMsg(const Messages::ScriptLoad& msg)
     {
         _inError = false;
         _inFailSafe = false;
         _activeScriptChanged = true;
-        _currentScript = _scriptModule.get(msg.scriptName);
+        _currentScript = _scriptList.get(msg.scriptName);
     }
 
     void BlinkScriptModule::onMsg(const Messages::MeshUpdate& msg)
@@ -86,15 +86,5 @@ namespace SyncBlink
             _inError = true;
         }
         return _inError;
-    }
-
-    bool BlinkScriptModule::getLightMode() const
-    {
-        return _lightMode;
-    }
-
-    uint64_t BlinkScriptModule::getActiveAnalyzer() const
-    {
-        return _activeAnalyzer;
     }
 }

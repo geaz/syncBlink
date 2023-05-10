@@ -31,7 +31,7 @@ namespace SyncBlink
         std::string disCode = ".constants:\n";
 
         std::stringstream ss;
-        for (int i = 0; i < program.getConstantSize(); i++)
+        for (size_t i = 0; i < program.getConstantSize(); i++)
         {
             ss << "\t@" << std::setw(3) << i << ": " << printConstant(program.getConstant(i)) << "\n";
             disCode += ss.str();
@@ -81,6 +81,8 @@ namespace SyncBlink
             }
             break;
         }
+        case ValueType::NIL:
+            break;
         }
         return ss.str();
     }
@@ -90,7 +92,7 @@ namespace SyncBlink
         std::string disCode = ".code:\n";
 
         std::stringstream ss;
-        for (int i = 0; i < program.getCode().size(); i++)
+        for (size_t i = 0; i < program.getCode().size(); i++)
         {
             ss << "\t" << std::setw(3) << i << ": ";
 

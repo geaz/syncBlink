@@ -8,7 +8,7 @@ namespace SyncBlink
 {
     DisplayModule::DisplayModule(MessageBus& messageBus) : _messageBus(messageBus)
     {
-        _scriptChangeHandleId = _messageBus.addMsgHandler<Messages::ScriptChange>(MessageType::ScriptChange, this);
+        _scriptLoadHandleId = _messageBus.addMsgHandler<Messages::ScriptLoad>(MessageType::ScriptLoad, this);
         _scriptErrorHandleId = _messageBus.addMsgHandler<Messages::ScriptError>(MessageType::ScriptError, this);
         _analyzerUpdateHandleId = _messageBus.addMsgHandler<Messages::AnalyzerUpdate>(MessageType::AnalyzerUpdate, this);
 
@@ -18,7 +18,7 @@ namespace SyncBlink
 
     DisplayModule::~DisplayModule()
     {
-        _messageBus.removeMsgHandler(_scriptChangeHandleId);
+        _messageBus.removeMsgHandler(_scriptLoadHandleId);
         _messageBus.removeMsgHandler(_scriptErrorHandleId);
         _messageBus.removeMsgHandler(_analyzerUpdateHandleId);
     }
@@ -36,7 +36,7 @@ namespace SyncBlink
         _display.loop();
     }
 
-    void DisplayModule::onMsg(const Messages::ScriptChange& msg)
+    void DisplayModule::onMsg(const Messages::ScriptLoad& msg)
     {
         _display.setView(_runScriptView);
         _display.setLeftStatus(msg.scriptName);

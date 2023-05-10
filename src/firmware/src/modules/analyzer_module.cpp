@@ -4,7 +4,7 @@
 
 namespace SyncBlink
 {
-    AnalyzerModule::AnalyzerModule(MessageBus& messageBus) : _messageBus(messageBus)
+    AnalyzerModule::AnalyzerModule(MessageBus& messageBus, MeshInfo& meshInfo) : _messageBus(messageBus), _meshInfo(meshInfo)
     {
         _analyzerChangeHandleId = _messageBus.addMsgHandler<Messages::AnalyzerChange>(MessageType::AnalyzerChange, this);
     }
@@ -16,7 +16,7 @@ namespace SyncBlink
 
     void AnalyzerModule::loop()
     {
-        if (_activeAnalzyerId != _ownId || millis() - _lastUpdate < UpdateTimeout) return;
+        if (_meshInfo.getActiveAnalyzer() != _ownId || millis() - _lastUpdate < UpdateTimeout) return;
 
         AudioAnalyzerResult result = _frequencyAnalyzer.loop();
         Messages::AnalyzerUpdate msg = result.ToMessage(_ownId);
@@ -26,11 +26,6 @@ namespace SyncBlink
 
     void AnalyzerModule::onMsg(const Messages::AnalyzerChange& msg)
     {
-        _activeAnalzyerId = msg.analyzerId;
-    }
-
-    uint64_t AnalyzerModule::getActiveAnalyzer() const
-    {
-        return _activeAnalzyerId;
+        _meshInfo.setActiveAnalyzer(msg.analyzerId);
     }
 }

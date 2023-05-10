@@ -38,27 +38,6 @@ namespace SyncBlink
         handleIncomingServerMessages();
     }
 
-    void TcpClient::writeFile(File file)
-    {
-        if (_client.connected())
-        {
-            long started = millis();
-            size_t fileSize = file.size();
-            while (fileSize > 0)
-            {
-                if (millis() - started > SocketWriteTimeout)
-                {
-                    _writeTimeout = true;
-                    break;
-                }
-
-                uint32_t written = _client.write(file);
-                fileSize -= written;
-                if (fileSize > 0) delay(0);
-            }
-        }
-    }
-
     void TcpClient::writeMessage(std::vector<uint8_t> message)
     {
         if (_client.connected())
@@ -79,44 +58,6 @@ namespace SyncBlink
                 messageSize -= written;
                 if (messageSize > 0) delay(0);
             }
-        }
-    }
-
-    MessagePackage TcpClient::writeBinaryUntilMessage(Stream& writeTo)
-    {
-        uint8_t magicBuf[2];
-        MessagePackage message;
-        while (_client.available())
-        {
-            uint8_t byte = _client.read();
-            if (byte == PacketMagicBytes[0])
-            {
-                magicBuf[0] = _client.read();
-                magicBuf[1] = _client.read();
-                if (magicBuf[0] == PacketMagicBytes[1] && magicBuf[1] == PacketMagicBytes[2])
-                {
-                    uint32_t messageSize = (_client.read() << 24) + (_client.read() << 16) + (_client.read() << 8) + _client.read();
-                    uint8_t messageType = _client.read();
-
-                    message.type = messageType;
-                    message.body.resize(messageSize);
-
-                    for (uint32_t byte = 0; byte < messageSize; byte++)
-                    {
-                        while (!_client.available())
-                            yield();                         // Wait for new bytes
-                        message.body[byte] = _client.read(); // then read
-                    }
-                    break;
-                }
-                else
-                {
-                    writeTo.write(magicBuf[0]);
-                    writeTo.write(magicBuf[1]);
-                }
-            }
-            else
-                writeTo.write(byte);
         }
     }
 

@@ -22,16 +22,6 @@ namespace SyncBlink
         handleIncomingClientMessages();
     }
 
-    void TcpServer::broadcast(File file)
-    {
-        clearClients(); // make sure all disconnected clients got removed
-        for (auto client : _clients)
-        {
-            file.seek(0);
-            client->writeFile(file);
-        }
-    }
-
     void TcpServer::broadcast(std::vector<uint8_t> message)
     {
         clearClients(); // make sure all disconnected clients got removed
