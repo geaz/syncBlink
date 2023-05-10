@@ -85,13 +85,28 @@ namespace SyncBlink
         case TokenType::LET:
             statement = parseLetStatement();
             break;
-        default:
+        default: {
+            // We need to check, if there is a equal sign on the current line
+            // Otherwise we don't know, if it is an arrayassignstatement
+            size_t i = 0;
+            bool equalOnLine = _scanner.getCurrent().getTokenType() == TokenType::EQUAL;
+            while (!equalOnLine)
+            {
+                Token peekedToken = _scanner.peek(i++);
+                if (peekedToken.getTokenType() == TokenType::EOL) break;
+                if (peekedToken.getTokenType() == TokenType::ENDOFFILE) break;
+                else if (peekedToken.getTokenType() == TokenType::EQUAL)
+                {
+                    equalOnLine = true;
+                }
+            }
             if (_scanner.peek().getTokenType() == TokenType::EQUAL) statement = parseAssignStatement();
-            else if (_scanner.peek().getTokenType() == TokenType::LEFT_BRACKET && _scanner.peek(3).getTokenType() == TokenType::EQUAL)
+            else if (_scanner.peek().getTokenType() == TokenType::LEFT_BRACKET && equalOnLine)
                 statement = parseArrayAssignStatement();
             else
                 statement = parseExpressionStatement();
             break;
+        }
         }
         return statement;
     }

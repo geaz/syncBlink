@@ -39,7 +39,8 @@ namespace SyncBlink
     Token Scanner::scanToken(bool advance, bool advanceMatch, TokenType match, uint32_t skip)
     {
         Token token;
-        if (_currentPos >= _source->length()) return Token(TokenType::ENDOFFILE, 0, 0, _line);
+        if (_currentPos >= _source->length() || (skip > 0 && _currentPos + skip + 1 >= _source->length()))
+            return Token(TokenType::ENDOFFILE, 0, 0, _line);
 
         skipNonTokens();
         uint32_t originalStart = _currentPos;
