@@ -11,10 +11,12 @@ namespace SyncBlink
     {
         visitor.visitLetStatement(*this);
     }
+    
     const Token& LetStatement::getIdentifier() const
     {
         return _identifier;
     }
+
     const AstNode& LetStatement::getExpression() const
     {
         return *_expression;

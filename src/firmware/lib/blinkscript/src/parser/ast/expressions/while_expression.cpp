@@ -2,7 +2,7 @@
 
 namespace SyncBlink
 {
-    WhileExpression::WhileExpression(std::unique_ptr<const AstNode> condition, std::unique_ptr<const AstNode> loopBody, uint16_t line)
+    WhileExpression::WhileExpression(std::unique_ptr<const AstNode> condition, std::unique_ptr<const AstNode> loopBody, size_t line)
         : _condition(std::move(condition)), _loopBody(std::move(loopBody)), _line(line)
     {
     }
@@ -22,7 +22,7 @@ namespace SyncBlink
         return *_loopBody;
     }
 
-    uint16_t WhileExpression::getLine() const
+    size_t WhileExpression::getLine() const
     {
         return _line;
     }

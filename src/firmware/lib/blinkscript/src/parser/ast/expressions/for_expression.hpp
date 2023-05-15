@@ -11,21 +11,21 @@ namespace SyncBlink
     {
     public:
         ForExpression(std::unique_ptr<const AstNode> assignStatement, std::unique_ptr<const AstNode> conditionExpression,
-                      std::unique_ptr<const AstNode> incrementorStatement, std::unique_ptr<const AstNode> loopBody, uint16_t line);
+                      std::unique_ptr<const AstNode> incrementorStatement, std::unique_ptr<const AstNode> loopBody, size_t line);
 
         void accept(AstVisitor& visitor) const;
         const AstNode& getAssignStatement() const;
         const AstNode& getConditionExpression() const;
         const AstNode& getIncrementorStatement() const;
         const AstNode& getLoopBody() const;
-        uint16_t getLine() const;
+        size_t getLine() const;
 
     private:
         std::unique_ptr<const AstNode> _assignStatement;
         std::unique_ptr<const AstNode> _conditionExpression;
         std::unique_ptr<const AstNode> _incrementorStatement;
         std::unique_ptr<const AstNode> _loopBody;
-        uint16_t _line;
+        size_t _line;
     };
 }
 

@@ -25,15 +25,16 @@ namespace SyncBlink
 
         ValueType getType() const;
 
-        template <class T> T* getObject()
+        template <class T> T* getObject() const
         {
             return static_cast<T*>(this->object);
         }
 
         union {
-            bool boolean = false;
+            bool boolean;
             float number;
-            Object* object;
+            // Raw pointer because of union
+            Object* object = nullptr;
         };
 
     private:

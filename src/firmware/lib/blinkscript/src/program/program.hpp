@@ -14,24 +14,21 @@ namespace SyncBlink
     class Program
     {
     public:
-        void addCode(uint16_t code, uint16_t line);
-        void removeCode(uint16_t count);
+        void addCode(uint16_t code, size_t line);
+        void removeCode(size_t count);
 
-        uint32_t addValue(Value value, std::shared_ptr<Object> object = nullptr);
+        uint16_t addConstant(Value value, std::shared_ptr<Object> object = nullptr);
 
         const std::vector<uint16_t>& getCode() const;
-        const std::vector<uint16_t>& getLines() const;
-        const Value& getConstant(uint16_t index) const;
-        const Object* getObject(uint16_t index) const;
-
-        uint32_t getConstantSize() const;
-        uint32_t getObjectSize() const;
+        const std::vector<size_t>& getLines() const;
+        const std::vector<Value>& getConstants() const;
+        const std::vector<std::shared_ptr<Object>>& getObjects() const;
 
     private:
-        int32_t searchConstant(Value searchConst) const;
+        bool searchConstant(Value searchValue, uint16_t& foundIndex) const;
 
         std::vector<uint16_t> _code;
-        std::vector<uint16_t> _lines;
+        std::vector<size_t> _lines;
         std::vector<Value> _constants;
         std::vector<std::shared_ptr<Object>> _objects;
     };

@@ -4,14 +4,18 @@ namespace SyncBlink
     {
         CALL,
         VALUE,
-        DEFINE,
-        LOAD,
-        SET,
+        CLOSURE,
+        DEFINE_GLOBAL,
+        LOAD_GLOBAL,
+        LOAD_LOCAL,
+        SET_GLOBAL,
+        SET_LOCAL,
         SET_INDEX,
         BANG_NEGATE,
         NEGATE,
         MUL,
         DIV,
+        MODULO,
         SUB,
         ADD,
         AND,
@@ -24,8 +28,8 @@ namespace SyncBlink
         BANG_EQUAL,
         JMP,
         JMP_NOT,
-        FRAME,
-        UNFRAME,
-        INDEX
+        INDEX,
+        POP,
+        CLEAR_SCOPE
     };
 };

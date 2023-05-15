@@ -6,19 +6,57 @@ namespace SyncBlink
     {
     }
 
-    Token Scanner::advance()
-    {
-        return scanToken(true);
-    }
-
     Token Scanner::peek()
     {
         return scanToken(false);
     }
 
-    Token Scanner::peek(int skip)
+    Token Scanner::advance()
     {
-        return scanToken(false, false, TokenType::FALSE, skip);
+        return scanToken(true);
+    }
+
+    bool Scanner::peekAdvance(TokenType match)
+    {
+        return scanToken(false, true, match).getTokenType() == match;
+    }
+
+    bool Scanner::peekLine(TokenType match)
+    {
+        size_t originalPos = _currentPos;
+        Token originalToken = _currentToken;
+        bool found = getCurrent().getTokenType() == match;
+        while(!found)
+        {
+            Token peekedToken = advance();
+            if (peekedToken.getTokenType() == TokenType::EOL) break;
+            if (peekedToken.getTokenType() == TokenType::ENDOFFILE) break;
+            else if (peekedToken.getTokenType() == match)
+            {
+                found = true;
+            }
+        }
+        _currentPos = originalPos;
+        _currentToken = originalToken;
+        return found;
+    }
+     
+    bool Scanner::peekSequence(std::vector<TokenType> expected)
+    {
+        size_t originalPos = _currentPos;
+        Token originalToken = _currentToken;
+        bool found = true;
+        for(auto expectedToken : expected)
+        {
+            if(!peekAdvance(expectedToken))
+            {
+                found = false;
+                break;
+            }
+        }
+        _currentPos = originalPos;
+        _currentToken = originalToken;
+        return found;
     }
 
     Token Scanner::getCurrent() const
@@ -31,21 +69,16 @@ namespace SyncBlink
         return _currentPos >= _source->length();
     }
 
-    bool Scanner::peekAdvance(TokenType match)
-    {
-        return scanToken(false, true, match).getTokenType() == match;
-    }
-
-    Token Scanner::scanToken(bool advance, bool advanceMatch, TokenType match, uint32_t skip)
+    Token Scanner::scanToken(bool advance, bool advanceMatch, TokenType match, size_t skip)
     {
         Token token;
         if (_currentPos >= _source->length() || (skip > 0 && _currentPos + skip + 1 >= _source->length()))
             return Token(TokenType::ENDOFFILE, 0, 0, _line);
 
         skipNonTokens();
-        uint32_t originalStart = _currentPos;
+        size_t originalStart = _currentPos;
 
-        for (uint32_t i = 0; i < skip; i++)
+        for (size_t i = 0; i < skip; i++)
         {
             _currentPos++;
             skipNonTokens();
@@ -96,6 +129,9 @@ namespace SyncBlink
             break;
         case '*':
             token = Token(TokenType::STAR, _startPos, 1, _line);
+            break;
+        case '%':
+            token = Token(TokenType::MODULO, _startPos, 1, _line);
             break;
         case '&':
             if (peekAdvance('&'))

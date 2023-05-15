@@ -23,9 +23,9 @@ namespace SyncBlink
 
     void ByteCodePrinter::addSizeAndCount(std::vector<uint8_t>& byteCode, const Program& program) const
     {
-        writeFourByteValue(program.getCode().size(), byteCode);
-        writeTwoByteValue(program.getObjectSize(), byteCode);
-        writeTwoByteValue(program.getConstantSize(), byteCode);
+        writeTwoByteValue((uint16_t)program.getCode().size(), byteCode);
+        writeTwoByteValue((uint16_t)program.getObjects().size(), byteCode);
+        writeTwoByteValue((uint16_t)program.getConstants().size(), byteCode);
     }
 
     void ByteCodePrinter::addCodeAndLines(std::vector<uint8_t>& byteCode, const Program& program) const
@@ -33,25 +33,25 @@ namespace SyncBlink
         for (size_t i = 0; i < program.getCode().size(); i++)
         {
             writeTwoByteValue(program.getCode()[i], byteCode);
-            writeTwoByteValue(program.getLines()[i], byteCode);
+            writeFourByteValue(program.getLines()[i], byteCode);
         }
     }
 
     void ByteCodePrinter::addObjects(std::vector<uint8_t>& byteCode, const Program& program) const
     {
-        for (size_t i = 0; i < program.getObjectSize(); i++)
+        for (size_t i = 0; i < program.getObjects().size(); i++)
         {
-            const Object* obj = program.getObject(i);
+            auto obj = program.getObjects()[i];
             byteCode.push_back((uint8_t)obj->getType());
             switch (obj->getType())
             {
             case ObjectType::STRING: {
-                auto strObj = static_cast<const StringObj*>(obj);
+                auto strObj = static_cast<const StringObj*>(obj.get());
                 writeString(strObj->getString(), byteCode, program);
                 break;
             }
             case ObjectType::FUN: {
-                auto funObj = static_cast<const FunObj*>(obj);
+                auto funObj = static_cast<const FunObj*>(obj.get());
                 auto funProg = print(funObj->getProgram());
 
                 writeFourByteValue(funProg.size(), byteCode);
@@ -65,7 +65,7 @@ namespace SyncBlink
                 break;
             }
             case ObjectType::ARRAY: {
-                auto arrayObj = static_cast<const ArrayObj*>(obj);
+                auto arrayObj = static_cast<const ArrayObj*>(obj.get());
                 writeFourByteValue(arrayObj->getValuesConst().size(), byteCode);
                 for (size_t j = 0; j < arrayObj->getValuesConst().size(); j++)
                     addValue(arrayObj->getValuesConst()[j], byteCode);
@@ -81,9 +81,9 @@ namespace SyncBlink
 
     void ByteCodePrinter::addConstants(std::vector<uint8_t>& byteCode, const Program& program) const
     {
-        for (size_t i = 0; i < program.getConstantSize(); i++)
+        for (size_t i = 0; i < program.getConstants().size(); i++)
         {
-            const Value value = program.getConstant(i);
+            const Value value = program.getConstants()[i];
             addValue(value, byteCode);
         }
     }

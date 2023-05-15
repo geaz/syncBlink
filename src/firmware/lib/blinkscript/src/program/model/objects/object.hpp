@@ -11,7 +11,8 @@ namespace SyncBlink
         STRING,
         FUN,
         NATIVEFUN,
-        ARRAY
+        ARRAY,
+        CLOSURE
     };
 
     class Object
@@ -19,7 +20,7 @@ namespace SyncBlink
     public:
         virtual ObjectType getType() const = 0;
 
-        uint16_t index = -1;
+        int16_t index = 0;
     };
 }
 

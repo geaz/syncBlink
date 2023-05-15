@@ -7,7 +7,7 @@
 
 TEST_CASE("Scanner reports error on unrecognized lexems", "[scanTokens]")
 {
-    std::string script = "##&%";
+    std::string script = "##&@";
     auto source = std::make_shared<SyncBlink::StringScriptSource>(script);
     SyncBlink::Scanner scanner(source);
 

@@ -37,7 +37,8 @@ TEST_CASE("Parser parses expression statements succesfully", "[parse]")
                          "if(x == y || x == z && y == z) { z = 0 } else { z = 1 }\n"
                          "fun(x, y, z) { x + y * z }\n"
                          "testFunc(2)\n"
-                         "testFunc(x, y)\n";
+                         "testFunc(x, y)\n"
+                         "4 % 3 + 1\n";
 
     auto source = std::make_shared<SyncBlink::StringScriptSource>(script);
     auto parser = SyncBlink::Parser(source);
@@ -63,6 +64,7 @@ TEST_CASE("Parser parses expression statements succesfully", "[parse]")
     REQUIRE(printer.print(*programAst.getNodes()[15]) == "fun(x, y, z){\n\t(x + (y * z))\n}");
     REQUIRE(printer.print(*programAst.getNodes()[16]) == "testFunc(2)");
     REQUIRE(printer.print(*programAst.getNodes()[17]) == "testFunc(x, y)");
+    REQUIRE(printer.print(*programAst.getNodes()[18]) == "((4 % 3) + 1)");
 }
 
 TEST_CASE("Parser parses let statements succesfully", "[parse]")

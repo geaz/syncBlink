@@ -2,7 +2,7 @@
 #define NATIVEFUNOBJ_H
 
 #include "object.hpp"
-#include "vm/frame.hpp"
+#include "vm/symbol_table.hpp"
 
 #include <functional>
 #include <memory>
@@ -11,20 +11,20 @@
 
 namespace SyncBlink
 {
-    typedef std::function<Value(Frame&)> NativeFunc;
+    typedef std::function<Value(std::vector<Value>&)> NativeFunc;
 
     class NativeFunObj : public Object
     {
     public:
-        NativeFunObj(NativeFunc nativeFun, uint8_t arity);
+        NativeFunObj(NativeFunc nativeFun, size_t arity);
 
-        uint8_t getArity() const;
+        size_t getArity() const;
         NativeFunc getFun() const;
         ObjectType getType() const;
 
     private:
         NativeFunc _nativeFun;
-        uint8_t _arity;
+        size_t _arity;
     };
 }
 

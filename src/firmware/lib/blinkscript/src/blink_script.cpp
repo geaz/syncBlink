@@ -20,6 +20,7 @@ namespace SyncBlink
 
         // Add global funcs
         BuiltIns::println(_vm);
+        BuiltIns::setNumArray(_vm);
         BuiltIns::setGroups(*this, _vm);
         BuiltIns::setLinearGroups(*this, _vm);
         BuiltIns::clearGroups(*this, _vm);
@@ -63,9 +64,9 @@ namespace SyncBlink
     void BlinkScript::updateLedInfo(const uint16_t previousNodeCount, const uint32_t previousLedCount, const uint32_t meshLedCount)
     {
         if (isFaulted()) return;
-        _vm.getFrame().addSet("pNodeC", Value((float)previousNodeCount));
-        _vm.getFrame().addSet("pLedC", Value((float)previousLedCount));
-        _vm.getFrame().addSet("mLedC", Value((float)meshLedCount));
+        _vm.setGlobal("pNodeC", Value((float)previousNodeCount));
+        _vm.setGlobal("pLedC", Value((float)previousLedCount));
+        _vm.setGlobal("mLedC", Value((float)meshLedCount));
     }
 
     void BlinkScript::updateAnalyzerResult(const uint8_t volume, const uint16_t dominantFrequency, const std::array<uint8_t, 32>& freqBin)
@@ -89,10 +90,10 @@ namespace SyncBlink
 
         if (updateResult)
         {
-            _vm.getFrame().addSet("lVol", Value((float)_lastVolume));
-            _vm.getFrame().addSet("lFreq", Value((float)_lastFrequency));
-            _vm.getFrame().addSet("vol", Value((float)std::get<0>(result)));
-            _vm.getFrame().addSet("freq", Value((float)std::get<1>(result)));
+            _vm.setGlobal("lVol", Value((float)_lastVolume));
+            _vm.setGlobal("lFreq", Value((float)_lastFrequency));
+            _vm.setGlobal("vol", Value((float)std::get<0>(result)));
+            _vm.setGlobal("freq", Value((float)std::get<1>(result)));
 
             _lastVolume = std::get<0>(result);
             _lastFrequency = std::get<1>(result);
@@ -139,18 +140,14 @@ namespace SyncBlink
     void BlinkScript::saveAddToScope(const std::string& identifier, Value value)
     {
         if (isFaulted()) return;
-        if (!_vm.getFrame().addSet(identifier, value))
-        {
-            _faulted = true;
-            _error = std::make_tuple<int, std::string>(-1, "Variable '" + identifier + "' already defined!");
-        }
+        _vm.setGlobal(identifier, value);
     }
 
     void BlinkScript::saveAddToScope(const std::string& identifier, std::string stringValue)
     {
         auto ptr = std::unique_ptr<StringObj>(new StringObj(stringValue));
         auto value = Value(ptr.get());
-        _program->addValue(value, std::move(ptr));
+        _program->addConstant(value, std::move(ptr));
         saveAddToScope(identifier, value);
     }
 

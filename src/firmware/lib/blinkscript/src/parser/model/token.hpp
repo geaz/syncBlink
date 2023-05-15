@@ -15,10 +15,10 @@ namespace SyncBlink
     {
     public:
         Token();
-        Token(TokenType type, size_t start, size_t length, uint32_t line);
+        Token(TokenType type, size_t start, size_t length, size_t line);
 
-        int getLine() const;
-        int getPrecedence() const;
+        size_t getLine() const;
+        size_t getPrecedence() const;
         TokenType getTokenType() const;
 
         float getNumber(std::shared_ptr<ScriptSource> source) const;
@@ -29,7 +29,7 @@ namespace SyncBlink
         TokenType _type = TokenType::EMPTY;
         size_t _start = 0;
         size_t _length = 0;
-        uint32_t _line = 0;
+        size_t _line = 0;
     };
 }
 

@@ -15,15 +15,17 @@ namespace SyncBlink
     public:
         explicit Scanner(std::shared_ptr<ScriptSource> source);
 
-        bool peekAdvance(TokenType match);
-        Token advance();
         Token peek();
-        Token peek(int skip);
+        Token advance();
+        bool peekAdvance(TokenType match);
+        bool peekLine(TokenType match);
+        bool peekSequence(std::vector<TokenType> expected);
+
         Token getCurrent() const;
         bool isEnd() const;
 
     private:
-        Token scanToken(bool advance, bool advanceMatch = false, TokenType match = TokenType::FALSE, uint32_t skip = 0);
+        Token scanToken(bool advance, bool advanceMatch = false, TokenType match = TokenType::FALSE, size_t skip = 0);
 
         void skipNonTokens();
         void consumeComment();
@@ -37,9 +39,9 @@ namespace SyncBlink
 
         std::shared_ptr<ScriptSource> _source;
         Token _currentToken;
-        uint32_t _currentPos = 0;
-        uint32_t _startPos = 0;
-        uint32_t _line = 1;
+        size_t _currentPos = 0;
+        size_t _startPos = 0;
+        size_t _line = 1;
     };
 }
 

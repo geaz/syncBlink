@@ -1,5 +1,5 @@
-#ifndef ASSIGNSTATEMENT_H
-#define ASSIGNSTATEMENT_H
+#ifndef ASSIGNEXPRESSION_H
+#define ASSIGNEXPRESSION_H
 
 #include "parser/ast/ast_node.hpp"
 #include "parser/ast/ast_visitor.hpp"
@@ -7,10 +7,10 @@
 
 namespace SyncBlink
 {
-    class AssignStatement : public AstNode
+    class AssignExpression : public AstNode
     {
     public:
-        AssignStatement(const Token& identifier, std::unique_ptr<const AstNode> expression);
+        AssignExpression(const Token& identifier, std::unique_ptr<const AstNode> expression);
         void accept(AstVisitor& visitor) const;
 
         const Token& getIdentifier() const;
@@ -22,4 +22,4 @@ namespace SyncBlink
     };
 }
 
-#endif // ASSIGNSTATEMENT_H
+#endif // ASSIGNEXPRESSION_H

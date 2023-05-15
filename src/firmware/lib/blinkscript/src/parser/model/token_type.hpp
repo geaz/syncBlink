@@ -19,6 +19,7 @@ namespace SyncBlink
         SEMICOLON,
         DOT,
         MINUS,
+        MODULO,
         PLUS,
         SLASH,
         STAR,
@@ -48,7 +49,7 @@ namespace SyncBlink
         EMPTY
     };
 
-    extern std::map<TokenType, int> TokenPrecedences;
+    extern std::map<TokenType, size_t> TokenPrecedences;
     extern std::map<std::string, TokenType> TokenKeywords;
 }
 

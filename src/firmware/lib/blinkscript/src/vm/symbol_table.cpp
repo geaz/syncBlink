@@ -1,10 +1,17 @@
 #include "symbol_table.hpp"
 
+#include "program/model/string_hash.hpp"
+
 namespace SyncBlink
 {
     SymbolTable::SymbolTable()
     {
         _entries.resize(_capacity);
+    }
+
+    bool SymbolTable::set(const std::string& identifier, Value value)
+    {
+        return set(stringHash(identifier), value);
     }
 
     bool SymbolTable::set(uint32_t hash, Value value)
@@ -21,6 +28,11 @@ namespace SyncBlink
         return isNewKey;
     }
 
+    bool SymbolTable::get(const std::string& identifier, Value* value)
+    {
+        return get(stringHash(identifier), value);
+    }
+
     bool SymbolTable::get(uint32_t hash, Value* value)
     {
         if (_count == 0) return false;
@@ -30,6 +42,20 @@ namespace SyncBlink
 
         *value = entry->value;
         return true;
+    }
+
+    bool SymbolTable::hasRefOnObject(const Object* obj)
+    {
+        bool hasRef = false;
+        for (auto iter = _entries.begin(); iter != _entries.end(); iter++)
+        {
+            if (iter->value.getType() == ValueType::OBJECT && iter->value.object == obj)
+            {
+                hasRef = true;
+                break;
+            }
+        }
+        return hasRef;
     }
 
     TableEntry* SymbolTable::find(std::vector<TableEntry>& entries, int capacity, uint32_t hash)

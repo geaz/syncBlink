@@ -2,7 +2,7 @@
 
 namespace SyncBlink
 {
-    IndexExpression::IndexExpression(std::unique_ptr<const AstNode> left, std::unique_ptr<const AstNode> right, uint16_t line)
+    IndexExpression::IndexExpression(std::unique_ptr<const AstNode> left, std::unique_ptr<const AstNode> right, size_t line)
         : _left(std::move(left)), _right(std::move(right)), _line(line)
     {
     }
@@ -12,7 +12,7 @@ namespace SyncBlink
         visitor.visitIndexExpression(*this);
     }
 
-    uint16_t IndexExpression::getLine() const
+    size_t IndexExpression::getLine() const
     {
         return _line;
     }

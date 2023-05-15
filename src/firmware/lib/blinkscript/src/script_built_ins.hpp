@@ -11,6 +11,7 @@ namespace SyncBlink
     namespace BuiltIns
     {
         void println(VM& vm);
+        void setNumArray(VM& vm);
         void setGroups(BlinkScript& blinkScript, VM& vm);
         void setLinearGroups(BlinkScript& blinkScript, VM& vm);
         void clearGroups(BlinkScript& blinkScript, VM& vm);

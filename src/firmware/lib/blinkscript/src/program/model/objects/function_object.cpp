@@ -11,6 +11,12 @@ namespace SyncBlink
         _parameters.push_back(parameter);
     }
 
+    
+    void FunObj::setForeignLocalIndices(const std::vector<uint16_t>& foreignLocalIndices)
+    {
+        _foreignLocalIndices = foreignLocalIndices;
+    }
+
     ObjectType FunObj::getType() const
     {
         return ObjectType::FUN;
@@ -24,5 +30,10 @@ namespace SyncBlink
     const std::vector<std::string>& FunObj::getParameters() const
     {
         return _parameters;
+    }
+        
+    const std::vector<uint16_t>& FunObj::getForeignLocalIndices() const
+    {
+        return _foreignLocalIndices;
     }
 }

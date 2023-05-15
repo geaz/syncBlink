@@ -21,7 +21,12 @@ namespace SyncBlink
         SymbolTable();
 
         bool set(uint32_t hash, Value value);
+        bool set(const std::string& identifier, Value value);
+
         bool get(uint32_t hash, Value* value);
+        bool get(const std::string& identifier, Value* value);
+
+        bool hasRefOnObject(const Object* obj);
 
     private:
         TableEntry* find(std::vector<TableEntry>& entries, int capacity, uint32_t hash);

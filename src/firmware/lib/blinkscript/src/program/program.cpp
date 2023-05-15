@@ -3,39 +3,41 @@
 #include "model/objects/string_object.hpp"
 #include "model/op_codes.hpp"
 
-#include <algorithm>
-
 namespace SyncBlink
 {
-    void Program::addCode(uint16_t code, uint16_t line)
+    void Program::addCode(uint16_t code, size_t line)
     {
         _code.push_back(code);
         _lines.push_back(line);
     }
 
-    void Program::removeCode(uint16_t count)
+    void Program::removeCode(size_t count)
     {
-        for (uint16_t i = 0; i < count; i++)
+        for (size_t i = 0; i < count; i++)
         {
             _code.pop_back();
             _lines.pop_back();
         }
     }
 
-    uint32_t Program::addValue(Value value, std::shared_ptr<Object> object)
+    uint16_t Program::addConstant(Value value, std::shared_ptr<Object> object)
     {
-        int32_t constantIndex = searchConstant(value);
-        if (constantIndex == -1)
+        bool found = false;
+        uint16_t constantIndex;
+        found = searchConstant(value, constantIndex);
+
+        if (!found)
         {
             _constants.push_back(value);
-            constantIndex = _constants.size() - 1;
+            constantIndex = (uint16_t)_constants.size() - 1;
 
             if (object != nullptr)
             {
-                object->index = _objects.size();
+                object->index = (uint16_t)_objects.size();
                 _objects.push_back(object);
             }
         }
+
         return constantIndex;
     }
 
@@ -44,61 +46,54 @@ namespace SyncBlink
         return _code;
     }
 
-    const std::vector<uint16_t>& Program::getLines() const
+    const std::vector<size_t>& Program::getLines() const
     {
         return _lines;
     }
 
-    const Value& Program::getConstant(uint16_t index) const
+    const std::vector<Value>& Program::getConstants() const
     {
-        return _constants[index];
+        return _constants;
     }
 
-    const Object* Program::getObject(uint16_t index) const
+    const std::vector<std::shared_ptr<Object>>& Program::getObjects() const
     {
-        return _objects[index].get();
+        return _objects;
     }
 
-    int32_t Program::searchConstant(Value searchConst) const
+    bool Program::searchConstant(Value searchValue, uint16_t& foundIndex) const
     {
-        int32_t foundIndex = -1;
-        for (size_t i = 0; i < _constants.size(); i++)
+        bool found = false;
+        for (uint16_t i = 0; i < (uint16_t)_constants.size(); i++)
         {
             auto constant = _constants[i];
-            if (searchConst.getType() == ValueType::BOOL && constant.getType() == ValueType::BOOL &&
-                searchConst.boolean == constant.boolean)
+            if (searchValue.getType() == ValueType::BOOL && constant.getType() == ValueType::BOOL &&
+                searchValue.boolean == constant.boolean)
             {
+                found = true;
                 foundIndex = i;
                 break;
             }
-            else if (searchConst.getType() == ValueType::NUMBER && constant.getType() == ValueType::NUMBER &&
-                     searchConst.number == constant.number)
+            else if (searchValue.getType() == ValueType::NUMBER && constant.getType() == ValueType::NUMBER &&
+                     searchValue.number == constant.number)
             {
+                found = true;
                 foundIndex = i;
                 break;
             }
-            else if (searchConst.getType() == ValueType::OBJECT && constant.getType() == ValueType::OBJECT &&
-                     searchConst.object->getType() == ObjectType::STRING && constant.object->getType() == ObjectType::STRING)
+            else if (searchValue.getType() == ValueType::OBJECT && constant.getType() == ValueType::OBJECT &&
+                     searchValue.object->getType() == ObjectType::STRING && constant.object->getType() == ObjectType::STRING)
             {
-                auto searchStr = searchConst.getObject<StringObj>()->getString();
+                auto searchStr = searchValue.getObject<StringObj>()->getString();
                 auto constStr = constant.getObject<StringObj>()->getString();
                 if (searchStr == constStr)
                 {
+                    found = true;
                     foundIndex = i;
                     break;
                 }
             }
         }
-        return foundIndex;
-    }
-
-    uint32_t Program::getObjectSize() const
-    {
-        return _objects.size();
-    }
-
-    uint32_t Program::getConstantSize() const
-    {
-        return _constants.size();
+        return found;
     }
 }

@@ -8,13 +8,13 @@ namespace SyncBlink
     {
     }
 
-    Token::Token(TokenType type, size_t start, size_t length, uint32_t line) : _type(type), _start(start), _length(length), _line(line)
+    Token::Token(TokenType type, size_t start, size_t length, size_t line) : _type(type), _start(start), _length(length), _line(line)
     {
     }
 
-    int Token::getPrecedence() const
+    size_t Token::getPrecedence() const
     {
-        int precedence = 0;
+        size_t precedence = 0;
         auto iter = TokenPrecedences.find(getTokenType());
         if (iter != TokenPrecedences.end()) precedence = iter->second;
         return precedence;
@@ -45,7 +45,7 @@ namespace SyncBlink
         return source->substr(_start, _length);
     }
 
-    int Token::getLine() const
+    size_t Token::getLine() const
     {
         return _line;
     }

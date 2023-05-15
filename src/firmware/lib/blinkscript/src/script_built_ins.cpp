@@ -15,15 +15,15 @@ namespace SyncBlink
         void println(VM& vm)
         {
             vm.addNativeFun("println", std::make_shared<NativeFunObj>(
-                                           [](Frame frame) {
-                                               if (frame.get("arg0").getType() == ValueType::NUMBER)
+                                           [](std::vector<Value> args) {
+                                               if (args[0].getType() == ValueType::NUMBER)
                                                {
                                                    Serial.print("[SCRIPT] ");
-                                                   Serial.println(frame.get("arg0").number);
+                                                   Serial.println(args[0].number);
                                                }
-                                               else if (frame.get("arg0").getType() == ValueType::OBJECT)
+                                               else if (args[0].getType() == ValueType::OBJECT)
                                                {
-                                                   auto strObj = frame.get("arg0").object;
+                                                   auto strObj = args[0].object;
                                                    if (strObj->getType() == ObjectType::STRING)
                                                    {
                                                        Serial.print("[SCRIPT] ");
@@ -35,11 +35,26 @@ namespace SyncBlink
                                            1));
         }
 
+        void setNumArray(VM& vm)
+        {
+            vm.addNativeFun("setNumArray", std::make_shared<NativeFunObj>(
+                                           [](std::vector<Value> args) {
+                                               if(args[0].getType() == ValueType::OBJECT && args[0].object->getType() == ObjectType::ARRAY)
+                                               {
+                                                    auto arrayObj = args[0].getObject<ArrayObj>();
+                                                    arrayObj->getValues().resize((uint16_t) args[1].number);                                                    
+                                                    std::fill(arrayObj->getValues().begin(), arrayObj->getValues().end(), Value(args[2].number));
+                                               }
+                                               return Value();
+                                           },
+                                           3));
+        }
+
         void setLinearGroups(BlinkScript& blinkScript, VM& vm)
         {
             vm.addNativeFun("setLinearGroupsOf", std::make_shared<NativeFunObj>(
-                                                     [&blinkScript](Frame frame) {
-                                                         uint32_t countPerGroup = (uint32_t)frame.get("arg0").number;
+                                                     [&blinkScript](std::vector<Value> args) {
+                                                         uint32_t countPerGroup = (uint32_t)args[0].number;
                                                          for (uint32_t i = 0; i < blinkScript.getLed().getLedCount() / countPerGroup; i++)
                                                          {
                                                              std::vector<uint16_t> ledIndices;
@@ -57,8 +72,8 @@ namespace SyncBlink
         void setGroups(BlinkScript& blinkScript, VM& vm)
         {
             vm.addNativeFun("setGroupsOf", std::make_shared<NativeFunObj>(
-                                               [&blinkScript](Frame frame) {
-                                                   uint32_t countPerGroup = (uint32_t)frame.get("arg0").number;
+                                               [&blinkScript](std::vector<Value> args) {
+                                                   uint32_t countPerGroup = (uint32_t)args[0].number;
                                                    uint32_t groupCount = blinkScript.getLed().getLedCount() / countPerGroup;
                                                    for (uint32_t i = 0; i < groupCount; i++)
                                                    {
@@ -79,7 +94,7 @@ namespace SyncBlink
         void clearGroups(BlinkScript& blinkScript, VM& vm)
         {
             vm.addNativeFun("clearGroups", std::make_shared<NativeFunObj>(
-                                               [&blinkScript](Frame frame) {
+                                               [&blinkScript](std::vector<Value> args) {
                                                    blinkScript.getLed().clearGroups();
                                                    return Value();
                                                },
@@ -89,8 +104,8 @@ namespace SyncBlink
         void setDelay(BlinkScript& blinkScript, VM& vm)
         {
             vm.addNativeFun("setDelay", std::make_shared<NativeFunObj>(
-                                            [&blinkScript](Frame frame) {
-                                                float delay = frame.get("arg0").number;
+                                            [&blinkScript](std::vector<Value> args) {
+                                                float delay = args[0].number;
                                                 blinkScript.setDelay(delay);
                                                 return Value();
                                             },
@@ -100,8 +115,8 @@ namespace SyncBlink
         void getLed(BlinkScript& blinkScript, VM& vm)
         {
             vm.addNativeFun("getLed", std::make_shared<NativeFunObj>(
-                                          [&blinkScript](Frame frame) {
-                                              float index = frame.get("arg0").number;
+                                          [&blinkScript](std::vector<Value> args) {
+                                              float index = args[0].number;
                                               return Value((float)blinkScript.getLed().getLed(index));
                                           },
                                           1));
@@ -111,8 +126,8 @@ namespace SyncBlink
         {
             vm.addNativeFun("setLeds",
                             std::make_shared<NativeFunObj>(
-                                [&blinkScript](Frame frame) {
-                                    auto arrayVal = frame.get("arg0");
+                                [&blinkScript](std::vector<Value> args) {
+                                    auto arrayVal = args[0];
                                     if (arrayVal.getType() == ValueType::OBJECT && arrayVal.object->getType() == ObjectType::ARRAY)
                                     {
                                         auto arrayObj = static_cast<ArrayObj*>(arrayVal.object);
@@ -129,8 +144,8 @@ namespace SyncBlink
         void setAllLeds(BlinkScript& blinkScript, VM& vm)
         {
             vm.addNativeFun("setAllLeds", std::make_shared<NativeFunObj>(
-                                              [&blinkScript](Frame frame) {
-                                                  float hexColor = frame.get("arg0").number;
+                                              [&blinkScript](std::vector<Value> args) {
+                                                  float hexColor = args[0].number;
                                                   blinkScript.getLed().setAllLeds(Color::fromHex(hexColor));
                                                   return Value();
                                               },
@@ -140,12 +155,12 @@ namespace SyncBlink
         void map(VM& vm)
         {
             vm.addNativeFun("map", std::make_shared<NativeFunObj>(
-                                       [](Frame frame) {
-                                           float x = frame.get("arg0").number;
-                                           float inMin = frame.get("arg1").number;
-                                           float inMax = frame.get("arg2").number;
-                                           float outMin = frame.get("arg3").number;
-                                           float outMax = frame.get("arg4").number;
+                                       [](std::vector<Value> args) {
+                                           float x = args[0].number;
+                                           float inMin = args[1].number;
+                                           float inMax = args[2].number;
+                                           float outMin = args[3].number;
+                                           float outMax = args[4].number;
 
                                            return Value((x - inMin) / (inMax - inMin) * (outMax - outMin) + outMin);
                                        },
@@ -155,10 +170,10 @@ namespace SyncBlink
         void xrgb(VM& vm)
         {
             vm.addNativeFun("xrgb", std::make_shared<NativeFunObj>(
-                                        [](Frame frame) {
-                                            uint32_t r = frame.get("arg0").number;
-                                            uint32_t g = frame.get("arg1").number;
-                                            uint32_t b = frame.get("arg2").number;
+                                        [](std::vector<Value> args) {
+                                            uint32_t r = args[0].number;
+                                            uint32_t g = args[1].number;
+                                            uint32_t b = args[2].number;
 
                                             return Value((float)((r << 16) + (g << 8) + b));
                                         },
@@ -168,10 +183,10 @@ namespace SyncBlink
         void xhsv(VM& vm)
         {
             vm.addNativeFun("xhsv", std::make_shared<NativeFunObj>(
-                                        [](Frame frame) {
-                                            float h = frame.get("arg0").number;
-                                            float s = frame.get("arg1").number;
-                                            float v = frame.get("arg2").number;
+                                        [](std::vector<Value> args) {
+                                            float h = args[0].number;
+                                            float s = args[1].number;
+                                            float v = args[2].number;
 
                                             float chroma = v * s;
                                             float hPrime = fmod(h / 60.0, 6);

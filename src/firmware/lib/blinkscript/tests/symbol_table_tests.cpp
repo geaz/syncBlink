@@ -5,7 +5,7 @@
 #include <catch2/catch.hpp>
 #include <iostream>
 
-TEST_CASE("Should insert key successfully", "[SymbolTable]")
+TEST_CASE("Symbol Table should insert key successfully", "[SymbolTable]")
 {
     SyncBlink::SymbolTable table;
 
@@ -16,7 +16,7 @@ TEST_CASE("Should insert key successfully", "[SymbolTable]")
     REQUIRE(table.get(hash, &foundValue));
 }
 
-TEST_CASE("Should adjust successfully", "[SymbolTable]")
+TEST_CASE("Symbol Table should adjust successfully", "[SymbolTable]")
 {
     SyncBlink::SymbolTable table;
 

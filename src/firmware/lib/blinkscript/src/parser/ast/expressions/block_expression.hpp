@@ -1,5 +1,5 @@
-#ifndef BLOCKSTATEMENT_H
-#define BLOCKSTATEMENT_H
+#ifndef BLOCKEXPRESSION_H
+#define BLOCKEXPRESSION_H
 
 #include "parser/ast/ast_node.hpp"
 #include "parser/ast/ast_visitor.hpp"
@@ -9,10 +9,10 @@
 
 namespace SyncBlink
 {
-    class BlockStatement : public AstNode
+    class BlockExpression : public AstNode
     {
     public:
-        explicit BlockStatement(std::vector<std::unique_ptr<const AstNode>>&& statements);
+        explicit BlockExpression(std::vector<std::unique_ptr<const AstNode>>&& statements);
         void accept(AstVisitor& visitor) const;
 
         const std::vector<std::unique_ptr<const AstNode>>& getStatements() const;
@@ -22,4 +22,4 @@ namespace SyncBlink
     };
 }
 
-#endif // BLOCKSTATEMENT_H
+#endif // BLOCKEXPRESSION_H

@@ -11,6 +11,7 @@
 #include "source/file_bytecode_source.hpp"
 #include "source/string_script_source.hpp"
 #include "vm/vm.hpp"
+#include "program/model/value.hpp"
 
 #include <catch2/catch.hpp>
 #include <iomanip>
@@ -30,7 +31,14 @@ SyncBlink::Program compile(const std::string& script)
     REQUIRE(!parser.hasError());
 
     auto compiler = SyncBlink::Compiler(source, programAst);
-    return compiler.compile();
+    auto program = compiler.compile();
+
+    SyncBlink::Disassembler dis;
+    auto disassembledCode = dis.print(program);
+
+    REQUIRE(!compiler.hasError());
+
+    return program;
 }
 
 TEST_CASE("VM runs successfully", "[VM]")
@@ -39,6 +47,8 @@ TEST_CASE("VM runs successfully", "[VM]")
     auto vm = SyncBlink::VM();
 
     vm.run(program);
+
+    REQUIRE(vm.getStackSize() == 1);
 }
 
 TEST_CASE("VM runs let statements successfully", "[VM]")
@@ -52,6 +62,7 @@ TEST_CASE("VM runs let statements successfully", "[VM]")
     auto vm = SyncBlink::VM();
     vm.run(program);
 
+    REQUIRE(vm.getStackSize() == 1);
     REQUIRE(vm.getTop().getType() == SyncBlink::ValueType::NUMBER);
     REQUIRE(vm.getTop().number == 10);
 }
@@ -66,6 +77,7 @@ TEST_CASE("VM runs assign statements successfully", "[VM]")
     auto vm = SyncBlink::VM();
     vm.run(program);
 
+    REQUIRE(vm.getStackSize() == 1);
     REQUIRE(vm.getTop().getType() == SyncBlink::ValueType::OBJECT);
     REQUIRE(static_cast<SyncBlink::StringObj*>(vm.getTop().object)->getString() == "ipsum");
 }
@@ -80,6 +92,7 @@ TEST_CASE("VM runs bang prefix expression successfully", "[VM]")
     auto vm = SyncBlink::VM();
     vm.run(program);
 
+    REQUIRE(vm.getStackSize() == 1);
     REQUIRE(vm.getTop().getType() == SyncBlink::ValueType::BOOL);
     REQUIRE(vm.getTop().boolean);
 }
@@ -93,6 +106,7 @@ TEST_CASE("VM runs minus prefix expression successfully", "[VM]")
     auto vm = SyncBlink::VM();
     vm.run(program);
 
+    REQUIRE(vm.getStackSize() == 1);
     REQUIRE(vm.getTop().getType() == SyncBlink::ValueType::NUMBER);
     REQUIRE(vm.getTop().number == -2);
 }
@@ -131,6 +145,7 @@ TEST_CASE("VM runs calculations successfully", "[VM]")
     vm.run(program);
 
     REQUIRE(!vm.hasError());
+    REQUIRE(vm.getStackSize() == 1);
     REQUIRE(vm.getTop().getType() == SyncBlink::ValueType::NUMBER);
     REQUIRE(vm.getTop().number == 3);
 }
@@ -145,6 +160,7 @@ TEST_CASE("VM runs number comparison successfully", "[VM]")
     vm.run(program);
 
     REQUIRE(!vm.hasError());
+    REQUIRE(vm.getStackSize() == 1);
     REQUIRE(vm.getTop().getType() == SyncBlink::ValueType::BOOL);
     REQUIRE(vm.getTop().boolean);
 }
@@ -159,6 +175,7 @@ TEST_CASE("VM runs bool operations successfully", "[VM]")
     vm.run(program);
 
     REQUIRE(!vm.hasError());
+    REQUIRE(vm.getStackSize() == 1);
     REQUIRE(vm.getTop().getType() == SyncBlink::ValueType::BOOL);
     REQUIRE(vm.getTop().boolean);
 }
@@ -173,6 +190,7 @@ TEST_CASE("VM runs string concat successfully", "[VM]")
     vm.run(program);
 
     REQUIRE(!vm.hasError());
+    REQUIRE(vm.getStackSize() == 1);
     REQUIRE(vm.getTop().getType() == SyncBlink::ValueType::OBJECT);
     REQUIRE(vm.getTop().object->getType() == SyncBlink::ObjectType::STRING);
     REQUIRE(static_cast<SyncBlink::StringObj*>(vm.getTop().object)->getString() == "lorem ipsum");
@@ -188,6 +206,7 @@ TEST_CASE("VM runs string and number concat successfully", "[VM]")
     vm.run(program);
 
     REQUIRE(!vm.hasError());
+    REQUIRE(vm.getStackSize() == 1);
     REQUIRE(vm.getTop().getType() == SyncBlink::ValueType::OBJECT);
     REQUIRE(vm.getTop().object->getType() == SyncBlink::ObjectType::STRING);
     REQUIRE(static_cast<SyncBlink::StringObj*>(vm.getTop().object)->getString() == "lorem 4");
@@ -214,8 +233,24 @@ TEST_CASE("VM runs grouped calculation successfully", "[VM]")
     vm.run(program);
 
     REQUIRE(!vm.hasError());
+    REQUIRE(vm.getStackSize() == 1);
     REQUIRE(vm.getTop().getType() == SyncBlink::ValueType::NUMBER);
     REQUIRE(vm.getTop().number == 12);
+}
+
+TEST_CASE("VM runs modulo successfully", "[VM]")
+{
+    std::string script = "let k = 5 % 2\n"
+                         "k";
+
+    auto program = compile(script);
+    auto vm = SyncBlink::VM();
+    vm.run(program);
+
+    REQUIRE(!vm.hasError());
+    REQUIRE(vm.getStackSize() == 1);
+    REQUIRE(vm.getTop().getType() == SyncBlink::ValueType::NUMBER);
+    REQUIRE(vm.getTop().number == 1);
 }
 
 TEST_CASE("VM runs function variables successfully", "[VM]")
@@ -228,6 +263,7 @@ TEST_CASE("VM runs function variables successfully", "[VM]")
     vm.run(program);
 
     REQUIRE(!vm.hasError());
+    REQUIRE(vm.getStackSize() == 1);
     REQUIRE(vm.getTop().getType() == SyncBlink::ValueType::OBJECT);
 }
 
@@ -244,6 +280,7 @@ TEST_CASE("VM runs function call successfully", "[VM]")
     vm.run(program);
 
     REQUIRE(!vm.hasError());
+    REQUIRE(vm.getStackSize() == 1);
     REQUIRE(vm.getTop().getType() == SyncBlink::ValueType::NUMBER);
     REQUIRE(vm.getTop().number == 8);
 }
@@ -255,10 +292,12 @@ TEST_CASE("VM runs condition expression successfully", "[VM]")
                          "k";
 
     auto program = compile(script);
+
     auto vm = SyncBlink::VM();
     vm.run(program);
 
     REQUIRE(!vm.hasError());
+    REQUIRE(vm.getStackSize() == 1);
     REQUIRE(vm.getTop().getType() == SyncBlink::ValueType::NUMBER);
     REQUIRE(vm.getTop().number == 0);
 }
@@ -274,6 +313,7 @@ TEST_CASE("VM runs condition expression successfully (2)", "[VM]")
     vm.run(program);
 
     REQUIRE(!vm.hasError());
+    REQUIRE(vm.getStackSize() == 1);
     REQUIRE(vm.getTop().getType() == SyncBlink::ValueType::NUMBER);
     REQUIRE(vm.getTop().number == 2);
 }
@@ -289,10 +329,8 @@ TEST_CASE("VM runs condition expression successfully (3)", "[VM]")
     auto vm = SyncBlink::VM();
     vm.run(program);
 
-    SyncBlink::Disassembler dis;
-    auto disassembledCode = dis.print(program);
-
     REQUIRE(!vm.hasError());
+    REQUIRE(vm.getStackSize() == 1);
     REQUIRE(vm.getTop().getType() == SyncBlink::ValueType::NUMBER);
     REQUIRE(vm.getTop().number == 3);
 }
@@ -310,6 +348,7 @@ TEST_CASE("VM runs condition expression successfully (4)", "[VM]")
     vm.run(program);
 
     REQUIRE(!vm.hasError());
+    REQUIRE(vm.getStackSize() == 1);
     REQUIRE(vm.getTop().getType() == SyncBlink::ValueType::NUMBER);
     REQUIRE(vm.getTop().number == 4);
 }
@@ -326,26 +365,28 @@ TEST_CASE("VM runs condition expression with shadowing successfully (5)", "[VM]"
     vm.run(program);
 
     REQUIRE(!vm.hasError());
+    REQUIRE(vm.getStackSize() == 1);
     REQUIRE(vm.getTop().getType() == SyncBlink::ValueType::NUMBER);
     REQUIRE(vm.getTop().number == 2);
 }
 
 TEST_CASE("VM runs native function successfully", "[VM]")
 {
-    std::string script = "add(2, 2)";
+    std::string script = "add(2.3, 2.2)";
 
     auto program = compile(script);
     auto vm = SyncBlink::VM();
 
     auto nativeAddPtr = std::make_shared<SyncBlink::NativeFunObj>(
-        [](SyncBlink::Frame frame) { return SyncBlink::Value(frame.get("arg0").number + frame.get("arg1").number); }, 2);
+        [](std::vector<SyncBlink::Value> args) { return SyncBlink::Value(args[0].number + args[1].number); }, 2);
 
     vm.addNativeFun("add", nativeAddPtr);
     vm.run(program);
 
     REQUIRE(!vm.hasError());
+    REQUIRE(vm.getStackSize() == 1);
     REQUIRE(vm.getTop().getType() == SyncBlink::ValueType::NUMBER);
-    REQUIRE(vm.getTop().number == 4);
+    REQUIRE(vm.getTop().number == 4.5);
 }
 
 TEST_CASE("VM runs external function call successfully", "[VM]")
@@ -374,7 +415,7 @@ TEST_CASE("VM runs externaly called native function successfully", "[VM]")
     auto vm = SyncBlink::VM();
 
     auto nativeAddPtr = std::make_shared<SyncBlink::NativeFunObj>(
-        [](SyncBlink::Frame frame) { return SyncBlink::Value(frame.get("arg0").number + frame.get("arg1").number); }, 2);
+        [](std::vector<SyncBlink::Value> args) { return SyncBlink::Value(args[0].number + args[1].number); }, 2);
 
     std::vector<SyncBlink::Value> parameters;
     parameters.push_back(SyncBlink::Value(10.0f));
@@ -391,39 +432,59 @@ TEST_CASE("VM runs externaly called native function successfully", "[VM]")
 
 TEST_CASE("VM Block Scopes in child scopes (function -> further blocks) should not throw SEGFAULT", "[VM]")
 {
-    std::string script = "let update = fun(delta) {\n"
-                         "if(vol == 0 || freq == 0 || vol < lVol) {\n"
-                         "\n"
-                         "}\n"
-                         "setAllLeds(12255470)\n"
-                         "}\n"
-                         "\n"
-                         "let init = fun(){}\n"
-                         "let scriptName = \"simpleScript\"";
+    std::string script = "let colors = []\n"
+                        "let update = fun(delta) {\n"
+                        "if(vol == 0 || freq == 0 || vol < lVol) {\n"
+                        "\n"
+                        "}\n"
+                        "minus(delta, 1.4)\n"
+                        "}\n"
+                        "\n"
+                        "let init = fun(){\n"
+                        "for(let i = nLedC - 1; i > 0; i = i - 1) {\n"
+                        "colors[i] = xrgb(0,0,0)\n"
+                        "}\n"
+                        "if(nLedC == 16) {\n"
+                        "setGroupsOf(4,4)\n"
+                        "}\n"
+                        "if(nLedC == 256) {\n"
+                        "setLinearGroupsOf(16,4)\n"
+                        "}\n"
+                        "}\n";
 
     auto program = compile(script);
+
     auto vm = SyncBlink::VM();
     vm.run(program);
 
-    auto nativeFunPtr = std::make_shared<SyncBlink::NativeFunObj>([](SyncBlink::Frame frame) { return SyncBlink::Value(); }, 1);
-    vm.addNativeFun("setAllLeds", nativeFunPtr);
+    auto nativeFunPtr = std::make_shared<SyncBlink::NativeFunObj>([](std::vector<SyncBlink::Value> args) { return SyncBlink::Value(args[0].number - 1); }, 2);
+    vm.addNativeFun("minus", nativeFunPtr);
+    vm.addNativeFun("xrgb", nativeFunPtr);
+    vm.addNativeFun("setGroupsOf", nativeFunPtr);
+    vm.addNativeFun("setLinearGroupsOf", nativeFunPtr);
 
-    vm.getFrame().addSet("lVol", SyncBlink::Value(0.0f));
-    vm.getFrame().addSet("lFreq", SyncBlink::Value(0.0f));
-    vm.getFrame().addSet("vol", SyncBlink::Value(0.0f));
-    vm.getFrame().addSet("freq", SyncBlink::Value(0.0f));
+    vm.setGlobal("lVol", SyncBlink::Value(0.0f));
+    vm.setGlobal("lFreq", SyncBlink::Value(0.0f));
+    vm.setGlobal("vol", SyncBlink::Value(0.0f));
+    vm.setGlobal("freq", SyncBlink::Value(0.0f));
+    vm.setGlobal("nLedC", SyncBlink::Value(2.0f));
+
+    vm.executeFun("init", {});
+    REQUIRE(!vm.hasError());
 
     std::vector<SyncBlink::Value> parameters;
-    parameters.push_back(SyncBlink::Value(0.0f));
+    parameters.push_back(SyncBlink::Value(2.0f));
 
     vm.executeFun("update", parameters);
     REQUIRE(!vm.hasError());
+    REQUIRE(vm.getTop().number == 1.0f);
 
     std::vector<SyncBlink::Value> parameters2;
-    parameters.push_back(SyncBlink::Value(0.0f));
+    parameters.push_back(SyncBlink::Value(1.0f));
 
     vm.executeFun("update", parameters);
     REQUIRE(!vm.hasError());
+    REQUIRE(vm.getTop().number == 0.0f);
 }
 
 TEST_CASE("VM executes array and indexing expressions successfully", "[VM]")
@@ -437,6 +498,7 @@ TEST_CASE("VM executes array and indexing expressions successfully", "[VM]")
     vm.run(program);
 
     REQUIRE(!vm.hasError());
+    REQUIRE(vm.getStackSize() == 1);
     REQUIRE(vm.getTop().getType() == SyncBlink::ValueType::NUMBER);
     REQUIRE(vm.getTop().number == 2);
 }
@@ -446,7 +508,8 @@ TEST_CASE("VM executes while loops successfully", "[VM]")
     std::string script = "let i = 0\n"
                          "let counter = 0\n"
                          "while(i < 10) {\n"
-                         "counter = counter + 1\n"
+                         "let t = 9\n"
+                         "counter = t + 1\n"
                          "i = i + 1\n"
                          "}\n"
                          "counter";
@@ -456,6 +519,7 @@ TEST_CASE("VM executes while loops successfully", "[VM]")
     vm.run(program);
 
     REQUIRE(!vm.hasError());
+    REQUIRE(vm.getStackSize() == 1);
     REQUIRE(vm.getTop().getType() == SyncBlink::ValueType::NUMBER);
     REQUIRE(vm.getTop().number == 10);
 }
@@ -494,7 +558,7 @@ TEST_CASE("VM executes loop called native funcs without stack overflow", "[VM]")
     auto vm = SyncBlink::VM();
 
     auto nativeAddPtr = std::make_shared<SyncBlink::NativeFunObj>(
-        [](SyncBlink::Frame frame) { return SyncBlink::Value(frame.get("arg0").number + frame.get("arg1").number); }, 2);
+        [](std::vector<SyncBlink::Value> args) { return SyncBlink::Value(args[0].number + args[1].number); }, 2);
 
     vm.addNativeFun("add", nativeAddPtr);
     vm.run(program);
@@ -508,7 +572,8 @@ TEST_CASE("VM executes for loops successfully", "[VM]")
 {
     std::string script = "let count = 0\n"
                          "for(let i = 0; i < 10; i = i + 1) {\n"
-                         "\tcount = count + 1\n"
+                         "let count1 = count + 1\n"
+                         "\tcount = count1\n"
                          "}\n"
                          "count";
 
@@ -517,8 +582,23 @@ TEST_CASE("VM executes for loops successfully", "[VM]")
     vm.run(program);
 
     REQUIRE(!vm.hasError());
+    REQUIRE(vm.getStackSize() == 1);
     REQUIRE(vm.getTop().getType() == SyncBlink::ValueType::NUMBER);
     REQUIRE(vm.getTop().number == 10);
+}
+
+TEST_CASE("VM executes empty for loops successfully", "[VM]")
+{
+    std::string script = "for(let i = 0; i < 10; i = i + 1) {\n"
+                         "}";
+
+    auto program = compile(script);
+    auto vm = SyncBlink::VM();
+    vm.run(program);
+
+    REQUIRE(!vm.hasError());
+    REQUIRE(vm.getStackSize() == 1);
+    REQUIRE(vm.getTop().getType() == SyncBlink::ValueType::NIL);
 }
 
 TEST_CASE("VM executes multiple function calls successfully", "[VM]")
@@ -544,12 +624,14 @@ TEST_CASE("VM executes multiple function calls successfully", "[VM]")
 
 // a3bfcf31ab1bedb98fa92f388f75125f95bd8e0f: ~7.5secs
 // 2ddd7f99780ef8cfb8c84215aa4511a91eaf4771: ~4.5secs
-// ?: ~3.0secs
+// 984ece8e9812a628aa6029c889454b0e2b1d61ad: ~2.6 sec
+// now WITH assignments: ~2.75sec
 TEST_CASE("VM executes array in loops successfully (for performance test)", "[VM]")
 {
     std::string script = "let test = []\n"
                          "let testFun = fun() {\n"
                          "for(let j = 500000; j > 0; j = j - 1) {\n"
+                         "let k = 1\n"
                          "test[j] = test[j-1]\n"
                          "test[1]\n"
                          "}}";
@@ -560,10 +642,181 @@ TEST_CASE("VM executes array in loops successfully (for performance test)", "[VM
     vm.executeFun("testFun", {});
 
     REQUIRE(!vm.hasError());
+    REQUIRE(vm.getStackSize() == 1);
     REQUIRE(vm.getTop().getType() == SyncBlink::ValueType::NIL);
 }
 
-TEST_CASE("VM executes loaded snake script", "[VM]")
+// 984ece8e9812a628aa6029c889454b0e2b1d61ad: ~6.25 sec
+// now: ~2.2 sec
+TEST_CASE("VM executes functions with call in loops successfully (for performance test)", "[VM]")
+{
+    std::string script = "let test = []\n"
+                         "let j = 2\n"
+                         "let testFun = fun() {\n"
+                         "test[0] = j }\n"
+                         "for(let j = 500000; j > 0; j = j - 1) {\n"
+                         "testFun()\n"
+                         "}";
+
+    auto program = compile(script);
+    auto vm = SyncBlink::VM();
+    vm.run(program);
+
+    REQUIRE(!vm.hasError());
+    REQUIRE(vm.getStackSize() == 1);
+}
+
+TEST_CASE("VM executes inline expressions successfully", "[VM]")
+{
+    std::string script = "let count = if(false) { 1 } else { 0 }\n"
+                         "count";
+
+    auto program = compile(script);
+    auto vm = SyncBlink::VM();
+    vm.run(program);
+
+    REQUIRE(!vm.hasError());
+    REQUIRE(vm.getStackSize() == 1);
+    REQUIRE(vm.getTop().getType() == SyncBlink::ValueType::NUMBER);
+    REQUIRE(vm.getTop().number == 0);
+}
+
+TEST_CASE("VM executes inline expressions successfully (2)", "[VM]")
+{
+    std::string script = "let inline = 2\n"
+                         "let count = 2 + (inline = 5)\n"
+                         "inline";
+
+    auto program = compile(script);
+    auto vm = SyncBlink::VM();
+    vm.run(program);
+
+    REQUIRE(!vm.hasError());
+    REQUIRE(vm.getStackSize() == 1);
+    REQUIRE(vm.getTop().getType() == SyncBlink::ValueType::NUMBER);
+    REQUIRE(vm.getTop().number == 5);
+}
+
+TEST_CASE("VM return correct return values, if last statement is a block", "[VM]")
+{
+    std::string script = "let x = 0\n"
+                        "if(x == 0) {\n"
+                            "let y = 2\n"
+                            "y\n"
+                        "}";
+
+    auto program = compile(script);
+
+    auto vm = SyncBlink::VM();
+    vm.run(program);
+
+    REQUIRE(!vm.hasError());
+    REQUIRE(vm.getStackSize() == 1);
+    REQUIRE(vm.getTop().getType() == SyncBlink::ValueType::NUMBER);
+    REQUIRE(vm.getTop().number == 2);
+}
+
+TEST_CASE("VM return correct return values, if last statement is a block (2)", "[VM]")
+{
+    std::string script = "let x = 0\n"
+                        "if(x == 1) {\n"
+                            "let y = 2\n"
+                            "y\n"
+                        "}";
+
+    auto program = compile(script);
+    auto vm = SyncBlink::VM();
+    vm.run(program);
+
+    REQUIRE(!vm.hasError());
+    REQUIRE(vm.getStackSize() == 1);
+    REQUIRE(vm.getTop().getType() == SyncBlink::ValueType::NIL);
+}
+
+TEST_CASE("VM return correct return values, if last statement is a block (3)", "[VM]")
+{
+    std::string script = "let x = 0\n"
+                        "for(let y = 0; y < 5; y = y + 1) {\n"
+                            "let z = 2\n"
+                            "x = z + y\n"
+                        "}";
+
+    auto program = compile(script);
+    auto vm = SyncBlink::VM();
+    vm.run(program);
+
+    REQUIRE(!vm.hasError());
+    REQUIRE(vm.getStackSize() == 1);
+    REQUIRE(vm.getTop().getType() == SyncBlink::ValueType::NUMBER);
+    REQUIRE(vm.getTop().number == 6);
+}
+
+TEST_CASE("VM return correct return values, if last statement is a block (4)", "[VM]")
+{
+    std::string script = "let x = 5\n"
+                        "while(x > 0) {\n"
+                            "let z = x\n"
+                            "x = x - 1\n"
+                        "}";
+
+    auto program = compile(script);
+    auto vm = SyncBlink::VM();
+    vm.run(program);
+
+    REQUIRE(!vm.hasError());
+    REQUIRE(vm.getStackSize() == 1);
+    REQUIRE(vm.getTop().getType() == SyncBlink::ValueType::NUMBER);
+    REQUIRE(vm.getTop().number == 0);
+}
+
+TEST_CASE("VM loads correct local values", "[VM]")
+{
+    std::string script = "let test = fun(x) {\n"
+                            "let y = 2\n"
+                            "x + y\n"
+                        "}\n"
+                        "test(2)\n"
+                        "let x = 5\n"
+                        "if(x == 5){\n"
+                            "let u = 3"
+                            "test(x + u)\n"
+                        "}";
+
+    auto program = compile(script);
+    auto vm = SyncBlink::VM();
+    vm.run(program);
+
+    REQUIRE(!vm.hasError());
+    REQUIRE(vm.getStackSize() == 1);
+    REQUIRE(vm.getTop().getType() == SyncBlink::ValueType::NUMBER);
+    REQUIRE(vm.getTop().number == 10);
+}
+
+TEST_CASE("VM uses foreign locals successfully", "[VM]")
+{
+    std::string script = "let add = fun(x, y){\n"
+                            "x + y\n"
+                        "}\n"
+                        "let test = fun(x) {\n"
+                            "fun(y) {\n"
+                                "add(x, y)\n"
+                            "}\n"
+                        "}\n"
+                        "let add2 = test(2)\n"
+                        "add2(4)";
+
+    auto program = compile(script);
+    auto vm = SyncBlink::VM();
+    vm.run(program);
+
+    REQUIRE(!vm.hasError());
+    REQUIRE(vm.getStackSize() == 1);
+    REQUIRE(vm.getTop().getType() == SyncBlink::ValueType::NUMBER);
+    REQUIRE(vm.getTop().number == 6);
+}
+
+
+ TEST_CASE("VM executes loaded snake script", "[VM]")
 {
     auto byteCodeSource = std::make_shared<SyncBlink::FileByteCodeSource>("../tests/bytecodes/Snake.b");
     auto byteCodeLoader = SyncBlink::ByteCodeLoader(byteCodeSource);
@@ -572,4 +825,5 @@ TEST_CASE("VM executes loaded snake script", "[VM]")
     auto vm = SyncBlink::VM();
     vm.run(program);
     REQUIRE(!vm.hasError());
+    REQUIRE(vm.getStackSize() == 1);
 }

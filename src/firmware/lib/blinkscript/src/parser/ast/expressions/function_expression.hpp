@@ -11,17 +11,18 @@ namespace SyncBlink
     class FunctionExpression : public AstNode
     {
     public:
-        FunctionExpression(const std::vector<Token>& parameters, std::unique_ptr<const AstNode> functionBody, uint16_t line);
+        FunctionExpression(const std::vector<Token>& parameters, std::unique_ptr<const AstNode> functionBody, size_t line);
 
         void accept(AstVisitor& visitor) const;
-        uint16_t getLine() const;
+        size_t getLine() const;
         const AstNode& getFunctionBody() const;
+        const AstNode* getFunctionBodyPtr() const;
         const std::vector<Token>& getParameters() const;
 
     private:
         std::vector<Token> _parameters;
         std::unique_ptr<const AstNode> _functionBody;
-        uint16_t _line;
+        size_t _line;
     };
 }
 

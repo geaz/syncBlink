@@ -20,7 +20,7 @@ namespace SyncBlink
         Program program;
 
         size_t idx = startIdx;
-        size_t codeSize = loadFourBytes(idx);
+        uint16_t codeSize = loadTwoBytes(idx);
         uint16_t objCount = loadTwoBytes(idx);
         uint16_t constantCount = loadTwoBytes(idx);
 
@@ -34,10 +34,10 @@ namespace SyncBlink
     void ByteCodeLoader::loadCode(size_t& idx, Program& program, const size_t& codeSize)
     {
         size_t curIdx = idx - 1;
-        while (idx < codeSize * 4 /* 2 x uint16_t (code & line) = 4 Byte */ + curIdx - 1)
+        while (idx < codeSize * 6 /* (code & line) = 6 Byte */ + curIdx - 1)
         {
             uint16_t code = loadTwoBytes(idx);
-            uint16_t line = loadTwoBytes(idx);
+            size_t line = loadFourBytes(idx);
             program.addCode(code, line);
         }
     }
@@ -101,9 +101,8 @@ namespace SyncBlink
         for (uint16_t i = 0; i < constantCount; i++)
         {
             Value value = loadValue(idx, program, objIndex);
-            if (value.getType() == ValueType::OBJECT) program.addValue(value, _objects[objIndex]);
-            else
-                program.addValue(value, nullptr);
+            if (value.getType() == ValueType::OBJECT) program.addConstant(value, _objects[objIndex]);
+            else program.addConstant(value, nullptr);
         }
     }
 

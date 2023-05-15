@@ -17,24 +17,24 @@ namespace SyncBlink
         _lastVisit = "let " + letStatement.getIdentifier().getLexem(_source) + " = " + print(letStatement.getExpression());
     }
 
-    void ScriptPrinter::visitBlockStatement(const BlockStatement& blockStatement)
+    void ScriptPrinter::visitBlockExpression(const BlockExpression& blockExpression)
     {
         std::string blockPrint;
-        for (auto& statement : blockStatement.getStatements())
+        for (auto& expr : blockExpression.getStatements())
         {
-            blockPrint += '\t' + print(*statement) + "\n";
+            blockPrint += '\t' + print(*expr) + "\n";
         }
         _lastVisit = "{\n" + blockPrint + "}";
     }
 
-    void ScriptPrinter::visitAssignStatement(const AssignStatement& assignStatement)
+    void ScriptPrinter::visitAssignExpression(const AssignExpression& assignExpression)
     {
-        _lastVisit = assignStatement.getIdentifier().getLexem(_source) + " = " + print(assignStatement.getExpression());
+        _lastVisit = assignExpression.getIdentifier().getLexem(_source) + " = " + print(assignExpression.getExpression());
     }
 
-    void ScriptPrinter::visitArrayAssignStatement(const ArrayAssignStatement& arrayAssignStatement)
+    void ScriptPrinter::visitArrayAssignExpression(const ArrayAssignExpression& arrayAssignExpression)
     {
-        _lastVisit = print(arrayAssignStatement.getIndex()) + " = " + print(arrayAssignStatement.getExpression());
+        _lastVisit = print(arrayAssignExpression.getIndex()) + " = " + print(arrayAssignExpression.getExpression());
     }
 
     void ScriptPrinter::visitExpressionStatement(const ExpressionStatement& expressionStatement)
@@ -69,6 +69,17 @@ namespace SyncBlink
         _lastVisit = ifBranch + elseBranch;
     }
 
+    void ScriptPrinter::visitWhileExpression(const WhileExpression& whileExpression)
+    {
+        _lastVisit = "while" + print(whileExpression.getCondition()) + print(whileExpression.getLoopBody());
+    }
+
+    void ScriptPrinter::visitForExpression(const ForExpression& forExpression)
+    {
+        _lastVisit = "for(" + print(forExpression.getAssignStatement()) + "; " + print(forExpression.getConditionExpression()) + "; " +
+                     print(forExpression.getIncrementorStatement()) + ")" + print(forExpression.getLoopBody());
+    }
+
     void ScriptPrinter::visitFunctionExpression(const FunctionExpression& functionExpr)
     {
         std::string funPrint = "fun(";
@@ -91,17 +102,6 @@ namespace SyncBlink
             if (i < parameters.size() - 1) callPrint += ", ";
         }
         _lastVisit = callPrint + ")";
-    }
-
-    void ScriptPrinter::visitWhileExpression(const WhileExpression& whileExpr)
-    {
-        _lastVisit = "while" + print(whileExpr.getCondition()) + print(whileExpr.getLoopBody());
-    }
-
-    void ScriptPrinter::visitForExpression(const ForExpression& forExpr)
-    {
-        _lastVisit = "for(" + print(forExpr.getAssignStatement()) + "; " + print(forExpr.getConditionExpression()) + "; " +
-                     print(forExpr.getIncrementorStatement()) + ")" + print(forExpr.getLoopBody());
     }
 
     void ScriptPrinter::visitArrayExpression(const ArrayExpression& arrayExpr)

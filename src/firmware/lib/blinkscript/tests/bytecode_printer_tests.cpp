@@ -294,9 +294,11 @@ TEST_CASE("Bytecode prints function variables successfully", "[bytecodeprinter]"
 
 TEST_CASE("Bytecode prints function call successfully", "[bytecodeprinter]")
 {
-    std::string script = "let z = 4\n"
-                         "let k = fun(x, y){ x + y + z }\n"
-                         "k(1, 2)";
+    std::string script = "let r = 1\n"
+                         "let z = 4\n"
+                         "let k = fun(x, y){ r = x + y + z + r }\n"
+                         "k(1, 2)\n"
+                         "r";
 
     auto source = std::make_shared<SyncBlink::StringScriptSource>(script);
     auto parser = SyncBlink::Parser(source);
@@ -341,8 +343,9 @@ TEST_CASE("Bytecode prints function call successfully (2)", "[bytecodeprinter]")
 
 TEST_CASE("Bytecode prints condition expression successfully", "[bytecodeprinter]")
 {
-    std::string script = "let k = 0\n"
+    std::string script = "let k = 2\n"
                          "if(k == 0) { k = 2 }\n"
+                         "else { k = 3 }\n"
                          "k";
 
     auto source = std::make_shared<SyncBlink::StringScriptSource>(script);
@@ -448,7 +451,8 @@ TEST_CASE("Bytecode prints for loops successfully", "[bytecodeprinter]")
 {
     std::string script = "let count = 0\n"
                          "for(let i = 0; i < 10; i = i + 1) {\n"
-                         "\tcount = count + 1\n"
+                         "let count1 = count + 1\n"
+                         "\tcount = count1\n"
                          "}\n"
                          "count";
 

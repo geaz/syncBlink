@@ -3,6 +3,9 @@
 
 #include "program/program.hpp"
 
+#include <vector>
+#include <cinttypes>
+
 namespace SyncBlink
 {
     class Disassembler
@@ -15,6 +18,9 @@ namespace SyncBlink
         std::string printConstants(const Program& program) const;
         std::string printConstant(Value constant) const;
         std::string printCode(const Program& program) const;
+        std::string printClosures(const Program& program) const;
+
+        uint16_t _depth = 0;
     };
 }
 

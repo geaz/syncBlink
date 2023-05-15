@@ -1,5 +1,5 @@
-#ifndef ARRAYASSIGNSTATEMENT_H
-#define ARRAYASSIGNSTATEMENT_H
+#ifndef ARRAYASSIGNEXPRESSION_H
+#define ARRAYASSIGNEXPRESSION_H
 
 #include "parser/ast/ast_node.hpp"
 #include "parser/ast/ast_visitor.hpp"
@@ -8,13 +8,13 @@
 
 namespace SyncBlink
 {
-    class ArrayAssignStatement : public AstNode
+    class ArrayAssignExpression : public AstNode
     {
     public:
-        ArrayAssignStatement(std::unique_ptr<const AstNode> indexExpression, std::unique_ptr<const AstNode> expression, uint16_t line);
+        ArrayAssignExpression(std::unique_ptr<const AstNode> indexExpression, std::unique_ptr<const AstNode> expression, size_t line);
         void accept(AstVisitor& visitor) const;
 
-        uint16_t getLine() const;
+        size_t getLine() const;
         const AstNode& getIndex() const;
         const AstNode* getIndexPtr() const;
         const AstNode& getExpression() const;
@@ -22,8 +22,8 @@ namespace SyncBlink
     private:
         std::unique_ptr<const AstNode> _indexExpression;
         std::unique_ptr<const AstNode> _expression;
-        uint16_t _line;
+        size_t _line;
     };
 }
 
-#endif // ARRAYASSIGNSTATEMENT_H
+#endif // ARRAYASSIGNEXPRESSION_H
