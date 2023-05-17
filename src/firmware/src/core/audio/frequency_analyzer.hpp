@@ -23,9 +23,9 @@ namespace SyncBlink
         FFTData collectSamples();
         void calculateVolumeAndBandPass(FFTData& data, AudioAnalyzerResult& result);
         void calculateDominantFrequency(FFTData& data, AudioAnalyzerResult& result);
-
-        float _lastDominantFrequency = 0;
+        
         BandPassFilter _bandPassFilter;
+        float fftSmoothed[MaxFreqBinIndex] = {0};
     };
 }
 

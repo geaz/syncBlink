@@ -57,7 +57,7 @@ namespace SyncBlink
 
         float signalRMSflt = sqrt(signalRMS / FFTDataSize);
         result.decibel = 20.0 * log10(signalRMSflt);
-        result.volume = SyncBlink::mapf(result.decibel < MinDB ? MinDB : result.decibel, MinDB, 0, 0, 100);
+        result.volume = (uint8_t) SyncBlink::map(result.decibel < MinDB ? MinDB : result.decibel, (float)MinDB, 0.0f, 0.0f, 100.0f);
     }
 
     void FrequencyAnalyzer::calculateDominantFrequency(FFTData& data, AudioAnalyzerResult& result)
@@ -67,22 +67,42 @@ namespace SyncBlink
         fft.compute(FFTDirection::Forward);
         fft.complexToMagnitude();
 
-        uint16_t highestBin = 0;
-        float highestAmplitude = 0;
-        for (uint16_t i = 0; i < MaxFreqBinIndex; i++)
+        float maxFftVal = 0.0f;
+        float minFftVal = 0.0f;
+        bool firstRunDone = false;
+        uint8_t maxBinIndex = 0;
+
+        for (uint8_t i = 0; i < MaxFreqBinIndex; i++)
         {
-            if (data.fftReal[i] > highestAmplitude)
+            auto fftCurr = sqrtf(powf(data.fftReal[i], 2.0f) + powf(data.fftImg[i], 2.0f));
+            if (fftCurr != 0)
+                fftSmoothed[i] = EfAlpha * fftSmoothed[i] + ((1.0f - EfAlpha) + fftCurr);
+            else
+                fftSmoothed[i] = 0;
+
+            if(!firstRunDone || fftSmoothed[i] < minFftVal) 
             {
-                highestAmplitude = data.fftReal[i];
-                highestBin = i;
+                firstRunDone = true;
+                minFftVal = fftSmoothed[i];
+            }
+
+            if(fftSmoothed[i] > maxFftVal)
+            {
+                maxFftVal = fftSmoothed[i];
+                maxBinIndex = i;
             }
         }
-        std::copy(std::begin(data.fftReal), std::begin(data.fftReal) + HalfFFTDataSize, std::begin(result.amplitudes));
 
-        result.dominantFrequency = highestBin * ((float)SampleRate / (float)FFTDataSize);
-        // Exponential Smoothing for the frequencies
-        // To flatten frequency peaks
-        result.dominantFrequency = EfAlpha * result.dominantFrequency + (1.0f - EfAlpha) * _lastDominantFrequency;
-        _lastDominantFrequency = result.dominantFrequency;
+        // Normalize the values in a range of 0 and 1
+        float range = maxFftVal - minFftVal;
+        float scaleFactor = range + 0.0000000001f; // avoid zero division
+        for(uint16_t i = 0; i < MaxFreqBinIndex; i++)
+        {
+            fftSmoothed[i] = (fftSmoothed[i] - minFftVal) / scaleFactor;
+            result.normalizedFft[i] = fftSmoothed[i];
+        }
+
+        // Get the Frequency represented by the maxBinIndex
+        result.dominantFrequency = maxBinIndex * ((float)SampleRate / (float)FFTDataSize);
     }
 }

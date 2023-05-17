@@ -13,6 +13,8 @@
 
 namespace SyncBlink
 {
+    static const uint8_t TotalFreqBins = 48;
+
     class BlinkScript
     {
     public:
@@ -21,7 +23,7 @@ namespace SyncBlink
         void init();
         void run(const uint8_t delta);
         void updateLedInfo(const uint16_t previousNodeCount, const uint32_t previousLedCount, const uint32_t meshLedCount);
-        void updateAnalyzerResult(const uint8_t volume, const uint16_t dominantFrequency, const std::array<uint8_t, 32>& freqBin);
+        void updateAnalyzerResult(const uint8_t volume, const uint16_t dominantFrequency, const std::array<uint8_t, TotalFreqBins>& freqBin);
 
         bool isFaulted();
         LED& getLed();

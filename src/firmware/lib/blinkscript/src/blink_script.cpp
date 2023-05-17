@@ -69,7 +69,7 @@ namespace SyncBlink
         _vm.setGlobal("mLedC", Value((float)meshLedCount));
     }
 
-    void BlinkScript::updateAnalyzerResult(const uint8_t volume, const uint16_t dominantFrequency, const std::array<uint8_t, 32>& freqBin)
+    void BlinkScript::updateAnalyzerResult(const uint8_t volume, const uint16_t dominantFrequency, const std::array<uint8_t, TotalFreqBins>& freqBin)
     {
         if (isFaulted()) return;
 
@@ -99,7 +99,7 @@ namespace SyncBlink
             _lastFrequency = std::get<1>(result);
 
             bool resetBin = (float)std::get<0>(result) == 0;
-            for (int i = 0; i < 32; i++)
+            for (int i = 0; i < TotalFreqBins; i++)
             {
                 if (resetBin) _freqBin->getValues()[i] = Value((float)0);
                 else
@@ -154,7 +154,7 @@ namespace SyncBlink
     void BlinkScript::saveAddFreqBin()
     {
         std::vector<Value> freqBin;
-        for (int i = 0; i < 32; i++)
+        for (int i = 0; i < TotalFreqBins; i++)
         {
             freqBin.push_back(Value((float)0));
         }

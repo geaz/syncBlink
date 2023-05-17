@@ -15,7 +15,7 @@ namespace SyncBlink
 {
     namespace Api
     {
-        static const float EfAlpha = 0.4f;
+        static const float EfAlpha = 0.7f;
         static const int8_t MinDB = -50;
 
         class FrequencyAnalyzer
@@ -27,9 +27,7 @@ namespace SyncBlink
                 void stop();
 
             private:
-                std::array<float, HalfFFTDataSize> calculateAmplitudes(const kiss_fft_cpx* cx) const;
-                uint16_t getDominantFrequency(std::array<float, HalfFFTDataSize> amplitudes);
-                
+                std::array<float, MaxFreqBinIndex> fftToSmoothedNormalizedFftDb(const kiss_fft_cpx* cx, uint16_t& dominantFrequency);                
                 static int getAnalyzerResult(void *outputBuffer, void *inputBuffer, unsigned int nBufferFrames, 
                     double streamTime, RtAudioStreamStatus status, void *userData);
 
@@ -40,8 +38,8 @@ namespace SyncBlink
                 RtAudio::StreamParameters _parameters;
 
                 BandPassFilter _bandPassFilter;
-                float _lastDominantFrequency = 0;    
                 std::chrono::system_clock::time_point _lastUpdate;
+                std::array<float, MaxFreqBinIndex> _prevSmoothedFft = {0};
         };
     }
 }

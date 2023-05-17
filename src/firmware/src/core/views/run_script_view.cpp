@@ -1,6 +1,7 @@
 #ifndef RUNSCRIPTVIEW_H
 #define RUNSCRIPTVIEW_H
 
+#include "core/audio/analyzer_constants.hpp"
 #include "core/audio/map_funcs.hpp"
 
 #include <display.hpp>
@@ -58,14 +59,13 @@ namespace SyncBlink
             }
         }
 
-        void setFreqBars(const std::array<uint8_t, 32>& freqBins)
+        void setFreqBars(const std::array<uint8_t, TotalResultFreqBins>& freqBins)
         {
-            _freqBars = SyncBlink::mapa<uint8_t, BAR_COUNT, uint8_t, 32>(freqBins, BAR_HEIGHT);
-
-            float volumeMultiplier = volume < 50 ? 0.5f : volume / 100.0f;
+            auto newFreqBars = SyncBlink::getScaledMovingAverage<uint8_t, uint8_t, TotalResultFreqBins, TotalResultFreqBins-BAR_COUNT>(freqBins, 0, BAR_HEIGHT);
             for (uint8_t i = 0; i < BAR_COUNT; i++)
             {
-                _freqBars[i] *= volumeMultiplier;
+                if (newFreqBars[i] < _freqBars[i]) _freqBars[i]--;
+                else _freqBars[i] = newFreqBars[i];
             }
         }
 
@@ -75,17 +75,13 @@ namespace SyncBlink
         uint16_t dominantFrequency = 0;
 
     private:
-        /**
-         * Max index = 16 starting at 0
-         * Max height = 8 starting at 0
-         **/
         void drawFrequencyBar(DisplayCtrl& display, const uint8_t index, const uint8_t height)
         {
-            for (uint8_t i = 0; i <= height; i++)
+            for (uint8_t i = 1; i <= height; i++)
             {
-                uint8_t x = 5 + (index * 2) /* gap */ + (index * 5) /* size */;
-                uint8_t y = display.getDisplayHeight() - 17 /* bottom start (statusbar) */ - (i * 4) /* gap and height */;
-                display.drawBox(x, y, 5, 2);
+                uint8_t x = index /* gap */ + (index * 2) /* size */;
+                uint8_t y = display.getDisplayHeight() - 12 /* bottom start (statusbar) */ - (i * 2) /* gap and height */;
+                display.drawBox(x, y, 2, 1);
             }
         }
 

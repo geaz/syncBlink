@@ -1,6 +1,7 @@
-#include <cmath>
 #include <audio_analyzer_result.hpp>
 #include "frequency_analyzer.hpp"
+
+#include <cmath>
 
 namespace SyncBlink
 {
@@ -45,37 +46,47 @@ namespace SyncBlink
             if(_adc.isStreamRunning()) _adc.stopStream();
         }
 
-        std::array<float, HalfFFTDataSize> FrequencyAnalyzer::calculateAmplitudes(const kiss_fft_cpx* cx) const
+        std::array<float, MaxFreqBinIndex> FrequencyAnalyzer::fftToSmoothedNormalizedFftDb(const kiss_fft_cpx* cx, uint16_t& dominantFrequency)
         {
-            std::array<float, HalfFFTDataSize> amplitudes;
-            for(uint16_t i = 0; i < HalfFFTDataSize; i++)
-            {
-                amplitudes[i] = sqrtf(powf(cx[i].r, 2) + powf(cx[i].i, 2));
-            }
-            return amplitudes;
-        }
+            float maxFftVal = 0.0f;
+            float minFftVal = 0.0f;
+            bool firstRunDone = false;
 
-        uint16_t FrequencyAnalyzer::getDominantFrequency(std::array<float, HalfFFTDataSize> amplitudes)
-        {
-            uint16_t highestBin = 0;
-            float highestAmplitude = 0;
+            uint16_t maxBinIndex = 0;
+            std::array<float, MaxFreqBinIndex> smoothedFft = {0};
             for(uint16_t i = 0; i < MaxFreqBinIndex; i++)
             {
-                if(amplitudes[i] > highestAmplitude)
+                auto fftCurr = sqrtf(powf(cx[i].r, 2) + powf(cx[i].i, 2));
+                if (fftCurr != 0)
+                    smoothedFft[i] = EfAlpha * _prevSmoothedFft[i] + ((1.0f - EfAlpha) + fftCurr);
+                else
+                    smoothedFft[i] = 0;
+
+                if(!firstRunDone || smoothedFft[i] < minFftVal) 
                 {
-                    highestAmplitude = amplitudes[i];
-                    highestBin = i;
+                    firstRunDone = true;
+                    minFftVal = smoothedFft[i];
+                }
+
+                if(smoothedFft[i] > maxFftVal)
+                {
+                    maxFftVal = smoothedFft[i];
+                    maxBinIndex = i;
                 }
             }
 
+            // Normalize the values in a range of 0 and 1
+            float range = maxFftVal - minFftVal;
+            float scaleFactor = range + 0.0000000001f; // avoid zero division
+            for(uint16_t i = 0; i < MaxFreqBinIndex; i++)
+            {
+                smoothedFft[i] = (smoothedFft[i] - minFftVal) / scaleFactor;
+            }
+
             // Get the Frequency represented by the highest Bin
-            float dominantFrequency = highestBin * ((float)SampleRate / (float)FFTDataSize);            
-            // Exponential Smoothing for the frequencies
-            // To flatten frequency peaks
-            dominantFrequency = EfAlpha * dominantFrequency + (1.0f - EfAlpha) * _lastDominantFrequency;
-            
-            _lastDominantFrequency = dominantFrequency;
-            return (uint16_t)dominantFrequency;
+            dominantFrequency = (uint16_t)(maxBinIndex * ((float)SampleRate / (float)FFTDataSize));
+
+            return smoothedFft;
         }
 
         /* static */ int FrequencyAnalyzer::getAnalyzerResult(void *outputBuffer, void *inputBuffer, 
@@ -105,10 +116,7 @@ namespace SyncBlink
                         sum += ((float *)inputBuffer)[(i * channelCount) + j];
                     }
 
-                    // We want to filter out the bass of a few songs
-                    // Otherwise the bass would be always the dominant low frequency
-                    // Does not look very cool....
-                    float sample = freqAnalyzer->_bandPassFilter.filter(sum / channelCount);
+                    float sample = sum / channelCount;
                     signalRMS += sample * sample;
                     cx_in[i].r = sample;
                     cx_in[i].i = 0;
@@ -116,14 +124,16 @@ namespace SyncBlink
                     cx_out[i].i = 0;
                 }
                 
+                AudioAnalyzerResult result;
+
                 kiss_fft(cfg, cx_in, cx_out);
                 kiss_fft_free(cfg);
 
-                AudioAnalyzerResult result;
+                result.normalizedFft = freqAnalyzer->fftToSmoothedNormalizedFftDb(&cx_out[0], result.dominantFrequency);
+                freqAnalyzer->_prevSmoothedFft = result.normalizedFft;
+
                 result.decibel = 20.0f * log10(sqrtf(signalRMS / FFTDataSize));
-                result.volume = (uint8_t) SyncBlink::mapf(result.decibel < MinDB ? MinDB : result.decibel, MinDB, 0, 0, 100);
-                result.amplitudes = freqAnalyzer->calculateAmplitudes(&cx_out[0]);
-                result.dominantFrequency = freqAnalyzer->getDominantFrequency(result.amplitudes);
+                result.volume = (uint8_t) SyncBlink::map(result.decibel < MinDB ? MinDB : result.decibel, (float)MinDB, 0.0f, 0.0f, 100.0f);
 
                 freqAnalyzer->_messageBus.trigger(result.ToMessage(freqAnalyzer->_analyzerId));     
                 freqAnalyzer->_lastUpdate = std::chrono::system_clock::now();

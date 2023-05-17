@@ -3,6 +3,7 @@
 
 #include "core/message/message.hpp"
 #include "core/message/message_types.hpp"
+#include "core/audio/analyzer_constants.hpp"
 
 #include <array>
 #include <cinttypes>
@@ -30,7 +31,7 @@ namespace SyncBlink
                 addBytes(package, (void*)&decibel, sizeof(decibel));
                 addBytes(package, (void*)&volume, sizeof(volume));
                 addBytes(package, (void*)&frequency, sizeof(frequency));
-                addBytes(package, (void*)&freqBins[0], 32 * sizeof(uint8_t));
+                addBytes(package, (void*)&freqBins[0], TotalResultFreqBins * sizeof(uint8_t));
 
                 return package;
             }
@@ -42,7 +43,7 @@ namespace SyncBlink
                 offset += loadBytes(&package.body[offset], (void*)&decibel, sizeof(decibel));
                 offset += loadBytes(&package.body[offset], (void*)&volume, sizeof(volume));
                 offset += loadBytes(&package.body[offset], (void*)&frequency, sizeof(frequency));
-                loadBytes(&package.body[offset], (void*)&freqBins[0], 32 * sizeof(uint8_t));
+                loadBytes(&package.body[offset], (void*)&freqBins[0], TotalResultFreqBins * sizeof(uint8_t));
             }
 
             MessageType getMessageType() const override
@@ -52,9 +53,9 @@ namespace SyncBlink
 
             uint64_t analyzerId;
             float decibel;
-            uint8_t volume;                   // The current registered volume
-            uint16_t frequency;               // The current registered dominant frequency
-            std::array<uint8_t, 32> freqBins; // The frequency amplitudes (0 = 70hz - 31 = 4186hz)
+            uint8_t volume;
+            uint16_t frequency;
+            std::array<uint8_t, TotalResultFreqBins> freqBins;
         };
     }
 }
