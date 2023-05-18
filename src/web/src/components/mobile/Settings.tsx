@@ -21,7 +21,7 @@ function Settings() {
             let meshResponse = await fetch("/api/mesh/info");
             let wifiResponse = await fetch("/api/wifi/get");
             if(listResponse.ok && meshResponse.ok && wifiResponse.ok) {
-                let scriptList = (await listResponse.json()).scripts;
+                let scriptList = (await listResponse.json()).scripts.map((s:any) => s.name);
                 let meshInfo = await meshResponse.json();
                 let wifiInfo = await wifiResponse.json();
 
