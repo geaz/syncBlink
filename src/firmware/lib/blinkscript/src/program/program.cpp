@@ -5,35 +5,35 @@
 
 namespace SyncBlink
 {
-    void Program::addCode(uint16_t code, size_t line)
+    void Program::addCode(CODETYPE code, LINETYPE line)
     {
         _code.push_back(code);
         _lines.push_back(line);
     }
 
-    void Program::removeCode(size_t count)
+    void Program::removeCode(MAXCODE count)
     {
-        for (size_t i = 0; i < count; i++)
+        for (MAXCODE i = 0; i < count; i++)
         {
             _code.pop_back();
             _lines.pop_back();
         }
     }
 
-    uint16_t Program::addConstant(Value value, std::shared_ptr<Object> object)
+    MAXITEM Program::addConstant(Value value, std::shared_ptr<Object> object)
     {
         bool found = false;
-        uint16_t constantIndex;
+        MAXITEM constantIndex;
         found = searchConstant(value, constantIndex);
 
         if (!found)
         {
             _constants.push_back(value);
-            constantIndex = (uint16_t)_constants.size() - 1;
+            constantIndex = (MAXITEM)_constants.size() - 1;
 
             if (object != nullptr)
             {
-                object->index = (uint16_t)_objects.size();
+                object->index = (MAXITEM)_objects.size();
                 _objects.push_back(object);
             }
         }
@@ -41,12 +41,12 @@ namespace SyncBlink
         return constantIndex;
     }
 
-    const std::vector<uint16_t>& Program::getCode() const
+    const std::vector<CODETYPE>& Program::getCode() const
     {
         return _code;
     }
 
-    const std::vector<size_t>& Program::getLines() const
+    const std::vector<LINETYPE>& Program::getLines() const
     {
         return _lines;
     }
@@ -61,10 +61,10 @@ namespace SyncBlink
         return _objects;
     }
 
-    bool Program::searchConstant(Value searchValue, uint16_t& foundIndex) const
+    bool Program::searchConstant(Value searchValue, MAXITEM& foundIndex) const
     {
         bool found = false;
-        for (uint16_t i = 0; i < (uint16_t)_constants.size(); i++)
+        for (MAXITEM i = 0; i < (MAXITEM)_constants.size(); i++)
         {
             auto constant = _constants[i];
             if (searchValue.getType() == ValueType::BOOL && constant.getType() == ValueType::BOOL &&

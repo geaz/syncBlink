@@ -1,6 +1,8 @@
 #ifndef OBJECT_H
 #define OBJECT_H
 
+#include "program/program_types.hpp"
+
 #include <memory>
 #include <string>
 
@@ -20,7 +22,7 @@ namespace SyncBlink
     public:
         virtual ObjectType getType() const = 0;
 
-        int16_t index = 0;
+        MAXITEM index = 0;
     };
 }
 

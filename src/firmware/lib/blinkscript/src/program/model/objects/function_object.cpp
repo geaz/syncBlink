@@ -12,7 +12,7 @@ namespace SyncBlink
     }
 
     
-    void FunObj::setForeignLocalIndices(const std::vector<uint16_t>& foreignLocalIndices)
+    void FunObj::setForeignLocalIndices(const std::vector<size_t>& foreignLocalIndices)
     {
         _foreignLocalIndices = foreignLocalIndices;
     }
@@ -32,7 +32,7 @@ namespace SyncBlink
         return _parameters;
     }
         
-    const std::vector<uint16_t>& FunObj::getForeignLocalIndices() const
+    const std::vector<size_t>& FunObj::getForeignLocalIndices() const
     {
         return _foreignLocalIndices;
     }

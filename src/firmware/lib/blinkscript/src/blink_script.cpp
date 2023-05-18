@@ -10,6 +10,7 @@ namespace SyncBlink
     {
         _source = std::make_shared<EspFileBytecodeSource>(bytecodePath);
         auto byteCodeLoader = ByteCodeLoader(_source);
+
         _program = std::make_shared<Program>(byteCodeLoader.getProgram());
         _vm.run((const Program&)*_program.get());
 
@@ -123,7 +124,7 @@ namespace SyncBlink
         if (_delay == 0) _delay = delay;
     }
 
-    bool BlinkScript::checkEvalError(const std::string& step, bool hasError, std::tuple<int, std::string> error)
+    bool BlinkScript::checkEvalError(const std::string& step, bool hasError, std::tuple<LINETYPE, std::string> error)
     {
         if (hasError)
         {

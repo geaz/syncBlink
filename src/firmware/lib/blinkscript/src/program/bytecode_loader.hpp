@@ -18,10 +18,10 @@ namespace SyncBlink
         Program getProgram(size_t startIdx = 0);
 
     private:
-        void loadCode(size_t& idx, Program& program, const size_t& codeSize);
-        void storeObjects(size_t& idx, Program& program, const uint16_t& objCount);
-        void loadConstants(size_t& idx, Program& program, const uint16_t& constantCount);
-        Value loadValue(size_t& idx, Program& program, uint16_t& objIndex);
+        void loadCode(size_t& idx, Program& program, const MAXCODE& codeSize);
+        void storeObjects(size_t& idx, Program& program, const MAXITEM& objCount);
+        void loadConstants(size_t& idx, Program& program, const MAXITEM& constantCount);
+        Value loadValue(size_t& idx, Program& program, MAXITEM& objIndex);
 
         uint16_t loadTwoBytes(size_t& idx);
         uint32_t loadFourBytes(size_t& idx);

@@ -40,7 +40,7 @@ namespace SyncBlink
         Program compile();
 
         bool hasError() const;
-        std::tuple<size_t, std::string> getError() const;
+        std::tuple<LINETYPE, std::string> getError() const;
 
         void visitExpressionStatement(const ExpressionStatement& expressionStatement) override;
         void visitLetStatement(const LetStatement& letStatement) override;
@@ -61,23 +61,25 @@ namespace SyncBlink
         void visitLiteralExpression(const LiteralExpression& literalExpr) override;
 
     private:
+        void addCode(CODETYPE code, size_t line);
         void addNumberValueCode(float number, size_t line);
         void addBoolValueCode(bool boolean, size_t line);
-        void addArrayValueCode(uint32_t arraySize, size_t line);
+        void addArrayValueCode(MAXITEM arraySize, size_t line);
         void addStrValueCode(const std::string& string, size_t line);
         void addLoadVariableCode(const std::string& identifier, size_t line);
 
         std::shared_ptr<LocalScope> removeFrame();
 
         void checkReturnValue();
-        void checkProgramSizes();        
+        void checkProgramSizes();    
+        bool checkLineSize(size_t line);    
 
         std::shared_ptr<ScriptSource> _source;
         const ProgramAst& _programAst;
         
         Program _program;
         Program* _targetProgram = &_program;
-        std::tuple<size_t, std::string> _error = std::make_tuple(0, "");
+        std::tuple<LINETYPE, std::string> _error = std::make_tuple(0, "");
 
         std::vector<std::string> _globalIdentifiers;
         std::shared_ptr<LocalScope> _localScope = std::make_shared<LocalScope>();

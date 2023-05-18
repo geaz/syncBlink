@@ -11,7 +11,7 @@ namespace SyncBlink
 {
     void VM::run(const Program& program)
     {
-        for (uint16_t ip = 0; ip < program.getCode().size(); ip++)
+        for (MAXCODE ip = 0; ip < program.getCode().size(); ip++)
         {
             auto& code = program.getCode()[ip];
             switch (code)
@@ -94,9 +94,15 @@ namespace SyncBlink
     {
         Value fun;
         if(!_globalVariables.get(identifier, &fun))
+        {
             _vmError = std::make_tuple(0, "VM: Function not found (executeFun)!");
-        if (fun.getType() != ValueType::OBJECT && fun.object->getType() != ObjectType::FUN && fun.object->getType() != ObjectType::NATIVEFUN) 
+            return;
+        }
+        if (fun.getType() != ValueType::OBJECT && fun.object->getType() != ObjectType::FUN && fun.object->getType() != ObjectType::NATIVEFUN)
+        {
             _vmError = std::make_tuple(0, "VM: Variable is not a function (executeFun)!");
+            return;
+        }
 
         _stack.clear();
 
@@ -132,17 +138,17 @@ namespace SyncBlink
         return _stack.size();
     }
 
-    std::tuple<int, std::string> VM::getError() const
+    std::tuple<LINETYPE, std::string> VM::getError() const
     {
         return _vmError;
     }
 
     const bool VM::hasError() const
     {
-        return std::get<0>(_vmError) != -99;
+        return std::get<1>(_vmError) != "";
     }
 
-    void VM::handleClosureLoad(const Program& program, uint16_t& ip)
+    void VM::handleClosureLoad(const Program& program, MAXCODE& ip)
     {
         auto funValue = program.getConstants()[program.getCode()[++ip]];
         if(funValue.getType() != ValueType::OBJECT && funValue.object->getType() != ObjectType::FUN)
@@ -153,7 +159,7 @@ namespace SyncBlink
         auto funObj = funValue.getObject<FunObj>();
         
         std::vector<Value> foreignValues;
-        for(uint16_t index : funObj->getForeignLocalIndices())
+        for(size_t index : funObj->getForeignLocalIndices())
         {
             foreignValues.push_back(_stack.at(index));
         }
@@ -163,18 +169,18 @@ namespace SyncBlink
         _stack.push_back(Value(closureObj.get()));
     }   
     
-    void VM::handleClearScope(const Program& program, uint16_t& ip)
+    void VM::handleClearScope(const Program& program, MAXCODE& ip)
     {
         // all scopes do return a value - we have to preserve it and then pop all local values from the stack
         // after that we push the return value back
         Value returnValue = popValue();
-        uint16_t localPopCount = (uint16_t)program.getConstants()[program.getCode()[++ip]].number;
-        for (uint16_t i = 0; i < localPopCount; i++)
+        size_t localPopCount = (size_t)program.getConstants()[program.getCode()[++ip]].number;
+        for (size_t i = 0; i < localPopCount; i++)
             _stack.pop_back();
         _stack.push_back(returnValue);
     }
 
-    void VM::handleDefineGlobal(const Program& program, uint16_t& ip)
+    void VM::handleDefineGlobal(const Program& program, MAXCODE& ip)
     {
         auto strObj = getStringObjectValue(program, ++ip);
         if (strObj != nullptr)
@@ -185,7 +191,7 @@ namespace SyncBlink
         else _vmError = std::make_tuple(program.getLines()[ip - 1], "VM: Unexpected error! Object not found!");
     }
 
-    void VM::handleSet(const Program& program, uint16_t& ip, bool local)
+    void VM::handleSet(const Program& program, MAXCODE& ip, bool local)
     {
         auto opParam = program.getConstants()[program.getCode()[++ip]];
         if(local)  
@@ -200,8 +206,8 @@ namespace SyncBlink
                 _vmError = std::make_tuple(program.getLines()[ip - 1], "VM: Local index out of range!");
                 return;
             }
-            if (_stackFunOffsets.size() > 0) _stack.at(_stackFunOffsets.back() + (uint16_t)opParam.number) = _stack.back();
-            else _stack.at((uint16_t)opParam.number) = _stack.back();
+            if (_stackFunOffsets.size() > 0) _stack.at(_stackFunOffsets.back() + (size_t)opParam.number) = _stack.back();
+            else _stack.at((size_t)opParam.number) = _stack.back();
         }
         else
         {
@@ -216,7 +222,7 @@ namespace SyncBlink
         }
     }
 
-    void VM::handleLoad(const Program& program, uint16_t& ip, bool local)
+    void VM::handleLoad(const Program& program, MAXCODE& ip, bool local)
     {
         auto opParam = program.getConstants()[program.getCode()[++ip]];
         if(local)  
@@ -231,8 +237,8 @@ namespace SyncBlink
                 _vmError = std::make_tuple(program.getLines()[ip - 1], "VM: Local index out of range!");
                 return;
             }
-            if (_stackFunOffsets.size() > 0) _stack.push_back(_stack.at(_stackFunOffsets.back() + (uint16_t)opParam.number));
-            else _stack.push_back(_stack.at((uint16_t)opParam.number));
+            if (_stackFunOffsets.size() > 0) _stack.push_back(_stack.at(_stackFunOffsets.back() + (size_t)opParam.number));
+            else _stack.push_back(_stack.at((size_t)opParam.number));
         }
         else
         {
@@ -249,7 +255,7 @@ namespace SyncBlink
         }
     }
 
-    void VM::handleJump(const Program& program, uint16_t& ip)
+    void VM::handleJump(const Program& program, MAXCODE& ip)
     {
         ip += 2; // Next Instruction is VALUE, after this the actual jump value
         auto jmpValue = program.getConstants()[program.getCode()[ip]];
@@ -258,7 +264,7 @@ namespace SyncBlink
             ip = (uint16_t)jmpValue.number - 1; // decrease by one because of for loop increment
     }
 
-    void VM::handleJumpNot(const Program& program, uint16_t& ip)
+    void VM::handleJumpNot(const Program& program, MAXCODE& ip)
     {
         auto value = popValue();
         if (value.getType() != ValueType::BOOL) _vmError = std::make_tuple(program.getLines()[ip - 1], "VM: Condition value not a boolean!");
@@ -275,7 +281,7 @@ namespace SyncBlink
             ip += 2; // Jump over jump value
     }
 
-    void VM::handleReturn(const Program& program, uint16_t& ip)
+    void VM::handleReturn(const Program& program, MAXCODE& ip)
     {
         auto opParam = program.getConstants()[program.getCode()[++ip]];
         if (opParam.getType() != ValueType::NUMBER) 
@@ -286,13 +292,13 @@ namespace SyncBlink
         // save return value
         Value returnValue = popValue();
         // POP local values
-        for(uint16_t i = 0; i < (uint16_t)opParam.number; i++)
+        for(size_t i = 0; i < (size_t)opParam.number; i++)
             popValue();
         // Push back return value
         _stack.push_back(returnValue);
     }
 
-    void VM::handlePrefix(const Program& program, uint16_t ip)
+    void VM::handlePrefix(const Program& program, MAXCODE ip)
     {
         auto& code = program.getCode()[ip];
         auto value = popValue();
@@ -310,9 +316,9 @@ namespace SyncBlink
             _vmError = std::make_tuple(program.getLines()[ip], "VM: Invalid prefix operator!");
     }
 
-    void VM::handleInfix(const Program& program, uint16_t ip)
+    void VM::handleInfix(const Program& program, MAXCODE ip)
     {
-        const uint16_t& code = program.getCode()[ip];
+        const CODETYPE& code = program.getCode()[ip];
         auto rightValue = popValue();
         auto leftValue = popValue();
 
@@ -460,7 +466,7 @@ namespace SyncBlink
             _vmError = std::make_tuple(program.getLines()[ip], "VM: Invalid infix parameter combination!");
     }
 
-    void VM::handleIndex(const Program& program, uint16_t ip, bool set)
+    void VM::handleIndex(const Program& program, MAXCODE ip, bool set)
     {
         auto indexValue = popValue();
         if (indexValue.getType() != ValueType::NUMBER) _vmError = std::make_tuple(program.getLines()[ip - 1], "VM: Index must be a number!");
@@ -472,16 +478,16 @@ namespace SyncBlink
             else
             {
                 auto arrayObj = static_cast<ArrayObj*>(arrayValue.object);
-                if (indexValue.number + 1 > arrayObj->getValues().size()) arrayObj->getValues().resize((uint16_t)indexValue.number + 1);
+                if (indexValue.number + 1 > arrayObj->getValues().size()) arrayObj->getValues().resize((MAXITEM)indexValue.number + 1);
 
-                if (set) arrayObj->getValues()[(uint16_t)indexValue.number] = _stack.back();
+                if (set) arrayObj->getValues()[(MAXITEM)indexValue.number] = _stack.back();
                 else
-                    _stack.push_back(arrayObj->getValues()[(uint16_t)indexValue.number]);
+                    _stack.push_back(arrayObj->getValues()[(MAXITEM)indexValue.number]);
             }
         }
     }
 
-    void VM::executeFun(Value value, size_t line)
+    void VM::executeFun(Value value, LINETYPE line)
     {
         const ClosureObj* closureObj = nullptr;
         const NativeFunObj* nativeFunObj = nullptr;
@@ -522,7 +528,7 @@ namespace SyncBlink
         }
     }
 
-    StringObj* VM::getStringObjectValue(const Program& program, uint16_t ip)
+    StringObj* VM::getStringObjectValue(const Program& program, MAXCODE ip)
     {
         auto& value = program.getConstants()[program.getCode()[ip]];
         if (value.getType() == ValueType::OBJECT && value.object->getType() == ObjectType::STRING)

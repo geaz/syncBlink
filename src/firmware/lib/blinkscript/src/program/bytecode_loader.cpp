@@ -20,9 +20,9 @@ namespace SyncBlink
         Program program;
 
         size_t idx = startIdx;
-        uint16_t codeSize = loadTwoBytes(idx);
-        uint16_t objCount = loadTwoBytes(idx);
-        uint16_t constantCount = loadTwoBytes(idx);
+        MAXCODE codeSize = loadTwoBytes(idx);
+        MAXITEM objCount = _byteCode->getByte(idx++);
+        MAXITEM constantCount = _byteCode->getByte(idx++);
 
         loadCode(idx, program, codeSize);
         storeObjects(idx, program, objCount);
@@ -31,29 +31,29 @@ namespace SyncBlink
         return std::move(program);
     }
 
-    void ByteCodeLoader::loadCode(size_t& idx, Program& program, const size_t& codeSize)
+    void ByteCodeLoader::loadCode(size_t& idx, Program& program, const MAXCODE& codeSize)
     {
         size_t curIdx = idx - 1;
-        while (idx < codeSize * 6 /* (code & line) = 6 Byte */ + curIdx - 1)
+        while (idx < codeSize * 3 /* (code 1B & line 2B) = 3 Byte */ + curIdx - 1)
         {
-            uint16_t code = loadTwoBytes(idx);
-            size_t line = loadFourBytes(idx);
+            CODETYPE code = _byteCode->getByte(idx++);
+            LINETYPE line = loadTwoBytes(idx);
             program.addCode(code, line);
         }
     }
 
-    void ByteCodeLoader::storeObjects(size_t& idx, Program& program, const uint16_t& objCount)
+    void ByteCodeLoader::storeObjects(size_t& idx, Program& program, const MAXITEM& objCount)
     {
-        for (uint16_t i = 0; i < objCount; i++)
+        for (MAXITEM i = 0; i < objCount; i++)
         {
             auto type = (ObjectType)_byteCode->getByte(idx++);
-            size_t size = loadFourBytes(idx);
+            size_t size = loadTwoBytes(idx); 
 
             switch (type)
             {
             case ObjectType::STRING: {
                 std::vector<uint8_t> strBytes;
-                for (size_t j = 0; j < size; j++)
+                for (MAXCODE j = 0; j < size; j++)
                     strBytes.push_back(_byteCode->getByte(idx++));
 
                 _objects.push_back(std::make_shared<StringObj>(std::string(strBytes.begin(), strBytes.end())));
@@ -65,13 +65,12 @@ namespace SyncBlink
                 idx += size;
 
                 auto funObj = std::make_shared<FunObj>(std::move(funProg));
-
-                auto paramCount = loadFourBytes(idx);
+                auto paramCount = loadTwoBytes(idx);
                 for (size_t j = 0; j < paramCount; j++)
                 {
                     std::vector<uint8_t> strBytes;
-                    size_t strSize = loadFourBytes(idx);
-                    for (size_t j = 0; j < strSize; j++)
+                    uint16_t strSize = loadTwoBytes(idx);
+                    for (uint16_t j = 0; j < strSize; j++)
                         strBytes.push_back(_byteCode->getByte(idx++));
 
                     funObj->addParameter(std::string(strBytes.begin(), strBytes.end()));
@@ -81,9 +80,9 @@ namespace SyncBlink
                 break;
             }
             case ObjectType::ARRAY: {
-                uint16_t objIndex = 0;
+                MAXITEM objIndex = 0;
                 std::vector<Value> values;
-                for (size_t j = 0; j < size; j++)
+                for (MAXITEM j = 0; j < size; j++)
                     values.push_back(loadValue(idx, program, objIndex));
 
                 _objects.push_back(std::make_shared<ArrayObj>(values));
@@ -95,10 +94,10 @@ namespace SyncBlink
         }
     }
 
-    void ByteCodeLoader::loadConstants(size_t& idx, Program& program, const uint16_t& constantCount)
+    void ByteCodeLoader::loadConstants(size_t& idx, Program& program, const MAXITEM& constantCount)
     {
-        uint16_t objIndex = 0;
-        for (uint16_t i = 0; i < constantCount; i++)
+        MAXITEM objIndex = 0;
+        for (MAXITEM i = 0; i < constantCount; i++)
         {
             Value value = loadValue(idx, program, objIndex);
             if (value.getType() == ValueType::OBJECT) program.addConstant(value, _objects[objIndex]);
@@ -106,7 +105,7 @@ namespace SyncBlink
         }
     }
 
-    Value ByteCodeLoader::loadValue(size_t& idx, Program& program, uint16_t& objIndex)
+    Value ByteCodeLoader::loadValue(size_t& idx, Program& program, MAXITEM& objIndex)
     {
         Value value;
         auto type = (ValueType)_byteCode->getByte(idx++);
@@ -125,7 +124,7 @@ namespace SyncBlink
         }
         case ValueType::OBJECT:
         {
-            objIndex = loadTwoBytes(idx);
+            objIndex = _byteCode->getByte(idx++);
             auto objPtr = _objects[objIndex];
             value = Value(objPtr.get());
             break;

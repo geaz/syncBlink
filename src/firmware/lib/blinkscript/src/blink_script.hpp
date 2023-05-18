@@ -30,7 +30,7 @@ namespace SyncBlink
         void setDelay(uint32_t delay);
 
     private:
-        bool checkEvalError(const std::string& step, bool hasError, std::tuple<int, std::string> error);
+        bool checkEvalError(const std::string& step, bool hasError, std::tuple<LINETYPE, std::string> error);
         void saveAddToScope(const std::string& identifier, Value value);
         void saveAddToScope(const std::string& identifier, std::string stringValue);
         void saveAddFreqBin();
@@ -41,7 +41,7 @@ namespace SyncBlink
         std::shared_ptr<EspFileBytecodeSource> _source;
 
         bool _faulted = false;
-        std::tuple<int, std::string> _error = std::make_tuple(-99, "");
+        std::tuple<LINETYPE, std::string> _error = std::make_tuple(0, "");
 
         uint8_t _lastVolume = 0;
         uint16_t _lastFrequency = 0;

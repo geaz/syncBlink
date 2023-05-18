@@ -28,25 +28,25 @@ namespace SyncBlink
 
         Value getTop() const;
         size_t getStackSize() const;
-        std::tuple<int, std::string> getError() const;
+        std::tuple<LINETYPE, std::string> getError() const;
 
         const bool hasError() const;
 
     private:
-        void handleClosureLoad(const Program& program, uint16_t& ip);
-        void handleClearScope(const Program& program, uint16_t& ip);
-        void handleDefineGlobal(const Program& program, uint16_t& ip);
-        void handleSet(const Program& program, uint16_t& ip, bool local);
-        void handleLoad(const Program& program, uint16_t& ip, bool local);
-        void handleJump(const Program& program, uint16_t& ip);
-        void handleJumpNot(const Program& program, uint16_t& ip);
-        void handleReturn(const Program& program, uint16_t& ip);
-        void handlePrefix(const Program& program, uint16_t ip);
-        void handleInfix(const Program& program, uint16_t ip);
-        void handleIndex(const Program& program, uint16_t ip, bool set = false);
+        void handleClosureLoad(const Program& program, MAXCODE& ip);
+        void handleClearScope(const Program& program, MAXCODE& ip);
+        void handleDefineGlobal(const Program& program, MAXCODE& ip);
+        void handleSet(const Program& program, MAXCODE& ip, bool local);
+        void handleLoad(const Program& program, MAXCODE& ip, bool local);
+        void handleJump(const Program& program, MAXCODE& ip);
+        void handleJumpNot(const Program& program, MAXCODE& ip);
+        void handleReturn(const Program& program, MAXCODE& ip);
+        void handlePrefix(const Program& program, MAXCODE ip);
+        void handleInfix(const Program& program, MAXCODE ip);
+        void handleIndex(const Program& program, MAXCODE ip, bool set = false);
 
-        void executeFun(Value value, size_t line);
-        StringObj* getStringObjectValue(const Program& program, uint16_t ip);
+        void executeFun(Value value, LINETYPE line);
+        StringObj* getStringObjectValue(const Program& program, MAXCODE ip);
         Value popValue();
 
         std::vector<Value> _stack;
@@ -55,7 +55,7 @@ namespace SyncBlink
 
         std::vector<std::shared_ptr<Object>> _nativeFuns;
         std::vector<std::shared_ptr<Object>> _runTimeObjects;
-        std::tuple<int, std::string> _vmError = std::make_tuple(-99, "");
+        std::tuple<LINETYPE, std::string> _vmError = std::make_tuple(0, "");
     };
 }
 

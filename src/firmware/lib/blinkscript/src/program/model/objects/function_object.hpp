@@ -16,16 +16,16 @@ namespace SyncBlink
         FunObj(Program&& program);
 
         void addParameter(const std::string& parameter);
-        void setForeignLocalIndices(const std::vector<uint16_t>& foreignLocalIndices);
+        void setForeignLocalIndices(const std::vector<size_t>& foreignLocalIndices);
 
         ObjectType getType() const;
         const Program& getProgram() const;
         const std::vector<std::string>& getParameters() const;
-        const std::vector<uint16_t>& getForeignLocalIndices() const;
+        const std::vector<size_t>& getForeignLocalIndices() const;
 
     private:
         Program _program;
-        std::vector<uint16_t> _foreignLocalIndices;
+        std::vector<size_t> _foreignLocalIndices;
         std::vector<std::string> _parameters;
     };
 }

@@ -105,31 +105,31 @@ namespace SyncBlink
             {
             case OpCode::VALUE:
                 ss << "VALUE\n";
-                ss << "\t" << std::setw(3) << ++i << ": ." << program.getCode()[i] << "\n";
+                ss << "\t" << std::setw(3) << ++i << ": ." << (int)program.getCode()[i] << "\n";
                 break;
             case OpCode::CLOSURE:
                 ss << "CLOSURE\n";
-                ss << "\t" << std::setw(3) << ++i << ": ." << program.getCode()[i] << "\n";
+                ss << "\t" << std::setw(3) << ++i << ": ." << (int)program.getCode()[i] << "\n";
                 break;
             case OpCode::DEFINE_GLOBAL:
                 ss << "DEFINE_GLOBAL\n";
-                ss << "\t" << std::setw(3) << ++i << ": ." << program.getCode()[i] << "\n";
+                ss << "\t" << std::setw(3) << ++i << ": ." << (int)program.getCode()[i] << "\n";
                 break;
             case OpCode::LOAD_GLOBAL:
                 ss << "LOAD_GLOBAL\n";
-                ss << "\t" << std::setw(3) << ++i << ": ." << program.getCode()[i] << "\n";
+                ss << "\t" << std::setw(3) << ++i << ": ." << (int)program.getCode()[i] << "\n";
                 break;
             case OpCode::LOAD_LOCAL:
                 ss << "LOAD_LOCAL\n";
-                ss << "\t" << std::setw(3) << ++i << ": ." << program.getCode()[i] << "\n";
+                ss << "\t" << std::setw(3) << ++i << ": ." << (int)program.getCode()[i] << "\n";
                 break;
             case OpCode::SET_GLOBAL:
                 ss << "SET_GLOBAL\n";
-                ss << "\t" << std::setw(3) << ++i << ": ." << program.getCode()[i] << "\n";
+                ss << "\t" << std::setw(3) << ++i << ": ." << (int)program.getCode()[i] << "\n";
                 break;
             case OpCode::SET_LOCAL:
                 ss << "SET_LOCAL\n";
-                ss << "\t" << std::setw(3) << ++i << ": ." << program.getCode()[i] << "\n";
+                ss << "\t" << std::setw(3) << ++i << ": ." << (int)program.getCode()[i] << "\n";
                 break;
             case OpCode::SET_INDEX:
                 ss << "SET_INDEX\n";
@@ -196,7 +196,7 @@ namespace SyncBlink
                 break;
             case OpCode::CLEAR_SCOPE:
                 ss << "CLEAR_SCOPE\n";
-                ss << "\t" << std::setw(3) << ++i << ": ." << program.getCode()[i] << "\n";
+                ss << "\t" << std::setw(3) << ++i << ": ." << (int)program.getCode()[i] << "\n";
                 break;
             }
         }
