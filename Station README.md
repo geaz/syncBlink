@@ -6,10 +6,10 @@
 ![syncBlink Hub](img/hub/cover.jpg)
 
 ## Table of Contents
-1. [🛥️ 3D Model](#🛥️-3d-model)
-2. [📄 BOM](#📄-bom)  
-3. [🚀 Firmware](#🚀-firmware)  
-4. [👷 Build](#👷-build)
+1. [🛥️ 3D Model](#-3d-model)
+2. [📄 BOM](#-bom)  
+3. [🚀 Firmware](#-firmware)  
+4. [👷 Build](#-build)
 
 ### 🛥️ 3D Model
 The models were designed in Fusion 360. The exported STLs are included in the Github repository (*stl* folder). Furthermore there are Fusion 360 archive files ready to download (*cad* folder).

@@ -9,10 +9,10 @@ In addition, the **syncBlink Hub** initiates a simple mesh network that includes
 *Combining all these features, it becomes possible to create a synchronized mesh network of WiFi-connected devices that dynamically react to music.*
 
 # 📖 Table of Contents
-1. [🏠 syncBlink Hub](#🏠-syncBlink-Hub)
-2. [🌲 syncBlink Node](#🌲-syncBlink-Node)
-3. [🚀 Web Application](#🚀-web-application)
-4. [🧑‍💻 blinkScript - syncBlink Script Language](#🧑‍💻-blinkScript)
+1. [🏠 syncBlink Hub](#-syncBlink-Hub)
+2. [🌲 syncBlink Node](#-syncBlink-Node)
+3. [🚀 Web Application](#-web-application)
+4. [🧑‍💻 blinkScript - syncBlink Script Language](#-blinkScript)
 
 ## 🏠 syncBlink Hub
 
