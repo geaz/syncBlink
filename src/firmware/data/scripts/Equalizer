@@ -1,0 +1,82 @@
+let h=0
+let s=0
+let v=0
+let colors = []
+let lastBarValues = []
+let barColors = []
+
+let update = fun(delta) {
+    if(type == "station") {
+    	setCurrentFreqColor()
+    	setAllLeds(xhsv(h, s, v))
+    }
+    if(type == "node") {        
+    	setCurrentFreqColor()
+        setSnake()
+    }
+    if(type == "grid") {        
+        setFreqBars()
+    }
+}
+
+let init = fun(){
+    setNumArray(colors, nLedC, 0)
+    setNumArray(lastBarValues, 16, 0)
+    if(type == "node"){
+        setGroupsOf(4)
+    }
+    if(type == "grid"){
+        for(let i = 0; i < 16; i = i + 1){
+            // set the H value of hsv
+            barColors[i] = 230 - (i * 10)
+        }
+    }
+}
+
+let setCurrentFreqColor = fun(){
+    if(vol == 0 || freq == 0 || (vol < lVol * 1.05 && v > 0.25)){
+        if(v > 0.025){ v = v - 0.025 }
+        else{ v = 0 }
+    } else {
+        if(freq > maxF/2) {
+        	freq = maxF/2
+        }
+        h = map(freq, 100, maxF/2, 240, 0)
+        s = 1
+        v = map(vol, 0, 100, 0, 1)
+    }
+}
+
+let setSnake = fun(){
+	for(let i = nLedC - 1; i > 0; i = i - 1) {
+        colors[i] = colors[i-1]
+    }
+    colors[0] = xhsv(h, s, v)
+    setLeds(colors)
+}
+
+let setFreqBars = fun(){
+	setNumArray(colors, nLedC, 0)
+    for(let i = 0; i < 16; i = i + 1) {        
+        let barHeight = getBarHeight(i)
+        if(lastBarValues[i] > barHeight){
+            barHeight = lastBarValues[i] - 0.5
+        }
+        lastBarValues[i] = barHeight
+        
+        for(let j = 0; j < barHeight; j = j + 1) {
+            if(i % 2 == 0){
+            	colors[255 - j - (i * 16)] = xhsv(barColors[i], 1, 0.5)
+            }
+            else {
+            	colors[255 + j - (i * 16 + 15)] = xhsv(barColors[i], 1, 0.5)
+            }
+        }        
+    }
+    setLeds(colors) 
+}
+
+let getBarHeight = fun(barIndex){
+    let barAverage = (freqBin[barIndex * 2] + freqBin[barIndex * 2 + 1] + freqBin[barIndex * 2 + 2]) / 3
+    map(barAverage, 0, 255, 0, 15)
+}

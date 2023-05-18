@@ -4,10 +4,14 @@
 **/.vscode/launch.json
 **/.vscode/ipch
 **/build/**
+**/buildwasm/**
 .DS_Store
 node_modules
 /dist
 *.bin
+**/bin/**
+**/obj/**
+**/.vs/**
 
 # local env files
 .env.local

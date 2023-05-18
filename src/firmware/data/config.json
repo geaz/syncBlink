@@ -1,0 +1,7 @@
+{
+    "name": "Hub",
+    "type": "station",
+    "led_count": 9,
+    "is_hub": true,
+    "active_script": "Snake"
+}

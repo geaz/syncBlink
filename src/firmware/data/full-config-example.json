@@ -1,0 +1,12 @@
+{
+    "name": "Node",
+    "type": "nodeType",
+    "led_count": 9,
+    "is_hub": false,
+    "is_node": true,
+    "is_analyzer": false,
+    "has_display": false,
+    "active_script": "Snake",
+    "wifi_ssid": "WIFI",
+    "wifi_pw": "PW"
+}

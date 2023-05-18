@@ -1,0 +1,9 @@
+include(FetchContent)
+FetchContent_Declare(
+    fetch_kissfft
+    GIT_REPOSITORY https://github.com/mborgerding/kissfft.git
+    GIT_TAG b2e0e600e58b1c5bf290aae147bc12946ba42826
+)
+FetchContent_Populate(fetch_kissfft)
+include_directories("${fetch_kissfft_SOURCE_DIR}")
+add_library(kissfft "${fetch_kissfft_SOURCE_DIR}/kiss_fft.c")
