@@ -6,7 +6,9 @@ namespace SyncBlink
 {
     void UdpDiscover::start(bool isServer)
     {
-        _udp.begin(4210);
+        if(_isServer) _udp.begin(4210);
+        else _udp.begin(4211);
+
         _isServer = isServer;
     }
 
@@ -26,9 +28,11 @@ namespace SyncBlink
 
             if (std::string(packet) == "syncPing" && _isServer)
             {
-                _udp.beginPacket(_udp.remoteIP(), 4210);
+                Serial.println("[UDP] Received ping ...");
+                _udp.beginPacket(_udp.remoteIP(), 4211);
                 _udp.write("syncPong");
                 _udp.endPacket();
+                Serial.println("[UDP] Send pong!");
             }
             else if (std::string(packet) == "syncPong")
             {

@@ -97,7 +97,9 @@ namespace SyncBlink
         switch (msg.commandType)
         {
         case Messages::NodeCommandType::Ping:
-            _led.blinkNow(Colors::Blue);
+            // Only if the ping is not directed to the whole mesh, react with a blink
+            // Otherwise it is the occasional connection check ping from the hub
+            if(msg.recipientId != 0) _led.blinkNow(Colors::Blue);
             break;
         case Messages::NodeCommandType::Rename:
             _config.Values[F("name")] = msg.commandInfo.stringInfo1;

@@ -53,6 +53,8 @@ namespace SyncBlink
         uint32_t _analyzerChangeHandleId = 0;
         uint32_t _nodeCommandHandleId = 0;
         uint32_t _rawHandleId = 0;
+
+        uint64_t _lastPing = 0;
     };
 }
 

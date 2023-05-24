@@ -39,6 +39,15 @@ namespace SyncBlink
 
     void HubWifiModule::loop()
     {
+        // Ping nodes every five seconds to recognize any disconnects
+        if (millis() - _lastPing > 5000)
+        {
+            SyncBlink::Messages::NodeCommand msg;
+            msg.commandType = Messages::NodeCommandType::Ping;
+            _tcpServer.broadcast(msg.toPackage());
+            _lastPing = millis();
+        }
+        
         _tcpServer.loop();
         _udpDiscover.loop();
     }
@@ -94,6 +103,12 @@ namespace SyncBlink
         {
             _meshInfo.removeNode(msg.nodeId);
             Serial.printf_P(PSTR("[HUB] Node disconnected: %12llx\n"), msg.nodeId);
+
+            if(_meshInfo.getActiveAnalyzer() == msg.nodeId)
+            {
+                Serial.printf_P(PSTR("[HUB] Active analyzer disconnected. Falling back to internal analyzer..."));
+                _messageBus.trigger(Messages::AnalyzerChange{SyncBlink::getId()});
+            }
         }
 
         std::tuple<size_t, size_t> totalNodesAndLeds = _meshInfo.getTotalNodesAndLeds();

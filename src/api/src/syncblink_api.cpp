@@ -2,39 +2,81 @@
 
 #include <iostream>
 #include <mesh_connection.hpp>
+#include <thread>
 
 namespace SyncBlink
 {
     namespace Api
     {
-        SyncBlinkApi::SyncBlinkApi(std::string url, uint64_t analyzerId, std::string analyzerName) 
-            : _tcpClient(url, _messageBus), _freqAnalyzer(analyzerId, _messageBus), _analyzerId(analyzerId), _analyzerName(analyzerName)
-        { 
-            _analyzerHandleId = _messageBus.addMsgHandler<Messages::AnalyzerUpdate>(MessageType::AnalyzerUpdate, this);
-            _analyzerChangeHandleId = _messageBus.addMsgHandler<Messages::AnalyzerChange>(MessageType::AnalyzerChange, this);
+        SyncBlinkApi::SyncBlinkApi(uint64_t analyzerId, std::string analyzerName, bool setAnalyzerOnConnect)
+            : _tcpClient(_messageBus), _freqAnalyzer(analyzerId, _messageBus), _analyzerId(analyzerId), _analyzerName(analyzerName),
+              _setAnalyzerOnConnect(setAnalyzerOnConnect)
+        {
+            _messageBus.addMsgHandler<Messages::AnalyzerUpdate>(MessageType::AnalyzerUpdate, this);
+            _messageBus.addMsgHandler<Messages::AnalyzerChange>(MessageType::AnalyzerChange, this);
+
+            _udpDiscover.errorMessageEvents.addEventHandler([this](std::string message) {
+                if (_apiOnMessageCallback != nullptr) _apiOnMessageCallback(message.c_str(), true);
+            });
+            _udpDiscover.infoMessageEvents.addEventHandler([this](std::string message) {
+                if (_apiOnMessageCallback != nullptr) _apiOnMessageCallback(message.c_str(), false);
+            });
+
+            _tcpClient.errorMessageEvents.addEventHandler([this](std::string message) {
+                if (_apiOnMessageCallback != nullptr) _apiOnMessageCallback(message.c_str(), true);
+            });
+            _tcpClient.infoMessageEvents.addEventHandler([this](std::string message) {
+                if (_apiOnMessageCallback != nullptr) _apiOnMessageCallback(message.c_str(), false);
+            });
+            _tcpClient.connectionEvents.addEventHandler([this](bool isConnected) {
+                if (_apiOnConnectionCallback != nullptr) _apiOnConnectionCallback(_hubIp.c_str(), isConnected);
+                if (isConnected)
+                {
+                    Messages::MeshConnection conmsg;
+                    conmsg.nodeId = _analyzerId;
+                    conmsg.isConnected = true;
+                    conmsg.nodeInfo = {false, true, false, false, 0, 0, 0, 31, _analyzerName.c_str()};
+
+                    Messages::AnalyzerChange msg;
+                    msg.analyzerId = _analyzerId;
+
+                    _tcpClient.writeMessage(conmsg.toPackage());
+                    _tcpClient.writeMessage(msg.toPackage());
+                }
+                else
+                {
+                    _hubIp = "";
+                    _freqAnalyzer.stop();
+                    tryConnect();
+                }
+            });
         }
 
-        SyncBlinkApi::~SyncBlinkApi()
+        void SyncBlinkApi::tryConnect()
         {
-            _messageBus.removeMsgHandler(_analyzerHandleId);
-            _messageBus.removeMsgHandler(_analyzerChangeHandleId);
-        }
+            if (_connecting || _hubIp != "") return;
 
-        void SyncBlinkApi::start()
-        {
-            Messages::MeshConnection msg;
-            msg.nodeId = _analyzerId;
-            msg.isConnected = true;
-            msg.nodeInfo = { false, true, false, false, 0, 0, 0, 21, _analyzerName.c_str() };
+            _connecting = true;
+            std::thread thread([this]() {
+                bool first = true;
+                auto lastTry = std::chrono::system_clock::now();
+                while (_hubIp == "")
+                {
+                    auto elapsed = std::chrono::system_clock::now() - lastTry;
+                    auto elapsedSecs = std::chrono::duration_cast<std::chrono::seconds>(elapsed).count();
 
-            _freqAnalyzer.start();
-            _tcpClient.start(msg.toPackage());
-        }
+                    if (elapsedSecs > 15 || first)
+                    {
+                        _hubIp = _udpDiscover.ping();
+                        lastTry = std::chrono::system_clock::now();
+                        first = false;
+                    }
+                }
 
-        void SyncBlinkApi::stop()
-        {
-            _tcpClient.stop();
-            _freqAnalyzer.stop();
+                if (_hubIp != "") _tcpClient.start(_hubIp);
+                _connecting = false;
+            });
+            thread.detach();
         }
 
         void SyncBlinkApi::setApiOnFreqCallback(OnFreqCallback callback)
@@ -42,17 +84,28 @@ namespace SyncBlink
             _apiOnFreqCallback = callback;
         }
 
+        void SyncBlinkApi::setApiOnMessageCallback(OnMessageCallback callback)
+        {
+            _apiOnMessageCallback = callback;
+        }
+
+        void SyncBlinkApi::setApiOnConnectionCallback(OnConnectionCallback callback)
+        {
+            _apiOnConnectionCallback = callback;
+        }
+
         void SyncBlinkApi::onMsg(const Messages::AnalyzerUpdate& msg)
         {
-            if(_activeAnalzyerId != _analyzerId) return;
-            
-            if(_apiOnFreqCallback != nullptr) _apiOnFreqCallback(msg.volume, msg.frequency);
+            if (_apiOnFreqCallback != nullptr) _apiOnFreqCallback(msg.volume, msg.frequency);
             _tcpClient.writeMessage(msg.toPackage());
         }
 
         void SyncBlinkApi::onMsg(const Messages::AnalyzerChange& msg)
         {
             _activeAnalzyerId = msg.analyzerId;
+            if (_activeAnalzyerId != _analyzerId) _freqAnalyzer.stop();
+            else
+                _freqAnalyzer.start();
         }
     }
 }

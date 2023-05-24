@@ -117,7 +117,8 @@
 			"semaphore": "cpp",
 			"unordered_set": "cpp",
 			"memory_resource": "cpp",
-			"filesystem": "cpp"
+			"filesystem": "cpp",
+			"resumable": "cpp"
 		}
 	}
 }
