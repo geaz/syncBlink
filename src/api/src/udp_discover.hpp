@@ -38,7 +38,7 @@ namespace SyncBlink
 
             std::string _pingMsg = "syncPing";
             asio::ip::udp::endpoint _broadcastEndpoint =
-                asio::ip::udp::endpoint(asio::ip::address::from_string("255.255.255.255"), UdpPingPort);
+                asio::ip::udp::endpoint(asio::ip::address_v4::broadcast(), UdpPingPort);
         };
     }
 }

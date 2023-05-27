@@ -68,20 +68,21 @@ namespace SyncBlink
                 }
             };
 
-            _socket.async_send_to(asio::buffer(_pingMsg.c_str(), _pingMsg.size()), _broadcastEndpoint, writeHandler);
             _socket.async_receive_from(asio::buffer(receivedMsg.data(), receivedMsg.size()), server, readHandle);
+            _socket.async_send_to(asio::buffer(_pingMsg.c_str(), _pingMsg.size()), _broadcastEndpoint, writeHandler);
+            _socket.async_send_to(asio::buffer(_pingMsg.c_str(), _pingMsg.size()), _broadcastEndpoint, writeHandler);
 
-            std::thread abortIo([this, hubIp]() {
+            std::thread abortIo([this]() {
                 // wait 5sec for pong receive - otherwise stop read
                 auto start = std::chrono::system_clock::now();
                 auto elapsed = std::chrono::system_clock::now() - start;
                 auto elapsedSecs = std::chrono::duration_cast<std::chrono::seconds>(elapsed).count();
-                while (elapsedSecs < 5 && hubIp != "")
+                while (elapsedSecs < 5)
                 {
                     elapsed = std::chrono::system_clock::now() - start;
                     elapsedSecs = std::chrono::duration_cast<std::chrono::seconds>(elapsed).count();
                 }
-                if (hubIp == "") _ioService.stop();
+                _ioService.stop();
             });
 
             _ioService.run();

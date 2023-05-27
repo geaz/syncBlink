@@ -49,9 +49,9 @@ namespace SyncBlink
             std::string _hubIp = "";
             uint64_t _activeAnalzyerId = -1;
 
-            OnFreqCallback _apiOnFreqCallback = nullptr;
-            OnMessageCallback _apiOnMessageCallback = nullptr;
-            OnConnectionCallback _apiOnConnectionCallback = nullptr;
+            std::vector<OnFreqCallback> _apiOnFreqCallback;
+            std::vector<OnMessageCallback> _apiOnMessageCallback;
+            std::vector<OnConnectionCallback> _apiOnConnectionCallback;
         };
     }
 }

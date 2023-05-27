@@ -47,6 +47,7 @@ namespace SyncBlink
                 _ioContext.run();
                 _ioContext.reset();
             });
+
             _ioThread.detach();
         }
 
@@ -57,27 +58,14 @@ namespace SyncBlink
             uint8_t* messagePtr = &message[0];
             size_t messageSize = message.size();
             asio::async_write(_socket, asio::buffer(messagePtr, messageSize), [this](const asio::error_code& err, std::size_t n) {
-                if (err)
-                {
-                    for (auto event : errorMessageEvents.getEventHandlers())
-                        event.second(err.message());
-                }
+                if (err) handleDisconnect(err);
             });
         }
 
         void TcpClient::startRead()
         {
             asio::async_read(_socket, asio::buffer(_singleByte, 1), [this](const asio::error_code& err, std::size_t n) {
-                if (err)
-                {
-                    _connected = false;
-                    _socket.close();
-
-                    for (auto event : connectionEvents.getEventHandlers())
-                        event.second(_connected);
-                    for (auto event : errorMessageEvents.getEventHandlers())
-                        event.second(err.message());
-                }
+                if (err) handleDisconnect(err);
                 else
                 {
                     if (_singleByte[0] == PacketMagicBytes[0])
@@ -122,6 +110,18 @@ namespace SyncBlink
                     if (_connected) startRead();
                 }
             });
+        }
+
+        void TcpClient::handleDisconnect(const asio::error_code& err)
+        {
+            _connected = false;
+            _socket.shutdown(asio::socket_base::shutdown_both);
+            _socket.close();
+
+            for (auto event : connectionEvents.getEventHandlers())
+                event.second(_connected);
+            for (auto event : errorMessageEvents.getEventHandlers())
+                event.second(err.message());
         }
     }
 }

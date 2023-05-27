@@ -31,6 +31,7 @@ namespace SyncBlink
 
         private:
             void startRead();
+            void handleDisconnect(const asio::error_code& err);
 
             MessageBus& _messageBus;
 

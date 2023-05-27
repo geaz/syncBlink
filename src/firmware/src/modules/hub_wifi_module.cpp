@@ -106,7 +106,7 @@ namespace SyncBlink
 
             if(_meshInfo.getActiveAnalyzer() == msg.nodeId)
             {
-                Serial.printf_P(PSTR("[HUB] Active analyzer disconnected. Falling back to internal analyzer..."));
+                Serial.printf_P(PSTR("[HUB] Active analyzer disconnected. Falling back to internal analyzer...\n"));
                 _messageBus.trigger(Messages::AnalyzerChange{SyncBlink::getId()});
             }
         }

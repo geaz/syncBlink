@@ -6,10 +6,9 @@ namespace SyncBlink
 {
     void UdpDiscover::start(bool isServer)
     {
+        _isServer = isServer;
         if(_isServer) _udp.begin(4210);
         else _udp.begin(4211);
-
-        _isServer = isServer;
     }
 
     void UdpDiscover::stop()
