@@ -1,4 +1,37 @@
 import styled from "styled-components";
+import { Handle, Position } from "react-flow-renderer";
+
+export interface BaseNodeProps {
+    hasTopHandle: boolean;
+    hasBottomHandle: boolean;
+    leftBarContent?: any;
+    rightBarContent?: any;
+    children?: any;
+}
+
+function BaseNode(props: BaseNodeProps) {
+    return <StyledNode>
+        { props.hasTopHandle && <Handle
+            type="target"
+            position={Position.Top}
+            style={{ background: '#555' }}
+        /> }
+        <div className="node-buttons node-buttons-left">
+            { props.leftBarContent }
+        </div>
+        <div className="node-frame">
+            { props.children }
+        </div>
+        <div className="node-buttons">
+            { props.rightBarContent }
+        </div>
+        { props.hasBottomHandle && <Handle
+            type="source"
+            position={Position.Bottom}
+            style={{ background: '#555' }}
+        /> }
+    </StyledNode>;
+}
 
 const StyledNode = styled.div`
     display: flex;
@@ -8,24 +41,20 @@ const StyledNode = styled.div`
         text-align: center;
         padding: 10px 20px 15px 20px;
         margin: 0 3px;
-        border-radius: 5px;
+        border-radius: 0.25em;
         background: white;
-        box-shadow: rgba(0, 0, 0, 0.1) 0px 1px 2px 0px;
+        box-shadow: rgba(0, 0, 0, 0.1) 0 0.1rem 0.3rem 0;
     }
 
     .node-buttons {
         display: flex;
+        min-width: 22px;
         flex-direction: column;
         justify-content: flex-end;
-
-        button { padding: 5px; }
     }
 
     .node-buttons-left {
-        display: flex;
-        flex-direction: column;
-
-        button { padding: 5px; }
+        justify-content: flex-start;
     }
 
     .node-id {
@@ -75,7 +104,7 @@ const StyledNode = styled.div`
         .buttons {
             position: absolute;
             top: 10px;
-            right: 5px;
+            right: 28px;
         }
 
         button { 
@@ -93,4 +122,4 @@ const StyledNode = styled.div`
     }
 `;
 
-export default StyledNode;
+export default BaseNode;

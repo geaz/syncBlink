@@ -21,8 +21,8 @@ function Header(props: HeaderProps) {
 const StyledHeader = styled.div`
     display:flex;
     background: white;
-    box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
-    padding: 15px 20px;
+    box-shadow: rgba(99, 99, 99, 0.2) 0 0.2rem 0.5rem 0;
+    padding: 1rem 1.5rem;
     z-index: 999;
 
     img {
@@ -39,7 +39,7 @@ const StyledHeader = styled.div`
     }
 
     nav a{
-        margin-left: 25px;
+        margin-left: 1.5rem;
         font-weight: 700;
         font-size: 1.2rem;
         text-decoration: none;

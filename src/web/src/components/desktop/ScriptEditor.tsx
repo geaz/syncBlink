@@ -106,11 +106,11 @@ const StyledScriptCommandbar = styled.div`
     align-items: center;
 
     border-bottom: 1px solid rgb(210, 210, 210);
-    padding: 10px 15px;
+    padding: 0.75rem 1rem;
 
     #script-dropdown {
-        width: 250px;
-        margin-right: 7px;
+        width: 15rem;
+        margin-right: 0.5rem;
     }
 
     #spacer {
@@ -119,7 +119,7 @@ const StyledScriptCommandbar = styled.div`
     }
 
     .label {
-        margin: 0 10px;
+        margin-right: 0.75rem;
     }
 `;
 

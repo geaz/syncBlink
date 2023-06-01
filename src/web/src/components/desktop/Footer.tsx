@@ -28,11 +28,11 @@ async function getWifiSetting(setWifiName: Dispatch<SetStateAction<string>>) {
 }
 
 const StyledFooter = styled.div`
-    padding: 15px 20px;
+    padding: 1rem 1.5rem;
     z-index:999;
     position:absolute;
-    left:50px;
-    bottom:30px;
+    left: 5rem;
+    bottom: 2rem;
     padding: 0;
     background: transparent;
     color: ${ p => p.theme.textColorFaded };
@@ -40,8 +40,8 @@ const StyledFooter = styled.div`
     font-size: 0.75rem;
 
     .credits {
-        display:flex;
-        gap:5px;
+        display: flex;
+        gap: 0.25rem;
     }
 `;
 

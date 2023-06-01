@@ -26,8 +26,8 @@ function Button(props: ButtonProps) {
 
 const StyledButton = styled.button<{color?: string, hoverColor?: string}>`
     width: 100%;
-    padding: 10px;
-    border-radius: 5px;
+    padding: 0.65rem;
+    border-radius: 0.35rem;
     box-sizing: border-box;
     color: white;
     border: none; 

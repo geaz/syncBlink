@@ -2,7 +2,7 @@ import { SyncBlinkNodeProps } from '../nodes/SyncBlinkNode';
 import { SyncBlinkStationProps } from '../nodes/SyncBlinkStation';
 import { SyncBlinkAnalyzerProps } from '../nodes/SyncBlinkAnalyzer';
 import { SyncBlinkRouterNodeProps } from '../nodes/SyncBlinkRouterNode';
-import { Edge, Node } from 'react-flow-renderer';
+import { Edge, MarkerType, Node } from 'react-flow-renderer';
 
 /**
  * This effect handels the loading of the mesh information. It calls the station
@@ -122,9 +122,9 @@ function createMeshNodeData(
         let flowNode = flowNodes[i];
         if(flowNode.type === "syncBlinkAnalyzer"){
             edges.push({ 
-                id: flowNode.id + '-' + stationNode.id,
+                id: flowNode.id + '-' + wifiNode.id,
                 type: 'step',
-                markerEnd: 'arrowclosed',
+                markerEnd: { type: MarkerType.ArrowClosed },
                 source: flowNode.id, 
                 target: wifiNode.id,
                 animated: activeAnalyzer === flowNode.data.id
@@ -143,6 +143,7 @@ function createMeshNodeData(
             edges.push({ 
                 id: flowNode.id + '-' + wifiNode.id,
                 type: 'step',
+                markerEnd: { type: MarkerType.ArrowClosed },
                 animated: true,
                 source: flowNode.id, 
                 target: wifiNode.id
@@ -152,6 +153,7 @@ function createMeshNodeData(
             edges.push({ 
                 id: flowNode.data.parentId + '-' + flowNode.id,
                 type: 'step',
+                markerEnd: { type: MarkerType.ArrowClosed },
                 animated: true,
                 source: flowNode.data.parentId.toString(16),
                 target: flowNode.id

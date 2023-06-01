@@ -64,7 +64,7 @@ function Dropdown(props: DropdownProps) {
 
 const StyledDropdown = styled.div`
     position: relative;
-    background: white;
+    background: transparent;
 `;
 
 const StyledDropdownButton = styled.button`
@@ -72,11 +72,11 @@ const StyledDropdownButton = styled.button`
     align-items: center;
     width: 100%;
 
-    border: none;
     background: white;
-    border-radius: 5px;
+    border: black;
+    border-radius: 0.35em;
 
-    padding: 10px 15px;
+    padding: 0.75em 1rem;
     font-size: 1em;
     font-weight: 400;
     font-family: Segoe UI, Roboto, Noto Sans, Ubuntu, Cantarell, Helvetica Neue,sans-serif;
@@ -97,29 +97,29 @@ const StyledDropdownButton = styled.button`
         line-height: 1em;
         margin: 0;
         padding: 0;
-        padding-right: 5px;
+        padding-right: .5rem;
     }
 
     svg {
-        padding-top: 2px;
+        padding-top: 0.1rem;
     }
 `;
 
 const StyledDropdownList = styled.ul<{visible: boolean}>`
     display: ${ p => p.visible ? "block" : "none" };
     position: absolute;
-    margin-top:5px;
+    margin-top: 0.5rem;
 
     background: white;
     z-index: 999;
-    border-radius: 5px;
-    box-shadow: rgba(0, 0, 0, 0.16) 0px 3px 6px, rgba(0, 0, 0, 0.23) 0px 3px 6px;
+    border-radius: 0.35em;
+    box-shadow: rgba(0, 0, 0, 0.16) 0 0.2rem 0.4rem, rgba(0, 0, 0, 0.23) 0 0.2rem 0.4rem;
     min-width: 100%;
     box-sizing: border-box;
 
     li {
-        padding: 5px 15px;
-        border-radius: 5px;
+        padding: 0.75em 1rem;
+        border-radius: 0.35rem;
         &:hover { background: rgba(240, 240, 240, 1); }
     }
 `;

@@ -1,9 +1,9 @@
 
 import { useEffect, useState } from 'react';
-import { Handle, NodeProps, Position } from 'react-flow-renderer';
+import { NodeProps } from 'react-flow-renderer';
 import { faHeadphones, faSync, faLightbulb } from '@fortawesome/free-solid-svg-icons';
 
-import StyledNode from './StyledNode';
+import BaseNode from './StyledNode';
 import IconButton from '../components/ui/IconButton';
 import Dropdown from '../components/ui/Dropdown';
 import useBlinkScriptEffect, { Script } from '../effects/BlinkScriptEffect';
@@ -42,22 +42,26 @@ function SyncBlinkStation(props: NodeProps<SyncBlinkStationProps>) {
         setIsScriptChanging(false);
     };
 
-    return <StyledNode>
-        <Handle
-            type="target"
-            position={Position.Top}
-            style={{ background: '#555' }}
-        />
-        <div className="node-buttons-left">
-            <IconButton icon={faLightbulb}
-                tooltip="Toogle light mode"
-                active={props.data?.isLightMode}
-                onClick={ () => toogleLightMode(!props.data?.isLightMode) } />
-            <IconButton icon={faSync}
-                tooltip="Refresh Mesh"
-                onClick={ () => props.data?.refreshMeshFunc() } />
-        </div>
-        <div className="node-frame">
+    const leftBarContent = <>
+        <IconButton icon={faLightbulb}
+            tooltip="Toogle light mode"
+            active={props.data?.isLightMode}
+            onClick={ () => toogleLightMode(!props.data?.isLightMode) } />
+        <IconButton icon={faSync}
+            tooltip="Refresh Mesh"
+            onClick={ () => props.data?.refreshMeshFunc() } /></>;
+
+    const rightBarContent = <IconButton icon={faHeadphones}
+        active={props.data?.isActive}
+        disabled={props.data?.isActive}
+        tooltip="Activate Analyzer"
+        onClick={() => changeAnalyzer(props.data?.id)} />;
+
+    return <BaseNode
+        hasTopHandle={true}
+        hasBottomHandle={true}
+        leftBarContent={leftBarContent}
+        rightBarContent={rightBarContent}>
             <div className="node-label">Station</div>
             <div className="node-script">
                 <span>Running:</span> 
@@ -65,20 +69,7 @@ function SyncBlinkStation(props: NodeProps<SyncBlinkStationProps>) {
                     options={ scriptList.map(s => { return { key: s.name, value: s.name }; }) } onChanged={ (option) => onChangeScript(option.key) } />
             </div>
             <div className="node-info">{props.data?.ledCount} LEDs - v{props.data?.majorVersion}.{props.data?.minorVersion}</div>
-        </div>
-        <div className="node-buttons">        
-            <IconButton icon={faHeadphones}
-                active={props.data?.isActive}
-                disabled={props.data?.isActive}
-                tooltip="Activate Analyzer"
-                onClick={() => changeAnalyzer(props.data?.id)} />
-        </div>
-        <Handle
-            type="source"
-            position={Position.Bottom}
-            style={{ background: '#555' }}
-        />
-    </StyledNode>;
+    </BaseNode>;
 }
 
 export default SyncBlinkStation;

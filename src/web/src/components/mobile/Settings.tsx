@@ -3,14 +3,15 @@ import styled from "styled-components";
 
 import Button from "../ui/Button";
 import Loader from "../ui/Loader";
+import Dropdown, { DropdownOption } from "../ui/Dropdown";
 
 function Settings() {
     const [showLoader, setShowLoader] = useState(true);
-    const [scriptList, setScriptList] = useState<Array<string>>();
-    const [analyzerList, setAnalyzerList] = useState<Array<{name: string, id: string}>>();
+    const [scriptList, setScriptList] = useState<Array<DropdownOption>>([]);
+    const [analyzerList, setAnalyzerList] = useState<Array<DropdownOption>>([]);
 
-    const [script, setScript] = useState('');
-    const [analyzer, setAnalyzer] = useState('');
+    const [script, setScript] = useState<string>();
+    const [analyzerId, setAnalyzerId] = useState<string>();
     const [ssid, setSsid] = useState('');
     const [wifiPw, setWifiPw] = useState('');
     const [lightMode, setLightMode] = useState(false);
@@ -21,41 +22,33 @@ function Settings() {
             let meshResponse = await fetch("/api/mesh/info");
             let wifiResponse = await fetch("/api/wifi/get");
             if(listResponse.ok && meshResponse.ok && wifiResponse.ok) {
-                let scriptList = (await listResponse.json()).scripts.map((s:any) => s.name);
+                let scriptList = (await listResponse.json()).scripts.map((s:any) => { return { key: s.name, value: s.name }; });
                 let meshInfo = await meshResponse.json();
                 let wifiInfo = await wifiResponse.json();
 
-                let analyzerList : Array<{name: string, id: string}> = [];
+                let analyzerList : Array<DropdownOption> = [];
                 meshInfo.nodes.forEach((node: any) => {
                     if(node.isAnalyzer) {
-                        analyzerList.push({name: node.label, id: node.nodeId});
+                        analyzerList.push({value: node.label, key: node.nodeId});
                     }
                 });
 
                 setScriptList(scriptList);
                 setScript(meshInfo.script);
-                setAnalyzer(meshInfo.analyzer);
                 setLightMode(meshInfo.lightMode === "true");
                 setAnalyzerList(analyzerList);
+                setAnalyzerId(meshInfo.analyzer);
                 setSsid(wifiInfo.ssid);
             }
             else { throw new Error("Error during requests!"); }
             setShowLoader(false);
         })();
-    }, []);
-
-    let scriptOptionList = scriptList && scriptList.length > 0 && scriptList.map((item, i) => {
-        return (<option key={i} value={item}>{item}</option>)
-    });
-
-    let analyzerOptionList = analyzerList && analyzerList.length > 0 && analyzerList.map((item, i) => {
-        return (<option key={item.id} value={item.id}>{item.name}</option>)
-    });
+    }, [setScriptList, setScript, setAnalyzerId, setLightMode, setAnalyzerList, setSsid, setShowLoader]);
 
     let onSaveScriptSettings = async () => {
         setShowLoader(true);
         await fetch(`/api/scripts/set?name=${script}`);
-        await fetch(`/api/mesh/setAnalyzer?analyzerId=${analyzer}`)
+        await fetch(`/api/mesh/setAnalyzer?analyzerId=${analyzerId}`)
         setShowLoader(false);
     };
 
@@ -76,19 +69,17 @@ function Settings() {
         <div className="settings">
             <div className="form-line">
                 <label>Active Script</label>
-                <select onChange={(e) => setScript(e.target.value)} value={script}>
-                    {scriptOptionList}
-                </select>
+                <Dropdown onChanged={(e) => setScript(e.key)} value={scriptList?.filter(a => a.key === script)[0]}
+                    options={scriptList} placeholder="Select script" />
             </div>
             <div className="form-line">
-                <label>Analyzer</label>
-                <select onChange={(e) => setAnalyzer(e.target.value)} value={analyzer}>
-                    {analyzerOptionList}
-                </select>
+                <label>Analyzer</label>                
+                <Dropdown onChanged={(e) => setAnalyzerId(e.key)} value={analyzerList?.filter(a => a.key === analyzerId)[0]}
+                    options={analyzerList} placeholder="Select analyzer" />
             </div>
+            <Button onClick={onSaveScriptSettings}>Save</Button>
+            <Button onClick={onSetLightMode}>{ lightMode ? "Light Mode: ON" : "Light Mode: OFF" }</Button>
         </div>
-        <Button onClick={onSaveScriptSettings}>Save</Button>
-        <Button onClick={onSetLightMode}>{ lightMode ? "Light Mode: ON" : "Light Mode: OFF" }</Button>
         <h2>WiFi Settings</h2>
         <div className="settings">
             <div className="form-line">
@@ -99,28 +90,30 @@ function Settings() {
                 <label htmlFor="pass">Pass</label>
                 <input name="pass" type="text" defaultValue={ wifiPw } onChange={(e) => setWifiPw(e.target.value) } maxLength={64}/>
             </div>
+            <Button onClick={onSaveWifiSettings}>Save</Button>
         </div>
-        <Button onClick={onSaveWifiSettings}>Save</Button>
     </StyledSettings>;
 }
 
 const StyledSettings = styled.div`
     height: 100vh;
-    padding: 20px;
+    padding: 2rem;
+
+    .settings{
+        display: flex;
+        flex-direction: column;
+        row-gap: 0.5rem;
+        margin-bottom: 2rem;
+    }
 
     .form-line {
-        margin-bottom: 0.75rem;
         display: grid;
         grid-template-areas: "left right";
         grid-template-columns: 100px 1fr;
+        align-items: center;
 
-        label { text-align: right; }
-        input, select { margin-left: 0.75rem; padding: 5px; color: $text-color; }
-    }
-
-
-    button {
-        margin-bottom: 20px;
+        label { text-align: right; margin-right: 0.5rem; }
+        input, select { padding: 5px; color: $text-color; }
     }
 `;
 
