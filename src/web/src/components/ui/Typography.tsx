@@ -72,7 +72,7 @@ const GlobalStyle = createGlobalStyle<{backgroundColor?: string, textColor?: str
         box-sizing: border-box;
         padding: 0;
         background: rgba(240, 240, 240, 1);
-        border-radius: 0.35em;
+        border-radius: 0.25em;
 
         color: ${ p => p.textColor? p.textColor : '#313131' };
         line-height: 1.65;

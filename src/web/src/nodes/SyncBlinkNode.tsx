@@ -57,8 +57,7 @@ function SyncBlinkNode(props: NodeProps<SyncBlinkNodeProps>) {
             tooltip="Activate Analyzer"
             onClick={() => { changeAnalyzer(props.data.id) }} /> }
         <IconButton icon={faPen} tooltip="Rename" onClick={ () => setShowRename(!showRename) } />
-        <IconButton icon={faCrosshairs} tooltip="Ping" onClick={ () => pingNode(props.data.id) } />
-        <IconButton icon={faAngleUp} tooltip="Update Firmware" onClick={() => setShowFlasher(!showFlasher) } /></>;
+        <IconButton icon={faCrosshairs} tooltip="Ping" onClick={ () => pingNode(props.data.id) } /></>;
 
     return <BaseNode
         hasTopHandle={true}
