@@ -23,13 +23,13 @@ Using the provided 3D models in the *stl* folder, designed in Fusion 360, you ca
 The repository tries to provide a clear instruction to give a smooth assembly experience.
 Flashing the firmware onto the used Wemos D1 Mini is made simple with using Visual Studio Code and PlatformIO.
 
-Please head over to the **[syncBlink Hub](Station%20README.md)** readme for more information how to build and flash a hub device.
+Please head over to the **[syncBlink Hub](README%20Station.md)** readme for more information how to build and flash a hub device.
 
 ## 🌲 syncBlink Node
 
 The **syncBlink Hub** is just the start. To create a larger mesh of lights it is necessary to build one, two or three nodes (or even more). **syncBlink Nodes** are able to connect to the **syncBlink** mesh to form a larger and wireless light system. The nodes are able to come in any size or form.
 
-Please head over to the **[syncBlink Node](Node%20README.md)** readme for more information how to build and flash your first node device.
+Please head over to the **[syncBlink Node](README%20Node.md)** readme for more information how to build and flash your first node device.
 
 ## 🚀 Web Application
 
@@ -48,7 +48,7 @@ After the hub is connected to a network the hub IP will appear on the bottom rig
 
 ![syncBlink - Web](img/web-1.png)
 
-The graph provides functions to a varity of different functions. Like pinging nodes, switching the currently running scripts or changing the analyzer. Visit the *Editor* menu to change the content of the scripts on the hub or to create new ones.
+The graph provides functions to a varity of different features. Like pinging nodes, switching the currently running scripts or changing the analyzer. Visit the *Editor* menu to change the content of the scripts on the hub or to create new ones.
 
 ![syncBlink - Web](img/web-2.png)
 
