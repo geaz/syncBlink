@@ -16,20 +16,25 @@ namespace SyncBlink
             _messageBus.addMsgHandler<Messages::AnalyzerChange>(MessageType::AnalyzerChange, this);
 
             _udpDiscover.errorMessageEvents.addEventHandler([this](std::string message) {
-                for(auto cb : _apiOnMessageCallback) cb(message.c_str(), true);
+                for (auto cb : _apiOnMessageCallback)
+                    cb(message.c_str(), true);
             });
             _udpDiscover.infoMessageEvents.addEventHandler([this](std::string message) {
-                for(auto cb : _apiOnMessageCallback) cb(message.c_str(), false);
+                for (auto cb : _apiOnMessageCallback)
+                    cb(message.c_str(), false);
             });
 
             _tcpClient.errorMessageEvents.addEventHandler([this](std::string message) {
-                for(auto cb : _apiOnMessageCallback) cb(message.c_str(), true);
+                for (auto cb : _apiOnMessageCallback)
+                    cb(message.c_str(), true);
             });
             _tcpClient.infoMessageEvents.addEventHandler([this](std::string message) {
-                for(auto cb : _apiOnMessageCallback) cb(message.c_str(), false);
+                for (auto cb : _apiOnMessageCallback)
+                    cb(message.c_str(), false);
             });
             _tcpClient.connectionEvents.addEventHandler([this](bool isConnected) {
-                for(auto cb : _apiOnConnectionCallback) cb(_hubIp.c_str(), isConnected);
+                for (auto cb : _apiOnConnectionCallback)
+                    cb(_hubIp.c_str(), isConnected);
                 if (isConnected)
                 {
                     Messages::MeshConnection conmsg;
@@ -43,7 +48,8 @@ namespace SyncBlink
                     _tcpClient.writeMessage(conmsg.toPackage());
                     _tcpClient.writeMessage(msg.toPackage());
 
-                    for(auto cb : _apiOnMessageCallback) cb("Connected as analyzer!", false);
+                    for (auto cb : _apiOnMessageCallback)
+                        cb("Connected as analyzer!", false);
                 }
                 else
                 {
@@ -98,7 +104,8 @@ namespace SyncBlink
 
         void SyncBlinkApi::onMsg(const Messages::AnalyzerUpdate& msg)
         {
-            for(auto cb : _apiOnFreqCallback) cb(msg.volume, msg.frequency);
+            for (auto cb : _apiOnFreqCallback)
+                cb(msg.volume, msg.frequency);
             _tcpClient.writeMessage(msg.toPackage());
         }
 
