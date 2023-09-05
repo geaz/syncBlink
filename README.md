@@ -10,7 +10,7 @@ In addition, the **syncBlink Hub** initiates a simple mesh network that includes
 
 # State of the Project
 
-This project is considered done. Creating this project was a great experience overall. Especially creating the custom script language for the ESP8266 which works pretty great, considering the limitations of the ESP8266. The project implements a complete custom script language, a web application to create, compile and save the scripts, and a VM to execute the compiled scripts. All of this within the available 80kB RAM on the ESP8266.
+This project is considered done. Creating it was a great experience overall. Especially creating the custom script language for the ESP8266 which works pretty great, considering the limitations of the ESP8266. The project implements a complete custom script language, a web application to create, compile and save the scripts, and a VM to execute the compiled scripts. All of this within the available 80kB RAM on the ESP8266.
 
 It still has some flaws (for example the UDP Discovery does not work sometimes) and I still have ideas in mind for this project, but I already spend many hours and days on this project and have to move on. 
 
