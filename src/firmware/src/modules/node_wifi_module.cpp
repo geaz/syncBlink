@@ -31,6 +31,7 @@ namespace SyncBlink
         if (!_mesh.tryJoinMesh())
         {
             Serial.print(F("[NODE] Not connected to mesh. Going to sleep and trying again later ...\n"));
+            _led.showNow(Colors::Black);
             ESP.deepSleep(SleepSeconds * 1000000);
         }
 
@@ -44,6 +45,7 @@ namespace SyncBlink
         msg.nodeInfo = std::get<1>(_meshInfo.getLocalNodeInfo());
         msg.nodeInfo.connectedToMeshWifi = _mesh.isConnectedToMeshWifi();
 
+        _lastReceivedPing = millis(); // init variable
         _tcpClient->writeMessage(msg.toPackage());
     }
 
@@ -52,9 +54,10 @@ namespace SyncBlink
         _tcpServer.loop();
         _tcpClient->loop();
 
-        if (!_tcpClient->isConnected())
+        if (!_tcpClient->isConnected() || millis() - _lastReceivedPing > 10000) // The last ping was 10 seconds ago. Likely disconnected.
         {
             Serial.print(F("Going to sleep ...\n"));
+            _led.showNow(Colors::Black);
             ESP.deepSleep(SleepSeconds * 1000000);
         }
     }
@@ -99,6 +102,7 @@ namespace SyncBlink
         case Messages::NodeCommandType::Ping:
             // Only if the ping is not directed to the whole mesh, react with a blink
             // Otherwise it is the occasional connection check ping from the hub
+            _lastReceivedPing = millis();
             if(msg.recipientId != 0) _led.blinkNow(Colors::Blue);
             break;
         case Messages::NodeCommandType::Rename:
